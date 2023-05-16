@@ -1,7 +1,7 @@
 #
 # Build
 #
-FROM maven:3.9.1-eclipse-temurin as buildtime
+FROM maven:3.9.1-amazoncorretto-17 as buildtime
 
 WORKDIR /build
 COPY . .
@@ -11,7 +11,7 @@ RUN mvn clean package -DskipTests
 #
 # Docker RUNTIME
 #
-FROM eclipse-temurin:17-jre-alpine as runtime
+FROM amazoncorretto:17.0.7-alpine3.17@sha256:a1d3de7e050b7b6d9adee4d844afc2d1c5bde7e3c81641caffd3038b910997c9 as runtime
 
 VOLUME /tmp
 WORKDIR /app
