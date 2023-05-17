@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldNameConstants
-@Document(collection = "merchant")
-public class Merchant {
+@Document(collection = "merchant_initiative")
+public class MerchantInitiative {
     private String initiativeId;
     private String businessName; //ragione sociale
     private String merchantName; //nome insegna
@@ -28,6 +28,7 @@ public class Merchant {
     private String vatNumber;
     private String status;
     private String iban;
+    private String acquirerId;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;
 }
