@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface MerchantRepository extends MongoRepository<Merchant, String>,MerchantRepositoryExtended {
     List<Merchant> findByInitiativeId(String initiativeId);
+    Merchant findByFiscalCodeAndAcquirerId(String fiscalCode, String acquirerId);
 }

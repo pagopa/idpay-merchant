@@ -13,4 +13,9 @@ public class MerchantControllerImpl implements MerchantController {
   public MerchantControllerImpl(MerchantService merchantService) {
     this.merchantService = merchantService;
   }
+
+  public String retrieveMerchantId(String fiscalCode, String acquirerId) {
+    log.info("[GET_MERCHANT_ID] The Merchant with {}, {} requested to retrieve merchantId", fiscalCode, acquirerId);
+      return merchantService.retrieveMerchantId(fiscalCode, acquirerId);
+  }
 }
