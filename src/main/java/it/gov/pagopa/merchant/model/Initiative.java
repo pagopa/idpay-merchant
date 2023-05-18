@@ -19,4 +19,6 @@ public class Initiative {
     private String merchantStatus;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;
+    private boolean enabled;
+
 }

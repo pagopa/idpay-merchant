@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -30,4 +29,5 @@ public class Merchant {
     private String vatNumber;
     private String iban;
     private List<Initiative> initiativeList;
+    private boolean enabled;
 }
