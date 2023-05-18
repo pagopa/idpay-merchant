@@ -8,15 +8,17 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldNameConstants
-@Document(collection = "merchant_initiative")
-public class MerchantInitiative {
-    private String initiativeId;
+@Document(collection = "merchant")
+public class Merchant {
+    private String merchantId;
+    private String acquirerId;
     private String businessName; //ragione sociale
     private String merchantName; //nome insegna
     private String legalOfficeAddress;
@@ -26,9 +28,6 @@ public class MerchantInitiative {
     private String certifiedEmail;
     private String fiscalCode;
     private String vatNumber;
-    private String status;
     private String iban;
-    private String acquirerId;
-    private LocalDateTime creationDate;
-    private LocalDateTime updateDate;
+    private List<Initiative> initiativeList;
 }

@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.repository;
 
-import it.gov.pagopa.merchant.model.MerchantInitiative;
+import it.gov.pagopa.merchant.model.Merchant;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,22 +18,22 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
     }
 
     @Override
-    public List<MerchantInitiative> findByFilter(Criteria criteria, Pageable pageable) {
-        return mongoTemplate.find(Query.query(criteria).with(this.getPageable(pageable)), MerchantInitiative.class);
+    public List<Merchant> findByFilter(Criteria criteria, Pageable pageable) {
+        return mongoTemplate.find(Query.query(criteria).with(this.getPageable(pageable)), Merchant.class);
     }
 
     @Override
     public Criteria getCriteria(String initiativeId, String fiscalCode) {
-        Criteria criteria = Criteria.where(MerchantInitiative.Fields.initiativeId).is(initiativeId);
+        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).is(initiativeId);
         if (fiscalCode != null) {
-            criteria.and(MerchantInitiative.Fields.fiscalCode).is(fiscalCode);
+            criteria.and(Merchant.Fields.fiscalCode).is(fiscalCode);
         }
         return criteria;
     }
 
     @Override
     public long getCount(Criteria criteria) {
-        return mongoTemplate.count(Query.query(criteria), MerchantInitiative.class);
+        return mongoTemplate.count(Query.query(criteria), Merchant.class);
     }
 
     private Pageable getPageable(Pageable pageable) {
