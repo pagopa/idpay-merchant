@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @Document(collection = "merchant_file")
 public class MerchantFile {
     private String fileName;
+    private String initiativeId;
     private String organizationId;
     private String status;
     private LocalDateTime uploadDate;
