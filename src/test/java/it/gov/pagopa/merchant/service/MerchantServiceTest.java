@@ -67,6 +67,7 @@ class MerchantServiceTest {
             fail();
         } catch (MerchantException e) {
             assertEquals(MerchantConstants.Exception.NotFound.CODE, e.getCode());
+            assertEquals(MerchantConstants.Exception.NotFound.MERCHANT_BY_MERCHANT_ID_MESSAGE.formatted(MERCHANT_ID), e.getMessage());
         }
     }
 }
