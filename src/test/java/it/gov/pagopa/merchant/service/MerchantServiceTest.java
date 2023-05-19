@@ -1,33 +1,43 @@
 package it.gov.pagopa.merchant.service;
 
-
-import it.gov.pagopa.merchant.model.Initiative;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.dto.InitiativeDTO;
+import it.gov.pagopa.merchant.dto.mapper.Initiative2InitiativeDTOMapper;
+import it.gov.pagopa.merchant.exception.MerchantException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
-@WebMvcTest(value = MerchantService.class)
+@ExtendWith(MockitoExtension.class)
 class MerchantServiceTest {
 
     public static final String MERCHANT_ID = "MERCHANT_ID";
-    @MockBean
+    @Mock
     private MerchantRepository merchantRepository;
 
-    @Autowired
+    private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper();
+
     private MerchantService merchantService;
+
+    @BeforeEach
+    void setUp() {
+        merchantService = new MerchantServiceImpl(
+                merchantRepository,
+                initiative2InitiativeDTOMapper);
+    }
 
     @Test
     void getMerchantInitiativeList_ok() {
@@ -39,26 +49,24 @@ class MerchantServiceTest {
 
         when(merchantRepository.findByMerchantId(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
-        List<Initiative> result = merchantService.getMerchantInitiativeList(MERCHANT_ID, null);
+        List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
 
-        assertEquals(merchant.getInitiativeList(), result);
+        assertEquals(
+                merchant.getInitiativeList().stream()
+                        .map(initiative2InitiativeDTOMapper)
+                        .toList(),
+                result);
     }
 
     @Test
-    void getMerchantInitiativeList_enabledFalse_ok() {
-        Initiative initiativeNotEnabled = InitiativeFaker.mockInstanceBuilder(1).enabled(false).build();
-        Merchant merchant = MerchantFaker.mockInstanceBuilder(1)
-                        .initiativeList(List.of(
-                                InitiativeFaker.mockInstance(1),
-                                initiativeNotEnabled))
-                        .build();
+    void getMerchantInitiativeList_ko() {
+        when(merchantRepository.findByMerchantId(MERCHANT_ID)).thenReturn(Optional.empty());
 
-        when(merchantRepository.findByMerchantId(MERCHANT_ID)).thenReturn(Optional.of(merchant));
-
-        List<Initiative> result = merchantService.getMerchantInitiativeList(MERCHANT_ID, false);
-
-        assertEquals(List.of(initiativeNotEnabled), result);
+        try {
+            merchantService.getMerchantInitiativeList(MERCHANT_ID);
+            fail();
+        } catch (MerchantException e) {
+            assertEquals(MerchantConstants.Exception.NotFound.CODE, e.getCode());
+        }
     }
-
-
 }

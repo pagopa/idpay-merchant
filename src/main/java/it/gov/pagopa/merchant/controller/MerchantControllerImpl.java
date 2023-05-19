@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.controller;
 
-import it.gov.pagopa.merchant.model.Initiative;
+import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.service.MerchantService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +18,7 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
-  public List<Initiative> getMerchantInitiativeList(String merchantId, Boolean enabled) {
-    return merchantService.getMerchantInitiativeList(merchantId, enabled);
+  public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
+    return merchantService.getMerchantInitiativeList(merchantId);
   }
 }

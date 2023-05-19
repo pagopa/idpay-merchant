@@ -1,34 +1,40 @@
 package it.gov.pagopa.merchant.service;
 
-import it.gov.pagopa.merchant.model.Initiative;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.dto.InitiativeDTO;
+import it.gov.pagopa.merchant.dto.mapper.Initiative2InitiativeDTOMapper;
+import it.gov.pagopa.merchant.exception.MerchantException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
 
     private final MerchantRepository merchantRepository;
 
-    public MerchantServiceImpl(MerchantRepository merchantRepository) {
+    private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
+
+    public MerchantServiceImpl(MerchantRepository merchantRepository, Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper) {
         this.merchantRepository = merchantRepository;
+        this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
     }
 
     @Override
-    public List<Initiative> getMerchantInitiativeList(String merchantId, Boolean enabled) {
+    public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
         Merchant merchant = merchantRepository.findByMerchantId(merchantId)
-                .orElseThrow(); //TODO lanciare errore
+                .orElseThrow(() -> new MerchantException(
+                        MerchantConstants.Exception.NotFound.CODE,
+                        String.format(
+                                MerchantConstants.Exception.NotFound.MERCHANT_BY_MERCHANT_ID_MESSAGE,
+                                merchantId),
+                        HttpStatus.NOT_FOUND));
 
-        List<Initiative> initiativeList = merchant.getInitiativeList();
-        if (enabled != null) {
-            initiativeList = initiativeList.stream()
-                    .filter(initiative -> initiative.isEnabled() == enabled)
-                    .collect(Collectors.toList());
-        }
-
-        return initiativeList;
+        return merchant.getInitiativeList().stream()
+                .map(initiative2InitiativeDTOMapper)
+                .toList();
     }
 }
