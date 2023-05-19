@@ -21,6 +21,7 @@ public class MerchantConstants {
         public static final class NotFound {
             public static final String CODE = BASE_CODE + ".not.found";
             public static final String INITIATIVE_BY_INITIATIVE_ID_MESSAGE = "Initiative with initiativeId %s not found.";
+            public static final String MERCHANTID_BY_FISCALCODE_AND_ACQUIRERID_MESSAGE = "MerchantId for fiscalCode %s and acquirerId %s not found.";
         }
 
     }

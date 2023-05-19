@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/idpay/merchant")
 public interface MerchantController {
 
-    @GetMapping("/retrieve/merchantId/{fiscalCode}/{acquirerId}")
+    @GetMapping("/merchantId/{fiscalCode}/{acquirerId}")
     @ResponseStatus(code = HttpStatus.OK)
     String retrieveMerchantId(@PathVariable("fiscalCode") String fiscalCode, @PathVariable("acquirerId") String acquirerId);
 }

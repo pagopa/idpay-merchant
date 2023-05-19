@@ -1,7 +1,9 @@
 package it.gov.pagopa.merchant.service;
 
-import it.gov.pagopa.merchant.model.Merchant;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.exception.MerchantException;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,16 +16,11 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public String retrieveMerchantId(String fiscalCode, String acquirerId) {
-        Merchant merchant = merchantRepository.findByFiscalCodeAndAcquirerId(fiscalCode, acquirerId);
-
-        if(merchant == null){
-            throw new RuntimeException();//TODO GESTIRE ECCEZIONE
-        }
-
-        if(!merchant.getFiscalCode().equals(fiscalCode) || !merchant.getAcquirerId().equals(acquirerId)){
-           throw  new RuntimeException(); //TODO GESTIRE ECCEZIONE
-        }
-
-        return merchant.getMerchantId();
+        return merchantRepository.findByFiscalCodeAndAcquirerId(fiscalCode, acquirerId)
+                .orElseThrow(() -> new MerchantException(
+                        MerchantConstants.Exception.NotFound.CODE,
+                        String.format(MerchantConstants.Exception.NotFound.MERCHANTID_BY_FISCALCODE_AND_ACQUIRERID_MESSAGE, fiscalCode, acquirerId),
+                        HttpStatus.NOT_FOUND
+                )).getMerchantId();
     }
 }
