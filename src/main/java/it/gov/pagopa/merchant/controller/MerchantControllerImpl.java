@@ -19,6 +19,7 @@ public class MerchantControllerImpl implements MerchantController {
 
   @Override
   public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
+    log.info("[GET_MERCHANT_INITIATIVE_LIST] Merchant {} requested to retrieve his initiative list", merchantId);
     return merchantService.getMerchantInitiativeList(merchantId);
   }
 }
