@@ -17,15 +17,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
-class MerchantServiceTest {
+class RetrieveMerchantIdServiceTest {
 
     @Mock private MerchantRepository merchantRepositoryMock;
 
-    private MerchantServiceImpl merchantService;
+    private RetrieveMerchantIdService retrieveMerchantIdService;
 
     @BeforeEach
     void setUp() {
-        merchantService = new MerchantServiceImpl(merchantRepositoryMock);
+        retrieveMerchantIdService = new RetrieveMerchantIdServiceImpl(merchantRepositoryMock);
     }
 
     @Test
@@ -40,13 +40,13 @@ class MerchantServiceTest {
                 .findByFiscalCodeAndAcquirerId(merchant.getFiscalCode(), merchant.getAcquirerId());
 
         //region use case OK
-        String merchantIdOkResult = merchantService.retrieveMerchantId(merchant.getFiscalCode(), merchant.getAcquirerId());
+        String merchantIdOkResult = retrieveMerchantIdService.getByFiscalCodeAndAcquirerId(merchant.getFiscalCode(), merchant.getAcquirerId());
         assertEquals(merchant.getMerchantId(), merchantIdOkResult);
         //endregion
 
         //region use case KO
         try {
-            merchantService.retrieveMerchantId("DUMMYFISCALCODE", "AQUIRERID1");
+            retrieveMerchantIdService.getByFiscalCodeAndAcquirerId("DUMMYFISCALCODE", "AQUIRERID1");
             fail();
         } catch (RuntimeException e) {
             assertTrue(e instanceof MerchantException);
