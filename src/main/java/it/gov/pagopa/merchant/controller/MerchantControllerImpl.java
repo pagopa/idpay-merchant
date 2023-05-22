@@ -2,8 +2,7 @@ package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.service.MerchantDetailService;
-import it.gov.pagopa.merchant.service.MerchantListService;
+import it.gov.pagopa.merchant.service.MerchantService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -13,22 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MerchantControllerImpl implements MerchantController {
 
-  private final MerchantListService merchantListService;
-  private final MerchantDetailService merchantDetailService;
+  private final MerchantService merchantService;
 
-  public MerchantControllerImpl(MerchantListService merchantListService, MerchantDetailService merchantDetailService) {
-    this.merchantListService = merchantListService;
-    this.merchantDetailService = merchantDetailService;
+  public MerchantControllerImpl(MerchantService merchantService){
+    this.merchantService = merchantService;
   }
 
   @Override
   public ResponseEntity<MerchantListDTO> getMerchantList(String initiativeId, String fiscalCode, Pageable pageable) {
-    return ResponseEntity.ok(merchantListService.getMerchantList(initiativeId, fiscalCode, pageable));
+    return ResponseEntity.ok(merchantService.getMerchantList(initiativeId, fiscalCode, pageable));
   }
 
   @Override
   public ResponseEntity<MerchantDetailDTO> getMerchantDetail(String initiativeId, String merchantId) {
-
-    return ResponseEntity.ok(merchantDetailService.getMerchantDetail(initiativeId, merchantId));
+    return ResponseEntity.ok(merchantService.getMerchantDetail(initiativeId, merchantId));
   }
 }

@@ -5,9 +5,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+
+import java.time.ZoneId;
+
 @Slf4j
 @Component
 public class Utilities {
+
+    public static final ZoneId ZONEID = ZoneId.of("Europe/Rome");
     public Pageable getPageable(Pageable pageable) {
         if (pageable == null) {
             return PageRequest.of(0, 15, Sort.by("updateDate"));

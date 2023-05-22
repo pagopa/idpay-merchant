@@ -25,4 +25,5 @@ public class MerchantDetailDTO {
     private String iban;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;
+
 }
