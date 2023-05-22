@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MerchantDTO {
-    private String merchantName;
-    private String vatNumber;
+    private String merchantId;
+    private String businessName;
+    private String fiscalCode;
     private String status;
     private String updateStatusDate;
 }

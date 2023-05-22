@@ -42,18 +42,20 @@ class MerchantListServiceTest {
   void getMerchantList() {
     Merchant merchant1 = MerchantFaker.mockInstance(1);
     Merchant merchant2 = MerchantFaker.mockInstance(1);
-    merchant2.setMerchantName("NAME_2");
-    merchant2.setVatNumber("VAT_NUMBER_2");
+    merchant2.setBusinessName("NAME_2");
+    merchant2.setFiscalCode("FISCAL_CODE_2");
     when(repositoryMock.findByFilter(Mockito.any(), Mockito.any())).thenReturn(List.of(merchant1, merchant2));
 
     MerchantDTO merchantDTO1 = MerchantDTO.builder()
-            .merchantName(merchant1.getMerchantName())
-            .vatNumber(merchant1.getVatNumber())
+            .merchantId(merchant1.getMerchantId())
+            .businessName(merchant1.getBusinessName())
+            .fiscalCode(merchant1.getFiscalCode())
             .status("STATUS")
             .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
     MerchantDTO merchantDTO2 = MerchantDTO.builder()
-            .merchantName(merchant2.getMerchantName())
-            .vatNumber(merchant2.getVatNumber())
+            .merchantId(merchant2.getMerchantId())
+            .businessName(merchant2.getBusinessName())
+            .fiscalCode(merchant2.getFiscalCode())
             .status("STATUS")
             .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
     MerchantListDTO merchantListDTO_expected = MerchantListDTO.builder().content(List.of(merchantDTO1, merchantDTO2))

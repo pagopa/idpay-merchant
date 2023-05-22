@@ -18,7 +18,6 @@ public class MerchantFaker {
         return Merchant.builder()
                 .merchantId("MERCHANT_ID_%d".formatted(bias))
                 .acquirerId("ACQUIRER_ID_%d".formatted(bias))
-                .merchantName("NAME_%d".formatted(bias))
                 .initiativeList(List.of(Initiative.builder()
                         .initiativeId("INITIATIVEID_%d".formatted(bias))
                         .initiativeName("INITIATIVE_NAME")

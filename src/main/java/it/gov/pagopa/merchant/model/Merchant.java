@@ -19,7 +19,6 @@ public class Merchant {
     private String merchantId;
     private String acquirerId;
     private String businessName; //ragione sociale
-    private String merchantName; //nome insegna
     private String legalOfficeAddress;
     private String legalOfficeMunicipality; // comune sede legale
     private String legalOfficeProvince;

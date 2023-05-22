@@ -39,8 +39,9 @@ public class MerchantListServiceImpl implements MerchantListService {
                     merchant -> merchant.getInitiativeList().stream()
                             .filter(i -> i.getInitiativeId().equals(initiativeId)).findFirst().ifPresent(initiative -> merchantDTOList.add(
                                     new MerchantDTO(
-                                            merchant.getMerchantName(),
-                                            merchant.getVatNumber(),
+                                            merchant.getMerchantId(),
+                                            merchant.getBusinessName(),
+                                            merchant.getFiscalCode(),
                                             initiative.getMerchantStatus(),
                                             initiative.getUpdateDate() != null ? initiative.getUpdateDate().toString() : EMPTY
                                     ))));
