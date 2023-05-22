@@ -9,7 +9,7 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
-import it.gov.pagopa.merchant.test.utils.TestUtilities;
+import it.gov.pagopa.merchant.test.utils.TestUtils;
 import it.gov.pagopa.merchant.utils.Utilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ class MerchantDetailServiceTest {
     MerchantDetailDTO result = service.getMerchantDetail(INITIATIVE_ID, MERCHANT_ID);
 
     assertEquals(dto, result);
-    TestUtilities.checkNotNullFields(result);
+    TestUtils.checkNotNullFields(result);
     assertEquals(dto.getInitiativeId(), result.getInitiativeId());
   }
 

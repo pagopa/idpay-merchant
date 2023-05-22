@@ -2,8 +2,10 @@ package it.gov.pagopa.merchant.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.merchant.configuration.JsonConfig;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
+import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -53,6 +56,21 @@ class MerchantControllerImplTest {
 
         Assertions.assertNotNull(resultResponse);
         Assertions.assertEquals(dto,resultResponse);
+        Mockito.verify(merchantService).getMerchantDetail(anyString(),anyString());
+    }
+    @Test
+    void getMerchantDetail_notFound() throws Exception {
+        Mockito.when(merchantService.getMerchantDetail(Mockito.anyString(), Mockito.anyString()))
+                .thenThrow(new ClientExceptionWithBody(HttpStatus.NOT_FOUND,
+                        MerchantConstants.NOT_FOUND,
+                        String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID, MERCHANT_ID)));
+
+        mockMvc.perform(
+                get("/idpay/merchant/{initiativeId}/{merchantId}/detail", INITIATIVE_ID, MERCHANT_ID)
+        ).andExpect(status().isNotFound())
+                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
+                .andReturn();
+
         Mockito.verify(merchantService).getMerchantDetail(anyString(),anyString());
     }
 

@@ -5,7 +5,7 @@ import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
-import it.gov.pagopa.merchant.test.utils.TestUtilities;
+import it.gov.pagopa.merchant.test.utils.TestUtils;
 import it.gov.pagopa.merchant.utils.Utilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,7 +67,7 @@ class MerchantListServiceTest {
 
     assertEquals(2, result.getContent().size());
     assertEquals(merchantListDTO_expected, result);
-    TestUtilities.checkNotNullFields(result);
+    TestUtils.checkNotNullFields(result);
   }
 
   @Test
@@ -83,6 +83,6 @@ class MerchantListServiceTest {
 
     assertEquals(0, result.getContent().size());
     assertEquals(merchantListDTO_expected, result);
-    TestUtilities.checkNotNullFields(result);
+    TestUtils.checkNotNullFields(result);
   }
 }

@@ -4,7 +4,7 @@ import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
-import it.gov.pagopa.merchant.test.utils.TestUtilities;
+import it.gov.pagopa.merchant.test.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ class MerchantModelToDTOMapperTest {
      MerchantDetailDTO result = mapper.toMerchantDetailDTO(merchant, merchantDetailDTO.getInitiativeId());
      assertAll(() -> {
      assertNotNull(result);
-     TestUtilities.checkNotNullFields(result);
+     TestUtils.checkNotNullFields(result);
    });
  }
 }
