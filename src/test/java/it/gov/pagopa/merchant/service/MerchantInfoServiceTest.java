@@ -20,15 +20,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
-class RetrieveMerchantIdServiceTest {
+class MerchantInfoServiceTest {
 
     @Mock private MerchantRepository merchantRepositoryMock;
 
-    private RetrieveMerchantIdService retrieveMerchantIdService;
+    private MerchantInfoService merchantInfoService;
 
     @BeforeEach
     void setUp() {
-        retrieveMerchantIdService = new RetrieveMerchantIdServiceImpl(merchantRepositoryMock);
+        merchantInfoService = new MerchantInfoServiceImpl(merchantRepositoryMock);
     }
 
     @Test
@@ -39,7 +39,7 @@ class RetrieveMerchantIdServiceTest {
         doReturn(Optional.of(merchant)).when(merchantRepositoryMock)
                 .findByFiscalCodeAndAcquirerId(merchant.getFiscalCode(), merchant.getAcquirerId());
 
-        MerchantInfoDTO merchantIdOkResult = retrieveMerchantIdService.getByFiscalCodeAndAcquirerId(merchant.getFiscalCode(), merchant.getAcquirerId());
+        MerchantInfoDTO merchantIdOkResult = merchantInfoService.getMerchantInfo(merchant.getFiscalCode(), merchant.getAcquirerId());
 
         assertNotNull(merchantIdOkResult);
         assertEquals(merchant.getMerchantId(), merchantIdOkResult.getMerchantId());
@@ -52,7 +52,7 @@ class RetrieveMerchantIdServiceTest {
                 .findByFiscalCodeAndAcquirerId(Mockito.eq("DUMMYFISCALCODE"), Mockito.any());
 
         ClientExceptionWithBody clientExceptionWithBody = assertThrows(ClientExceptionWithBody.class,
-                () -> retrieveMerchantIdService.getByFiscalCodeAndAcquirerId("DUMMYFISCALCODE", "DUMMYACQUIRERID"));
+                () -> merchantInfoService.getMerchantInfo("DUMMYFISCALCODE", "DUMMYACQUIRERID"));
 
         assertEquals(HttpStatus.NOT_FOUND, clientExceptionWithBody.getHttpStatus());
         assertEquals(MerchantConstants.NOT_FOUND, clientExceptionWithBody.getCode());

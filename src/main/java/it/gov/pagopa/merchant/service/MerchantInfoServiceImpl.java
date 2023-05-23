@@ -8,15 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RetrieveMerchantIdServiceImpl implements RetrieveMerchantIdService{
+public class MerchantInfoServiceImpl implements MerchantInfoService {
     private final MerchantRepository merchantRepository;
 
-    public RetrieveMerchantIdServiceImpl(MerchantRepository merchantRepository) {
+    public MerchantInfoServiceImpl(MerchantRepository merchantRepository) {
         this.merchantRepository = merchantRepository;
     }
 
-    @Override
-    public MerchantInfoDTO getByFiscalCodeAndAcquirerId(String fiscalCode, String acquirerId) {
+    public MerchantInfoDTO getMerchantInfo(String fiscalCode, String acquirerId) {
         String merchantId = merchantRepository.findByFiscalCodeAndAcquirerId(fiscalCode, acquirerId)
                 .orElseThrow(() -> new ClientExceptionWithBody(
                         HttpStatus.NOT_FOUND,

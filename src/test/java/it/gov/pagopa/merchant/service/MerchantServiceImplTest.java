@@ -23,7 +23,7 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantListService merchantListServiceMock;
     @Mock
-    private RetrieveMerchantIdService retrieveMerchantIdServiceMock;
+    private MerchantInfoService merchantInfoServiceMock;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -38,7 +38,7 @@ class MerchantServiceImplTest {
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                retrieveMerchantIdServiceMock);
+                merchantInfoServiceMock);
     }
 
     @AfterEach
@@ -46,7 +46,7 @@ class MerchantServiceImplTest {
         Mockito.verifyNoMoreInteractions(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                retrieveMerchantIdServiceMock);
+                merchantInfoServiceMock);
     }
 
     @Test

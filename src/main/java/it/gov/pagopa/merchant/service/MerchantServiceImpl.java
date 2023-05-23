@@ -13,12 +13,12 @@ public class MerchantServiceImpl implements MerchantService{
 
     private final MerchantDetailService merchantDetailService;
     private final MerchantListService merchantListService;
-    private final RetrieveMerchantIdService merchantIdService;
+    private final MerchantInfoService merchantIdService;
 
     public MerchantServiceImpl(
             MerchantDetailService merchantDetailService,
             MerchantListService merchantListService,
-            RetrieveMerchantIdService merchantIdService) {
+            MerchantInfoService merchantIdService) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
         this.merchantIdService = merchantIdService;
@@ -39,6 +39,6 @@ public class MerchantServiceImpl implements MerchantService{
     }
     @Override
     public MerchantInfoDTO retrieveMerchantId(String fiscalCode, String acquirerId) {
-        return merchantIdService.getByFiscalCodeAndAcquirerId(fiscalCode, acquirerId);
+        return merchantIdService.getMerchantInfo(fiscalCode, acquirerId);
     }
 }
