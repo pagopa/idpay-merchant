@@ -27,11 +27,11 @@ public class MerchantListServiceImpl implements MerchantListService {
     }
 
     @Override
-    public MerchantListDTO getMerchantList(String initiativeId, String fiscalCode, Pageable pageable) {
+    public MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable) {
         long startTime = System.currentTimeMillis();
         log.info("[GET_MERCHANT_LIST] Get merchant list for initiative {}", initiativeId);
 
-        Criteria criteria = merchantRepository.getCriteria(initiativeId, fiscalCode);
+        Criteria criteria = merchantRepository.getCriteria(initiativeId, organizationId, fiscalCode);
         List<Merchant> merchantModelList = merchantRepository.findByFilter(criteria, pageable);
         List<MerchantDTO> merchantDTOList = new ArrayList<>();
         if (!merchantModelList.isEmpty()) {

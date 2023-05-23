@@ -52,19 +52,26 @@ microservice-chart:
     APPLICATIONINSIGHTS_INSTRUMENTATION_MICROMETER_ENABLED: "false"
     APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED: "false"
     ENABLE_AUDIT_APPENDER: "TRUE"
+    BLOB_STORAGE_CONTAINER_REFERENCE: merchant
 
   envConfigMapExternals:
     idpay-common:
       TZ: TZ
+    rest-client:
+      IDPAY_INITIATIVE_BASE_URL: initiative_ms_base_url
 
     idpay-eventhub-01:
       KAFKA_BROKER: kafka_broker
       KAFKA_ERRORS_BROKER: kafka_broker
       KAFKA_ERRORS_TOPIC: idpay_error_topic
+      KAFKA_REWARD_NOTIFICATION_UPLOAD_BROKER: kafka_broker
+      KAFKA_REWARD_NOTIFICATION_UPLOAD_TOPIC: idpay_reward_notification_storage_events_topic
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
     KAFKA_ERRORS_SASL_JAAS_CONFIG: evh-idpay-errors-idpay-errors-producer-jaas-config-idpay-01
+    BLOB_STORAGE_CONNECTION_STRING: merchant-storage-connection-string
+    KAFKA_REWARD_NOTIFICATION_UPLOAD_SASL_JAAS_CONFIG: evh-idpay-reward-notification-storage-events-idpay-reward-notification-storage-consumer-jaas-config-idpay-01
 
   # nodeSelector: {}
 

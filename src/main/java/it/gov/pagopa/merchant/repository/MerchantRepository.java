@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface MerchantRepository extends MongoRepository<Merchant, String>, MerchantRepositoryExtended {
     @Query(
-            value = "{'initiativeList.initiativeId' : ?0, merchantId : ?1}",
+            value = "{'initiativeList.initiativeId' : ?0, 'initiativeList.organizationId' : ?1, merchantId : ?2}",
             fields = "{merchantId : 1, " +
                     "businessName : 1, " +
                     "legalOfficeAddress : 1, " +
@@ -26,5 +26,7 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
                     "'initiativeList.updateDate' : 1 }"
 
     )
-    Optional<Merchant> retrieveByInitiativeIdAndMerchantId(String initiativeId, String merchantId);
+    Optional<Merchant> retrieveByInitiativeIdAndMerchantId(String initiativeId, String organizationId, String merchantId);
+
+    Optional<Merchant> findByFiscalCodeAndAcquirerId(String fiscalCode, String acquirerId);
 }

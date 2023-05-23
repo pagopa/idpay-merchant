@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class Initiative {
     private String initiativeId;
     private String initiativeName;
+    private String organizationId;
     private String merchantStatus;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;

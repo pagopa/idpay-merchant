@@ -19,6 +19,7 @@ public class MerchantFile {
     private String fileName;
     private String initiativeId;
     private String organizationId;
+    private String organizationUserId;
     private String status;
     private LocalDateTime uploadDate;
     private boolean enabled;
