@@ -31,6 +31,8 @@ public interface MerchantController {
             @PathVariable("initiativeId") String initiativeId,
             @PathVariable("merchantId") String merchantId
     );
+    @Operation(summary = "Returns the merchand id",
+            description = "")
     @GetMapping("/{fiscalCode}/{acquirerId}/merchant-info")
     @ResponseStatus(code = HttpStatus.OK)
     MerchantInfoDTO retrieveMerchantId(@PathVariable("fiscalCode") String fiscalCode, @PathVariable("acquirerId") String acquirerId);
