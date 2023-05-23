@@ -1,4 +1,4 @@
-package it.gov.pagopa.merchant.dto.mapper;
+package it.gov.pagopa.merchant.mapper;
 
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.model.Initiative;

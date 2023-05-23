@@ -1,8 +1,10 @@
 package it.gov.pagopa.merchant.service;
 
+import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
+import it.gov.pagopa.merchant.service.merchant.MerchantInitiativesService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,6 +25,8 @@ class MerchantServiceImplTest {
     private MerchantDetailService merchantDetailServiceMock;
     @Mock
     private MerchantListService merchantListServiceMock;
+    @Mock
+    private MerchantInitiativesService merchantInitiativesService;
     private final String INITIATIVE_ID = "INITIATIVE_ID";
     private final String MERCHANT_ID = "MERCHANT_ID";
 
@@ -30,7 +36,8 @@ class MerchantServiceImplTest {
     void setUp(){
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
-                merchantListServiceMock);
+                merchantListServiceMock,
+                merchantInitiativesService);
     }
 
     @AfterEach
@@ -54,6 +61,15 @@ class MerchantServiceImplTest {
         Mockito.when(merchantService.getMerchantList(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(dto);
 
         MerchantListDTO result = merchantService.getMerchantList(INITIATIVE_ID, MERCHANT_ID, null);
+        assertNotNull(result);
+    }
+
+    @Test
+    void getMerchantInitiativeList() {
+        List<InitiativeDTO> dtoList = List.of(new InitiativeDTO());
+        Mockito.when(merchantService.getMerchantInitiativeList(Mockito.anyString())).thenReturn(dtoList);
+
+        List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
         assertNotNull(result);
     }
 }

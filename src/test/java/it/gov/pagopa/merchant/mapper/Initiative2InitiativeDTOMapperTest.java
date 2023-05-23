@@ -1,6 +1,7 @@
-package it.gov.pagopa.merchant.dto.mapper;
+package it.gov.pagopa.merchant.mapper;
 
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
+import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import org.junit.jupiter.api.BeforeEach;
