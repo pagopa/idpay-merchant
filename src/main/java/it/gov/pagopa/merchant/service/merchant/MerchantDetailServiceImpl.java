@@ -25,11 +25,11 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
     }
 
     @Override
-    public MerchantDetailDTO getMerchantDetail(String initiativeId, String merchantId) {
+    public MerchantDetailDTO getMerchantDetail(String organizationId, String initiativeId, String merchantId) {
         long startTime = System.currentTimeMillis();
         log.info("[GET_MERCHANT_DETAIL] Get merchant with id {} for initiative {}", merchantId, initiativeId);
 
-        Merchant merchantDetail = merchantRepository.retrieveByInitiativeIdAndMerchantId(initiativeId, merchantId)
+        Merchant merchantDetail = merchantRepository.retrieveByInitiativeIdAndMerchantId(initiativeId, organizationId, merchantId)
                 .orElseThrow(() -> new ClientExceptionWithBody(HttpStatus.NOT_FOUND,
                         MerchantConstants.NOT_FOUND,
                         String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, initiativeId, merchantId)));

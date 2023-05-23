@@ -13,6 +13,6 @@ public class MerchantDTO {
     private String merchantId;
     private String businessName;
     private String fiscalCode;
-    private String status;
+    private String merchantStatus;
     private String updateStatusDate;
 }

@@ -30,6 +30,8 @@ class MerchantRepositoryExtendedImplTest {
   Criteria criteria;
 
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
+  private static final String ORGANIZATION_ID = "TEST_ORGANIZATION_ID";
+
   private static final String FISCAL_CODE = "FISCAL_CODE";
 
   @Test
@@ -50,13 +52,13 @@ class MerchantRepositoryExtendedImplTest {
 
   @Test
   void getCriteria() {
-    Criteria criteria = merchantRepositoryExtended.getCriteria(INITIATIVE_ID, FISCAL_CODE);
+    Criteria criteria = merchantRepositoryExtended.getCriteria(INITIATIVE_ID, ORGANIZATION_ID, FISCAL_CODE);
     assertEquals(2, criteria.getCriteriaObject().size());
   }
 
   @Test
   void getCriteriaWithoutOperationType() {
-    Criteria criteria = merchantRepositoryExtended.getCriteria(INITIATIVE_ID, null);
+    Criteria criteria = merchantRepositoryExtended.getCriteria(INITIATIVE_ID, ORGANIZATION_ID,null);
     assertEquals(1, criteria.getCriteriaObject().size());
   }
 

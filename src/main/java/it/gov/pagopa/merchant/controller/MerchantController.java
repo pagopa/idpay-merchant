@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.*;
 public interface MerchantController {
     @Operation(summary = "Returns the merchants list",
             description = "")
-    @GetMapping("/{initiativeId}")
+    @GetMapping("/organization/{organizationId}/initiative/{initiativeId}/merchants")
     ResponseEntity<MerchantListDTO> getMerchantList(
+            @PathVariable("organizationId") String organizationId,
             @PathVariable("initiativeId") String initiativeId,
             @RequestParam(required = false) String fiscalCode,
             @PageableDefault(size = 15) Pageable pageable
@@ -23,8 +24,9 @@ public interface MerchantController {
 
     @Operation(summary = "Returns the merchant detail page on initiative",
             description = "")
-    @GetMapping("/{initiativeId}/{merchantId}/detail")
+    @GetMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
     ResponseEntity<MerchantDetailDTO> getMerchantDetail(
+            @PathVariable("organizationId") String organizationId,
             @PathVariable("initiativeId") String initiativeId,
             @PathVariable("merchantId") String merchantId
     );

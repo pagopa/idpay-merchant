@@ -19,13 +19,13 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
-  public ResponseEntity<MerchantListDTO> getMerchantList(String initiativeId, String fiscalCode, Pageable pageable) {
-    return ResponseEntity.ok(merchantService.getMerchantList(initiativeId, fiscalCode, pageable));
+  public ResponseEntity<MerchantListDTO> getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable) {
+    return ResponseEntity.ok(merchantService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable));
   }
 
   @Override
-  public ResponseEntity<MerchantDetailDTO> getMerchantDetail(String initiativeId, String merchantId) {
-    return ResponseEntity.ok(merchantService.getMerchantDetail(initiativeId, merchantId));
+  public ResponseEntity<MerchantDetailDTO> getMerchantDetail(String organizationId, String initiativeId, String merchantId) {
+    return ResponseEntity.ok(merchantService.getMerchantDetail(organizationId, initiativeId, merchantId));
   }
 
   public String retrieveMerchantId(String fiscalCode, String acquirerId) {
