@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.dto.MerchantInfoDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
@@ -37,7 +38,7 @@ public class MerchantServiceImpl implements MerchantService{
         return merchantListService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable);
     }
     @Override
-    public String retrieveMerchantId(String fiscalCode, String acquirerId) {
+    public MerchantInfoDTO retrieveMerchantId(String fiscalCode, String acquirerId) {
         return merchantIdService.getByFiscalCodeAndAcquirerId(fiscalCode, acquirerId);
     }
 }

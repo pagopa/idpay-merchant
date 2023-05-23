@@ -1,5 +1,7 @@
 package it.gov.pagopa.merchant.service;
 
+import it.gov.pagopa.merchant.dto.MerchantInfoDTO;
+
 public interface RetrieveMerchantIdService {
-    String getByFiscalCodeAndAcquirerId(String fiscalCode, String acquirerId);
+    MerchantInfoDTO getByFiscalCodeAndAcquirerId(String fiscalCode, String acquirerId);
 }

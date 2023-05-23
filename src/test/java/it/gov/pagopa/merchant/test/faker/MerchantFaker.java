@@ -12,7 +12,6 @@ public class MerchantFaker {
                 .merchantId("MERCHANTID%d".formatted(bias))
                 .acquirerId("ACQUIRERID%d".formatted(bias))
                 .businessName("BUSINESSNAME%d".formatted(bias))
-                .merchantName("MERCHANTNAME%d".formatted(bias))
                 .legalOfficeAddress("LEGALOFFICEADDRESS%d".formatted(bias))
                 .legalOfficeMunicipality("LEGALOFFICEMUNICIPALITY%d".formatted(bias))
                 .legalOfficeProvince("LEGALOFFICEPROVICE%d".formatted(bias))
