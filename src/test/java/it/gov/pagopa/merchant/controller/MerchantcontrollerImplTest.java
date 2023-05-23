@@ -132,9 +132,9 @@ class MerchantControllerImplTest {
                         String.format(MerchantConstants.MERCHANT_BY_MERCHANT_ID_MESSAGE, MERCHANT_ID)));
 
 
-        MvcResult result = mockMvc.perform(
-                        get("/idpay/merchant/initiatives")
-                                .header("x-merchant-id", MERCHANT_ID))
+        mockMvc.perform(
+                get("/idpay/merchant/initiatives")
+                        .header("x-merchant-id", MERCHANT_ID))
                 .andExpect(status().isNotFound())
                 .andExpect(res -> assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
                 .andReturn();
