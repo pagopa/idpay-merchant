@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface MerchantService {
 
-    MerchantListDTO getMerchantList(String initiativeId, String fiscalCode, Pageable pageable);
-    MerchantDetailDTO getMerchantDetail(String initiativeId, String merchantId);
+    MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable);
+    MerchantDetailDTO getMerchantDetail(String organizationId, String initiativeId, String merchantId);
 }

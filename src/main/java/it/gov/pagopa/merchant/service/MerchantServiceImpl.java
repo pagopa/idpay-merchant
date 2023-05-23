@@ -22,14 +22,16 @@ public class MerchantServiceImpl implements MerchantService{
     }
 
     @Override
-    public MerchantDetailDTO getMerchantDetail(String initiativeId,
+    public MerchantDetailDTO getMerchantDetail(String organizationId,
+                                               String initiativeId,
                                                String merchantId) {
-        return merchantDetailService.getMerchantDetail(initiativeId, merchantId);
+        return merchantDetailService.getMerchantDetail(organizationId, initiativeId, merchantId);
     }
     @Override
-    public MerchantListDTO getMerchantList(String initiativeId,
+    public MerchantListDTO getMerchantList(String organizationId,
+                                           String initiativeId,
                                            String fiscalCode,
                                            Pageable pageable) {
-        return merchantListService.getMerchantList(initiativeId, fiscalCode, pageable);
+        return merchantListService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable);
     }
 }

@@ -21,8 +21,9 @@ class MerchantServiceImplTest {
     private MerchantDetailService merchantDetailServiceMock;
     @Mock
     private MerchantListService merchantListServiceMock;
-    private final String INITIATIVE_ID = "INITIATIVE_ID";
-    private final String MERCHANT_ID = "MERCHANT_ID";
+    private static final String INITIATIVE_ID = "INITIATIVE_ID";
+    private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
+    private static final String MERCHANT_ID = "MERCHANT_ID";
 
     private MerchantServiceImpl merchantService;
 
@@ -43,17 +44,17 @@ class MerchantServiceImplTest {
     @Test
     void getMerchantDetail(){
         MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
-        Mockito.when(merchantService.getMerchantDetail(Mockito.anyString(), Mockito.anyString())).thenReturn(dto);
+        Mockito.when(merchantService.getMerchantDetail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(dto);
 
-        MerchantDetailDTO result = merchantService.getMerchantDetail(INITIATIVE_ID, MERCHANT_ID);
+        MerchantDetailDTO result = merchantService.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID);
         assertNotNull(result);
     }
     @Test
     void getMerchantList(){
         MerchantListDTO dto = new MerchantListDTO();
-        Mockito.when(merchantService.getMerchantList(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(dto);
+        Mockito.when(merchantService.getMerchantList(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(dto);
 
-        MerchantListDTO result = merchantService.getMerchantList(INITIATIVE_ID, MERCHANT_ID, null);
+        MerchantListDTO result = merchantService.getMerchantList(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID, null);
         assertNotNull(result);
     }
 }
