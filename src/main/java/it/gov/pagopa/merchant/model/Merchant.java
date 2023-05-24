@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.util.List;
 
@@ -16,7 +18,9 @@ import java.util.List;
 @FieldNameConstants
 @Document(collection = "merchant")
 public class Merchant {
+    @MongoId
     private String merchantId;
+
     private String acquirerId;
     private String businessName; //ragione sociale
     private String legalOfficeAddress;
