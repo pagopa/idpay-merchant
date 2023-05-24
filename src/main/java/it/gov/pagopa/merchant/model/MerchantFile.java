@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +17,9 @@ import java.time.LocalDateTime;
 @FieldNameConstants
 @Document(collection = "merchant_file")
 public class MerchantFile {
+    @MongoId
     private String fileName;
+    @MongoId
     private String initiativeId;
     private String organizationId;
     private String organizationUserId;

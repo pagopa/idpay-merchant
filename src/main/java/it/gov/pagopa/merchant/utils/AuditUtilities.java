@@ -38,10 +38,24 @@ public class AuditUtilities {
         );
     }
 
+    public void logValidationMerchantOK(String initiativeId, String organizationId, String fileName) {
+        logAuditString(
+                CEF_PATTERN,
+                "Validation of Merchants file completed.", initiativeId, organizationId, fileName
+        );
+    }
+
     public void logUploadMerchantKO(String initiativeId, String organizationId, String fileName, String msg) {
         logAuditString(
                 CEF_PATTERN,
                 "Upload Merchants file failed: " + msg, initiativeId, organizationId, fileName
+        );
+    }
+
+    public void logSavingMerchantsOK(String initiativeId, String organizationId, String fileName) {
+        logAuditString(
+                CEF_PATTERN,
+                "Saving Merchants completed.", initiativeId, organizationId, fileName
         );
     }
 

@@ -1,13 +1,18 @@
 package it.gov.pagopa.merchant.constants;
 
 public class MerchantConstants {
+    private MerchantConstants(){}
     public static final String CONTENT_TYPE = "text/csv";
     public static final String MERCHANT_FILE_PATH_TEMPLATE = "%s/%s/%s";
 
     public static final class Status {
         private Status(){}
-        public static final String VALIDATED = "VALIDATED";
+        public static final String PROCESSED = "PROCESSED";
         public static final String ON_EVALUATION = "ON_EVALUATION";
+        public static final String STORAGE_KO = "STORAGE_KO";
+        public static final String DOWNLOAD_KO = "DOWNLOAD_KO";
+        public static final String MERCHANT_SAVING_KO = "MERCHANT_SAVING_KO";
+        public static final String VALIDATED = "VALIDATED";
         public static final String KO = "KO";
 
         public static final class KOkeyMessage {

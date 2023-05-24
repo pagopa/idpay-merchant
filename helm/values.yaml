@@ -30,6 +30,9 @@ microservice-chart:
   ingress:
     create: true
     path: /idpaymerchant/(.*)
+    annotations: {
+      nginx.ingress.kubernetes.io/proxy-body-size=2m
+    }
 
   serviceAccount:
     create: false

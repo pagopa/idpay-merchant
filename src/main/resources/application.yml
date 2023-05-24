@@ -9,6 +9,9 @@ spring:
   config:
     activate:
       on-profile: default
+  servlet:
+    multipart:
+      max-file-size: ${MERCHANT_FILE_MAX_FILE_SIZE:2097152}
   cloud:
     stream:
       function:
