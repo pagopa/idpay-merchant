@@ -1,11 +1,12 @@
 package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantInfoDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
+import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantListService merchantListServiceMock;
     @Mock
-    private MerchantInfoService merchantInfoServiceMock;
+    private MerchantIdService merchantIdServiceMock;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -38,7 +39,7 @@ class MerchantServiceImplTest {
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantInfoServiceMock);
+                merchantIdServiceMock);
     }
 
     @AfterEach
@@ -46,7 +47,7 @@ class MerchantServiceImplTest {
         Mockito.verifyNoMoreInteractions(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantInfoServiceMock);
+                merchantIdServiceMock);
     }
 
     @Test
@@ -68,11 +69,10 @@ class MerchantServiceImplTest {
 
     @Test
     void retrieveMerchantId(){
-        MerchantInfoDTO merchantInfoDTO = new MerchantInfoDTO();
+        Merchant merchant = MerchantFaker.mockInstance(1);
+        Mockito.when(merchantService.retrieveMerchantId(Mockito.anyString(),Mockito.anyString())).thenReturn(merchant.getMerchantId());
 
-        Mockito.when(merchantService.retrieveMerchantId(Mockito.anyString(),Mockito.anyString())).thenReturn(merchantInfoDTO);
-
-        MerchantInfoDTO result = merchantService.retrieveMerchantId(MERCHANT_FISCALCODE,MERCHANT_ACQUIRERID);
+        String result = merchantService.retrieveMerchantId(MERCHANT_ACQUIRERID, MERCHANT_FISCALCODE);
 
         assertNotNull(result);
     }

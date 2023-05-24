@@ -12,5 +12,5 @@ public class MerchantConstants {
 
     public static final String NOT_FOUND = "NOT FOUND";
     public static final String INITIATIVE_AND_MERCHANT_NOT_FOUND = "Initiative %s and merchant %s not found.";
-    public static final String MERCHANTID_BY_FISCALCODE_AND_ACQUIRERID_MESSAGE = "MerchantId for fiscalCode %s and acquirerId %s not found.";
+    public static final String MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE = "MerchantId for acquirerId %s and fiscalCode %s not found.";
 }

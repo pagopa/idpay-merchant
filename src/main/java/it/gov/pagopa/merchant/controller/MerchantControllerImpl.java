@@ -1,6 +1,5 @@
 package it.gov.pagopa.merchant.controller;
 
-import it.gov.pagopa.merchant.dto.MerchantInfoDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -29,8 +28,8 @@ public class MerchantControllerImpl implements MerchantController {
     return ResponseEntity.ok(merchantService.getMerchantDetail(organizationId, initiativeId, merchantId));
   }
 
-  public MerchantInfoDTO retrieveMerchantId(String fiscalCode, String acquirerId) {
-    log.info("[GET_MERCHANT_ID] The Merchant with {}, {} requested to retrieve merchantId", fiscalCode, acquirerId);
-      return merchantService.retrieveMerchantId(fiscalCode, acquirerId);
+  public String retrieveMerchantId(String acquirerId, String fiscalCode) {
+    log.info("[GET_MERCHANT_ID] The Merchant with {}, {} requested to retrieve merchantId", acquirerId , fiscalCode);
+      return merchantService.retrieveMerchantId(acquirerId, fiscalCode);
   }
 }

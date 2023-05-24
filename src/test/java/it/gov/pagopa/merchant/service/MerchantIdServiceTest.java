@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants;
-import it.gov.pagopa.merchant.dto.MerchantInfoDTO;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -20,15 +19,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
-class MerchantInfoServiceTest {
+class MerchantIdServiceTest {
 
     @Mock private MerchantRepository merchantRepositoryMock;
 
-    private MerchantInfoService merchantInfoService;
+    private MerchantIdService merchantIdService;
 
     @BeforeEach
     void setUp() {
-        merchantInfoService = new MerchantInfoServiceImpl(merchantRepositoryMock);
+        merchantIdService = new MerchantIdServiceImpl(merchantRepositoryMock);
     }
 
     @Test
@@ -37,25 +36,25 @@ class MerchantInfoServiceTest {
         Merchant merchant = MerchantFaker.mockInstance(1);
 
         doReturn(Optional.of(merchant)).when(merchantRepositoryMock)
-                .findByFiscalCodeAndAcquirerId(merchant.getFiscalCode(), merchant.getAcquirerId());
+                .findByFiscalCodeAndAcquirerId(merchant.getAcquirerId(), merchant.getFiscalCode());
 
-        MerchantInfoDTO merchantIdOkResult = merchantInfoService.getMerchantInfo(merchant.getFiscalCode(), merchant.getAcquirerId());
+        String merchantIdOkResult = merchantIdService.getMerchantInfo(merchant.getAcquirerId(), merchant.getFiscalCode());
 
         assertNotNull(merchantIdOkResult);
-        assertEquals(merchant.getMerchantId(), merchantIdOkResult.getMerchantId());
+        assertEquals(merchant.getMerchantId(), merchantIdOkResult);
     }
 
     @Test
     void retrieveMerchantId_NotFoundException(){
 
         doReturn(Optional.empty()).when(merchantRepositoryMock)
-                .findByFiscalCodeAndAcquirerId(Mockito.eq("DUMMYFISCALCODE"), Mockito.any());
+                .findByFiscalCodeAndAcquirerId(Mockito.any(), Mockito.eq("DUMMYFISCALCODE"));
 
         ClientExceptionWithBody clientExceptionWithBody = assertThrows(ClientExceptionWithBody.class,
-                () -> merchantInfoService.getMerchantInfo("DUMMYFISCALCODE", "DUMMYACQUIRERID"));
+                () -> merchantIdService.getMerchantInfo("DUMMYACQUIRERID", "DUMMYFISCALCODE"));
 
         assertEquals(HttpStatus.NOT_FOUND, clientExceptionWithBody.getHttpStatus());
         assertEquals(MerchantConstants.NOT_FOUND, clientExceptionWithBody.getCode());
-        assertEquals(String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, "DUMMYFISCALCODE", "DUMMYACQUIRERID"), clientExceptionWithBody.getMessage());
+        assertEquals(String.format(MerchantConstants.MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE,"DUMMYACQUIRERID" , "DUMMYFISCALCODE"), clientExceptionWithBody.getMessage());
     }
 }
