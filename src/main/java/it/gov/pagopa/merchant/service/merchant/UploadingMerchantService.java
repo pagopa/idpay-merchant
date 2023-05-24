@@ -4,6 +4,8 @@ import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface UploadingMerchantService {
 
     MerchantUpdateDTO uploadMerchantFile(
@@ -12,6 +14,6 @@ public interface UploadingMerchantService {
             String initiativeId,
             String organizationUserId);
 
-    void ingestionMerchantFile(StorageEventDTO storageEventDto);
+    void ingestionMerchantFile(List<StorageEventDTO> storageEventDto);
 
 }

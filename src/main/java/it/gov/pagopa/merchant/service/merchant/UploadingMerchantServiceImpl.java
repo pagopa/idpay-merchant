@@ -181,17 +181,20 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     }
 
     @Override
-    public void ingestionMerchantFile(StorageEventDTO storageEventDto) {
-        String[] urlPathSplits = storageEventDto.getSubject().split("/");
-        if (MERCHANT.equals(urlPathSplits[4])) {
-            String fileName = urlPathSplits[8];
-            String organizationId = urlPathSplits[6];
-            String initiativeId = urlPathSplits[7];
-            ByteArrayOutputStream downloadedMerchantFile = downloadMerchantFile(fileName, organizationId, initiativeId);
-            saveMerchants(downloadedMerchantFile, fileName, organizationId, initiativeId);
-            merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.PROCESSED);
-            log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants completed", initiativeId, fileName);
-            auditUtilities.logSavingMerchantsOK(initiativeId,organizationId, fileName);
+    public void ingestionMerchantFile(List<StorageEventDTO> storageEventDTOList) {
+        StorageEventDTO storageEventDTO = storageEventDTOList.stream().findFirst().orElse(null);
+        if (storageEventDTO != null && StringUtils.isNotBlank(storageEventDTO.getSubject())) {
+            String[] subjectPathSplit = storageEventDTO.getSubject().split("/");
+            if (MERCHANT.equals(subjectPathSplit[4])) {
+                String fileName = subjectPathSplit[8];
+                String organizationId = subjectPathSplit[6];
+                String initiativeId = subjectPathSplit[7];
+                ByteArrayOutputStream downloadedMerchantFile = downloadMerchantFile(fileName, organizationId, initiativeId);
+                saveMerchants(downloadedMerchantFile, fileName, organizationId, initiativeId);
+                merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.PROCESSED);
+                log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants completed", initiativeId, fileName);
+                auditUtilities.logSavingMerchantsOK(initiativeId, organizationId, fileName);
+            }
         }
     }
 
