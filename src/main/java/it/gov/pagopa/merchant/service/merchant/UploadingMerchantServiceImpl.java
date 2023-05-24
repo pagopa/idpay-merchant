@@ -55,13 +55,13 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     @Autowired
     private MerchantRepository merchantRepository;
     @Autowired
-    private InitiativeRestConnector initiativeRestConnector;
+    InitiativeRestConnector initiativeRestConnector;
     @Autowired
-    private FileStorageConnector fileStorageConnector;
+    FileStorageConnector fileStorageConnector;
     @Autowired
-    private Utilities utilities;
+    Utilities utilities;
     @Autowired
-    private AuditUtilities auditUtilities;
+    AuditUtilities auditUtilities;
 
 
     @Override
