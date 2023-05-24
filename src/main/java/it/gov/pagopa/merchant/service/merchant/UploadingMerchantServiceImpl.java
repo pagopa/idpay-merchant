@@ -182,11 +182,11 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
     @Override
     public void ingestionMerchantFile(StorageEventDTO storageEventDto) {
-        String[] urlPathSplits = storageEventDto.getData().getUrl().split("/");
-        if (MERCHANT.equals(urlPathSplits[2])) {
-            String fileName = urlPathSplits[5];
-            String organizationId = urlPathSplits[3];
-            String initiativeId = urlPathSplits[4];
+        String[] urlPathSplits = storageEventDto.getSubject().split("/");
+        if (MERCHANT.equals(urlPathSplits[4])) {
+            String fileName = urlPathSplits[8];
+            String organizationId = urlPathSplits[6];
+            String initiativeId = urlPathSplits[7];
             ByteArrayOutputStream downloadedMerchantFile = downloadMerchantFile(fileName, organizationId, initiativeId);
             saveMerchants(downloadedMerchantFile, fileName, organizationId, initiativeId);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.PROCESSED);
