@@ -3,7 +3,6 @@ package it.gov.pagopa.merchant.service.merchant;
 import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.exception.ClientExceptionNoBody;
@@ -16,8 +15,8 @@ import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
@@ -27,13 +26,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
-    public static final String COMMA = ",";
+    public static final String COMMA = ";";
     public static final String MERCHANT = "merchant";
     public static final String PAGOPA = "PAGOPA";
     public static final int BUSINESS_NAME_INDEX = 0;
@@ -119,12 +117,12 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 if (lineNumber == 1){
                     continue; //skipping csv file header
                 }
-                String[] splitStr = line.split(COMMA);
+                String[] splitStr = line.split(COMMA, -1);
 
-                String[] controlString = Arrays.copyOfRange(splitStr, 0, FISCAL_CODE_INDEX);
-                Arrays.fill(controlString, splitStr[IBAN_INDEX]);
+                List<String> controlString = new ArrayList<>(List.of(Arrays.copyOfRange(splitStr, 0, FISCAL_CODE_INDEX)));
+                controlString.add(splitStr[IBAN_INDEX]);
 
-                if (!Arrays.stream(controlString).allMatch(Objects::nonNull)) {
+                if (controlString.stream().anyMatch(StringUtils::isBlank)) {
                     log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Missing required fields", initiativeId);
                     auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), "Missing required fields");
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.MISSING_REQUIRED_FIELDS, lineNumber);
