@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface MerchantRepositoryExtended {
     List<Merchant> findByFilter(Criteria criteria, Pageable pageable);
-    Criteria getCriteria(String initiativeId, String fiscalCode);
+    Criteria getCriteria(String initiativeId, String organizationId, String fiscalCode);
     long getCount(Criteria criteria);
 }

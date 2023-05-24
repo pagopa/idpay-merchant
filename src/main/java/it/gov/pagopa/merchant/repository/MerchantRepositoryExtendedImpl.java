@@ -27,8 +27,9 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
     }
 
     @Override
-    public Criteria getCriteria(String initiativeId, String fiscalCode) {
-        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+    public Criteria getCriteria(String initiativeId, String organizationId, String fiscalCode) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId)
+                .and(Initiative.Fields.organizationId).is(organizationId);
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
         if (fiscalCode != null) {
             criteria.and(Merchant.Fields.fiscalCode).is(fiscalCode);

@@ -50,20 +50,20 @@ class MerchantListServiceTest {
             .merchantId(merchant1.getMerchantId())
             .businessName(merchant1.getBusinessName())
             .fiscalCode(merchant1.getFiscalCode())
-            .status("STATUS")
+            .merchantStatus("STATUS")
             .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
     MerchantDTO merchantDTO2 = MerchantDTO.builder()
             .merchantId(merchant2.getMerchantId())
             .businessName(merchant2.getBusinessName())
             .fiscalCode(merchant2.getFiscalCode())
-            .status("STATUS")
+            .merchantStatus("STATUS")
             .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
     MerchantListDTO merchantListDTO_expected = MerchantListDTO.builder().content(List.of(merchantDTO1, merchantDTO2))
             .pageSize(2).totalElements(2).totalPages(1).build();
 
     when(utilitiesMock.getPageable(Mockito.any())).thenReturn(PageRequest.of(0,2));
 
-    MerchantListDTO result = service.getMerchantList("INITIATIVEID_1", FISCAL_CODE, null);
+    MerchantListDTO result = service.getMerchantList("ORGANIZATION_ID_1", "INITIATIVE_ID_1", FISCAL_CODE, null);
 
     assertEquals(2, result.getContent().size());
     assertEquals(merchantListDTO_expected, result);
@@ -79,7 +79,7 @@ class MerchantListServiceTest {
 
     when(utilitiesMock.getPageable(Mockito.any())).thenReturn(PageRequest.of(0,2));
 
-    MerchantListDTO result = service.getMerchantList("INITIATIVEID_1", FISCAL_CODE, null);
+    MerchantListDTO result = service.getMerchantList("ORGANIZATION_ID_1","INITIATIVE_ID_1",  FISCAL_CODE, null);
 
     assertEquals(0, result.getContent().size());
     assertEquals(merchantListDTO_expected, result);

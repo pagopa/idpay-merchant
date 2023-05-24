@@ -6,12 +6,11 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.List;
 
 @Repository
 public interface MerchantRepository extends MongoRepository<Merchant, String>, MerchantRepositoryExtended {
     @Query(
-            value = "{'initiativeList.initiativeId' : ?0, merchantId : ?1}",
+            value = "{'initiativeList.initiativeId' : ?0, 'initiativeList.organizationId' : ?1, merchantId : ?2}",
             fields = "{merchantId : 1, " +
                     "businessName : 1, " +
                     "legalOfficeAddress : 1, " +
@@ -27,7 +26,8 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
                     "'initiativeList.updateDate' : 1 }"
 
     )
-    Optional<Merchant> retrieveByInitiativeIdAndMerchantId(String initiativeId, String merchantId);
 
     Optional<Merchant> findByMerchantId(String merchantId);
+
+    Optional<Merchant> retrieveByInitiativeIdAndMerchantId(String initiativeId, String organizationId, String merchantId);
 }
