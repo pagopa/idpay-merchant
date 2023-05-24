@@ -26,8 +26,7 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
                     "'initiativeList.updateDate' : 1 }"
 
     )
+    Optional<Merchant> retrieveByInitiativeIdAndMerchantId(String initiativeId, String organizationId, String merchantId);
 
     Optional<Merchant> findByMerchantId(String merchantId);
-
-    Optional<Merchant> retrieveByInitiativeIdAndMerchantId(String initiativeId, String organizationId, String merchantId);
 }
