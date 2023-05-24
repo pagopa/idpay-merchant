@@ -130,17 +130,15 @@ class MerchantControllerImplTest {
 
     @Test
     void getMerchantInitiativeList_notFound() throws Exception {
-        Mockito.when(merchantService.getMerchantInitiativeList(anyString()))
-                .thenThrow(new ClientExceptionWithBody(HttpStatus.NOT_FOUND,
-                        MerchantConstants.NOT_FOUND,
-                        String.format(MerchantConstants.MERCHANT_BY_MERCHANT_ID_MESSAGE, MERCHANT_ID)));
-
+        Mockito.when(merchantService.getMerchantInitiativeList(anyString())).thenReturn(null);
 
         mockMvc.perform(
                 get("/idpay/merchant/initiatives")
                         .header("x-merchant-id", MERCHANT_ID))
                 .andExpect(status().isNotFound())
                 .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
+                .andExpect(res -> Assertions.assertEquals(String.format(MerchantConstants.MERCHANT_BY_MERCHANT_ID_MESSAGE, MERCHANT_ID),
+                        Objects.requireNonNull(res.getResolvedException()).getMessage()))
                 .andReturn();
 
         Mockito.verify(merchantService).getMerchantInitiativeList(anyString());

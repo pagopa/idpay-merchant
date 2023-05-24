@@ -3,10 +3,14 @@ package it.gov.pagopa.merchant.service;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
+import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
+import it.gov.pagopa.merchant.model.Merchant;
+import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
-import it.gov.pagopa.merchant.service.merchant.MerchantInitiativesService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
+import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
+import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +20,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MerchantServiceImplTest {
@@ -26,10 +32,12 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantListService merchantListServiceMock;
     @Mock
-    private MerchantInitiativesService merchantInitiativesService;
+    private MerchantRepository merchantRepository;
+
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
     private static final String MERCHANT_ID = "MERCHANT_ID";
+    private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper();
 
     private MerchantServiceImpl merchantService;
 
@@ -38,7 +46,8 @@ class MerchantServiceImplTest {
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantInitiativesService);
+                merchantRepository,
+                initiative2InitiativeDTOMapper);
     }
 
     @AfterEach
@@ -67,10 +76,27 @@ class MerchantServiceImplTest {
 
     @Test
     void getMerchantInitiativeList() {
-        List<InitiativeDTO> dtoList = List.of(new InitiativeDTO());
-        Mockito.when(merchantService.getMerchantInitiativeList(Mockito.anyString())).thenReturn(dtoList);
+        Merchant merchant = MerchantFaker.mockInstanceBuilder(1)
+                .initiativeList(List.of(
+                        InitiativeFaker.mockInstance(1),
+                        InitiativeFaker.mockInstance(2)))
+                .build();
+
+        when(merchantRepository.findByMerchantId(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
         List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
-        assertNotNull(result);
+
+        assertEquals(
+                merchant.getInitiativeList().stream()
+                        .map(initiative2InitiativeDTOMapper)
+                        .toList(),
+                result);
+    }
+
+    @Test
+    void getMerchantInitiativeList_notFound() {
+        when(merchantRepository.findByMerchantId(MERCHANT_ID)).thenReturn(Optional.empty());
+
+        assertNull(merchantService.getMerchantInitiativeList(MERCHANT_ID));
     }
 }
