@@ -15,7 +15,7 @@ spring:
   cloud:
     stream:
       function:
-        definition: notificationQueue;errors;rewardNotificationUploadConsumer
+        definition: notificationQueue;errors;merchantFileConsumer
       binders:
         kafka-errors:
           type: kafka
@@ -38,9 +38,9 @@ spring:
           destination: ${KAFKA_ERRORS_TOPIC:idpay-errors}
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           binder: kafka-errors
-        rewardNotificationUploadConsumer-in-0:
+        merchantFileConsumer-in-0:
           destination: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_TOPIC:idpay-reward-notification-storage-events}
-          group: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_GROUP_ID:idpay-reward-notification-storage-group}
+          group: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_GROUP_ID:idpay-file-merchant-group}
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           binder: kafka-reward-notification-upload
 
@@ -64,7 +64,7 @@ spring:
                 retry.backoff.ms: ${KAFKA_ERRORS_KAFKA_RETRY_MS:${KAFKA_RETRY_MS:10000}}
                 linger.ms: ${KAFKA_ERRORS_LINGER_MS:${KAFKA_LINGER_MS:2}}
                 batch.size: ${KAFKA_ERRORS_BATCH_SIZE:${KAFKA_BATCH_SIZE:16384}}
-          rewardNotificationUploadConsumer-in-0:
+          merchantFileConsumer-in-0:
             consumer:
               startOffset: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
               autoCommitOffset: false

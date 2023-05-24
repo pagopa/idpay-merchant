@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class MerchantFileConsumer {
 
   @Bean
-  public Consumer<List<StorageEventDTO>> rewardNotificationUploadConsumer(UploadingMerchantService uploadingMerchantService) {
+  public Consumer<List<StorageEventDTO>> merchantFileConsumer(UploadingMerchantService uploadingMerchantService) {
     return uploadingMerchantService::ingestionMerchantFile;
   }
 
