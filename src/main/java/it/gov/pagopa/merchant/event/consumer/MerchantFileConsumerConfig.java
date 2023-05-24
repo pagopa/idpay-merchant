@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class MerchantFileConsumer {
+public class MerchantFileConsumerConfig {
 
   @Bean
   public Consumer<List<StorageEventDTO>> merchantFileConsumer(UploadingMerchantService uploadingMerchantService) {
