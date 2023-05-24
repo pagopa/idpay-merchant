@@ -185,7 +185,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
         StorageEventDTO storageEventDTO = storageEventDTOList.stream().findFirst().orElse(null);
         if (storageEventDTO != null && StringUtils.isNotBlank(storageEventDTO.getSubject())) {
             String[] subjectPathSplit = storageEventDTO.getSubject().split("/");
-            if (MERCHANT.equals(subjectPathSplit[4])) {
+            if (MERCHANT.equals(subjectPathSplit[4]) && subjectPathSplit.length == 9) {
                 String fileName = subjectPathSplit[8];
                 String organizationId = subjectPathSplit[6];
                 String initiativeId = subjectPathSplit[7];
@@ -208,6 +208,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             return merchantFile;
         } catch (Exception e) {
             log.info("[SAVE_MERCHANTS] - Initiative: {}. Merchants file {} download failed", initiativeId, fileName);
+            auditUtilities.logUploadMerchantKO(initiativeId, organizationId, fileName, e.getMessage());
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.DOWNLOAD_KO);
             utilities.performanceLog(startTime, "DOWNLOAD_MERCHANT_FILE");
             throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
@@ -278,7 +279,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 .fiscalCode(splitStr[FISCAL_CODE_INDEX])
                 .vatNumber(splitStr[VAT_INDEX])
                 .iban(splitStr[IBAN_INDEX])
-                .initiativeList(Collections.emptyList())
+                .initiativeList(new ArrayList<>())
                 .enabled(true)
                 .build();
     }
@@ -286,14 +287,14 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     private Initiative merchantInitiativeCreation(String initiativeId, String organizationId) {
         String initiativeName;
         try{
-            initiativeName = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId).getInitiativeName();
+            //initiativeName = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId).getInitiativeName();
         } catch (Exception e){
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
             throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
         }
         return Initiative.builder()
                 .initiativeId(initiativeId)
-                .initiativeName(initiativeName)
+                //.initiativeName(initiativeName)
                 .organizationId(organizationId)
                 .merchantStatus("UPLOADED")
                 .creationDate(LocalDateTime.now())

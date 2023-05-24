@@ -24,7 +24,7 @@ public class AuditUtilities {
         }
         SRCIP = srcIp;
     }
-    private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Group dstip=%s", SRCIP);
+    private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s", SRCIP);
     private static final String CEF_PATTERN = CEF + " msg={} cs1Label=initiativeId cs1={} cs2Label=organizationId cs2={} cs3Label=fileName cs3={}";
 
     private void logAuditString(String pattern, String... parameters) {
