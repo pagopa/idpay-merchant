@@ -10,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @Slf4j
 @RestController
 public class MerchantControllerImpl implements MerchantController {
@@ -36,8 +34,9 @@ public class MerchantControllerImpl implements MerchantController {
   public ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
           MultipartFile file,
           String organizationId,
-          String initiativeId){
-    return ResponseEntity.ok(merchantService.uploadMerchantFile(file, organizationId, initiativeId));
+          String initiativeId,
+          String organizationUserId){
+    return ResponseEntity.ok(merchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId));
   }
 
 }

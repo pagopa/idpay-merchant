@@ -65,25 +65,25 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
 
     @Override
-    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId) {
+    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId) {
         log.info("[UPLOAD_FILE_MERCHANT] - Starting uploading file {} for initiative {}", file.getOriginalFilename(), initiativeId);
         MerchantUpdateDTO merchantUpdateDTO = fileValidation(file, organizationId, initiativeId);
 
         if (MerchantConstants.Status.VALIDATED.equals(merchantUpdateDTO.getStatus())) {
-            storeMerchantFile(organizationId, initiativeId, file);
+            storeMerchantFile(organizationId, initiativeId, file, organizationUserId);
             auditUtilities.logUploadMerchantOK(initiativeId, organizationId, file.getOriginalFilename());
         }
         return merchantUpdateDTO;
     }
 
 
-    private void saveMerchantFile(String fileName, String organizationId, String initiativeId, String status) {
+    private void saveMerchantFile(String fileName, String organizationId, String initiativeId, String organizationUserId, String status) {
         MerchantFile merchantFile =
                 MerchantFile.builder()
                         .fileName(fileName)
                         .initiativeId(initiativeId)
                         .organizationId(organizationId)
-                        .organizationUserId(getOrganizationUserId())
+                        .organizationUserId(organizationUserId)
                         .status(status)
                         .uploadDate(LocalDateTime.now())
                         .enabled(true).build();
@@ -163,18 +163,18 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     }
 
 
-    public void storeMerchantFile(String organizationId, String initiativeId, MultipartFile file) {
+    public void storeMerchantFile(String organizationId, String initiativeId, MultipartFile file, String organizationUserId) {
         long startTime = System.currentTimeMillis();
         try {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} sent to storage", initiativeId, file.getOriginalFilename());
             InputStream inputStreamFile = file.getInputStream();
             fileStorageConnector.uploadMerchantFile(inputStreamFile, String.format(MerchantConstants.MERCHANT_FILE_PATH_TEMPLATE, organizationId, initiativeId, file.getOriginalFilename()), file.getContentType());
-            saveMerchantFile(file.getOriginalFilename(), organizationId, initiativeId, MerchantConstants.Status.ON_EVALUATION);
+            saveMerchantFile(file.getOriginalFilename(), organizationId, initiativeId, organizationUserId, MerchantConstants.Status.ON_EVALUATION);
             utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
         } catch (Exception e) {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} storage failed", initiativeId, file.getOriginalFilename());
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getOriginalFilename(), "Error during file storage");
-            saveMerchantFile(file.getOriginalFilename(), organizationId, initiativeId, MerchantConstants.Status.STORAGE_KO);
+            saveMerchantFile(file.getOriginalFilename(), organizationId, initiativeId, organizationUserId, MerchantConstants.Status.STORAGE_KO);
             utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
             throw  new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,

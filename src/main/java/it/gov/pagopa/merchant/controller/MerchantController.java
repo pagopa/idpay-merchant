@@ -21,7 +21,8 @@ public interface MerchantController {
     ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
             @RequestParam("file") MultipartFile file,
             @PathVariable("organizationId") String organizationId,
-            @PathVariable("initiativeId") String initiativeId);
+            @PathVariable("initiativeId") String initiativeId,
+            @RequestHeader("organization-user-id") String organizationUserId);
 
     @Operation(summary = "Returns the merchants list",
             description = "")

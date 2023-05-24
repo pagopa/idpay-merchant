@@ -31,8 +31,9 @@ public class MerchantServiceImpl implements MerchantService{
     public MerchantUpdateDTO uploadMerchantFile(
             MultipartFile file,
             String organizationId,
-            String initiativeId){
-        return uploadingMerchantService.uploadMerchantFile(file, organizationId, initiativeId);
+            String initiativeId,
+            String organizationUserId){
+        return uploadingMerchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId);
     }
 
     @Override
