@@ -28,11 +28,10 @@ public class MerchantServiceImpl implements MerchantService{
     }
 
     @Override
-    public MerchantUpdateDTO uploadMerchantFile(
-            MultipartFile file,
-            String organizationId,
-            String initiativeId,
-            String organizationUserId){
+    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file,
+                                                String organizationId,
+                                                String initiativeId,
+                                                String organizationUserId){
         return uploadingMerchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId);
     }
 

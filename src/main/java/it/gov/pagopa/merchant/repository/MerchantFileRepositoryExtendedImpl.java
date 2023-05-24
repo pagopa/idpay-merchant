@@ -1,15 +1,12 @@
 package it.gov.pagopa.merchant.repository;
 
 
-import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.model.MerchantFile.Fields;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-
-import java.util.List;
 
 public class MerchantFileRepositoryExtendedImpl implements MerchantFileRepositoryExtended {
     private final MongoTemplate mongoTemplate;

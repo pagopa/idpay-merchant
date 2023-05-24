@@ -72,21 +72,6 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
         return merchantUpdateDTO;
     }
 
-
-    private void saveMerchantFile(String fileName, String organizationId, String initiativeId, String organizationUserId, String status) {
-        MerchantFile merchantFile =
-                MerchantFile.builder()
-                        .fileName(fileName)
-                        .initiativeId(initiativeId)
-                        .organizationId(organizationId)
-                        .organizationUserId(organizationUserId)
-                        .status(status)
-                        .uploadDate(LocalDateTime.now())
-                        .enabled(true).build();
-
-        merchantFileRepository.save(merchantFile);
-    }
-
     private MerchantUpdateDTO fileValidation(MultipartFile file, String organizationId, String initiativeId) {
         if (file.isEmpty()) {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. File is empty", initiativeId);
@@ -178,6 +163,19 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
         }
     }
 
+    private void saveMerchantFile(String fileName, String organizationId, String initiativeId, String organizationUserId, String status) {
+        MerchantFile merchantFile =
+                MerchantFile.builder()
+                        .fileName(fileName)
+                        .initiativeId(initiativeId)
+                        .organizationId(organizationId)
+                        .organizationUserId(organizationUserId)
+                        .status(status)
+                        .uploadDate(LocalDateTime.now())
+                        .enabled(true).build();
+
+        merchantFileRepository.save(merchantFile);
+    }
     @Override
     public void ingestionMerchantFile(List<StorageEventDTO> storageEventDTOList) {
         StorageEventDTO storageEventDTO = storageEventDTOList.stream().findFirst().orElse(null);
@@ -217,16 +215,18 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
     public void saveMerchants(ByteArrayOutputStream byteFile, String fileName, String organizationId, String initiativeId) {
         long startTime = System.currentTimeMillis();
-        byte[] bytes = byteFile.toByteArray();
-        String line;
+
+        String initiativeName = getInitiativeName(initiativeId);
 
         try {
             log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants", initiativeId, fileName);
+            byte[] bytes = byteFile.toByteArray();
             BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
 
             List<Merchant> merchantList = new ArrayList<>();
 
             int lineNumber = 0;
+            String line;
 
             while ((line = br.readLine()) != null) {
                 lineNumber++;
@@ -242,7 +242,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 String ibanOld = merchant.getIban();
                 boolean existsMerchantInitiative = merchant.getInitiativeList().stream().anyMatch(i -> i.getInitiativeId().equals(initiativeId));
                 if (!existsMerchantInitiative){
-                    merchant.getInitiativeList().add(merchantInitiativeCreation(initiativeId, organizationId));
+                    merchant.getInitiativeList().add(createMerchantInitiative(initiativeId, organizationId, initiativeName));
                 }
                 if(!ibanNew.equals(ibanOld)){
                     merchant.setBusinessName(splitStr[BUSINESS_NAME_INDEX]);
@@ -270,6 +270,15 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
         }
     }
 
+    public String getInitiativeName(String initiativeId) {
+        try {
+            return initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId).getInitiativeName();
+        } catch (Exception e) {
+            log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
+            throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
+        }
+    }
+
     private Merchant createNewMerchant(String[] splitStr) {
         return Merchant.builder()
                 .merchantId(Utilities.calculateSHA256Hash(splitStr[FISCAL_CODE_INDEX], PAGOPA))
@@ -288,14 +297,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 .build();
     }
 
-    private Initiative merchantInitiativeCreation(String initiativeId, String organizationId) {
-        String initiativeName;
-        try{
-            initiativeName = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId).getInitiativeName();
-        } catch (Exception e){
-            log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
-            throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
-        }
+    private Initiative createMerchantInitiative(String initiativeId, String organizationId, String initiativeName) {
         return Initiative.builder()
                 .initiativeId(initiativeId)
                 .initiativeName(initiativeName)

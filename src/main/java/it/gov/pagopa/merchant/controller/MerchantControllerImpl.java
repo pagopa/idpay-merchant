@@ -21,6 +21,14 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
+  public ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(MultipartFile file,
+                                                              String organizationId,
+                                                              String initiativeId,
+                                                              String organizationUserId) {
+    return ResponseEntity.ok(merchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId));
+  }
+
+  @Override
   public ResponseEntity<MerchantListDTO> getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable) {
     return ResponseEntity.ok(merchantService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable));
   }
@@ -28,15 +36,6 @@ public class MerchantControllerImpl implements MerchantController {
   @Override
   public ResponseEntity<MerchantDetailDTO> getMerchantDetail(String organizationId, String initiativeId, String merchantId) {
     return ResponseEntity.ok(merchantService.getMerchantDetail(organizationId, initiativeId, merchantId));
-  }
-
-  @Override
-  public ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
-          MultipartFile file,
-          String organizationId,
-          String initiativeId,
-          String organizationUserId){
-    return ResponseEntity.ok(merchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId));
   }
 
 }
