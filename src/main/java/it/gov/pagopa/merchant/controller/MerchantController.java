@@ -11,12 +11,12 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/idpay/merchant")
 public interface MerchantController {
-    @PutMapping("organization/{organizationId}/initiative/{initiativeId}/upload")
+    @Operation(summary = "Uploads the merchants file",
+            description = "")
+    @PutMapping("/organization/{organizationId}/initiative/{initiativeId}/upload")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
             @RequestParam("file") MultipartFile file,
