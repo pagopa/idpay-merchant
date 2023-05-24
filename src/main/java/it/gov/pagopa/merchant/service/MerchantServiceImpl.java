@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
+import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
 import org.springframework.data.domain.Pageable;
@@ -12,15 +13,15 @@ public class MerchantServiceImpl implements MerchantService{
 
     private final MerchantDetailService merchantDetailService;
     private final MerchantListService merchantListService;
-    private final MerchantIdService merchantIdService;
+    private final MerchantRepository merchantRepository;
 
     public MerchantServiceImpl(
             MerchantDetailService merchantDetailService,
             MerchantListService merchantListService,
-            MerchantIdService merchantIdService) {
+            MerchantRepository merchantRepository) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
-        this.merchantIdService = merchantIdService;
+        this.merchantRepository = merchantRepository;
     }
 
     @Override
@@ -38,6 +39,7 @@ public class MerchantServiceImpl implements MerchantService{
     }
     @Override
     public String retrieveMerchantId(String acquirerId, String fiscalCode) {
-        return merchantIdService.getMerchantInfo(acquirerId, fiscalCode);
+        return merchantRepository.findByAcquirerIdAndFiscalCode(acquirerId, fiscalCode).orElse(null).getMerchantId();
+        //TODO controllare Eccezione
     }
 }

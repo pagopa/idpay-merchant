@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.model.Merchant;
+import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
@@ -24,7 +25,7 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantListService merchantListServiceMock;
     @Mock
-    private MerchantIdService merchantIdServiceMock;
+    private MerchantRepository merchantRepository;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -39,7 +40,7 @@ class MerchantServiceImplTest {
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantIdServiceMock);
+                merchantRepository);
     }
 
     @AfterEach
@@ -47,7 +48,7 @@ class MerchantServiceImplTest {
         Mockito.verifyNoMoreInteractions(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantIdServiceMock);
+                merchantRepository);
     }
 
     @Test
