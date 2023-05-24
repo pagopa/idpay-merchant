@@ -140,7 +140,7 @@ class MerchantControllerImplTest {
                 get("/idpay/merchant/initiatives")
                         .header("x-merchant-id", MERCHANT_ID))
                 .andExpect(status().isNotFound())
-                .andExpect(res -> assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
+                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
                 .andReturn();
 
         Mockito.verify(merchantService).getMerchantInitiativeList(anyString());
