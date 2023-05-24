@@ -15,7 +15,7 @@ public class MerchantIdServiceImpl implements MerchantIdService {
     }
 
     public String getMerchantInfo(String acquirerId, String fiscalCode) {
-        return merchantRepository.findByFiscalCodeAndAcquirerId(acquirerId, fiscalCode)
+        return merchantRepository.findByAcquirerIdAndFiscalCode(acquirerId, fiscalCode)
                 .orElseThrow(() -> new ClientExceptionWithBody(
                         HttpStatus.NOT_FOUND,
                         MerchantConstants.NOT_FOUND,

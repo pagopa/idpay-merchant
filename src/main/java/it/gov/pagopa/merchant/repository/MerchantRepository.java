@@ -27,6 +27,6 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
 
     )
     Optional<Merchant> retrieveByInitiativeIdAndMerchantId(String initiativeId, String organizationId, String merchantId);
-    Optional<Merchant> findByFiscalCodeAndAcquirerId(String acquirerId, String fiscalCode);
+    Optional<Merchant> findByAcquirerIdAndFiscalCode(String acquirerId, String fiscalCode);
 }
 

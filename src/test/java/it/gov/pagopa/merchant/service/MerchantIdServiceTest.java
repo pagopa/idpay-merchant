@@ -36,7 +36,7 @@ class MerchantIdServiceTest {
         Merchant merchant = MerchantFaker.mockInstance(1);
 
         doReturn(Optional.of(merchant)).when(merchantRepositoryMock)
-                .findByFiscalCodeAndAcquirerId(merchant.getAcquirerId(), merchant.getFiscalCode());
+                .findByAcquirerIdAndFiscalCode(merchant.getAcquirerId(), merchant.getFiscalCode());
 
         String merchantIdOkResult = merchantIdService.getMerchantInfo(merchant.getAcquirerId(), merchant.getFiscalCode());
 
@@ -48,7 +48,7 @@ class MerchantIdServiceTest {
     void retrieveMerchantId_NotFoundException(){
 
         doReturn(Optional.empty()).when(merchantRepositoryMock)
-                .findByFiscalCodeAndAcquirerId(Mockito.any(), Mockito.eq("DUMMYFISCALCODE"));
+                .findByAcquirerIdAndFiscalCode(Mockito.any(), Mockito.eq("DUMMYFISCALCODE"));
 
         ClientExceptionWithBody clientExceptionWithBody = assertThrows(ClientExceptionWithBody.class,
                 () -> merchantIdService.getMerchantInfo("DUMMYACQUIRERID", "DUMMYFISCALCODE"));
