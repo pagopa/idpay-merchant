@@ -255,7 +255,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             merchantRepository.saveAll(merchantList);
             utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         } catch (Exception e) {
-            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e.getMessage());
+            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, fileName, e.getMessage());
             utilities.performanceLog(startTime, "SAVE_MERCHANTS");
@@ -299,18 +299,6 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 .creationDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
                 .enabled(true).build();
-    }
-
-    private String getOrganizationUserId(){
-        String userId = null;
-        if(RequestContextHolder.getRequestAttributes()!=null) {
-            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-            if(requestAttributes != null) {
-                userId = (String) requestAttributes.getAttribute("organizationUserId",
-                        RequestAttributes.SCOPE_REQUEST);
-            }
-        }
-        return userId;
     }
 
     private MerchantUpdateDTO toMerchantUpdateKO(String errorKey, Integer errorRow){
