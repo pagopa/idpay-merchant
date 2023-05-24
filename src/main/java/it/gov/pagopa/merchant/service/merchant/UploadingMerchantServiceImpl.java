@@ -62,9 +62,6 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     @Autowired
     private AuditUtilities auditUtilities;
 
-    @Value("${file.storage.path}")
-    private String rootPath;
-
 
     @Override
     public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId) {
