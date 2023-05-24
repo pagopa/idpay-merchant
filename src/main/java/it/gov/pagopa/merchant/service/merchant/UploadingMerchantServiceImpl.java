@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service.merchant;
 import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.exception.ClientExceptionNoBody;
@@ -54,7 +55,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     @Autowired
     private MerchantRepository merchantRepository;
     @Autowired
-    private static InitiativeRestConnector initiativeRestConnector;
+    private InitiativeRestConnector initiativeRestConnector;
     @Autowired
     private FileStorageConnector fileStorageConnector;
     @Autowired
@@ -215,7 +216,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     }
 
     public void saveMerchants(ByteArrayOutputStream byteFile, String fileName, String organizationId, String initiativeId) {
-
+        long startTime = System.currentTimeMillis();
         byte[] bytes = byteFile.toByteArray();
         String line;
 
@@ -251,12 +252,12 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 merchantList.add(merchant);
             }
             merchantRepository.saveAll(merchantList);
-
+            utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         } catch (Exception e) {
-            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed", initiativeId, fileName);
+            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e.getMessage());
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
-            log.error("[SAVING_MERCHANT] - Generic Error: {}", e.getMessage());
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, fileName, e.getMessage());
+            utilities.performanceLog(startTime, "SAVE_MERCHANTS");
             throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
                     String.format(MerchantConstants.MERCHANT_SAVING_ERROR, initiativeId, fileName));
@@ -281,8 +282,8 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 .build();
     }
 
-    private static Initiative merchantInitiativeCreation(String initiativeId, String organizationId) {
-        String initiativeName = null;
+    private Initiative merchantInitiativeCreation(String initiativeId, String organizationId) {
+        String initiativeName;
         try{
             initiativeName = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId).getInitiativeName();
         } catch (Exception e){
