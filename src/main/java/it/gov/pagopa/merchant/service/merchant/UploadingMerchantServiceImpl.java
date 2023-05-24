@@ -19,8 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -228,7 +226,13 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
             List<Merchant> merchantList = new ArrayList<>();
 
+            int lineNumber = 0;
+
             while ((line = br.readLine()) != null) {
+                lineNumber++;
+                if (lineNumber == 1){
+                    continue; //skipping csv file header
+                }
                 String[] splitStr = line.split(COMMA);
 
                 Merchant merchant = merchantRepository.findByFiscalCodeAndAcquirerId(splitStr[FISCAL_CODE_INDEX], PAGOPA)
@@ -287,14 +291,14 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     private Initiative merchantInitiativeCreation(String initiativeId, String organizationId) {
         String initiativeName;
         try{
-            //initiativeName = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId).getInitiativeName();
+            initiativeName = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId).getInitiativeName();
         } catch (Exception e){
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
             throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
         }
         return Initiative.builder()
                 .initiativeId(initiativeId)
-                //.initiativeName(initiativeName)
+                .initiativeName(initiativeName)
                 .organizationId(organizationId)
                 .merchantStatus("UPLOADED")
                 .creationDate(LocalDateTime.now())
