@@ -122,10 +122,7 @@ class MerchantControllerImplTest {
 
     @Test
     void retrieveMerchantId_NotFoundException() throws Exception {
-        Mockito.when(merchantServiceMock.retrieveMerchantId("ACQUIRERID", "FISCALCODE"))
-                .thenThrow(new ClientExceptionWithBody(HttpStatus.NOT_FOUND,
-                        MerchantConstants.NOT_FOUND,
-                        String.format(MerchantConstants.MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE,"ACQUIRERID", "FISCALCODE")));
+        Mockito.when(merchantServiceMock.retrieveMerchantId("ACQUIRERID", "FISCALCODE")).thenReturn(null);
 
         MvcResult result = mockMvc.perform(
                 get("/idpay/merchant/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id", "ACQUIRERID", "FISCALCODE"))
