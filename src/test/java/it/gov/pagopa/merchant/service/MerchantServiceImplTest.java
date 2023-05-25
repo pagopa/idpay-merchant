@@ -9,12 +9,15 @@ import it.gov.pagopa.merchant.service.merchant.MerchantListService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -25,13 +28,11 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantListService merchantListServiceMock;
     @Mock
-    private MerchantRepository merchantRepository;
+    private MerchantRepository merchantRepositoryMock;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
     private static final String MERCHANT_ID = "MERCHANT_ID";
-    private static final String MERCHANT_FISCALCODE = "MERCHANT_FISCALCODE";
-    private static final String MERCHANT_ACQUIRERID = "MERCHANT_ACQUIRERID";
 
     private MerchantServiceImpl merchantService;
 
@@ -40,7 +41,7 @@ class MerchantServiceImplTest {
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantRepository);
+                merchantRepositoryMock);
     }
 
     @AfterEach
@@ -48,7 +49,7 @@ class MerchantServiceImplTest {
         Mockito.verifyNoMoreInteractions(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantRepository);
+                merchantRepositoryMock);
     }
 
     @Test
@@ -71,10 +72,12 @@ class MerchantServiceImplTest {
     @Test
     void retrieveMerchantId(){
         Merchant merchant = MerchantFaker.mockInstance(1);
-        Mockito.when(merchantService.retrieveMerchantId(Mockito.anyString(),Mockito.anyString())).thenReturn(merchant.getMerchantId());
 
-        String result = merchantService.retrieveMerchantId(MERCHANT_ACQUIRERID, MERCHANT_FISCALCODE);
+        Mockito.when(merchantRepositoryMock.findByAcquirerIdAndFiscalCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.of(merchant));
+
+        String result = merchantService.retrieveMerchantId(merchant.getAcquirerId(), merchant.getFiscalCode());
 
         assertNotNull(result);
+        Assertions.assertEquals(result, merchant.getMerchantId());
     }
 }

@@ -1,7 +1,5 @@
 package it.gov.pagopa.merchant.service;
 
-import it.gov.pagopa.merchant.constants.MerchantConstants;
-import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
@@ -13,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 
@@ -51,16 +48,14 @@ class MerchantIdServiceTest {
     }
 
     @Test
-    void retrieveMerchantId_NotFoundException(){
+    void retrieveMerchantId_NotFound(){
 
         doReturn(Optional.empty()).when(merchantRepositoryMock)
                 .findByAcquirerIdAndFiscalCode(Mockito.any(), Mockito.eq("DUMMYFISCALCODE"));
 
-        ClientExceptionWithBody clientExceptionWithBody = assertThrows(ClientExceptionWithBody.class,
-                () -> merchantService.retrieveMerchantId("DUMMYACQUIRERID", "DUMMYFISCALCODE"));
+        String merchantIdNotFoundResult= merchantService.retrieveMerchantId("DUMMYACQUIRERID", "DUMMYFISCALCODE");
 
-        assertEquals(HttpStatus.NOT_FOUND, clientExceptionWithBody.getHttpStatus());
-        assertEquals(MerchantConstants.NOT_FOUND, clientExceptionWithBody.getCode());
-        assertEquals(String.format(MerchantConstants.MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE,"DUMMYACQUIRERID" , "DUMMYFISCALCODE"), clientExceptionWithBody.getMessage());
+        assertNull(merchantIdNotFoundResult);
+        Mockito.verify(merchantRepositoryMock).findByAcquirerIdAndFiscalCode(Mockito.anyString(), Mockito.anyString());
     }
 }

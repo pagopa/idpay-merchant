@@ -41,7 +41,6 @@ public class MerchantControllerImpl implements MerchantController {
               String.format(MerchantConstants.MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE, acquirerId, fiscalCode
       ));
     }
-    //TODO controllare in base al service
     return merchantId;
   }
 }

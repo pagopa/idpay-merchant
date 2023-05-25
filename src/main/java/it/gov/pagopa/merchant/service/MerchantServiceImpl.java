@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
@@ -39,7 +40,8 @@ public class MerchantServiceImpl implements MerchantService{
     }
     @Override
     public String retrieveMerchantId(String acquirerId, String fiscalCode) {
-        return merchantRepository.findByAcquirerIdAndFiscalCode(acquirerId, fiscalCode).orElse(null).getMerchantId();
-        //TODO controllare Eccezione
+        return merchantRepository.findByAcquirerIdAndFiscalCode(acquirerId, fiscalCode)
+                .map(Merchant::getMerchantId)
+                .orElse(null);
     }
 }
