@@ -27,14 +27,12 @@ public class MerchantControllerImpl implements MerchantController {
                                                               String organizationUserId) {
     return ResponseEntity.ok(merchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId));
   }
-
   @Override
   public ResponseEntity<MerchantListDTO> getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable) {
     return ResponseEntity.ok(merchantService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable));
-
+  }
   @Override
   public ResponseEntity<MerchantDetailDTO> getMerchantDetail(String organizationId, String initiativeId, String merchantId) {
     return ResponseEntity.ok(merchantService.getMerchantDetail(organizationId, initiativeId, merchantId));
   }
-
 }
