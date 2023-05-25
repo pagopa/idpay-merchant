@@ -6,6 +6,7 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
+import it.gov.pagopa.merchant.service.merchant.UploadingMerchantService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(MockitoExtension.class)
 class MerchantServiceImplTest {
     @Mock
+    private UploadingMerchantService uploadingMerchantService;
+    @Mock
     private MerchantDetailService merchantDetailServiceMock;
     @Mock
     private MerchantListService merchantListServiceMock;
@@ -39,6 +42,7 @@ class MerchantServiceImplTest {
     @BeforeEach
     void setUp(){
         merchantService = new MerchantServiceImpl(
+                uploadingMerchantService,
                 merchantDetailServiceMock,
                 merchantListServiceMock,
                 merchantRepositoryMock);
