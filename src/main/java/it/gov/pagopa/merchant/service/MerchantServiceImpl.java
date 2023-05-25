@@ -55,7 +55,7 @@ public class MerchantServiceImpl implements MerchantService{
     }
     @Override
     public String retrieveMerchantId(String acquirerId, String fiscalCode) {
-        return merchantRepository.findByAcquirerIdAndFiscalCode(acquirerId, fiscalCode)
+        return merchantRepository.retrieveByAcquirerIdAndFiscalCode(acquirerId, fiscalCode)
                 .map(Merchant::getMerchantId)
                 .orElse(null);
     }

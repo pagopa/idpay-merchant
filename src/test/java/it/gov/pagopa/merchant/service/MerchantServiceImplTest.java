@@ -79,7 +79,7 @@ class MerchantServiceImplTest {
     void retrieveMerchantId(){
         Merchant merchant = MerchantFaker.mockInstance(1);
 
-        Mockito.when(merchantRepositoryMock.findByAcquirerIdAndFiscalCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.of(merchant));
+        Mockito.when(merchantRepositoryMock.retrieveByAcquirerIdAndFiscalCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.of(merchant));
 
         String merchantIdOkResult = merchantService.retrieveMerchantId(merchant.getAcquirerId(), merchant.getFiscalCode());
 
@@ -91,11 +91,11 @@ class MerchantServiceImplTest {
     void retrieveMerchantId_NotFound(){
 
         doReturn(Optional.empty()).when(merchantRepositoryMock)
-                .findByAcquirerIdAndFiscalCode(Mockito.any(), Mockito.eq("DUMMYFISCALCODE"));
+                .retrieveByAcquirerIdAndFiscalCode(Mockito.any(), Mockito.eq("DUMMYFISCALCODE"));
 
         String merchantIdNotFoundResult= merchantService.retrieveMerchantId("DUMMYACQUIRERID", "DUMMYFISCALCODE");
 
         assertNull(merchantIdNotFoundResult);
-        Mockito.verify(merchantRepositoryMock).findByAcquirerIdAndFiscalCode(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(merchantRepositoryMock).retrieveByAcquirerIdAndFiscalCode(Mockito.anyString(), Mockito.anyString());
     }
 }

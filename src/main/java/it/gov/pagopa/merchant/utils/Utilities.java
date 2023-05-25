@@ -7,9 +7,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.ZoneId;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -29,21 +28,7 @@ public class Utilities {
                 System.currentTimeMillis() - startTime);
     }
 
-    public static String calculateSHA256Hash(String string1, String string2) {
-        String concatenatedString = string1 + string2;
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = digest.digest(concatenatedString.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hashBytes) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public String toUUID(String str){
+        return UUID.nameUUIDFromBytes(str.getBytes(StandardCharsets.UTF_8)).toString();
     }
 }

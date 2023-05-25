@@ -23,7 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -223,28 +225,18 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             byte[] bytes = byteFile.toByteArray();
             BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
 
-            List<Merchant> merchantList = new ArrayList<>();
-
-            int lineNumber = 0;
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                lineNumber++;
-                if (lineNumber == 1){
-                    continue; //skipping csv file header
-                }
+            br.lines().skip(1).forEach(line -> {
                 String[] splitStr = line.split(COMMA);
-
-                Merchant merchant = merchantRepository.findByAcquirerIdAndFiscalCode(PAGOPA, splitStr[FISCAL_CODE_INDEX])
+                Merchant merchant = merchantRepository.findByFiscalCodeAndAcquirerId(splitStr[FISCAL_CODE_INDEX], PAGOPA)
                         .orElse(createNewMerchant(splitStr));
 
                 String ibanNew = splitStr[IBAN_INDEX];
                 String ibanOld = merchant.getIban();
                 boolean existsMerchantInitiative = merchant.getInitiativeList().stream().anyMatch(i -> i.getInitiativeId().equals(initiativeId));
-                if (!existsMerchantInitiative){
+                if (!existsMerchantInitiative) {
                     merchant.getInitiativeList().add(createMerchantInitiative(initiativeId, organizationId, initiativeName));
                 }
-                if(!ibanNew.equals(ibanOld)){
+                if (!ibanNew.equals(ibanOld)) {
                     merchant.setBusinessName(splitStr[BUSINESS_NAME_INDEX]);
                     merchant.setLegalOfficeAddress(splitStr[LEGAL_OFFICE_ADDRESS_INDEX]);
                     merchant.setLegalOfficeMunicipality(splitStr[LEGAL_OFFICE_MUNICIPALITY_INDEX]);
@@ -255,9 +247,8 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                     merchant.setIban(splitStr[IBAN_INDEX]);
                     merchant.setEnabled(true);
                 }
-                merchantList.add(merchant);
-            }
-            merchantRepository.saveAll(merchantList);
+                merchantRepository.save(merchant);
+            });
             utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         } catch (Exception e) {
             log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
@@ -281,7 +272,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
     private Merchant createNewMerchant(String[] splitStr) {
         return Merchant.builder()
-                .merchantId(Utilities.calculateSHA256Hash(splitStr[FISCAL_CODE_INDEX], PAGOPA))
+                .merchantId(utilities.toUUID(splitStr[FISCAL_CODE_INDEX].concat("_").concat(PAGOPA)))
                 .acquirerId(PAGOPA)
                 .businessName(splitStr[BUSINESS_NAME_INDEX])
                 .legalOfficeAddress(splitStr[LEGAL_OFFICE_ADDRESS_INDEX])

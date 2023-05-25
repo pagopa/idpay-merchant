@@ -32,5 +32,6 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
             value = "{'acquirerId' : ?0, 'fiscalCode' : ?1}",
             fields = "{merchantId : 1}"
     )
-    Optional<Merchant> findByAcquirerIdAndFiscalCode(String acquirerId, String fiscalCode);
+    Optional<Merchant> retrieveByAcquirerIdAndFiscalCode(String acquirerId, String fiscalCode);
+    Optional<Merchant> findByFiscalCodeAndAcquirerId(String fiscalCode, String acquirerId);
 }
