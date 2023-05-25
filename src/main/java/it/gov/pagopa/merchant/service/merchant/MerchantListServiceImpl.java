@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.MerchantDTO;
+import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.Utilities;

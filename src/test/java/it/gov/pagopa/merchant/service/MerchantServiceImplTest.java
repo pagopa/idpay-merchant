@@ -8,10 +8,12 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
+import it.gov.pagopa.merchant.service.merchant.UploadingMerchantService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +34,9 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantListService merchantListServiceMock;
     @Mock
-    private MerchantRepository merchantRepository;
+    private MerchantRepository merchantRepositoryMock;
+    @Mock
+    private UploadingMerchantService uploadingMerchantServiceMock;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -46,7 +50,8 @@ class MerchantServiceImplTest {
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantRepository,
+                merchantRepositoryMock,
+                uploadingMerchantServiceMock,
                 initiative2InitiativeDTOMapper);
     }
 
@@ -54,7 +59,8 @@ class MerchantServiceImplTest {
     void verifyNoMoreMockInteractions() {
         Mockito.verifyNoMoreInteractions(
                 merchantDetailServiceMock,
-                merchantListServiceMock);
+                merchantListServiceMock,
+                merchantRepositoryMock);
     }
 
     @Test
@@ -75,6 +81,18 @@ class MerchantServiceImplTest {
     }
 
     @Test
+    void retrieveMerchantId(){
+        Merchant merchant = MerchantFaker.mockInstance(1);
+
+        Mockito.when(merchantRepositoryMock.findByAcquirerIdAndFiscalCode(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.of(merchant));
+
+        String result = merchantService.retrieveMerchantId(merchant.getAcquirerId(), merchant.getFiscalCode());
+
+        assertNotNull(result);
+        Assertions.assertEquals(result, merchant.getMerchantId());
+    }
+
+    @Test
     void getMerchantInitiativeList() {
         Merchant merchant = MerchantFaker.mockInstanceBuilder(1)
                 .initiativeList(List.of(
@@ -82,7 +100,7 @@ class MerchantServiceImplTest {
                         InitiativeFaker.mockInstance(2)))
                 .build();
 
-        when(merchantRepository.findByMerchantId(MERCHANT_ID)).thenReturn(Optional.of(merchant));
+        when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
         List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
 
@@ -95,7 +113,7 @@ class MerchantServiceImplTest {
 
     @Test
     void getMerchantInitiativeList_notFound() {
-        when(merchantRepository.findByMerchantId(MERCHANT_ID)).thenReturn(Optional.empty());
+        when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.empty());
 
         assertNull(merchantService.getMerchantInitiativeList(MERCHANT_ID));
     }
