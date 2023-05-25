@@ -1,14 +1,13 @@
 package it.gov.pagopa.merchant.mapper;
 
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
+import it.gov.pagopa.merchant.test.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class Initiative2InitiativeDTOMapperTest {
 
@@ -31,5 +30,9 @@ class Initiative2InitiativeDTOMapperTest {
         assertEquals(initiative.getCreationDate(), initiativeDTO.getCreationDate());
         assertEquals(initiative.getUpdateDate(), initiativeDTO.getUpdateDate());
         assertEquals(initiative.isEnabled(), initiativeDTO.isEnabled());
+        assertAll(() -> {
+            assertNotNull(initiativeDTO);
+            TestUtils.checkNotNullFields(initiativeDTO);
+        });
     }
 }

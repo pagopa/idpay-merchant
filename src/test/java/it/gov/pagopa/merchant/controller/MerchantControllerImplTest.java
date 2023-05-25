@@ -115,8 +115,7 @@ class MerchantControllerImplTest {
         Mockito.when(merchantService.getMerchantInitiativeList(anyString())).thenReturn(expectedResult);
 
         MvcResult result = mockMvc.perform(
-                        get("/idpay/merchant/initiatives")
-                                .header("x-merchant-id", MERCHANT_ID))
+                        get("/idpay/merchant/{merchantId}/initiatives", MERCHANT_ID))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
@@ -133,8 +132,7 @@ class MerchantControllerImplTest {
         Mockito.when(merchantService.getMerchantInitiativeList(anyString())).thenReturn(null);
 
         mockMvc.perform(
-                get("/idpay/merchant/initiatives")
-                        .header("x-merchant-id", MERCHANT_ID))
+                        get("/idpay/merchant/{merchantId}/initiatives", MERCHANT_ID))
                 .andExpect(status().isNotFound())
                 .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
                 .andExpect(res -> Assertions.assertEquals(String.format(MerchantConstants.MERCHANT_BY_MERCHANT_ID_MESSAGE, MERCHANT_ID),
@@ -142,17 +140,5 @@ class MerchantControllerImplTest {
                 .andReturn();
 
         Mockito.verify(merchantService).getMerchantInitiativeList(anyString());
-    }
-
-    @Test
-    void getMerchantInitiativeList_noHeader() throws Exception {
-        MvcResult result = mockMvc.perform(
-                        get("/idpay/merchant/initiatives"))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-        Assertions.assertEquals("Required request header 'x-merchant-id' for method parameter type String is not present",
-                Objects.requireNonNull(result.getResolvedException()).getMessage());
     }
 }

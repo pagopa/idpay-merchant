@@ -33,7 +33,10 @@ public interface MerchantController {
             @PathVariable("initiativeId") String initiativeId,
             @PathVariable("merchantId") String merchantId
     );
-    @GetMapping("/initiatives")
+
+    @Operation(summary = "Returns the list of initiatives of a specific merchant",
+            description = "")
+    @GetMapping("{merchantId}/initiatives")
     @ResponseStatus(code = HttpStatus.OK)
-    List<InitiativeDTO> getMerchantInitiativeList(@RequestHeader("x-merchant-id") String merchantId);
+    List<InitiativeDTO> getMerchantInitiativeList(@PathVariable String merchantId);
 }
