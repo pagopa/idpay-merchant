@@ -4,6 +4,7 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
+import it.gov.pagopa.merchant.service.merchant.UploadingMerchantService;
 import it.gov.pagopa.merchant.test.faker.MerchantFaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,12 +26,14 @@ class MerchantIdServiceTest {
     MerchantDetailService merchantDetailServiceMock;
     @Mock
     MerchantListService merchantListServiceMock;
+    @Mock
+    private UploadingMerchantService uploadingMerchantServiceMock;
 
     private MerchantService merchantService;
 
     @BeforeEach
     void setUp() {
-        merchantService = new MerchantServiceImpl(merchantDetailServiceMock,merchantListServiceMock,merchantRepositoryMock);
+        merchantService = new MerchantServiceImpl(merchantDetailServiceMock,merchantListServiceMock,merchantRepositoryMock, uploadingMerchantServiceMock);
     }
 
     @Test

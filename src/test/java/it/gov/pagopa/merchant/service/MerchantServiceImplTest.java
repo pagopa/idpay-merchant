@@ -25,13 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(MockitoExtension.class)
 class MerchantServiceImplTest {
     @Mock
-    private UploadingMerchantService uploadingMerchantService;
-    @Mock
     private MerchantDetailService merchantDetailServiceMock;
     @Mock
     private MerchantListService merchantListServiceMock;
     @Mock
     private MerchantRepository merchantRepositoryMock;
+    @Mock
+    private UploadingMerchantService uploadingMerchantService;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -42,10 +42,10 @@ class MerchantServiceImplTest {
     @BeforeEach
     void setUp(){
         merchantService = new MerchantServiceImpl(
-                uploadingMerchantService,
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantRepositoryMock);
+                merchantRepositoryMock,
+                uploadingMerchantService);
     }
 
     @AfterEach

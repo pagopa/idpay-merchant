@@ -16,20 +16,20 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class MerchantServiceImpl implements MerchantService{
 
-    private final UploadingMerchantService uploadingMerchantService;
     private final MerchantDetailService merchantDetailService;
     private final MerchantListService merchantListService;
     private final MerchantRepository merchantRepository;
+    private final UploadingMerchantService uploadingMerchantService;
 
     public MerchantServiceImpl(
             MerchantDetailService merchantDetailService,
             MerchantListService merchantListService,
-            MerchantRepository merchantRepository) {
-            UploadingMerchantService uploadingMerchantService, MerchantDetailService merchantDetailService,) {
-        this.uploadingMerchantService = uploadingMerchantService;
+            MerchantRepository merchantRepository,
+            UploadingMerchantService uploadingMerchantService) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
         this.merchantRepository = merchantRepository;
+        this.uploadingMerchantService = uploadingMerchantService;
     }
 
     @Override
