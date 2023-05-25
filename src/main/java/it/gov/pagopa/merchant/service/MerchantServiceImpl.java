@@ -3,6 +3,8 @@ package it.gov.pagopa.merchant.service;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.model.Merchant;
+import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
 import it.gov.pagopa.merchant.service.merchant.UploadingMerchantService;
@@ -14,17 +16,20 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class MerchantServiceImpl implements MerchantService{
 
-    private final UploadingMerchantService uploadingMerchantService;
     private final MerchantDetailService merchantDetailService;
     private final MerchantListService merchantListService;
-
+    private final MerchantRepository merchantRepository;
+    private final UploadingMerchantService uploadingMerchantService;
 
     public MerchantServiceImpl(
-            UploadingMerchantService uploadingMerchantService, MerchantDetailService merchantDetailService,
-            MerchantListService merchantListService) {
-        this.uploadingMerchantService = uploadingMerchantService;
+            MerchantDetailService merchantDetailService,
+            MerchantListService merchantListService,
+            MerchantRepository merchantRepository,
+            UploadingMerchantService uploadingMerchantService) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
+        this.merchantRepository = merchantRepository;
+        this.uploadingMerchantService = uploadingMerchantService;
     }
 
     @Override
@@ -47,5 +52,11 @@ public class MerchantServiceImpl implements MerchantService{
                                            String fiscalCode,
                                            Pageable pageable) {
         return merchantListService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable);
+    }
+    @Override
+    public String retrieveMerchantId(String acquirerId, String fiscalCode) {
+        return merchantRepository.findByAcquirerIdAndFiscalCode(acquirerId, fiscalCode)
+                .map(Merchant::getMerchantId)
+                .orElse(null);
     }
 }

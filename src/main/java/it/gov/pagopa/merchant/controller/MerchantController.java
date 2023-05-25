@@ -42,4 +42,9 @@ public interface MerchantController {
             @PathVariable("initiativeId") String initiativeId,
             @PathVariable("merchantId") String merchantId
     );
+    @Operation(summary = "Returns the merchant id",
+            description = "")
+    @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
+    @ResponseStatus(code = HttpStatus.OK)
+    String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId, @PathVariable("fiscalCode") String fiscalCode);
 }

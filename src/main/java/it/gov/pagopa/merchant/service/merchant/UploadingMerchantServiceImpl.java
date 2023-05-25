@@ -235,7 +235,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 }
                 String[] splitStr = line.split(COMMA);
 
-                Merchant merchant = merchantRepository.findByFiscalCodeAndAcquirerId(splitStr[FISCAL_CODE_INDEX], PAGOPA)
+                Merchant merchant = merchantRepository.findByAcquirerIdAndFiscalCode(PAGOPA, splitStr[FISCAL_CODE_INDEX])
                         .orElse(createNewMerchant(splitStr));
 
                 String ibanNew = splitStr[IBAN_INDEX];
