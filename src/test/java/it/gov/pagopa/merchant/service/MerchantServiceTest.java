@@ -19,13 +19,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
-class MerchantIdServiceTest {
+class MerchantServiceTest {
 
-    @Mock private MerchantRepository merchantRepositoryMock;
     @Mock
-    MerchantDetailService merchantDetailServiceMock;
+    private MerchantRepository merchantRepositoryMock;
     @Mock
-    MerchantListService merchantListServiceMock;
+    private MerchantDetailService merchantDetailServiceMock;
+    @Mock
+    private MerchantListService merchantListServiceMock;
     @Mock
     private UploadingMerchantService uploadingMerchantServiceMock;
 

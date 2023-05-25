@@ -31,7 +31,7 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantRepository merchantRepositoryMock;
     @Mock
-    private UploadingMerchantService uploadingMerchantService;
+    private UploadingMerchantService uploadingMerchantServiceMock;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -45,7 +45,7 @@ class MerchantServiceImplTest {
                 merchantDetailServiceMock,
                 merchantListServiceMock,
                 merchantRepositoryMock,
-                uploadingMerchantService);
+                uploadingMerchantServiceMock);
     }
 
     @AfterEach
