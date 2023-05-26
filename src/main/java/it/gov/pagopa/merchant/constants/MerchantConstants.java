@@ -31,6 +31,8 @@ public class MerchantConstants {
     public static final String NOT_FOUND = "NOT FOUND";
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
     public static final String INITIATIVE_AND_MERCHANT_NOT_FOUND = "Initiative %s and merchant %s not found.";
+    public static final String MERCHANT_BY_MERCHANT_ID_MESSAGE = "Merchant %s not found.";
+
     public static final String CSV_READING_ERROR = "Initiative %s - file %s: error during file reading - %s";
     public static final String STORAGE_ERROR = "Initiative %s - file %s: error during file storage";
     public static final String DOWNLOAD_ERROR = "Initiative %s - file %s: error during file download";

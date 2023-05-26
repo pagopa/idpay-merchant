@@ -1,16 +1,18 @@
 package it.gov.pagopa.merchant.controller;
 
-
-import it.gov.pagopa.merchant.dto.ErrorDTO;
-import it.gov.pagopa.merchant.model.Merchant;
-import it.gov.pagopa.merchant.service.MerchantService;
-import it.gov.pagopa.merchant.test.faker.MerchantFaker;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.merchant.configuration.JsonConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.dto.ErrorDTO;
+import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
+import it.gov.pagopa.merchant.model.Merchant;
+import it.gov.pagopa.merchant.service.MerchantService;
+import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
+import it.gov.pagopa.merchant.test.fakers.InitiativeDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -138,5 +142,41 @@ class MerchantControllerImplTest {
         Assertions.assertEquals(MerchantConstants.NOT_FOUND, errorDTO.getCode());
         Assertions.assertEquals(String.format(MerchantConstants.MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE,"ACQUIRERID" , "FISCALCODE"),errorDTO.getMessage());
         Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(),anyString());
+    }
+
+    @Test
+    void getMerchantInitiativeList() throws Exception {
+        List<InitiativeDTO> expectedResult = List.of(
+                InitiativeDTOFaker.mockInstance(1),
+                InitiativeDTOFaker.mockInstance(2));
+
+        Mockito.when(merchantServiceMock.getMerchantInitiativeList(anyString())).thenReturn(expectedResult);
+
+        MvcResult result = mockMvc.perform(
+                        get("/idpay/merchant/{merchantId}/initiatives", MERCHANT_ID))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        List<InitiativeDTO> response = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                new TypeReference<>() {}
+        );
+
+        Assertions.assertEquals(expectedResult, response);
+    }
+
+    @Test
+    void getMerchantInitiativeList_notFound() throws Exception {
+        Mockito.when(merchantServiceMock.getMerchantInitiativeList(anyString())).thenReturn(null);
+
+        mockMvc.perform(
+                        get("/idpay/merchant/{merchantId}/initiatives", MERCHANT_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
+                .andExpect(res -> Assertions.assertEquals(String.format(MerchantConstants.MERCHANT_BY_MERCHANT_ID_MESSAGE, MERCHANT_ID),
+                        Objects.requireNonNull(res.getResolvedException()).getMessage()))
+                .andReturn();
+
+        Mockito.verify(merchantServiceMock).getMerchantInitiativeList(anyString());
     }
 }

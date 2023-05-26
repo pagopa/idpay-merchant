@@ -1,20 +1,34 @@
 package it.gov.pagopa.merchant.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
-/**
- * InitiativeDTO
- */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class InitiativeDTO {
-
-    @JsonProperty("initiativeId")
+    @NotBlank
     private String initiativeId;
-
-    @JsonProperty("initiativeName")
+    @NotBlank
     private String initiativeName;
+    @NotBlank
+    private String merchantStatus;
 
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime creationDate;
+
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime updateDate;
+    @NotNull
+    private boolean enabled;
 }

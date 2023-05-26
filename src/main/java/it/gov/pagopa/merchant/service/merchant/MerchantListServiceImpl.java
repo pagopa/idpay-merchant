@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.MerchantDTO;
+import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.Utilities;
@@ -12,7 +13,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
