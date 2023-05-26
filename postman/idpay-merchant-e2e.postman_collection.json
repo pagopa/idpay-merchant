@@ -1,0 +1,2188 @@
+{
+	"info": {
+		"_postman_id": "8a5d6159-7389-4c42-86f1-2a87b1086ffe",
+		"name": "Merchant - e2e",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26036679",
+		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036679-8a5d6159-7389-4c42-86f1-2a87b1086ffe?action=share&creator=26036679&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "Happy Case",
+			"item": [
+				{
+					"name": "Initiative creation",
+					"item": [
+						{
+							"name": "ENTE - Initiative creation",
+							"item": [
+								{
+									"name": "Generate Portal Token",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let textResponse = pm.response.text()\r",
+													"\r",
+													"pm.test('Initiative with discount - Initiative with criteria - Happy case - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+													"    //verify response HTTP status \r",
+													"    pm.response.to.have.status(200);\r",
+													"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"aud\": \"idpay.welfare.pagopa.it\",\r\n    \"uid\": \"{{uid_Ente}}\",\r\n    \"name\": \"{{name_Ente}}\",\r\n    \"familyName\": \"{{familyName_Ente}}\",\r\n    \"email\": \"{{email_Ente}}\",\r\n    \"orgId\": \"{{orgId_Ente}}\",\r\n    \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n    \"orgName\": \"Ente di test IdPay\",\r\n    \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n    \"orgRole\": \"{{orgRole_Ente}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/welfare/token/test",
+											"host": [
+												"{{baseUrlToken}}"
+											],
+											"path": [
+												"welfare",
+												"token",
+												"test"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "STEP1-Insert Initiative (Service Info)",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"let moment = require('moment');\r",
+													"const now = String(moment().format('DD-MM-YYYY hh:mm'));\r",
+													"const serviceName = 'Test funzionali App IO Initiative with criteria and discount ' + now;\r",
+													"pm.collectionVariables.set('serviceName', serviceName);\r",
+													"pm.collectionVariables.set('description', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
+													"\r",
+													"pm.collectionVariables.set('channel_type', 'web');\r",
+													"pm.collectionVariables.set('channel_contact', pm.variables.replaceIn('{{$randomUrl}}'));"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var jsonData = JSON.parse(responseBody);\r",
+													"// console.log('jsondata', jsonData);\r",
+													"// console.log('jsondata.initiativeId', jsonData.initiativeId);\r",
+													"pm.collectionVariables.set('initiativeId', jsonData.initiativeId);\r",
+													"\r",
+													"pm.test(\"Initiative with discount - Initiative with criteria - Happy case - Initiative creation - STEP1 - Responses with 201\", function () {\r",
+													"    pm.response.to.have.status(201);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Initiative with discount - Initiative with criteria - Happy case - Initiative creation - STEP1 - Verify response body\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"serviceIO\": true,\n    \"serviceName\": \"{{serviceName}}\",\n    \"serviceScope\": \"LOCAL\",\n    \"description\": \"{{description}}\",\n    \"privacyLink\": \"https://www.google.it\",\n    \"tcLink\": \"https://www.google.com\",\n    \"channels\": [\n        {\n            \"type\": \"{{channel_type}}\",\n            \"contact\": \"{{channel_contact}}\"\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrlInitiative}}/info",
+											"host": [
+												"{{baseUrlInitiative}}"
+											],
+											"path": [
+												"info"
+											]
+										},
+										"description": "Save initiative and first subset of data 'general info'"
+									},
+									"response": []
+								},
+								{
+									"name": "STEP2-Update Initiative (general Info)",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"let moment = require('moment');\r",
+													"//Format: YYYY-MM-DD\r",
+													"let today = String(moment().format('YYYY-MM-DD'));\r",
+													"let todayP1 = String(moment().add(1,'months').format('YYYY-MM-DD'));\r",
+													"let todayP2 = String(moment().add(2,'months').format('YYYY-MM-DD'));\r",
+													"let todayP3 = String(moment().add(3,'months').format('YYYY-MM-DD'));\r",
+													"\r",
+													"let yesterday = String(moment().subtract(1, 'days').format('YYYY-MM-DD'));\r",
+													"\r",
+													"\r",
+													"/*\r",
+													"var futureDate = pm.variables.replaceIn('{{$$randomDateFuture}}');\r",
+													"pm.collectionVariables.set('...', _.random(0, 180));\r",
+													"*/\r",
+													"//_.floor(_.random(1.0, 100000.0, true),2)\r",
+													"pm.collectionVariables.set('budget', _.floor(_.random(10000, 100000, true),2));\r",
+													"pm.collectionVariables.set('beneficiaryType', 'PF');\r",
+													"//pm.collectionVariables.set('beneficiaryKnown', pm.variables.replaceIn('{{$randomBoolean}}'));\r",
+													"pm.collectionVariables.set('beneficiaryKnown', false);\r",
+													"pm.collectionVariables.set('rankingEnabled', false);\r",
+													"pm.collectionVariables.set('beneficiaryBudget', pm.variables.replaceIn('{{$randomInt}}'));//default max 1000\r",
+													"pm.collectionVariables.set('rankingStartDate', today);\r",
+													"pm.collectionVariables.set('rankingEndDate', todayP1);\r",
+													"pm.collectionVariables.set('startDate', todayP2);\r",
+													"pm.collectionVariables.set('endDate', todayP3);"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Initative discount - Initiative with criteria - Happy case - Initiative creation - STEP2 - Responses with 204\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"budget\": {{budget}},\n    \"beneficiaryType\": \"{{beneficiaryType}}\",\n    \"beneficiaryKnown\": {{beneficiaryKnown}},\n    \"rankingEnabled\": {{rankingEnabled}},\n    \"beneficiaryBudget\": {{beneficiaryBudget}},\n    \"rankingStartDate\": \"{{rankingStartDate}}\",\n    \"rankingEndDate\": \"{{rankingEndDate}}\",\n    \"startDate\": \"{{startDate}}\",\n    \"endDate\": \"{{endDate}}\",\n    \"descriptionMap\": {\n        \"it\": \"it\"\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrlInitiative}}/:initiativeId/general",
+											"host": [
+												"{{baseUrlInitiative}}"
+											],
+											"path": [
+												":initiativeId",
+												"general"
+											],
+											"variable": [
+												{
+													"key": "initiativeId",
+													"value": "{{initiativeId}}",
+													"description": "(Required) The initiative ID"
+												}
+											]
+										},
+										"description": "Save initiative and first subset of data 'general info'"
+									},
+									"response": []
+								},
+								{
+									"name": "STEP3-Update Initiative (criteria)",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Initiative with discount - Initiative with criteria - Happy case - Initiative creation - STEP3 - Responses with 204\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"automatedCriteria\": [\r\n        {\r\n            \"authority\": \"INPS\",\r\n            \"code\": \"ISEE\",\r\n            \"operator\": \"GT\",\r\n            \"value\": \"1\",\r\n            \"value2\": \"\",\r\n            \"iseeTypes\": [\r\n                \"ORDINARIO\",\r\n                \"MINORENNE\",\r\n                \"UNIVERSITARIO\",\r\n                \"SOCIOSANITARIO\",\r\n                \"DOTTORATO\",\r\n                \"RESIDENZIALE\",\r\n                \"CORRENTE\"\r\n            ]\r\n        }\r\n    ],\r\n    \"selfDeclarationCriteria\": []\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrlInitiative}}/{{initiativeId}}/beneficiary",
+											"host": [
+												"{{baseUrlInitiative}}"
+											],
+											"path": [
+												"{{initiativeId}}",
+												"beneficiary"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "STEP4-Update Initiative Trx-Reward rules",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Initiative with discount - Initiative with criteria - Happy case - Initiative creation - STEP4 - Responses with 204\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"setTimeout(()=> {}, 10000)\r",
+													"const d = new Date();\r",
+													"dateString = d.toISOString()\r",
+													"let endTime = dateString.split('T');\r",
+													"endTime = endTime[1].split('Z');\r",
+													"\r",
+													"pm.collectionVariables.set('rewardRuleType', 'rewardValue');\r",
+													"const rewardValueTypes = [\"PERCENTAGE\", \"ABSOLUTE\"];\r",
+													"rewardValueTypeRandomIndex = _.random(0, rewardValueTypes.length - 1);\r",
+													"const selectedRewardValueType = rewardValueTypes[rewardValueTypeRandomIndex];\r",
+													"pm.collectionVariables.set('rewardValueType', selectedRewardValueType);\r",
+													"if (selectedRewardValueType == \"PERCENTAGE\") {\r",
+													"    pm.collectionVariables.set('rewardRuleValue', 100);\r",
+													"} else {\r",
+													"    pm.collectionVariables.set('rewardRuleValue', 1);\r",
+													"}\r",
+													"\r",
+													"pm.collectionVariables.set('trxDaysOfWeek', pm.variables.replaceIn('{{$randomWeekday}}').toString().toUpperCase());\r",
+													"pm.collectionVariables.set('trxDayEndTime', endTime[0]);\r",
+													"pm.collectionVariables.set('trxThresholdFrom', 10);\r",
+													"pm.collectionVariables.set('trxThresholdTo', 50);\r",
+													"pm.collectionVariables.set('trxCountFrom', 3);\r",
+													"pm.collectionVariables.set('trxCountTo', 11);\r",
+													"pm.collectionVariables.set('trxRewardLimitFrequency', 'DAILY');\r",
+													"pm.collectionVariables.set('trxRewardLimitValue', 3);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"initiativeRewardType\": \"DISCOUNT\",\n  \"rewardRule\": {\n    \"_type\": \"{{rewardRuleType}}\",\n    \"rewardValue\": {{rewardRuleValue}},\n    \"rewardValueType\": \"{{rewardValueType}}\"\n  },\n  \"trxRule\": {\n    \"daysOfWeek\": [\n      {\n        \"daysOfWeek\": [\n          \"{{trxDaysOfWeek}}\"\n        ],\n        \"intervals\": [\n          {\n            \"startTime\": \"00:00:00.000\",\n            \"endTime\": \"{{trxDayEndTime}}\"\n          }\n        ]\n      }\n    ],\n    \"threshold\": {\n      \"from\": {{trxThresholdFrom}},\n      \"fromIncluded\": true,\n      \"to\": {{trxThresholdTo}},\n      \"toIncluded\": true\n    },\n    \"mccFilter\": {\n      \"allowedList\": true,\n      \"values\": [\n        \"0742\", \"0743\", \"0744\"\n      ]\n    },\n    \"trxCount\": {\n      \"from\": {{trxCountFrom}},\n      \"fromIncluded\": true,\n      \"to\": {{trxCountTo}},\n      \"toIncluded\": true\n    }\n  }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrlInitiative}}/:initiativeId/reward",
+											"host": [
+												"{{baseUrlInitiative}}"
+											],
+											"path": [
+												":initiativeId",
+												"reward"
+											],
+											"variable": [
+												{
+													"key": "initiativeId",
+													"value": "{{initiativeId}}",
+													"description": "(Required) The initiative ID"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "STEP5-Update Initiative Refund Rule",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Initiative with discount - Initiative with criteria - Happy case - Initiative creation - STEP5 - Responses with 204\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"/*const timeType = [\"CLOSED\",\"DAILY\",\"WEEKLY\",\"MONTHLY\",\"QUARTERLY\"];\r",
+													"timeTypeRandomIndex = _.random(0, timeType.length-1);\r",
+													"\r",
+													"const accumulatedType = [\"BUDGET_EXHAUSTED\",\"THRESHOLD_REACHED\"];\r",
+													"accumulatedTypeRandomIndex = _.random(0, timeType.length-1);\r",
+													"\r",
+													"pm.collectionVariables.set('timeType', timeType[timeTypeRandomIndex]);\r",
+													"pm.collectionVariables.set('accumulatedType', accumulatedType[accumulatedTypeRandomIndex]);\r",
+													"pm.collectionVariables.set('identificationCode', pm.variables.replaceIn('{{$randomLoremSentence}}'));\r",
+													"*/\r",
+													"\r",
+													"/*\r",
+													"let refundType = \"timeParameter\";\r",
+													"refundTypeRandomIndex = _.random(0, refundType.length - 1);\r",
+													"\r",
+													"const refundTypeSelected = \"timeParameter\";\r",
+													"let body = {};\r",
+													"if (refundTypeSelected == \"timeParameter\") {\r",
+													"    const timeType = [\"CLOSED\",\"DAILY\",\"WEEKLY\",\"MONTHLY\",\"QUARTERLY\"];\r",
+													"    timeTypeRandomIndex = _.random(0, timeType.length-1);\r",
+													"    body = {\r",
+													"        timeParameter: {\r",
+													"            timeType: timeType[timeTypeRandomIndex]\r",
+													"        }\r",
+													"    };\r",
+													"} else {\r",
+													"    const accumulatedType = [\"BUDGET_EXHAUSTED\", \"THRESHOLD_REACHED\"];\r",
+													"    accumulatedTypeRandomIndex = _.random(0, accumulatedType.length - 1);\r",
+													"    const accumulatedTypeSelected = accumulatedType[accumulatedTypeRandomIndex];\r",
+													"    if (accumulatedTypeSelected == \"BUDGET_EXHAUSTED\") {\r",
+													"        body = {\r",
+													"            accumulatedAmount: {\r",
+													"                accumulatedType: \"BUDGET_EXHAUSTED\"\r",
+													"            }\r",
+													"        };\r",
+													"    } else {\r",
+													"        body = {\r",
+													"            accumulatedAmount: {\r",
+													"                accumulatedType: \"THRESHOLD_REACHED\",\r",
+													"                refundThreshold: 10\r",
+													"            }\r",
+													"        };\r",
+													"    }\r",
+													"}\r",
+													"*/\r",
+													"const timeType = [\"CLOSED\", \"DAILY\", \"WEEKLY\", \"MONTHLY\", \"QUARTERLY\"];\r",
+													"timeTypeRandomIndex = _.random(0, timeType.length - 1);\r",
+													"const body = {\r",
+													"    timeParameter: {\r",
+													"        timeType: timeType[timeTypeRandomIndex]\r",
+													"    }\r",
+													"};\r",
+													"pm.collectionVariables.set('body', JSON.stringify(body));"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{{body}}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrlInitiative}}/:initiativeId/refund",
+											"host": [
+												"{{baseUrlInitiative}}"
+											],
+											"path": [
+												":initiativeId",
+												"refund"
+											],
+											"variable": [
+												{
+													"key": "initiativeId",
+													"value": "{{initiativeId}}",
+													"description": "(Required) The initiative ID"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "PAGOPA - Initiative update status APPROVED",
+							"item": [
+								{
+									"name": "Generate Portal Token",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let textResponse = pm.response.text()\r",
+													"\r",
+													"pm.test('Initiative with discount - Initiative with criteria - Happy case - Initiative updating - Generate Portal Token (PagoPA Admin)', () => {\r",
+													"    //verify response HTTP status \r",
+													"    pm.response.to.have.status(200);\r",
+													"    pm.collectionVariables.set(\"identityPortalTokenPagopa\", textResponse);\r",
+													"});\r",
+													"\r",
+													"//response time is less than 1s\r",
+													"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"aud\": \"idpay.welfare.pagopa.it\",\r\n  \"uid\": \"{{uid_Pagopa}}\",\r\n  \"name\": \"{{name_Pagopa}}\",\r\n  \"familyName\": \"{{familyName_Pagopa}}\",\r\n  \"email\": \"{{email_Pagopa}}\",\r\n  \"orgId\": \"{{orgId_Pagopa}}\",\r\n  \"orgVAT\": \"{{orgVAT_Pagopa}}\",\r\n  \"orgName\": \"Ente di test IdPay\",\r\n  \"orgPartyRole\": \"{{orgPartyRole_Pagopa}}\",\r\n  \"orgRole\": \"{{orgRole_Pagopa}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/welfare/token/test",
+											"host": [
+												"{{baseUrlToken}}"
+											],
+											"path": [
+												"welfare",
+												"token",
+												"test"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update initiative into APPROVED status",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Initiative with discount - Initiative with criteria - Happy case - Initiative updating - PagoPA Admin updates initiative status into APPROVED -(Responses with 204)\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"//setTimeout(function(){}, 20000); //milliseconds"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalTokenPagopa}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrlInitiative}}/{{initiativeId}}/approved",
+											"host": [
+												"{{baseUrlInitiative}}"
+											],
+											"path": [
+												"{{initiativeId}}",
+												"approved"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "ENTE - Initiative PUBLISHED",
+							"item": [
+								{
+									"name": "Generate Portal Token",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let textResponse = pm.response.text()\r",
+													"\r",
+													"pm.test('Initiative with discount - Initiative with criteria - Happy case - Initiative pubblication - Generate Portal Token (Ente Admin)', () => {\r",
+													"    //verify response HTTP status \r",
+													"    pm.response.to.have.status(200);\r",
+													"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
+													"});\r",
+													"\r",
+													"//response time is less than 1s\r",
+													"tests[\"Response time is less than 1s\"] = responseTime < 1000;"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "Ocp-Apim-Trace",
+												"value": "true",
+												"type": "default"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"aud\": \"idpay.welfare.pagopa.it\",\r\n    \"uid\": \"{{uid_Ente}}\",\r\n    \"name\": \"{{name_Ente}}\",\r\n    \"familyName\": \"{{familyName_Ente}}\",\r\n    \"email\": \"{{email_Ente}}\",\r\n    \"orgId\": \"{{orgId_Ente}}\",\r\n    \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n    \"orgName\": \"Ente di test IdPay\",\r\n    \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n    \"orgRole\": \"{{orgRole_Ente}}\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/welfare/token/test",
+											"host": [
+												"{{baseUrlToken}}"
+											],
+											"path": [
+												"welfare",
+												"token",
+												"test"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Initiative PUBLISHED",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Initiative with discount - Initiative with criteria - Happy case - Initiative pubblication - Ente Admin updates initiative status into PUBLISHED -(Responses with 204)\", function () {\r",
+													"    pm.response.to.have.status(204);\r",
+													"});\r",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"/*let body;\r",
+													"baseUrlInitiative = pm.variables.get('baseUrlInitiative')\r",
+													"if(baseUrlInitiative.includes('localhost')){\r",
+													"    body = {\r",
+													"        mode: 'raw',\r",
+													"        raw: JSON.stringify({\r",
+													"            organizationName: 'Comune di Milano',\r",
+													"            organizationFiscalCode: '11122233344',\r",
+													"            organizationUserId: 'b8986bf2-1f93-4827-ab16-b21eb8aeae2b',\r",
+													"            organizationUserRole: 'admin'\r",
+													"        })\r",
+													"    }\r",
+													"    pm.request.headers.add({\r",
+													"        key: \"Content-Type\",\r",
+													"        value: \"application/json\"\r",
+													"    });\r",
+													"    pm.variables.set('body', JSON.stringify(body));\r",
+													"    pm.request.body.update(body);\r",
+													"}\r",
+													"*/"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrlInitiative}}/{{initiativeId}}/published",
+											"host": [
+												"{{baseUrlInitiative}}"
+											],
+											"path": [
+												"{{initiativeId}}",
+												"published"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Upload cvs",
+					"item": [
+						{
+							"name": "Generate Portal Token",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let textResponse = pm.response.text()\r",
+											"\r",
+											"pm.test('Initiative with criteria - Happy case - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+											"    //verify response HTTP status \r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Ocp-Apim-Trace",
+										"value": "true",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"aud\": \"idpay.welfare.pagopa.it\",\r\n    \"uid\": \"{{uid_Ente}}\",\r\n    \"name\": \"{{name_Ente}}\",\r\n    \"familyName\": \"{{familyName_Ente}}\",\r\n    \"email\": \"{{email_Ente}}\",\r\n    \"orgId\": \"{{orgId_Ente}}\",\r\n    \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n    \"orgName\": \"Ente di test IdPay\",\r\n    \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n    \"orgRole\": \"{{orgRole_Ente}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrlToken}}/welfare/token/test",
+									"host": [
+										"{{baseUrlToken}}"
+									],
+									"path": [
+										"welfare",
+										"token",
+										"test"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload csv",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Merchant - Happy case - Upload csv - Response status is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Merchant - Happy case - Upload csv - Verify response body contains status: VALIDATED\", function () {\r",
+											"    let jsonResponse = pm.response.json();\r",
+											"    pm.expect(jsonResponse.status).eql(\"VALIDATED\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{identityPortalToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "{{basePath}}/example_merchant_valid.csv"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+									"host": [
+										"{{baseUrlToken}}/merchant"
+									],
+									"path": [
+										"initiative",
+										"{{initiativeId}}",
+										"upload"
+									],
+									"query": [
+										{
+											"key": "",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Merchant list on initiative",
+					"item": [
+						{
+							"name": "Get Merchant List",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Merchant - Happy case - Get merchant list - Response status is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Merchant - Happy case - Get merchant list - Verify response body contains merchantId,businessName,fiscalCode,merchantStatus,updateStatusDate\", function () {\r",
+											"\r",
+											"    const response = pm.response.json().content[0];\r",
+											"    pm.expect(response).have.property(\"merchantId\");\r",
+											"    pm.expect(response).have.property(\"businessName\");\r",
+											"    pm.expect(response).have.property(\"fiscalCode\");\r",
+											"    pm.expect(response).have.property(\"merchantStatus\");\r",
+											"    pm.expect(response).have.property(\"updateStatusDate\");\r",
+											"\r",
+											"    //const filterByMerchantId = response.filter(merchantId => merchantId.merchantId === pm.collectionVariables.get(\"merchantId\"));\r",
+											"    pm.collectionVariables.set(\"merchantId\", response.merchantId);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"setTimeout(() => {}, 8000);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{identityPortalToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/merchants",
+									"host": [
+										"{{baseUrlToken}}/merchant"
+									],
+									"path": [
+										"initiative",
+										"{{initiativeId}}",
+										"merchants"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Merchant detail on initiative",
+					"item": [
+						{
+							"name": "Get Merchant Detail",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Merchant - Happy case - Get merchant detail - Response status is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains fields\", function () {\r",
+											"    let jsonResponse = pm.response.json();\r",
+											"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
+											"    pm.expect(jsonResponse).have.property(\"businessName\");\r",
+											"    pm.expect(jsonResponse).have.property(\"legalOfficeAddress\");\r",
+											"    pm.expect(jsonResponse).have.property(\"legalOfficeMunicipality\");\r",
+											"    pm.expect(jsonResponse).have.property(\"legalOfficeZipCode\");\r",
+											"    pm.expect(jsonResponse).have.property(\"certifiedEmail\");\r",
+											"    pm.expect(jsonResponse).have.property(\"fiscalCode\");\r",
+											"    pm.expect(jsonResponse).have.property(\"vatNumber\");\r",
+											"    pm.expect(jsonResponse).have.property(\"status\");\r",
+											"    pm.expect(jsonResponse).have.property(\"iban\");\r",
+											"    pm.expect(jsonResponse).have.property(\"updateDate\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{identityPortalToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrlToken}}/merchant/7802a14f-9ad6-3bdc-9995-a7e289cb1973/initiative/646e22d0bae1337937e72914",
+									"host": [
+										"{{baseUrlToken}}/merchant"
+									],
+									"path": [
+										"7802a14f-9ad6-3bdc-9995-a7e289cb1973",
+										"initiative",
+										"646e22d0bae1337937e72914"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Merchant list on initiative not found - empty list",
+					"item": [
+						{
+							"name": "Get Merchant List",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Merchant - Happy case - Get merchant list on initiative not found - Response status is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Merchant - Happy case - Get merchant list on initiative not found - checking the response is an empty list\", function () {\r",
+											"     let jsonResponse = pm.response.json()\r",
+											"    pm.expect(jsonResponse.content.length).equals(0);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{identityPortalToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId-fake}}/merchants",
+									"host": [
+										"{{baseUrlToken}}/merchant"
+									],
+									"path": [
+										"initiative",
+										"{{initiativeId-fake}}",
+										"merchants"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Upload cvs change merchant",
+			"item": [
+				{
+					"name": "Upload csv",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Merchant - Happy case - Upload csv - change merchant - Response status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Merchant - Happy case - Upload csv - change merchant - Verify response body contains status: VALIDATED\", function () {\r",
+									"    let jsonResponse = pm.response.json();\r",
+									"    pm.expect(jsonResponse.status).eql(\"VALIDATED\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{identityPortalToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "{{basePath}}/example_merchant_valid_changing_merchants2.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+							"host": [
+								"{{baseUrlToken}}/merchant"
+							],
+							"path": [
+								"initiative",
+								"{{initiativeId}}",
+								"upload"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Merchant list on initiative",
+			"item": [
+				{
+					"name": "Get Merchant List",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Merchant - Happy case - Get merchant list - Response status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Merchant - Happy case - Get merchant list - Verify response body contains merchantId,businessName,fiscalCode,merchantStatus,updateStatusDate ang pagination\", function () {\r",
+									"\r",
+									"    const response = pm.response.json().content[3];\r",
+									"    pm.expect(response).have.property(\"merchantId\");\r",
+									"    pm.expect(response).have.property(\"businessName\");\r",
+									"    pm.expect(response).have.property(\"fiscalCode\");\r",
+									"    pm.expect(response).have.property(\"merchantStatus\");\r",
+									"    pm.expect(response).have.property(\"updateStatusDate\");\r",
+									"    \r",
+									"    let jsonResponse = pm.response.json();\r",
+									"    pm.expect(jsonResponse.totalElements).to.eq(13);\r",
+									"    pm.expect(jsonResponse.totalPages).to.eq(2);\r",
+									"\r",
+									"    //const filterByMerchantId = response.filter(merchantId => merchantId.merchantId === pm.collectionVariables.get(\"merchantId\"));\r",
+									"    pm.collectionVariables.set(\"merchantId\", response.merchantId);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout(() => {}, 8000);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{identityPortalToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/merchants?size=10",
+							"host": [
+								"{{baseUrlToken}}/merchant"
+							],
+							"path": [
+								"initiative",
+								"{{initiativeId}}",
+								"merchants"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Merchant detail on initiative",
+			"item": [
+				{
+					"name": "Get Merchant Detail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Merchant - Happy case - Get merchant detail - Response status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains fields\", function () {\r",
+									"    let jsonResponse = pm.response.json();\r",
+									"    pm.expect(jsonResponse).have.property(\"initiativeId\");\r",
+									"    pm.expect(jsonResponse).have.property(\"businessName\");\r",
+									"    pm.expect(jsonResponse).have.property(\"legalOfficeAddress\");\r",
+									"    pm.expect(jsonResponse).have.property(\"legalOfficeMunicipality\");\r",
+									"    pm.expect(jsonResponse).have.property(\"legalOfficeZipCode\");\r",
+									"    pm.expect(jsonResponse).have.property(\"certifiedEmail\");\r",
+									"    pm.expect(jsonResponse).have.property(\"fiscalCode\");\r",
+									"    pm.expect(jsonResponse).have.property(\"vatNumber\");\r",
+									"    pm.expect(jsonResponse).have.property(\"status\");\r",
+									"    pm.expect(jsonResponse).have.property(\"iban\");\r",
+									"    pm.expect(jsonResponse).have.property(\"updateDate\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{identityPortalToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlToken}}/merchant/{{merchantId}}/initiative/{{initiativeId}}",
+							"host": [
+								"{{baseUrlToken}}/merchant"
+							],
+							"path": [
+								"{{merchantId}}",
+								"initiative",
+								"{{initiativeId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Unhappy Case",
+			"item": [
+				{
+					"name": "Upload csv",
+					"item": [
+						{
+							"name": "Upload csv - file empty",
+							"item": [
+								{
+									"name": "Upload csv",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains status: KO and errorKey: merchant.invalid.file.empty\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse.status).eql(\"KO\");\r",
+													"    pm.expect(jsonResponse.errorKey).eql(\"merchant.invalid.file.empty\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"type": "file",
+													"src": "{{basePath}}/empty_file.csv"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+											"host": [
+												"{{baseUrlToken}}/merchant"
+											],
+											"path": [
+												"initiative",
+												"{{initiativeId}}",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Upload csv - wrong format",
+							"item": [
+								{
+									"name": "Upload csv",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains status: KO and errorKey: merchant.invalid.file.format\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse.status).eql(\"KO\");\r",
+													"    pm.expect(jsonResponse.errorKey).eql(\"merchant.invalid.file.format\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"type": "file",
+													"src": "{{basePath}}/example_merchant_valid_format_wrong.xml"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+											"host": [
+												"{{baseUrlToken}}/merchant"
+											],
+											"path": [
+												"initiative",
+												"{{initiativeId}}",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Upload csv - filename already used",
+							"item": [
+								{
+									"name": "Upload csv",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains status: KO and errorKey: merchant.invalid.file.name\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse.status).eql(\"KO\");\r",
+													"    pm.expect(jsonResponse.errorKey).eql(\"merchant.invalid.file.name\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"type": "file",
+													"src": "{{basePath}}/example_merchant_valid.csv"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+											"host": [
+												"{{baseUrlToken}}/merchant"
+											],
+											"path": [
+												"initiative",
+												"{{initiativeId}}",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Upload csv - invalid fiscal code",
+							"item": [
+								{
+									"name": "Upload csv",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains status: KO and errorKey: merchant.invalid.file.cf.wrong\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse.status).eql(\"KO\");\r",
+													"    pm.expect(jsonResponse.errorKey).eql(\"merchant.invalid.file.cf.wrong\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"type": "file",
+													"src": "{{basePath}}/example_merchant_valid_CF_WRONG.csv"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+											"host": [
+												"{{baseUrlToken}}/merchant"
+											],
+											"path": [
+												"initiative",
+												"{{initiativeId}}",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Upload csv - missing required fields",
+							"item": [
+								{
+									"name": "Upload csv",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains status: KO and errorKey: merchant.missing.required.fields\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse.status).eql(\"KO\");\r",
+													"    pm.expect(jsonResponse.errorKey).eql(\"merchant.missing.required.fields\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"type": "file",
+													"src": "{{basePath}}/example_merchant_missing_required_fields.csv"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+											"host": [
+												"{{baseUrlToken}}/merchant"
+											],
+											"path": [
+												"initiative",
+												"{{initiativeId}}",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Upload csv - invalid iban",
+							"item": [
+								{
+									"name": "Upload csv",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains status: KO and errorKey: merchant.invalid.file.iban.wrong\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse.status).eql(\"KO\");\r",
+													"    pm.expect(jsonResponse.errorKey).eql(\"merchant.invalid.file.iban.wrong\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"type": "file",
+													"src": "{{basePath}}/example_merchant_valid_iban_wrong.csv"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+											"host": [
+												"{{baseUrlToken}}/merchant"
+											],
+											"path": [
+												"initiative",
+												"{{initiativeId}}",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Upload csv - invalid certified email",
+							"item": [
+								{
+									"name": "Upload csv",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains status: KO and errorKey: merchant.invalid.file.email.wrong\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse.status).eql(\"KO\");\r",
+													"    pm.expect(jsonResponse.errorKey).eql(\"merchant.invalid.file.email.wrong\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"type": "file",
+													"src": "{{basePath}}/example_merchant_valid _mail_wrong.csv"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+											"host": [
+												"{{baseUrlToken}}/merchant"
+											],
+											"path": [
+												"initiative",
+												"{{initiativeId}}",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Upload csv - invalid file size",
+							"item": [
+								{
+									"name": "Upload csv",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 200\", function () {\r",
+													"    pm.response.to.have.status(200);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Merchant - Happy case - Get merchant detail - Verify response body contains status: KO and errorKey: merchant.invalid.file.size\", function () {\r",
+													"    let jsonResponse = pm.response.json();\r",
+													"    pm.expect(jsonResponse.status).eql(\"KO\");\r",
+													"    pm.expect(jsonResponse.errorKey).eql(\"merchant.invalid.file.size\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{identityPortalToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"type": "file",
+													"src": "{{basePath}}/ps_fiscal_code_groups_file_large(+2mb).csv"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
+											"host": [
+												"{{baseUrlToken}}/merchant"
+											],
+											"path": [
+												"initiative",
+												"{{initiativeId}}",
+												"upload"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Get Merchant detail on initiative not found - 404",
+					"item": [
+						{
+							"name": "Generate Portal Token Copy 2",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let textResponse = pm.response.text()\r",
+											"\r",
+											"pm.test('Initiative with criteria - Happy case - Initiative creation - Generate Portal Token (Ente Admin)', () => {\r",
+											"    //verify response HTTP status \r",
+											"    pm.response.to.have.status(200);\r",
+											"    pm.collectionVariables.set(\"identityPortalToken\", textResponse);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Ocp-Apim-Trace",
+										"value": "true",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"aud\": \"idpay.welfare.pagopa.it\",\r\n    \"uid\": \"{{uid_Ente}}\",\r\n    \"name\": \"{{name_Ente}}\",\r\n    \"familyName\": \"{{familyName_Ente}}\",\r\n    \"email\": \"{{email_Ente}}\",\r\n    \"orgId\": \"{{orgId_Ente}}\",\r\n    \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n    \"orgName\": \"Ente di test IdPay\",\r\n    \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n    \"orgRole\": \"{{orgRole_Ente}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrlToken}}/welfare/token/test",
+									"host": [
+										"{{baseUrlToken}}"
+									],
+									"path": [
+										"welfare",
+										"token",
+										"test"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Merchant Detail",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response status is 404\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response contains info about a not existing initiativeId\", function () {\r",
+											"    const responseJson = pm.response.json();\r",
+											"    pm.expect(responseJson.message).to.eql(\"Initiative initiativeId-fake and merchant merchantId-fake not found.\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{identityPortalToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrlToken}}/merchant/{{merchantId-fake}}/initiative/{{initiativeId-fake}}",
+									"host": [
+										"{{baseUrlToken}}/merchant"
+									],
+									"path": [
+										"{{merchantId-fake}}",
+										"initiative",
+										"{{initiativeId-fake}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "identityPortalToken",
+			"value": ""
+		},
+		{
+			"key": "merchantId-fake",
+			"value": "merchantId-fake"
+		},
+		{
+			"key": "initiativeId-fake",
+			"value": "initiativeId-fake"
+		},
+		{
+			"key": "serviceName",
+			"value": ""
+		},
+		{
+			"key": "description",
+			"value": ""
+		},
+		{
+			"key": "channel_type",
+			"value": ""
+		},
+		{
+			"key": "channel_contact",
+			"value": ""
+		},
+		{
+			"key": "initiativeId",
+			"value": ""
+		},
+		{
+			"key": "budget",
+			"value": ""
+		},
+		{
+			"key": "beneficiaryType",
+			"value": ""
+		},
+		{
+			"key": "beneficiaryKnown",
+			"value": ""
+		},
+		{
+			"key": "rankingEnabled",
+			"value": ""
+		},
+		{
+			"key": "beneficiaryBudget",
+			"value": ""
+		},
+		{
+			"key": "rankingStartDate",
+			"value": ""
+		},
+		{
+			"key": "rankingEndDate",
+			"value": ""
+		},
+		{
+			"key": "startDate",
+			"value": ""
+		},
+		{
+			"key": "endDate",
+			"value": ""
+		},
+		{
+			"key": "rewardRuleType",
+			"value": ""
+		},
+		{
+			"key": "rewardValueType",
+			"value": ""
+		},
+		{
+			"key": "rewardRuleValue",
+			"value": ""
+		},
+		{
+			"key": "trxDaysOfWeek",
+			"value": ""
+		},
+		{
+			"key": "trxDayEndTime",
+			"value": ""
+		},
+		{
+			"key": "trxThresholdFrom",
+			"value": ""
+		},
+		{
+			"key": "trxThresholdTo",
+			"value": ""
+		},
+		{
+			"key": "trxCountFrom",
+			"value": ""
+		},
+		{
+			"key": "trxCountTo",
+			"value": ""
+		},
+		{
+			"key": "trxRewardLimitFrequency",
+			"value": ""
+		},
+		{
+			"key": "trxRewardLimitValue",
+			"value": ""
+		},
+		{
+			"key": "body",
+			"value": ""
+		},
+		{
+			"key": "identityPortalTokenPagopa",
+			"value": ""
+		},
+		{
+			"key": "merchantId",
+			"value": ""
+		},
+		{
+			"key": "basePath",
+			"value": "./postman"
+		}
+	]
+}
