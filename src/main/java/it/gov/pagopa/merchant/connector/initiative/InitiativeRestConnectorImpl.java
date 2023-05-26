@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.connector.initiative;
 
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
+import it.gov.pagopa.merchant.dto.InitiativeBeneficiaryViewDTO;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +14,7 @@ public class InitiativeRestConnectorImpl implements InitiativeRestConnector {
   }
 
   @Override
-  public InitiativeDTO getInitiativeBeneficiaryView(String initiativeId) {
+  public InitiativeBeneficiaryViewDTO getInitiativeBeneficiaryView(String initiativeId) {
     return initiativeRestClient.getInitiativeBeneficiaryView(initiativeId);
   }
 }

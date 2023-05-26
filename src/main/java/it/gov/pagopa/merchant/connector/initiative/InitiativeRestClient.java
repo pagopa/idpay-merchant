@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.connector.initiative;
 
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
+import it.gov.pagopa.merchant.dto.InitiativeBeneficiaryViewDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +16,6 @@ public interface InitiativeRestClient {
       value = "/idpay/initiative/{initiativeId}/beneficiary/view",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  InitiativeDTO getInitiativeBeneficiaryView(
+  InitiativeBeneficiaryViewDTO getInitiativeBeneficiaryView(
       @PathVariable("initiativeId") String initiativeId);
 }
