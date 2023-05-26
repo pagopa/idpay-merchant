@@ -119,7 +119,7 @@ class MerchantServiceImplTest {
 
         assertEquals(
                 merchant.getInitiativeList().stream()
-                        .map(initiative2InitiativeDTOMapper)
+                        .map(initiative2InitiativeDTOMapper::apply)
                         .toList(),
                 result);
     }
