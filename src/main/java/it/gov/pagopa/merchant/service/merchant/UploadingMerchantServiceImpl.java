@@ -180,6 +180,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     }
     @Override
     public void ingestionMerchantFile(List<StorageEventDTO> storageEventDTOList) {
+        log.info("[SAVE_MERCHANTS] - Saving merchants started");
         StorageEventDTO storageEventDTO = storageEventDTOList.stream().findFirst().orElse(null);
         if (storageEventDTO != null && StringUtils.isNotBlank(storageEventDTO.getSubject())) {
             String[] subjectPathSplit = storageEventDTO.getSubject().split("/");

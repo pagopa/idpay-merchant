@@ -73,7 +73,7 @@ public class MerchantServiceImpl implements MerchantService{
         Optional<Merchant> merchant = merchantRepository.findById(merchantId);
 
         return merchant.map(value -> value.getInitiativeList().stream()
-                .map(initiative2InitiativeDTOMapper)
+                .map(initiative2InitiativeDTOMapper::apply)
                 .toList()).orElse(null);
     }
 }

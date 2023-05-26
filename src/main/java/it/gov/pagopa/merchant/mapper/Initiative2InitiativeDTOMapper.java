@@ -4,12 +4,9 @@ import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.model.Initiative;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Function;
-
 @Service
-public class Initiative2InitiativeDTOMapper implements Function<Initiative, InitiativeDTO> {
+public class Initiative2InitiativeDTOMapper {
 
-    @Override
     public InitiativeDTO apply(Initiative initiative) {
         return InitiativeDTO.builder()
                 .initiativeId(initiative.getInitiativeId())
