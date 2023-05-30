@@ -14,8 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/idpay/merchant")
 public interface MerchantController {
-    @Operation(summary = "Uploads the merchants file",
-            description = "")
+    @Operation(summary = "Uploads the merchants file")
     @PutMapping("/organization/{organizationId}/initiative/{initiativeId}/upload")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
@@ -24,8 +23,7 @@ public interface MerchantController {
             @PathVariable("initiativeId") String initiativeId,
             @RequestHeader("organization-user-id") String organizationUserId);
 
-    @Operation(summary = "Returns the merchants list",
-            description = "")
+    @Operation(summary = "Returns the merchants list")
     @GetMapping("/organization/{organizationId}/initiative/{initiativeId}/merchants")
     ResponseEntity<MerchantListDTO> getMerchantList(
             @PathVariable("organizationId") String organizationId,
@@ -34,8 +32,7 @@ public interface MerchantController {
             @PageableDefault(size = 15) Pageable pageable
     );
 
-    @Operation(summary = "Returns the merchant detail page on initiative",
-            description = "")
+    @Operation(summary = "Returns the merchant detail page on initiative")
     @GetMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
     ResponseEntity<MerchantDetailDTO> getMerchantDetail(
             @PathVariable("organizationId") String organizationId,
@@ -43,16 +40,7 @@ public interface MerchantController {
             @PathVariable("merchantId") String merchantId
     );
 
-    @Operation(summary = "Returns the merchant detail",
-            description = "")
-    @GetMapping("/{merchantId}/initiative/{initiativeId}")
-    MerchantDetailDTO getMerchantDetail(
-            @PathVariable("merchantId") String merchantId,
-            @PathVariable("initiativeId") String initiativeId
-    );
-
-    @Operation(summary = "Returns the merchant id",
-            description = "")
+    @Operation(summary = "Returns the merchant id")
     @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
     @ResponseStatus(code = HttpStatus.OK)
     String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId, @PathVariable("fiscalCode") String fiscalCode);

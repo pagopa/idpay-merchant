@@ -40,20 +40,6 @@ public class MerchantControllerImpl implements MerchantController {
     return ResponseEntity.ok(merchantService.getMerchantDetail(organizationId, initiativeId, merchantId));
   }
 
-  @Override
-  public MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId) {
-    log.info("[GET_MERCHANT_DETAIL] Get merchant with id {} for initiative {}", merchantId, initiativeId);
-    MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId, initiativeId);
-    if(merchantDetail == null){
-      throw new ClientExceptionWithBody(
-              HttpStatus.NOT_FOUND,
-              MerchantConstants.NOT_FOUND,
-              String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, initiativeId, merchantId)
-      );
-    }
-    return merchantDetail;
-  }
-
   public String retrieveMerchantId(String acquirerId, String fiscalCode) {
     log.info("[GET_MERCHANT_ID] The Merchant with {}, {} requested to retrieve merchantId", acquirerId , fiscalCode);
     String merchantId = merchantService.retrieveMerchantId(acquirerId, fiscalCode);

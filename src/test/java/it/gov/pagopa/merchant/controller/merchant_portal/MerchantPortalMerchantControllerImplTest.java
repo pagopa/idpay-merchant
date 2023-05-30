@@ -4,10 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.merchant.configuration.JsonConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.dto.ErrorDTO;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
+import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeDTOFaker;
+import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,6 +37,8 @@ class MerchantPortalMerchantControllerImplTest {
     @Autowired private ObjectMapper objectMapper;
 
     private static final String MERCHANT_ID = "MERCHANT_ID";
+    private static final String INITIATIVE_ID = "INITIATIVE_ID";
+
 
     @Test
     void getMerchantInitiativeList() throws Exception {
@@ -84,5 +89,45 @@ class MerchantPortalMerchantControllerImplTest {
                 Objects.requireNonNull(result.getResolvedException()).getMessage());
     }
 
+    @Test
+    void getMerchantDetailByMerchantIdAndInitiativeId() throws Exception {
+        MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstanceBuilder(1)
+                .initiativeId(INITIATIVE_ID)
+                .build();
+        Mockito.when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID)).thenReturn(merchantDetailDTO);
 
+        MvcResult result = mockMvc.perform(
+                get("/idpay/merchant/portal/{merchantId}/initiative/{initiativeId}",
+                        MERCHANT_ID, INITIATIVE_ID)
+        ).andExpect(status().is2xxSuccessful()).andReturn();
+
+        MerchantDetailDTO resultResponse = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                MerchantDetailDTO.class);
+
+        Assertions.assertNotNull(resultResponse);
+        Assertions.assertEquals(merchantDetailDTO,resultResponse);
+        Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
+    }
+
+    @Test
+    void getMerchantDetailByMerchantIdAndInitiativeId_notFound() throws Exception {
+        Mockito.when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID))
+                .thenReturn(null);
+
+        MvcResult result = mockMvc.perform(
+                        get("/idpay/merchant/portal/{merchantId}/initiative/{initiativeId}", MERCHANT_ID, INITIATIVE_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
+                .andReturn();
+
+        ErrorDTO errorDTO = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                ErrorDTO.class
+        );
+
+        Assertions.assertEquals(MerchantConstants.NOT_FOUND, errorDTO.getCode());
+        Assertions.assertEquals(String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID , MERCHANT_ID),errorDTO.getMessage());
+        Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
+    }
 }
