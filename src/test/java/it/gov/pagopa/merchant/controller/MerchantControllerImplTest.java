@@ -106,9 +106,7 @@ class MerchantControllerImplTest {
     @Test
     void getMerchantDetailByMerchantIdAndInitiativeId_notFound() throws Exception {
         Mockito.when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID))
-                .thenThrow(new ClientExceptionWithBody(HttpStatus.NOT_FOUND,
-                        MerchantConstants.NOT_FOUND,
-                        String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID, MERCHANT_ID)));
+                .thenReturn(null);
 
         MvcResult result = mockMvc.perform(
                 get("/idpay/merchant/{merchantId}/initiative/{initiativeId}", MERCHANT_ID, INITIATIVE_ID))
