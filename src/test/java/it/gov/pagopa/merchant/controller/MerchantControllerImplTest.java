@@ -83,6 +83,48 @@ class MerchantControllerImplTest {
     }
 
     @Test
+    void getMerchantDetailByMerchantIdAndInitiativeId() throws Exception {
+        MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstanceBuilder(1)
+                .initiativeId(INITIATIVE_ID)
+                .build();
+        Mockito.when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID)).thenReturn(merchantDetailDTO);
+
+        MvcResult result = mockMvc.perform(
+                get("/idpay/merchant/{merchantId}/initiative/{initiativeId}",
+                        MERCHANT_ID, INITIATIVE_ID)
+        ).andExpect(status().is2xxSuccessful()).andReturn();
+
+        MerchantDetailDTO resultResponse = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                MerchantDetailDTO.class);
+
+        Assertions.assertNotNull(resultResponse);
+        Assertions.assertEquals(merchantDetailDTO,resultResponse);
+        Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
+    }
+
+    @Test
+    void getMerchantDetailByMerchantIdAndInitiativeId_notFound() throws Exception {
+        Mockito.when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID))
+                .thenReturn(null);
+
+        MvcResult result = mockMvc.perform(
+                get("/idpay/merchant/{merchantId}/initiative/{initiativeId}", MERCHANT_ID, INITIATIVE_ID))
+                .andExpect(status().isNotFound())
+                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
+                .andReturn();
+
+        ErrorDTO errorDTO = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                ErrorDTO.class
+        );
+
+        Assertions.assertEquals(MerchantConstants.NOT_FOUND, errorDTO.getCode());
+        Assertions.assertEquals(String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID , MERCHANT_ID),errorDTO.getMessage());
+        Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
+    }
+
+    @Test
     void getMerchantList() throws Exception {
         MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
                 .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();

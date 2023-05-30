@@ -37,4 +37,11 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
         utilities.performanceLog(startTime, "GET_MERCHANT_DETAIL");
         return merchantModelToDTOMapper.toMerchantDetailDTO(merchantDetail, initiativeId);
     }
+
+    @Override
+    public MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId) {
+        return merchantRepository.findByMerchantIdAndInitiativeId(merchantId, initiativeId)
+                .map(merchant -> merchantModelToDTOMapper.toMerchantDetailDTO(merchant, initiativeId))
+                .orElse(null);
+    }
 }

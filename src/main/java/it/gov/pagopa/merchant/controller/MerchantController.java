@@ -45,6 +45,15 @@ public interface MerchantController {
             @PathVariable("initiativeId") String initiativeId,
             @PathVariable("merchantId") String merchantId
     );
+
+    @Operation(summary = "Returns the merchant detail",
+            description = "")
+    @GetMapping("/{merchantId}/initiative/{initiativeId}")
+    MerchantDetailDTO getMerchantDetail(
+            @PathVariable("merchantId") String merchantId,
+            @PathVariable("initiativeId") String initiativeId
+    );
+
     @Operation(summary = "Returns the merchant id",
             description = "")
     @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")

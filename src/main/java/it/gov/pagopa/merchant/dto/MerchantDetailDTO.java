@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MerchantDetailDTO {
     private String initiativeId;
+    private String initiativeName;
     private String businessName; //ragione sociale
     private String legalOfficeAddress;
     private String legalOfficeMunicipality; // comune sede legale

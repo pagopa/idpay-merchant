@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.mapper;
 
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
@@ -8,8 +9,7 @@ import it.gov.pagopa.merchant.test.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MerchantModelToDTOMapperTest {
 
@@ -22,13 +22,27 @@ class MerchantModelToDTOMapperTest {
 
  @Test
  void merchantMapperTest(){
-     MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
      Merchant merchant = MerchantFaker.mockInstance(1);
+     Initiative initiative = merchant.getInitiativeList().get(0);
 
-     MerchantDetailDTO result = mapper.toMerchantDetailDTO(merchant, merchantDetailDTO.getInitiativeId());
+     MerchantDetailDTO result = mapper.toMerchantDetailDTO(merchant, initiative.getInitiativeId());
      assertAll(() -> {
-     assertNotNull(result);
-     TestUtils.checkNotNullFields(result);
+         assertNotNull(result);
+         TestUtils.checkNotNullFields(result);
+         assertEquals(initiative.getInitiativeId(), result.getInitiativeId());
+         assertEquals(initiative.getInitiativeName(), result.getInitiativeName());
+         assertEquals(merchant.getBusinessName(), result.getBusinessName());
+         assertEquals(merchant.getLegalOfficeAddress(), result.getLegalOfficeAddress());
+         assertEquals(merchant.getLegalOfficeMunicipality(), result.getLegalOfficeMunicipality());
+         assertEquals(merchant.getLegalOfficeProvince(), result.getLegalOfficeProvince());
+         assertEquals(merchant.getLegalOfficeZipCode(), result.getLegalOfficeZipCode());
+         assertEquals(merchant.getCertifiedEmail(), result.getCertifiedEmail());
+         assertEquals(merchant.getFiscalCode(), result.getFiscalCode());
+         assertEquals(merchant.getVatNumber(), result.getVatNumber());
+         assertEquals(initiative.getMerchantStatus(), result.getStatus());
+         assertEquals(merchant.getIban(), result.getIban());
+         assertEquals(initiative.getCreationDate(), result.getCreationDate());
+         assertEquals(initiative.getUpdateDate(), result.getUpdateDate());
    });
  }
 }
