@@ -73,4 +73,32 @@ class MerchantDetailServiceTest {
     assertEquals(String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID, MERCHANT_ID),
             result.getMessage());
   }
+
+  @Test
+  void getMerchantDetailByMerchantIdAndInitiativeId() {
+    Merchant merchant = MerchantFaker.mockInstance(1);
+    MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
+
+    when(repositoryMock.findByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
+            .thenReturn(Optional.of(merchant));
+    when(merchantModelToDTOMapperMock.toMerchantDetailDTO(merchant, INITIATIVE_ID)).thenReturn(merchantDetailDTO);
+
+    MerchantDetailDTO result = service.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID);
+
+    assertNotNull(result);
+    assertEquals(merchantDetailDTO, result);
+    TestUtils.checkNotNullFields(result);
+    assertEquals(merchantDetailDTO.getInitiativeId(), result.getInitiativeId());
+  }
+
+  @Test
+  void getMerchantDetailByMerchantIdAndInitiativeId_NotFound() {
+    when(repositoryMock.findByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
+            .thenReturn(Optional.empty());
+
+    MerchantDetailDTO result = service.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID);
+
+    assertNull(result);
+  }
+
 }
