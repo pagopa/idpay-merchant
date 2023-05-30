@@ -1,7 +1,10 @@
 package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants;
-import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.InitiativeDTO;
+import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.dto.MerchantListDTO;
+import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.service.MerchantService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +44,9 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
-  public MerchantDetailBaseDTO getMerchantDetail(String merchantId, String initiativeId) {
+  public MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId) {
     log.info("[GET_MERCHANT_DETAIL] Get merchant with id {} for initiative {}", merchantId, initiativeId);
-    MerchantDetailBaseDTO merchantDetail = merchantService.getMerchantDetail(merchantId, initiativeId);
+    MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId, initiativeId);
     if(merchantDetail == null){
       throw new ClientExceptionWithBody(
               HttpStatus.NOT_FOUND,

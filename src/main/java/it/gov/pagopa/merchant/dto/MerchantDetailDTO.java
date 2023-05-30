@@ -1,17 +1,17 @@
 package it.gov.pagopa.merchant.dto;
 
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder(toBuilder = true)
-public class MerchantDetailDTO extends MerchantDetailBaseDTO {
+public class MerchantDetailDTO {
     private String initiativeId;
     private String businessName; //ragione sociale
     private String legalOfficeAddress;
@@ -19,6 +19,8 @@ public class MerchantDetailDTO extends MerchantDetailBaseDTO {
     private String legalOfficeProvince;
     private String legalOfficeZipCode;
     private String certifiedEmail;
+    private String fiscalCode;
+    private String vatNumber;
     private String status;
     private String iban;
     private LocalDateTime creationDate;

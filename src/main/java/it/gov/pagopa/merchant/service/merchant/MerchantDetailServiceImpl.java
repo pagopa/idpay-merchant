@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.service.merchant;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants;
-import it.gov.pagopa.merchant.dto.MerchantDetailBaseDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
@@ -40,9 +39,9 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
     }
 
     @Override
-    public MerchantDetailBaseDTO getMerchantDetail(String merchantId, String initiativeId) {
-        return merchantRepository.retrieveByMerchantIdAndInitiativeId(merchantId, initiativeId)
-                .map(merchantModelToDTOMapper::toMerchantDetailBaseDTO)
+    public MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId) {
+        return merchantRepository.findByMerchantIdAndInitiativeId(merchantId, initiativeId)
+                .map(merchant -> merchantModelToDTOMapper.toMerchantDetailDTO(merchant, initiativeId))
                 .orElse(null);
     }
 }
