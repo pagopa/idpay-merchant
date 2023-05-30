@@ -26,7 +26,7 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
                     "'initiativeList.updateDate' : 1 }"
 
     )
-    Optional<Merchant> retrieveByInitiativeIdAndMerchantId(String initiativeId, String organizationId, String merchantId);
+    Optional<Merchant> retrieveByInitiativeIdAndOrganizationIdAndMerchantId(String initiativeId, String organizationId, String merchantId);
 
     @Query(
             value = "{'acquirerId' : ?0, 'fiscalCode' : ?1}",
@@ -34,5 +34,7 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
     )
     Optional<Merchant> retrieveByAcquirerIdAndFiscalCode(String acquirerId, String fiscalCode);
     Optional<Merchant> findByFiscalCodeAndAcquirerId(String fiscalCode, String acquirerId);
-    Optional<Merchant> findByMerchantIdAndInitiativeId(String merchantId, String initiativeId);
+
+    @Query(value = "{merchantId : ?0, 'initiativeList.initiativeId' : ?1}")
+    Optional<Merchant> retrieveByMerchantIdAndInitiativeId(String merchantId, String initiativeId);
 }

@@ -29,7 +29,7 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
         long startTime = System.currentTimeMillis();
         log.info("[GET_MERCHANT_DETAIL] Get merchant with id {} for initiative {}", merchantId, initiativeId);
 
-        Merchant merchantDetail = merchantRepository.retrieveByInitiativeIdAndMerchantId(initiativeId, organizationId, merchantId)
+        Merchant merchantDetail = merchantRepository.retrieveByInitiativeIdAndOrganizationIdAndMerchantId(initiativeId, organizationId, merchantId)
                 .orElseThrow(() -> new ClientExceptionWithBody(HttpStatus.NOT_FOUND,
                         MerchantConstants.NOT_FOUND,
                         String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, initiativeId, merchantId)));
@@ -40,7 +40,7 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
 
     @Override
     public MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId) {
-        return merchantRepository.findByMerchantIdAndInitiativeId(merchantId, initiativeId)
+        return merchantRepository.retrieveByMerchantIdAndInitiativeId(merchantId, initiativeId)
                 .map(merchant -> merchantModelToDTOMapper.toMerchantDetailDTO(merchant, initiativeId))
                 .orElse(null);
     }

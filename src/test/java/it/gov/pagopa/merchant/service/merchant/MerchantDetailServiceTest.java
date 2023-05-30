@@ -11,7 +11,6 @@ import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.utils.TestUtils;
 import it.gov.pagopa.merchant.utils.Utilities;
-import org.aspectj.weaver.ast.Or;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +49,7 @@ class MerchantDetailServiceTest {
     MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
     Merchant merchant = MerchantFaker.mockInstance(1);
 
-    when(repositoryMock.retrieveByInitiativeIdAndMerchantId(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+    when(repositoryMock.retrieveByInitiativeIdAndOrganizationIdAndMerchantId(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
         .thenReturn(Optional.of(merchant));
     when(merchantModelToDTOMapperMock.toMerchantDetailDTO(Mockito.any(), Mockito.anyString())).thenReturn(dto);
 
@@ -63,7 +62,7 @@ class MerchantDetailServiceTest {
 
   @Test
   void getMerchantDetail_notFound() {
-    when(repositoryMock.retrieveByInitiativeIdAndMerchantId(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+    when(repositoryMock.retrieveByInitiativeIdAndOrganizationIdAndMerchantId(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(Optional.empty());
 
     ClientException result = assertThrows(ClientException.class,
@@ -79,7 +78,7 @@ class MerchantDetailServiceTest {
     Merchant merchant = MerchantFaker.mockInstance(1);
     MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
 
-    when(repositoryMock.findByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
+    when(repositoryMock.retrieveByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
             .thenReturn(Optional.of(merchant));
     when(merchantModelToDTOMapperMock.toMerchantDetailDTO(merchant, INITIATIVE_ID)).thenReturn(merchantDetailDTO);
 
@@ -93,7 +92,7 @@ class MerchantDetailServiceTest {
 
   @Test
   void getMerchantDetailByMerchantIdAndInitiativeId_NotFound() {
-    when(repositoryMock.findByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
+    when(repositoryMock.retrieveByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
             .thenReturn(Optional.empty());
 
     MerchantDetailDTO result = service.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID);
