@@ -34,4 +34,12 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
     )
     Optional<Merchant> retrieveByAcquirerIdAndFiscalCode(String acquirerId, String fiscalCode);
     Optional<Merchant> findByFiscalCodeAndAcquirerId(String fiscalCode, String acquirerId);
+
+    @Query(
+            value = "{merchantId : ?0, 'initiativeList.initiativeId' : ?1}",
+            fields = "{merchantId : 1, " +
+                    "fiscalCode : 1, " +
+                    "vatNumber : 1}"
+    )
+    Optional<Merchant> retrieveByMerchantIdAndInitiativeId(String merchantId, String initiativeId);
 }

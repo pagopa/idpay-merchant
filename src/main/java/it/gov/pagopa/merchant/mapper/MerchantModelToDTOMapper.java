@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.mapper;
 
+import it.gov.pagopa.merchant.dto.MerchantDetailBaseDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import org.springframework.stereotype.Component;
@@ -28,4 +29,10 @@ public class MerchantModelToDTOMapper {
         return merchantDetailDTO;
     }
 
+    public MerchantDetailBaseDTO toMerchantDetailBaseDTO(Merchant merchant){
+        return MerchantDetailBaseDTO.builder()
+                .fiscalCode(merchant.getFiscalCode())
+                .vatNumber(merchant.getVatNumber())
+                .build();
+    }
 }

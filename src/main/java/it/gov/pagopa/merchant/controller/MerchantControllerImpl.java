@@ -1,10 +1,7 @@
 package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants;
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantListDTO;
-import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.service.MerchantService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +38,20 @@ public class MerchantControllerImpl implements MerchantController {
   @Override
   public ResponseEntity<MerchantDetailDTO> getMerchantDetail(String organizationId, String initiativeId, String merchantId) {
     return ResponseEntity.ok(merchantService.getMerchantDetail(organizationId, initiativeId, merchantId));
+  }
+
+  @Override
+  public MerchantDetailBaseDTO getMerchantDetail(String merchantId, String initiativeId) {
+    log.info("[GET_MERCHANT_DETAIL] Get merchant with id {} for initiative {}", merchantId, initiativeId);
+    MerchantDetailBaseDTO merchantDetail = merchantService.getMerchantDetail(merchantId, initiativeId);
+    if(merchantDetail == null){
+      throw new ClientExceptionWithBody(
+              HttpStatus.NOT_FOUND,
+              MerchantConstants.NOT_FOUND,
+              String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, initiativeId, merchantId)
+      );
+    }
+    return merchantDetail;
   }
 
   public String retrieveMerchantId(String acquirerId, String fiscalCode) {

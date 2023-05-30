@@ -1,9 +1,6 @@
 package it.gov.pagopa.merchant.service;
 
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantListDTO;
-import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -52,6 +49,11 @@ public class MerchantServiceImpl implements MerchantService{
                                                String initiativeId,
                                                String merchantId) {
         return merchantDetailService.getMerchantDetail(organizationId, initiativeId, merchantId);
+    }
+
+    @Override
+    public MerchantDetailBaseDTO getMerchantDetail(String merchantId, String initiativeId) {
+        return merchantDetailService.getMerchantDetail(merchantId, initiativeId);
     }
 
     @Override

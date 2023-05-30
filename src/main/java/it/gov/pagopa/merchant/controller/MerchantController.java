@@ -1,10 +1,7 @@
 package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantListDTO;
-import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -45,6 +42,15 @@ public interface MerchantController {
             @PathVariable("initiativeId") String initiativeId,
             @PathVariable("merchantId") String merchantId
     );
+
+    @Operation(summary = "Returns the merchant detail",
+            description = "")
+    @GetMapping("/{merchantId}/initiative/{initiativeId}")
+    MerchantDetailBaseDTO getMerchantDetail(
+            @PathVariable("merchantId") String merchantId,
+            @PathVariable("initiativeId") String initiativeId
+    );
+
     @Operation(summary = "Returns the merchant id",
             description = "")
     @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
