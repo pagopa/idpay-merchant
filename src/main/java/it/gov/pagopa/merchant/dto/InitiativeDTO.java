@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,16 +20,16 @@ public class InitiativeDTO {
     private String initiativeId;
     @NotBlank
     private String initiativeName;
-    @NotBlank
+    private String organizationId;
+    private String organizationName;
+    private String serviceId;
+    private String status;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String merchantStatus;
-
-    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime creationDate;
-
-    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime updateDate;
-    @NotNull
     private boolean enabled;
 }

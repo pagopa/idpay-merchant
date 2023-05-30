@@ -5,6 +5,7 @@ import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.exception.ClientExceptionNoBody;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.model.Initiative;
@@ -219,7 +220,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     public void saveMerchants(ByteArrayOutputStream byteFile, String fileName, String organizationId, String initiativeId) {
         long startTime = System.currentTimeMillis();
 
-        String initiativeName = getInitiativeName(initiativeId);
+        InitiativeBeneficiaryViewDTO initiativeDTO = getInitiativeInfo(initiativeId);
 
         try {
             log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants", initiativeId, fileName);
@@ -235,7 +236,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 String ibanOld = merchant.getIban();
                 boolean existsMerchantInitiative = merchant.getInitiativeList().stream().anyMatch(i -> i.getInitiativeId().equals(initiativeId));
                 if (!existsMerchantInitiative) {
-                    merchant.getInitiativeList().add(createMerchantInitiative(initiativeId, organizationId, initiativeName));
+                    merchant.getInitiativeList().add(createMerchantInitiative(initiativeDTO));
                 }
                 if (!ibanNew.equals(ibanOld)) {
                     merchant.setBusinessName(splitStr[BUSINESS_NAME_INDEX]);
@@ -262,9 +263,9 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
         }
     }
 
-    public String getInitiativeName(String initiativeId) {
+    public InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
         try {
-            return initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId).getInitiativeName();
+            return initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
         } catch (Exception e) {
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
             throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
@@ -289,11 +290,16 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 .build();
     }
 
-    private Initiative createMerchantInitiative(String initiativeId, String organizationId, String initiativeName) {
+    private Initiative createMerchantInitiative(InitiativeBeneficiaryViewDTO initiativeDTO) {
         return Initiative.builder()
-                .initiativeId(initiativeId)
-                .initiativeName(initiativeName)
-                .organizationId(organizationId)
+                .initiativeId(initiativeDTO.getInitiativeId())
+                .initiativeName(initiativeDTO.getInitiativeName())
+                .organizationId(initiativeDTO.getOrganizationId())
+                .organizationName(initiativeDTO.getOrganizationName())
+                .serviceId(initiativeDTO.getAdditionalInfo().getServiceId())
+                .startDate(initiativeDTO.getGeneral().getStartDate())
+                .endDate(initiativeDTO.getGeneral().getEndDate())
+                .status(initiativeDTO.getStatus())
                 .merchantStatus("UPLOADED")
                 .creationDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())

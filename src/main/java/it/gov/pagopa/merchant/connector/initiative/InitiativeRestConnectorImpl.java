@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.connector.initiative;
 
-import it.gov.pagopa.merchant.dto.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import org.springframework.stereotype.Service;
 
 @Service
