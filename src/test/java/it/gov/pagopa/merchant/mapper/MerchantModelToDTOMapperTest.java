@@ -22,7 +22,6 @@ class MerchantModelToDTOMapperTest {
 
  @Test
  void merchantMapperTest(){
-     MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
      Merchant merchant = MerchantFaker.mockInstance(1);
      Initiative initiative = merchant.getInitiativeList().get(0);
 
