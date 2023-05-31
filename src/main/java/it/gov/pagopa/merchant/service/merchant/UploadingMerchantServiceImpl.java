@@ -264,18 +264,19 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     }
 
     public InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
+        InitiativeBeneficiaryViewDTO initiativeDTO;
         try {
-            InitiativeBeneficiaryViewDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
-            if (!MerchantConstants.INITIATIVE_PUBLISHED.equals(initiativeDTO.getStatus())) {
-                log.info("[SAVE_MERCHANTS] Initiative {} is not PUBLISHED! Status: {}", initiativeId, initiativeDTO.getStatus());
-                throw new ClientExceptionWithBody(HttpStatus.FORBIDDEN, "FORBIDDEN",
-                        String.format("Initiative %s not published", initiativeId));
-            }
-            return initiativeDTO;
+            initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
         } catch (Exception e) {
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
             throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
         }
+        if (initiativeDTO != null && !MerchantConstants.INITIATIVE_PUBLISHED.equals(initiativeDTO.getStatus())) {
+            log.info("[SAVE_MERCHANTS] Initiative {} is not PUBLISHED! Status: {}", initiativeId, initiativeDTO.getStatus());
+            throw new ClientExceptionWithBody(HttpStatus.FORBIDDEN, "FORBIDDEN",
+                    String.format("Initiative %s not published", initiativeId));
+        }
+        return initiativeDTO;
     }
 
     private Merchant createNewMerchant(String[] splitStr) {
