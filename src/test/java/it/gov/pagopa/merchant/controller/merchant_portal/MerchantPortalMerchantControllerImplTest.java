@@ -97,8 +97,8 @@ class MerchantPortalMerchantControllerImplTest {
         Mockito.when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID)).thenReturn(merchantDetailDTO);
 
         MvcResult result = mockMvc.perform(
-                get("/idpay/merchant/portal/{merchantId}/initiative/{initiativeId}",
-                        MERCHANT_ID, INITIATIVE_ID)
+                get("/idpay/merchant/portal/initiatives/{initiativeId}", INITIATIVE_ID)
+                        .header("x-merchant-id", MERCHANT_ID)
         ).andExpect(status().is2xxSuccessful()).andReturn();
 
         MerchantDetailDTO resultResponse = objectMapper.readValue(
@@ -116,7 +116,8 @@ class MerchantPortalMerchantControllerImplTest {
                 .thenReturn(null);
 
         MvcResult result = mockMvc.perform(
-                        get("/idpay/merchant/portal/{merchantId}/initiative/{initiativeId}", MERCHANT_ID, INITIATIVE_ID))
+                        get("/idpay/merchant/portal/initiatives/{initiativeId}", INITIATIVE_ID)
+                                .header("x-merchant-id", MERCHANT_ID))
                 .andExpect(status().isNotFound())
                 .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
                 .andReturn();

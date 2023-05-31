@@ -18,7 +18,7 @@ public interface MerchantPortalMerchantController {
     List<InitiativeDTO> getMerchantInitiativeList(@RequestHeader("x-merchant-id") String merchantId);
 
     @Operation(summary = "Returns the merchant detail")
-    @GetMapping("/initiative/{initiativeId}")
+    @GetMapping("/initiatives/{initiativeId}")
     MerchantDetailDTO getMerchantDetail(
             @RequestHeader("x-merchant-id") String merchantId,
             @PathVariable("initiativeId") String initiativeId
