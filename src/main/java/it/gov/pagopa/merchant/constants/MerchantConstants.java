@@ -28,6 +28,7 @@ public class MerchantConstants {
         }
     }
 
+    public static final String INITIATIVE_CLOSED = "CLOSED";
     public static final String NOT_FOUND = "NOT FOUND";
     public static final String INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
     public static final String INITIATIVE_AND_MERCHANT_NOT_FOUND = "Initiative %s and merchant %s not found.";
