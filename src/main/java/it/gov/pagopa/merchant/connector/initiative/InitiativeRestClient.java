@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.connector.initiative;
 
-import it.gov.pagopa.merchant.dto.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
