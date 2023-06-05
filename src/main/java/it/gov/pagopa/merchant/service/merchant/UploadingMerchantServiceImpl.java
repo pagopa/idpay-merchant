@@ -17,7 +17,6 @@ import it.gov.pagopa.merchant.utils.AuditUtilities;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,19 +48,32 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     public static final String IBAN_STRUCTURE_REGEX = "^(it|IT)[0-9]{2}[A-Za-z][0-9]{10}[0-9A-Za-z]{12}$";
     public static final String EMAIL_STRUCTURE_REGEX = "^[(a-zA-Z0-9-\\_\\.!\\D)]+@[(a-zA-Z)]+\\.[(a-zA-Z)]{2,3}$";
 
-    @Autowired
-    private MerchantFileRepository merchantFileRepository;
-    @Autowired
-    private MerchantRepository merchantRepository;
-    @Autowired
-    InitiativeRestConnector initiativeRestConnector;
-    @Autowired
-    FileStorageConnector fileStorageConnector;
-    @Autowired
-    Utilities utilities;
-    @Autowired
-    AuditUtilities auditUtilities;
 
+    private final MerchantFileRepository merchantFileRepository;
+
+    private final MerchantRepository merchantRepository;
+
+    private final InitiativeRestConnector initiativeRestConnector;
+
+    private final FileStorageConnector fileStorageConnector;
+
+    private final Utilities utilities;
+
+    private final AuditUtilities auditUtilities;
+
+    public UploadingMerchantServiceImpl(MerchantFileRepository merchantFileRepository,
+                                        MerchantRepository merchantRepository,
+                                        InitiativeRestConnector initiativeRestConnector,
+                                        FileStorageConnector fileStorageConnector,
+                                        Utilities utilities,
+                                        AuditUtilities auditUtilities) {
+        this.merchantFileRepository = merchantFileRepository;
+        this.merchantRepository = merchantRepository;
+        this.initiativeRestConnector = initiativeRestConnector;
+        this.fileStorageConnector = fileStorageConnector;
+        this.utilities = utilities;
+        this.auditUtilities = auditUtilities;
+    }
 
     @Override
     public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId) {

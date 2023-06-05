@@ -1,15 +1,23 @@
 package it.gov.pagopa.merchant.service.merchant;
 
+import com.microsoft.azure.storage.StorageException;
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
 import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.exception.ClientException;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import it.gov.pagopa.merchant.test.fakers.InitiativeBeneficiaryViewDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFileFaker;
+import it.gov.pagopa.merchant.test.fakers.StorageEventDTOFaker;
 import it.gov.pagopa.merchant.test.utils.TestUtils;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import it.gov.pagopa.merchant.utils.Utilities;
@@ -20,10 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
@@ -31,9 +37,11 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,6 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 class UploadingMerchantServiceTest {
+    UploadingMerchantService uploadingMerchantService;
     @Mock
     private MerchantRepository repositoryMock;
     @Mock
@@ -48,17 +57,15 @@ class UploadingMerchantServiceTest {
     @Mock
     private InitiativeRestConnector initiativeRestConnector;
     @Mock
-    private AuditUtilities utilities;
+    private AuditUtilities auditUtilities;
     @Mock
-    private Utilities utilities1;
+    private Utilities utilities;
     @Mock
     private FileStorageConnector fileStorageConnector;
     @Mock
     private BufferedReader bufferedReader;
     @Mock
     private InputStreamReader mockStream;
-    @InjectMocks
-    private UploadingMerchantServiceImpl uploadingMerchantService;
     private final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
     private final String ORGANIZATION_USER_ID = "ORGANIZATION_USER_ID";
@@ -67,7 +74,8 @@ class UploadingMerchantServiceTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        uploadingMerchantService = new UploadingMerchantServiceImpl(merchantFileRepository, repositoryMock, initiativeRestConnector,
+                fileStorageConnector, utilities, auditUtilities);
     }
 
     @AfterEach
@@ -82,7 +90,7 @@ class UploadingMerchantServiceTest {
 
     @Test
     void uploadMerchantFile_ValidFile() throws IOException {
-        File file1 = new ClassPathResource("merchantExampleFiles" + File.separator + "example_merchant_valid.csv").getFile();
+        File file1 = new ClassPathResource("merchantExampleFiles" + File.separator + "example_merchant_valid_iban_different.csv").getFile();
         FileInputStream inputStream = new FileInputStream(file1);
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
         Mockito.when(merchantFileRepository.findByFileNameAndInitiativeId(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.emptyList());
@@ -111,7 +119,7 @@ class UploadingMerchantServiceTest {
     @Test
     void uploadMerchantFile_InvalidFileName() throws IOException {
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
-        File file1 = new ClassPathResource("merchantExampleFiles" + File.separator + "example_merchant_valid.csv").getFile();
+        File file1 = new ClassPathResource("merchantExampleFiles" + File.separator + "example_merchant_valid_iban_different.csv").getFile();
         FileInputStream inputStream = new FileInputStream(file1);
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
         Mockito.when(merchantFileRepository.findByFileNameAndInitiativeId(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(merchantFile));
@@ -139,6 +147,7 @@ class UploadingMerchantServiceTest {
         Assertions.assertEquals(error, result.getErrorKey());
         Assertions.assertNotNull(result.getElabTimeStamp());
     }
+
     /*@Test
     void updateMerchantFile_errorFileReading() throws Exception {
         Mockito.when(merchantFileRepository.findByFileNameAndInitiativeId(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.emptyList());
@@ -160,29 +169,82 @@ class UploadingMerchantServiceTest {
     }
      */
     @Test
-    void getInitiativeName_InitiativeNotFound() {
-        InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = new InitiativeBeneficiaryViewDTO();
+    void ingestionMerchantFile_InitiativeNotPublished() throws URISyntaxException, StorageException, IOException {
+        InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
         initiativeBeneficiaryViewDTO.setStatus("DRAFT");
+        Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(Mockito.anyString())).thenReturn(initiativeBeneficiaryViewDTO);
 
-        Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(initiativeBeneficiaryViewDTO);
+        StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
+        List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
+
+        File file1 = new ClassPathResource("merchantExampleFiles" + File.separator + "example_merchant_valid.csv").getFile();
+        FileOutputStream outputStream = new FileOutputStream(file1);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byteArrayOutputStream.writeTo(outputStream);
+
+        Mockito.when(fileStorageConnector.downloadMerchantFile(Mockito.anyString())).thenReturn(byteArrayOutputStream);
 
         ClientException result = assertThrows(ClientException.class,
-                () -> uploadingMerchantService.getInitiativeInfo(INITIATIVE_ID));
+                () -> uploadingMerchantService.ingestionMerchantFile(storageEventDTOS));
         assertEquals(HttpStatus.FORBIDDEN, result.getHttpStatus());
         assertEquals("FORBIDDEN", ((ClientExceptionWithBody) result).getCode());
         assertEquals(String.format("Initiative %s not published",
-                INITIATIVE_ID), result.getMessage());
+                "INITIATIVEID1"), result.getMessage());
     }
-    /*@Test
-    void getInitiativeName_InternalServerError() {
+    @Test
+    void ingestionMerchantFile_initiativeException() throws IOException, URISyntaxException, StorageException {
 
-        Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(INITIATIVE_ID)).thenReturn(null);
+        StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
+        List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
+
+        File file1 = new ClassPathResource("merchantExampleFiles" + File.separator + "example_merchant_valid.csv").getFile();
+        FileOutputStream outputStream = new FileOutputStream(file1);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byteArrayOutputStream.writeTo(outputStream);
+
+        Mockito.when(fileStorageConnector.downloadMerchantFile(Mockito.anyString())).thenReturn(byteArrayOutputStream);
+
+        Request request =
+                Request.create(Request.HttpMethod.PUT, "url", new HashMap<>(), null, new RequestTemplate());
+
+        Mockito.doThrow(new FeignException.BadRequest("", request, new byte[0], null))
+                .when(initiativeRestConnector)
+                .getInitiativeBeneficiaryView(Mockito.anyString());
 
         ClientException result = assertThrows(ClientException.class,
-                () -> uploadingMerchantService.getInitiativeInfo(INITIATIVE_ID));
+                () -> uploadingMerchantService.ingestionMerchantFile(storageEventDTOS));
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
-        assertEquals("INTERNAL_SERVER_ERROR", ((ClientExceptionWithBody) result).getCode());
         assertEquals("Something went wrong", result.getMessage());
     }
-     */
+    @Test
+    void ingestionMerchantFile_downloadException() throws URISyntaxException, StorageException {
+
+        StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
+        List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
+
+        Mockito.when(fileStorageConnector.downloadMerchantFile(Mockito.anyString())).thenThrow(new StorageException(null, null, null));
+
+        ClientException result = assertThrows(ClientException.class,
+                () -> uploadingMerchantService.ingestionMerchantFile(storageEventDTOS));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
+        assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
+        assertEquals(String.format(MerchantConstants.DOWNLOAD_ERROR, "INITIATIVEID1", "test.csv"), result.getMessage());
+    }
+
+   /* @Test
+    void uploadMerchantFile_saveInvalidFileKo() {
+        InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
+        Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(Mockito.anyString())).thenReturn(initiativeBeneficiaryViewDTO);
+        Mockito.doThrow(new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR, "", "")).when(repositoryMock).save(any());
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        try {
+            uploadingMerchantService.saveMerchants(byteArrayOutputStream, FILENAME, ORGANIZATION_ID, INITIATIVE_ID);
+        } catch (ClientExceptionWithBody e) {
+            Assertions.assertEquals("Initiative %s - file %s: error during merchant saving", e.getMessage());
+            Assertions.assertEquals("INTERNAL_SERVER_ERROR", e.getCode());
+        }
+    }
+
+    */
 }
