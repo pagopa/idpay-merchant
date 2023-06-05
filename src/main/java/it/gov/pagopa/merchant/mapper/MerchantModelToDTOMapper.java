@@ -11,6 +11,7 @@ public class MerchantModelToDTOMapper {
         merchant.getInitiativeList().stream().filter(i -> i.getInitiativeId().equals(initiativeId)).findFirst().ifPresent(
                 initiative -> {
                     merchantDetailDTO.setInitiativeId(initiativeId);
+                    merchantDetailDTO.setInitiativeName(initiative.getInitiativeName());
                     merchantDetailDTO.setBusinessName(merchant.getBusinessName());
                     merchantDetailDTO.setLegalOfficeAddress(merchant.getLegalOfficeAddress());
                     merchantDetailDTO.setLegalOfficeMunicipality(merchant.getLegalOfficeMunicipality());

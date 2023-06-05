@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
@@ -12,13 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/idpay/merchant")
 public interface MerchantController {
-    @Operation(summary = "Uploads the merchants file",
-            description = "")
+    @Operation(summary = "Uploads the merchants file")
     @PutMapping("/organization/{organizationId}/initiative/{initiativeId}/upload")
     @ResponseStatus(code = HttpStatus.OK)
     ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
@@ -27,8 +23,7 @@ public interface MerchantController {
             @PathVariable("initiativeId") String initiativeId,
             @RequestHeader("organization-user-id") String organizationUserId);
 
-    @Operation(summary = "Returns the merchants list",
-            description = "")
+    @Operation(summary = "Returns the merchants list")
     @GetMapping("/organization/{organizationId}/initiative/{initiativeId}/merchants")
     ResponseEntity<MerchantListDTO> getMerchantList(
             @PathVariable("organizationId") String organizationId,
@@ -37,23 +32,16 @@ public interface MerchantController {
             @PageableDefault(size = 15) Pageable pageable
     );
 
-    @Operation(summary = "Returns the merchant detail page on initiative",
-            description = "")
+    @Operation(summary = "Returns the merchant detail page on initiative")
     @GetMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
     ResponseEntity<MerchantDetailDTO> getMerchantDetail(
             @PathVariable("organizationId") String organizationId,
             @PathVariable("initiativeId") String initiativeId,
             @PathVariable("merchantId") String merchantId
     );
-    @Operation(summary = "Returns the merchant id",
-            description = "")
+
+    @Operation(summary = "Returns the merchant id")
     @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
     @ResponseStatus(code = HttpStatus.OK)
     String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId, @PathVariable("fiscalCode") String fiscalCode);
-
-    @Operation(summary = "Returns the list of initiatives of a specific merchant",
-            description = "")
-    @GetMapping("/{merchantId}/initiatives")
-    @ResponseStatus(code = HttpStatus.OK)
-    List<InitiativeDTO> getMerchantInitiativeList(@PathVariable String merchantId);
 }

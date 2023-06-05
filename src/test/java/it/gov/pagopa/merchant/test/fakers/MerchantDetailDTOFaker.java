@@ -16,6 +16,7 @@ public class MerchantDetailDTOFaker {
   public static MerchantDetailDTO.MerchantDetailDTOBuilder mockInstanceBuilder(Integer bias) {
     return MerchantDetailDTO.builder()
             .initiativeId("INITIATIVE_ID_%d".formatted(bias))
+            .initiativeName("INITIATIVE_NAME_%d".formatted(bias))
             .businessName("BUSINESS_NAME")
             .legalOfficeAddress("ADDRESS")
             .legalOfficeMunicipality("MUNICIPALITY")

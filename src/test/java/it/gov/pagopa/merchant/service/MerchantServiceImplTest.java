@@ -72,6 +72,16 @@ class MerchantServiceImplTest {
         MerchantDetailDTO result = merchantService.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID);
         assertNotNull(result);
     }
+
+    @Test
+    void getMerchantDetailByMerchantIdAndInitiativeId(){
+        MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
+        Mockito.when(merchantService.getMerchantDetail(Mockito.anyString(), Mockito.anyString())).thenReturn(merchantDetailDTO);
+
+        MerchantDetailDTO result = merchantService.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID);
+        assertNotNull(result);
+    }
+
     @Test
     void getMerchantList(){
         MerchantListDTO dto = new MerchantListDTO();
