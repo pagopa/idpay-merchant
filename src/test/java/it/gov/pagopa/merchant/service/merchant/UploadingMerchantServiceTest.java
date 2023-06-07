@@ -75,7 +75,7 @@ class UploadingMerchantServiceTest {
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
     private final String ORGANIZATION_USER_ID = "ORGANIZATION_USER_ID";
     private static final String FILENAME = "test.csv";
-    private static final String VALID_FILE = "example_valid_file.csv";
+    private static final String VALID_FILE = "example_valid.csv";
     private final Path sampleCsv = Path.of("target/tmp/merchantExampleFiles/example_merchant_valid.csv");
 
     @BeforeEach
