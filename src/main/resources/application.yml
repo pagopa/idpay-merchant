@@ -1,0 +1,116 @@
+blobStorage.connectionString: ${BLOB_STORAGE_CONNECTION_STRING:}
+blobStorage.merchant.file.containerReference: ${BLOB_STORAGE_CONTAINER_REFERENCE:}
+
+spring:
+  application:
+    name: "@project.artifactId@"
+    version: "@project.version@"
+  jmx.enabled: true
+  config:
+    activate:
+      on-profile: default
+  servlet:
+    multipart:
+      max-file-size: ${MERCHANT_FILE_MAX_FILE_SIZE:2097152}
+  cloud:
+    stream:
+      function:
+        definition: notificationQueue;errors;merchantFileConsumer
+      binders:
+        kafka-errors:
+          type: kafka
+          environment:
+            spring.cloud.stream.kafka.binder:
+              brokers: ${KAFKA_ERRORS_BROKER:${KAFKA_BROKER:}}
+              configuration:
+                sasl.jaas.config: ${KAFKA_ERRORS_SASL_JAAS_CONFIG:}
+                key.serializer: org.apache.kafka.common.serialization.StringSerializer
+        kafka-reward-notification-upload:
+          type: kafka
+          environment:
+            spring.cloud.stream.kafka.binder:
+              brokers: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_BROKER:${KAFKA_BROKER:}}
+              configuration:
+                sasl.jaas.config: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_SASL_JAAS_CONFIG:}
+
+      bindings:
+        errors-out-0:
+          destination: ${KAFKA_ERRORS_TOPIC:idpay-errors}
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          binder: kafka-errors
+        merchantFileConsumer-in-0:
+          destination: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_TOPIC:idpay-reward-notification-storage-events}
+          group: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_GROUP_ID:idpay-file-merchant-group}
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          binder: kafka-reward-notification-upload
+
+      kafka:
+        binder:
+          auto-create-topics: false
+          configuration:
+            heartbeat.interval.ms: ${KAFKA_CONFIG_HEARTBEAT_INTERVAL_MS:3000}
+            session.timeout.ms: ${KAFKA_CONFIG_SESSION_TIMEOUT_MS:30000}
+            request.timeout.ms: ${KAFKA_CONFIG_REQUEST_TIMEOUT_MS:60000}
+            metadata.max.age.ms: ${KAFKA_CONFIG_METADATA_MAX_AGE:180000}
+            sasl.mechanism: ${KAFKA_CONFIG_SASL_MECHANISM:PLAIN}
+            security.protocol: ${KAFKA_CONFIG_SECURITY_PROTOCOL:SASL_SSL}
+            max.request.size: ${KAFKA_CONFIG_MAX_REQUEST_SIZE:1000000}
+        bindings:
+          errors-out-0:
+            producer:
+              configuration:
+                client.id: notificationQueue-errors
+                connections.max.idle.ms: ${KAFKA_ERRORS_CONNECTION_MAX_IDLE_TIME:180000}
+                retry.backoff.ms: ${KAFKA_ERRORS_KAFKA_RETRY_MS:${KAFKA_RETRY_MS:10000}}
+                linger.ms: ${KAFKA_ERRORS_LINGER_MS:${KAFKA_LINGER_MS:2}}
+                batch.size: ${KAFKA_ERRORS_BATCH_SIZE:${KAFKA_BATCH_SIZE:16384}}
+          merchantFileConsumer-in-0:
+            consumer:
+              startOffset: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
+              autoCommitOffset: false
+              ackMode: MANUAL_IMMEDIATE
+              ackTime: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_ACK_MILLIS:500}
+              standardHeaders: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
+              configuration:
+                max.poll:
+                  records: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
+                  interval.ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
+                connections.max.idle.ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:180000}}
+                socket.connection.setup.timeout:
+                  max.ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
+                  ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
+
+  data:
+    mongodb:
+      database: ${MONGODB_DBNAME:idpay}
+      uri: ${MONGODB_URI:mongodb://localhost:27017}
+      # custom configured properties
+      config:
+        connectionPool:
+          maxSize: ${MONGODB_CONNECTIONPOOL_MAX_SIZE:100}
+          minSize: ${MONGODB_CONNECTIONPOOL_MIN_SIZE:0}
+          maxWaitTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_WAIT_MS:120000}
+          maxConnectionLifeTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_LIFE_MS:0}
+          maxConnectionIdleTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_IDLE_MS:120000}
+          maxConnecting: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTING:2}
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud: ${LOG_LEVEL_SPRING_CLOUD:WARN}
+        boot: ${LOG_LEVEL_SPRING_BOOT:INFO}
+        data: ${LOG_LEVEL_SPRING_DATA:INFO}
+    root: ${LOG_LEVEL_ROOT:INFO}
+    it:
+      gov:
+        pagopa: ${LOG_LEVEL_PAGOPA:INFO}
+
+rest-client:
+  initiative:
+    serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
+    baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}
+
+management.endpoints:
+  web:
+    exposure.include: info, health

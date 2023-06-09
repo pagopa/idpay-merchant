@@ -1,0 +1,39 @@
+microservice-chart:
+  image:
+    repository: cstarpcommonacr.azurecr.io/idpaymerchant
+    tag: latest
+    pullPolicy: Always
+
+  ingress:
+    host: "prod01.idpay.internal.cstar.pagopa.it"
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "100m"
+    limits:
+      memory: "2Gi"
+      cpu: "300m"
+
+  autoscaling:
+    enable: true
+    minReplica: 1
+    maxReplica: 2
+    pollingInterval: 30 # seconds
+    cooldownPeriod: 300 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "70"
+
+  envConfig:
+    JAVA_TOOL_OPTIONS: "-Xms128m -Xmx4g -Djava.util.concurrent.ForkJoinPool.common.parallelism=7 -Dio.netty.eventLoopThreads=100 -javaagent:/app/applicationinsights-agent.jar"
+
+  envSecret:
+    aks-api-url: cstar-p-weu-prod01-aks-apiserver-url
+    APPLICATIONINSIGHTS_CONNECTION_STRING: appinsights-instrumentation-key
+
+  keyvault:
+    name: "cstar-p-idpay-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
