@@ -43,12 +43,10 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     public static final int FISCAL_CODE_INDEX = 6;
     public static final int VAT_INDEX = 7;
     public static final int IBAN_INDEX = 16;
-    public static final String FISCAL_CODE_STRUCTURE_REGEX = "^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST]{1}[0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z]{1}[0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z]{1})$";
-    public static final String VAT_STRUCTURE_REGEX = "(^[0-9]{11})$";
-    public static final String IBAN_STRUCTURE_REGEX = "^(it|IT)[0-9]{2}[A-Za-z][0-9]{10}[0-9A-Za-z]{12}$";
-    public static final String EMAIL_STRUCTURE_REGEX = "^[(a-zA-Z0-9-\\_\\.!\\D)]+@[(a-zA-Z)]+\\.[(a-zA-Z)]{2,3}$";
-
-
+    public static final String FISCAL_CODE_STRUCTURE_REGEX = "^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST][0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z][0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z])$";
+    public static final String VAT_STRUCTURE_REGEX = "^(\\d{11})$";
+    public static final String IBAN_STRUCTURE_REGEX = "^(it|IT)\\d{2}[A-Za-z]\\d{10}[0-9A-Za-z]{12}$";
+    public static final String EMAIL_STRUCTURE_REGEX = "^[a-zA-Z0-9-_.!]+@[(a-zA-Z)]+\\.[(a-zA-Z)]{2,3}$";
     private final MerchantFileRepository merchantFileRepository;
 
     private final MerchantRepository merchantRepository;
@@ -105,16 +103,14 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_NAME, null);
         }
 
-        String line;
-        int lineNumber = 0;
+        int lineNumber = 1;
 
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            while ((line = br.readLine()) != null) {
+            List<String> lines = br.lines().skip(1).toList();
+            for(String line : lines) {
                 lineNumber++;
-                if (lineNumber == 1){
-                    continue; //skipping csv file header
-                }
+
                 String[] splitStr = line.split(COMMA, -1);
 
                 List<String> controlString = new ArrayList<>(List.of(Arrays.copyOfRange(splitStr, 0, FISCAL_CODE_INDEX)));
@@ -144,6 +140,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_EMAIL_WRONG, lineNumber);
                 }
             }
+            br.close();
         } catch (Exception e) {
             log.error("[UPLOAD_FILE_MERCHANT] - Generic Error: {}", e.getMessage());
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), e.getMessage());

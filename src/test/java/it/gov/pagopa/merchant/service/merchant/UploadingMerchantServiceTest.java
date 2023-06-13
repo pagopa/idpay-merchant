@@ -136,6 +136,20 @@ class UploadingMerchantServiceTest {
         assertNotNull(result.getElabTimeStamp());
     }
     @Test
+    void uploadMerchantFile_exception() throws IOException {
+        File file1 = new ClassPathResource("merchantExampleFiles/example_invalid.csv").getFile();
+        FileInputStream inputStream = new FileInputStream(file1);
+        MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
+
+        ClientException result = assertThrows(ClientException.class,
+                () -> uploadingMerchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, ORGANIZATION_USER_ID));
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
+        assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
+        assertEquals(String.format(MerchantConstants.CSV_READING_ERROR, INITIATIVE_ID, FILENAME,
+                        "Index 16 out of bounds for length 16"), result.getMessage());
+        inputStream.close();
+    }
+    @Test
     void uploadMerchantFile_storeMerchantException() throws URISyntaxException, IOException, StorageException {
         File file1 = new ClassPathResource(PATH_VALID_FILE_2).getFile();
         FileInputStream inputStream = new FileInputStream(file1);
