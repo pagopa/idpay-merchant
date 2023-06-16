@@ -12,6 +12,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
+import static org.awaitility.Awaitility.await;
 
 public class TestUtils {
     private TestUtils() {}
@@ -63,6 +68,17 @@ public class TestUtils {
     public static String getHeaderValue(ConsumerRecord<String, String> errorMessage, String errorMsgHeaderSrcServer) {
         Header header = errorMessage.headers().lastHeader(errorMsgHeaderSrcServer);
         return header!=null? new String(header.value()) : null;
+    }
+    /** it will attempt the test until its invocation successfully ends until the configured maxAttempts, waiting for the configured millis between each invocation */
+    public static void waitFor(Callable<Boolean> test, Supplier<String> buildTestFailureMessage, int maxAttempts, int millisAttemptDelay) {
+        try {
+            await()
+                    .pollInterval(millisAttemptDelay, TimeUnit.MILLISECONDS)
+                    .atMost((long) maxAttempts * millisAttemptDelay, TimeUnit.MILLISECONDS)
+                    .until(test);
+        } catch (RuntimeException e) {
+            Assertions.fail(buildTestFailureMessage.get(), e);
+        }
     }
 
 }

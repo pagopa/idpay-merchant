@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
+import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -12,6 +13,7 @@ import it.gov.pagopa.merchant.service.merchant.UploadingMerchantService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
+import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +68,15 @@ class MerchantServiceImplTest {
                 merchantRepositoryMock);
     }
 
+    @Test
+    void uploadMerchantFile () {
+        MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
+        MultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv", "Content".getBytes());
+        Mockito.when(merchantService.uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(merchantUpdateDTO);
+
+        MerchantUpdateDTO result = merchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, "ORGANIZATION_USER_ID");
+        Assertions.assertNotNull(result);
+    }
     @Test
     void getMerchantDetail(){
         MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
