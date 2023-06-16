@@ -17,7 +17,6 @@ import it.gov.pagopa.merchant.utils.AuditUtilities;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,24 +43,35 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     public static final int FISCAL_CODE_INDEX = 6;
     public static final int VAT_INDEX = 7;
     public static final int IBAN_INDEX = 16;
-    public static final String FISCAL_CODE_STRUCTURE_REGEX = "^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST]{1}[0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z]{1}[0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z]{1})$";
-    public static final String VAT_STRUCTURE_REGEX = "(^[0-9]{11})$";
-    public static final String IBAN_STRUCTURE_REGEX = "^(it|IT)[0-9]{2}[A-Za-z][0-9]{10}[0-9A-Za-z]{12}$";
-    public static final String EMAIL_STRUCTURE_REGEX = "^[(a-zA-Z0-9-\\_\\.!\\D)]+@[(a-zA-Z)]+\\.[(a-zA-Z)]{2,3}$";
+    public static final String FISCAL_CODE_STRUCTURE_REGEX = "^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST][0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z][0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z])$";
+    public static final String VAT_STRUCTURE_REGEX = "^(\\d{11})$";
+    public static final String IBAN_STRUCTURE_REGEX = "^(it|IT)\\d{2}[A-Za-z]\\d{10}[0-9A-Za-z]{12}$";
+    public static final String EMAIL_STRUCTURE_REGEX = "^[a-zA-Z0-9-_.!]+@[(a-zA-Z)]+\\.[(a-zA-Z)]{2,3}$";
+    private final MerchantFileRepository merchantFileRepository;
 
-    @Autowired
-    private MerchantFileRepository merchantFileRepository;
-    @Autowired
-    private MerchantRepository merchantRepository;
-    @Autowired
-    InitiativeRestConnector initiativeRestConnector;
-    @Autowired
-    FileStorageConnector fileStorageConnector;
-    @Autowired
-    Utilities utilities;
-    @Autowired
-    AuditUtilities auditUtilities;
+    private final MerchantRepository merchantRepository;
 
+    private final InitiativeRestConnector initiativeRestConnector;
+
+    private final FileStorageConnector fileStorageConnector;
+
+    private final Utilities utilities;
+
+    private final AuditUtilities auditUtilities;
+
+    public UploadingMerchantServiceImpl(MerchantFileRepository merchantFileRepository,
+                                        MerchantRepository merchantRepository,
+                                        InitiativeRestConnector initiativeRestConnector,
+                                        FileStorageConnector fileStorageConnector,
+                                        Utilities utilities,
+                                        AuditUtilities auditUtilities) {
+        this.merchantFileRepository = merchantFileRepository;
+        this.merchantRepository = merchantRepository;
+        this.initiativeRestConnector = initiativeRestConnector;
+        this.fileStorageConnector = fileStorageConnector;
+        this.utilities = utilities;
+        this.auditUtilities = auditUtilities;
+    }
 
     @Override
     public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId) {
@@ -93,16 +103,14 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_NAME, null);
         }
 
-        String line;
-        int lineNumber = 0;
+        int lineNumber = 1;
 
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            while ((line = br.readLine()) != null) {
+            List<String> lines = br.lines().skip(1).toList();
+            for(String line : lines) {
                 lineNumber++;
-                if (lineNumber == 1){
-                    continue; //skipping csv file header
-                }
+
                 String[] splitStr = line.split(COMMA, -1);
 
                 List<String> controlString = new ArrayList<>(List.of(Arrays.copyOfRange(splitStr, 0, FISCAL_CODE_INDEX)));
@@ -132,6 +140,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_EMAIL_WRONG, lineNumber);
                 }
             }
+            br.close();
         } catch (Exception e) {
             log.error("[UPLOAD_FILE_MERCHANT] - Generic Error: {}", e.getMessage());
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), e.getMessage());
@@ -264,18 +273,19 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     }
 
     public InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
+        InitiativeBeneficiaryViewDTO initiativeDTO;
         try {
-            InitiativeBeneficiaryViewDTO initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
-            if (!MerchantConstants.INITIATIVE_PUBLISHED.equals(initiativeDTO.getStatus())) {
-                log.info("[SAVE_MERCHANTS] Initiative {} is not PUBLISHED! Status: {}", initiativeId, initiativeDTO.getStatus());
-                throw new ClientExceptionWithBody(HttpStatus.FORBIDDEN, "FORBIDDEN",
-                        String.format("Initiative %s not published", initiativeId));
-            }
-            return initiativeDTO;
+            initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
         } catch (Exception e) {
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
             throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
         }
+        if (initiativeDTO != null && !MerchantConstants.INITIATIVE_PUBLISHED.equals(initiativeDTO.getStatus())) {
+            log.info("[SAVE_MERCHANTS] Initiative {} is not PUBLISHED! Status: {}", initiativeId, initiativeDTO.getStatus());
+            throw new ClientExceptionWithBody(HttpStatus.FORBIDDEN, "FORBIDDEN",
+                    String.format("Initiative %s not published", initiativeId));
+        }
+        return initiativeDTO;
     }
 
     private Merchant createNewMerchant(String[] splitStr) {

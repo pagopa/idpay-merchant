@@ -63,7 +63,7 @@ class MerchantListServiceTest {
 
     when(utilitiesMock.getPageable(Mockito.any())).thenReturn(PageRequest.of(0,2));
 
-    MerchantListDTO result = service.getMerchantList("ORGANIZATION_ID_1", "INITIATIVE_ID_1", FISCAL_CODE, null);
+    MerchantListDTO result = service.getMerchantList("ORGANIZATION_ID_1", "INITIATIVEID1", FISCAL_CODE, null);
 
     assertEquals(2, result.getContent().size());
     assertEquals(merchantListDTO_expected, result);
