@@ -10,7 +10,6 @@ import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.utils.TestUtils;
-import it.gov.pagopa.merchant.utils.Utilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,13 +21,12 @@ import org.springframework.http.HttpStatus;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MerchantDetailServiceTest {
 
   @Mock private MerchantRepository repositoryMock;
-  @Mock private Utilities utilitiesMock;
   @Mock private final MerchantModelToDTOMapper merchantModelToDTOMapperMock = new MerchantModelToDTOMapper();
   private final String INITIATIVE_ID = "INITIATIVE_ID";
   private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -40,8 +38,7 @@ class MerchantDetailServiceTest {
   void setUp() {
     service = new MerchantDetailServiceImpl(
             repositoryMock,
-            merchantModelToDTOMapperMock,
-            utilitiesMock);
+            merchantModelToDTOMapperMock);
   }
 
   @Test
