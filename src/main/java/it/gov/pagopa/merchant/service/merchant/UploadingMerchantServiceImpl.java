@@ -55,21 +55,17 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
     private final FileStorageConnector fileStorageConnector;
 
-    private final Utilities utilities;
-
     private final AuditUtilities auditUtilities;
 
     public UploadingMerchantServiceImpl(MerchantFileRepository merchantFileRepository,
                                         MerchantRepository merchantRepository,
                                         InitiativeRestConnector initiativeRestConnector,
                                         FileStorageConnector fileStorageConnector,
-                                        Utilities utilities,
                                         AuditUtilities auditUtilities) {
         this.merchantFileRepository = merchantFileRepository;
         this.merchantRepository = merchantRepository;
         this.initiativeRestConnector = initiativeRestConnector;
         this.fileStorageConnector = fileStorageConnector;
-        this.utilities = utilities;
         this.auditUtilities = auditUtilities;
     }
 
@@ -163,12 +159,12 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             InputStream inputStreamFile = file.getInputStream();
             fileStorageConnector.uploadMerchantFile(inputStreamFile, String.format(MerchantConstants.MERCHANT_FILE_PATH_TEMPLATE, organizationId, initiativeId, file.getOriginalFilename()), file.getContentType());
             saveMerchantFile(file.getOriginalFilename(), organizationId, initiativeId, organizationUserId, MerchantConstants.Status.ON_EVALUATION);
-            utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
+            Utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
         } catch (Exception e) {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} storage failed", initiativeId, file.getOriginalFilename());
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getOriginalFilename(), "Error during file storage");
             saveMerchantFile(file.getOriginalFilename(), organizationId, initiativeId, organizationUserId, MerchantConstants.Status.STORAGE_KO);
-            utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
+            Utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
             throw  new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
                     String.format(MerchantConstants.STORAGE_ERROR, initiativeId, file.getOriginalFilename()));
@@ -213,13 +209,13 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             log.info("[SAVE_MERCHANTS] - Initiative: {}. Downloading merchants file {}", initiativeId, fileName);
             String fileNamePath = String.format(MerchantConstants.MERCHANT_FILE_PATH_TEMPLATE, organizationId, initiativeId, fileName);
             ByteArrayOutputStream merchantFile = fileStorageConnector.downloadMerchantFile(fileNamePath);
-            utilities.performanceLog(startTime, "DOWNLOAD_MERCHANT_FILE");
+            Utilities.performanceLog(startTime, "DOWNLOAD_MERCHANT_FILE");
             return merchantFile;
         } catch (Exception e) {
             log.info("[SAVE_MERCHANTS] - Initiative: {}. Merchants file {} download failed", initiativeId, fileName);
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, fileName, e.getMessage());
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.DOWNLOAD_KO);
-            utilities.performanceLog(startTime, "DOWNLOAD_MERCHANT_FILE");
+            Utilities.performanceLog(startTime, "DOWNLOAD_MERCHANT_FILE");
             throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
                     String.format(MerchantConstants.DOWNLOAD_ERROR, initiativeId, fileName));
@@ -260,12 +256,12 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 }
                 merchantRepository.save(merchant);
             });
-            utilities.performanceLog(startTime, "SAVE_MERCHANTS");
+            Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         } catch (Exception e) {
             log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, fileName, e.getMessage());
-            utilities.performanceLog(startTime, "SAVE_MERCHANTS");
+            Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
             throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
                     String.format(MerchantConstants.MERCHANT_SAVING_ERROR, initiativeId, fileName));
@@ -290,7 +286,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
     private Merchant createNewMerchant(String[] splitStr) {
         return Merchant.builder()
-                .merchantId(utilities.toUUID(splitStr[FISCAL_CODE_INDEX].concat("_").concat(PAGOPA)))
+                .merchantId(Utilities.toUUID(splitStr[FISCAL_CODE_INDEX].concat("_").concat(PAGOPA)))
                 .acquirerId(PAGOPA)
                 .businessName(splitStr[BUSINESS_NAME_INDEX])
                 .legalOfficeAddress(splitStr[LEGAL_OFFICE_ADDRESS_INDEX])

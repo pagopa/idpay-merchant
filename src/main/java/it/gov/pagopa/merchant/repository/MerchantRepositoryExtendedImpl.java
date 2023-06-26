@@ -14,16 +14,14 @@ import java.util.List;
 @Repository
 public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtended {
     private final MongoTemplate mongoTemplate;
-    private final Utilities utilities;
 
-    public MerchantRepositoryExtendedImpl(MongoTemplate mongoTemplate, Utilities utilities) {
+    public MerchantRepositoryExtendedImpl(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
-        this.utilities = utilities;
     }
 
     @Override
     public List<Merchant> findByFilter(Criteria criteria, Pageable pageable) {
-        return mongoTemplate.find(Query.query(criteria).with(utilities.getPageable(pageable)), Merchant.class);
+        return mongoTemplate.find(Query.query(criteria).with(Utilities.getPageable(pageable)), Merchant.class);
     }
 
     @Override
