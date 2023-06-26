@@ -6,6 +6,7 @@ import io.micrometer.core.instrument.binder.mongodb.MongoMetricsCommandListener;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import it.gov.pagopa.common.mongo.MongoTestUtilitiesService;
 import it.gov.pagopa.common.mongo.config.MongoConfig;
+import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.Data;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -36,7 +37,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @TestPropertySource(
@@ -53,7 +53,8 @@ import java.util.Set;
         })
 @ExtendWith(SpringExtension.class)
 @AutoConfigureDataMongo
-@ContextConfiguration(classes = {BaseMongoRepositoryIntegrationTest.TestMongoRepositoryConfig.class, MongoTestUtilitiesService.TestMongoConfiguration.class, SimpleMeterRegistry.class})
+@ContextConfiguration(classes = {BaseMongoRepositoryIntegrationTest.TestMongoRepositoryConfig.class, MongoTestUtilitiesService.TestMongoConfiguration.class, SimpleMeterRegistry.class
+, Utilities.class})
 class BaseMongoRepositoryIntegrationTest {
 
     static {

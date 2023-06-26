@@ -19,12 +19,10 @@ import java.util.List;
 @Slf4j
 public class MerchantListServiceImpl implements MerchantListService {
     private final MerchantRepository merchantRepository;
-    private final Utilities utilities;
     public static final String EMPTY = "";
 
-    public MerchantListServiceImpl(MerchantRepository merchantRepository, Utilities utilities) {
+    public MerchantListServiceImpl(MerchantRepository merchantRepository) {
         this.merchantRepository = merchantRepository;
-        this.utilities = utilities;
     }
 
     @Override
@@ -50,9 +48,9 @@ public class MerchantListServiceImpl implements MerchantListService {
 
         long count = merchantRepository.getCount(criteria);
         final Page<Merchant> result = PageableExecutionUtils.getPage(merchantModelList,
-                utilities.getPageable(pageable), () -> count);
+                Utilities.getPageable(pageable), () -> count);
 
-        utilities.performanceLog(startTime, "GET_MERCHANT_LIST");
+        Utilities.performanceLog(startTime, "GET_MERCHANT_LIST");
         return new MerchantListDTO(merchantDTOList, result.getNumber(), result.getSize(),
                 (int) result.getTotalElements(), result.getTotalPages());
     }

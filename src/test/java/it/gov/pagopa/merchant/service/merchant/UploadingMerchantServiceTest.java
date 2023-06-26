@@ -21,7 +21,6 @@ import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFileFaker;
 import it.gov.pagopa.merchant.test.fakers.StorageEventDTOFaker;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
-import it.gov.pagopa.merchant.utils.Utilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,8 +57,6 @@ class UploadingMerchantServiceTest {
     @Mock
     private AuditUtilities auditUtilities;
     @Mock
-    private Utilities utilities;
-    @Mock
     private FileStorageConnector fileStorageConnector;
     private static final String INITIATIVE_ID = "INITIATIVEID1";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -71,7 +68,7 @@ class UploadingMerchantServiceTest {
     @BeforeEach
     public void setUp() {
         uploadingMerchantService = new UploadingMerchantServiceImpl(merchantFileRepository, repositoryMock, initiativeRestConnector,
-                fileStorageConnector, utilities, auditUtilities);
+                fileStorageConnector, auditUtilities);
     }
     @Test
     void uploadMerchantFile_ValidFile() throws IOException {
