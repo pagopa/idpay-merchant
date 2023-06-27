@@ -16,12 +16,10 @@ import org.springframework.stereotype.Service;
 public class MerchantDetailServiceImpl implements MerchantDetailService {
     private final MerchantRepository merchantRepository;
     private final MerchantModelToDTOMapper merchantModelToDTOMapper;
-    private final Utilities utilities;
 
-    public MerchantDetailServiceImpl(MerchantRepository merchantRepository, MerchantModelToDTOMapper merchantModelToDTOMapper, Utilities utilities) {
+    public MerchantDetailServiceImpl(MerchantRepository merchantRepository, MerchantModelToDTOMapper merchantModelToDTOMapper) {
         this.merchantRepository = merchantRepository;
         this.merchantModelToDTOMapper = merchantModelToDTOMapper;
-        this.utilities = utilities;
     }
 
     @Override
@@ -34,7 +32,7 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
                         MerchantConstants.NOT_FOUND,
                         String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, initiativeId, merchantId)));
 
-        utilities.performanceLog(startTime, "GET_MERCHANT_DETAIL");
+        Utilities.performanceLog(startTime, "GET_MERCHANT_DETAIL");
         return merchantModelToDTOMapper.toMerchantDetailDTO(merchantDetail, initiativeId);
     }
 

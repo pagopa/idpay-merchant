@@ -6,14 +6,12 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.utils.TestUtils;
-import it.gov.pagopa.merchant.utils.Utilities;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -26,7 +24,6 @@ import static org.mockito.Mockito.when;
 class MerchantListServiceTest {
 
   @Mock private MerchantRepository repositoryMock;
-  @Mock private Utilities utilitiesMock;
   private final String FISCAL_CODE = "FISCAL_CODE";
 
   MerchantListService service;
@@ -34,8 +31,7 @@ class MerchantListServiceTest {
   @BeforeEach
   void setUp() {
     service = new MerchantListServiceImpl(
-            repositoryMock,
-            utilitiesMock);
+            repositoryMock);
   }
 
   @Test
@@ -59,9 +55,7 @@ class MerchantListServiceTest {
             .merchantStatus("STATUS")
             .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
     MerchantListDTO merchantListDTO_expected = MerchantListDTO.builder().content(List.of(merchantDTO1, merchantDTO2))
-            .pageSize(2).totalElements(2).totalPages(1).build();
-
-    when(utilitiesMock.getPageable(Mockito.any())).thenReturn(PageRequest.of(0,2));
+            .pageSize(15).totalElements(2).totalPages(1).build();
 
     MerchantListDTO result = service.getMerchantList("ORGANIZATION_ID_1", "INITIATIVEID1", FISCAL_CODE, null);
 
@@ -75,9 +69,7 @@ class MerchantListServiceTest {
     when(repositoryMock.findByFilter(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyList());
 
     MerchantListDTO merchantListDTO_expected = MerchantListDTO.builder().content(Collections.emptyList())
-            .pageSize(2).totalElements(0).totalPages(0).build();
-
-    when(utilitiesMock.getPageable(Mockito.any())).thenReturn(PageRequest.of(0,2));
+            .pageSize(15).totalElements(0).totalPages(0).build();
 
     MerchantListDTO result = service.getMerchantList("ORGANIZATION_ID_1","INITIATIVE_ID_1",  FISCAL_CODE, null);
 
