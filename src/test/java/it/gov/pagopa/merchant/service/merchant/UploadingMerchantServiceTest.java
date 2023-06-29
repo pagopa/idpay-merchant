@@ -143,7 +143,7 @@ class UploadingMerchantServiceTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
         assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
         assertEquals(String.format(MerchantConstants.CSV_READING_ERROR, INITIATIVE_ID, FILENAME,
-                        "Index 16 out of bounds for length 16"), result.getMessage());
+                        "Index 17 out of bounds for length 16"), result.getMessage());
         inputStream.close();
     }
     @Test
