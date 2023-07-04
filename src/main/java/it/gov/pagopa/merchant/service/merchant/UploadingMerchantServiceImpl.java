@@ -34,15 +34,16 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     public static final String COMMA = ";";
     public static final String MERCHANT = "merchant";
     public static final String PAGOPA = "PAGOPA";
-    public static final int BUSINESS_NAME_INDEX = 0;
-    public static final int LEGAL_OFFICE_ADDRESS_INDEX = 1;
-    public static final int LEGAL_OFFICE_MUNICIPALITY_INDEX = 2;
-    public static final int LEGAL_OFFICE_PROVINCE_INDEX = 3;
-    public static final int LEGAL_OFFICE_ZIP_INDEX = 4;
-    public static final int EMAIL_INDEX = 5;
-    public static final int FISCAL_CODE_INDEX = 6;
-    public static final int VAT_INDEX = 7;
-    public static final int IBAN_INDEX = 16;
+    public static final int ACQUIRER_INDEX = 0;
+    public static final int BUSINESS_NAME_INDEX = 1;
+    public static final int LEGAL_OFFICE_ADDRESS_INDEX = 2;
+    public static final int LEGAL_OFFICE_MUNICIPALITY_INDEX = 3;
+    public static final int LEGAL_OFFICE_PROVINCE_INDEX = 4;
+    public static final int LEGAL_OFFICE_ZIP_INDEX = 5;
+    public static final int EMAIL_INDEX = 6;
+    public static final int FISCAL_CODE_INDEX = 7;
+    public static final int VAT_INDEX = 8;
+    public static final int IBAN_INDEX = 17;
     public static final String FISCAL_CODE_STRUCTURE_REGEX = "^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST][0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z][0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z])$";
     public static final String VAT_STRUCTURE_REGEX = "^(\\d{11})$";
     public static final String IBAN_STRUCTURE_REGEX = "^(it|IT)\\d{2}[A-Za-z]\\d{10}[0-9A-Za-z]{12}$";
@@ -234,7 +235,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
             br.lines().skip(1).forEach(line -> {
                 String[] splitStr = line.split(COMMA);
-                Merchant merchant = merchantRepository.findByFiscalCodeAndAcquirerId(splitStr[FISCAL_CODE_INDEX], PAGOPA)
+                Merchant merchant = merchantRepository.findByFiscalCodeAndAcquirerId(splitStr[FISCAL_CODE_INDEX], splitStr[ACQUIRER_INDEX])
                         .orElse(createNewMerchant(splitStr));
 
                 String ibanNew = splitStr[IBAN_INDEX];
@@ -286,8 +287,8 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
     private Merchant createNewMerchant(String[] splitStr) {
         return Merchant.builder()
-                .merchantId(Utilities.toUUID(splitStr[FISCAL_CODE_INDEX].concat("_").concat(PAGOPA)))
-                .acquirerId(PAGOPA)
+                .merchantId(Utilities.toUUID(splitStr[FISCAL_CODE_INDEX].concat("_").concat(splitStr[ACQUIRER_INDEX])))
+                .acquirerId(splitStr[ACQUIRER_INDEX])
                 .businessName(splitStr[BUSINESS_NAME_INDEX])
                 .legalOfficeAddress(splitStr[LEGAL_OFFICE_ADDRESS_INDEX])
                 .legalOfficeMunicipality(splitStr[LEGAL_OFFICE_MUNICIPALITY_INDEX])
