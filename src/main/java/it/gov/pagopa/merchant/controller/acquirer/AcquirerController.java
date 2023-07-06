@@ -24,6 +24,6 @@ public interface AcquirerController {
     @ResponseStatus(code = HttpStatus.OK)
     ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
             @RequestParam("file") MultipartFile file,
-            @PathVariable("acquirerId") String organizationId,
+            @PathVariable("acquirerId") String acquirerId,
             @PathVariable("initiativeId") String initiativeId);
 }
