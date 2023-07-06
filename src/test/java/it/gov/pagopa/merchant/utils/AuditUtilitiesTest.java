@@ -34,7 +34,7 @@ class AuditUtilitiesTest {
 
         assertEquals(
                 CEF + " msg=Upload Merchants file completed."
-                        + " cs1Label=initiativeId cs1=%s cs2Label=organizationId cs2=%s cs3Label=fileName cs3=%s"
+                        + " cs1Label=initiativeId cs1=%s cs2Label=entityId cs2=%s cs3Label=fileName cs3=%s"
                                 .formatted(INITIATIVE_ID, ORGANIZATION_ID, FILE_NAME),
                 memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
         );
@@ -46,7 +46,7 @@ class AuditUtilitiesTest {
 
         assertEquals(
                 CEF + " msg=Validation of Merchants file completed."
-                        + " cs1Label=initiativeId cs1=%s cs2Label=organizationId cs2=%s cs3Label=fileName cs3=%s"
+                        + " cs1Label=initiativeId cs1=%s cs2Label=entityId cs2=%s cs3Label=fileName cs3=%s"
                         .formatted(INITIATIVE_ID, ORGANIZATION_ID, FILE_NAME),
                 memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
         );
@@ -58,7 +58,7 @@ class AuditUtilitiesTest {
 
         assertEquals(
                 CEF + " msg=Upload Merchants file failed: error"
-                        + " cs1Label=initiativeId cs1=%s cs2Label=organizationId cs2=%s cs3Label=fileName cs3=%s"
+                        + " cs1Label=initiativeId cs1=%s cs2Label=entityId cs2=%s cs3Label=fileName cs3=%s"
                         .formatted(INITIATIVE_ID, ORGANIZATION_ID, FILE_NAME),
                 memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
         );
@@ -70,7 +70,7 @@ class AuditUtilitiesTest {
 
         assertEquals(
                 CEF + " msg=Saving Merchants completed."
-                        + " cs1Label=initiativeId cs1=%s cs2Label=organizationId cs2=%s cs3Label=fileName cs3=%s"
+                        + " cs1Label=initiativeId cs1=%s cs2Label=entityId cs2=%s cs3Label=fileName cs3=%s"
                         .formatted(INITIATIVE_ID, ORGANIZATION_ID, FILE_NAME),
                 memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
         );

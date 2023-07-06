@@ -71,32 +71,32 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     }
 
     @Override
-    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId) {
+    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String entityId, String initiativeId, String organizationUserId) {
         log.info("[UPLOAD_FILE_MERCHANT] - Starting uploading file {} for initiative {}", file.getOriginalFilename(), initiativeId);
-        MerchantUpdateDTO merchantUpdateDTO = fileValidation(file, organizationId, initiativeId);
+        MerchantUpdateDTO merchantUpdateDTO = fileValidation(file, entityId, initiativeId);
 
         if (MerchantConstants.Status.VALIDATED.equals(merchantUpdateDTO.getStatus())) {
-            storeMerchantFile(organizationId, initiativeId, file, organizationUserId);
-            auditUtilities.logUploadMerchantOK(initiativeId, organizationId, file.getOriginalFilename());
+            storeMerchantFile(entityId, initiativeId, file, organizationUserId);
+            auditUtilities.logUploadMerchantOK(initiativeId, entityId, file.getOriginalFilename());
         }
         return merchantUpdateDTO;
     }
 
-    private MerchantUpdateDTO fileValidation(MultipartFile file, String organizationId, String initiativeId) {
+    private MerchantUpdateDTO fileValidation(MultipartFile file, String entityId, String initiativeId) {
         if (file.isEmpty()) {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. File is empty", initiativeId);
-            auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), "File is empty");
+            auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "File is empty");
             return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_EMPTY, null);
         }
         if (!(MerchantConstants.CONTENT_TYPE.equals(file.getContentType()))) {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. ContentType not accepted: {}", initiativeId, file.getContentType());
-            auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), "ContentType not accepted");
+            auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "ContentType not accepted");
             return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_FORMAT, null);
         }
         List<MerchantFile> merchantFileList = merchantFileRepository.findByFileNameAndInitiativeId(file.getOriginalFilename(), initiativeId);
         if (!merchantFileList.isEmpty()) {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. File name already used: {}", initiativeId, file.getOriginalFilename());
-            auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), "File name already used");
+            auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "File name already used");
             return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_NAME, null);
         }
 
@@ -115,56 +115,56 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
                 if (controlString.stream().anyMatch(StringUtils::isBlank)) {
                     log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Missing required fields", initiativeId);
-                    auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), "Missing required fields");
+                    auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "Missing required fields");
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.MISSING_REQUIRED_FIELDS, lineNumber);
                 }
 
                 if (!splitStr[FISCAL_CODE_INDEX].matches(FISCAL_CODE_STRUCTURE_REGEX) && !splitStr[FISCAL_CODE_INDEX].matches(VAT_STRUCTURE_REGEX)) {
                     log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Invalid fiscal code: {}", initiativeId, splitStr[FISCAL_CODE_INDEX]);
-                    auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), "Invalid fiscal code");
+                    auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "Invalid fiscal code");
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_CF_WRONG, lineNumber);
                 }
 
                 if (!splitStr[IBAN_INDEX].matches(IBAN_STRUCTURE_REGEX)) {
                     log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Invalid iban: {}", initiativeId, splitStr[IBAN_INDEX]);
-                    auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), "Invalid iban");
+                    auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "Invalid iban");
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_IBAN_WRONG, lineNumber);
                 }
 
                 if (!splitStr[EMAIL_INDEX].matches(EMAIL_STRUCTURE_REGEX)) {
                     log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Invalid certified email: {}", initiativeId, splitStr[EMAIL_INDEX]);
-                    auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), "Invalid certified email");
+                    auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "Invalid certified email");
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_EMAIL_WRONG, lineNumber);
                 }
             }
             br.close();
         } catch (Exception e) {
             log.error("[UPLOAD_FILE_MERCHANT] - Generic Error: {}", e.getMessage());
-            auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getName(), e.getMessage());
+            auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), e.getMessage());
             throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
                     String.format(MerchantConstants.CSV_READING_ERROR, initiativeId, file.getOriginalFilename(), e.getMessage()));
         }
         log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} validated", initiativeId, file.getOriginalFilename());
-        auditUtilities.logValidationMerchantOK(initiativeId, organizationId, file.getName());
+        auditUtilities.logValidationMerchantOK(initiativeId, entityId, file.getName());
         return MerchantUpdateDTO.builder()
                 .status(MerchantConstants.Status.VALIDATED)
                 .elabTimeStamp(LocalDateTime.now()).build();
     }
 
 
-    public void storeMerchantFile(String organizationId, String initiativeId, MultipartFile file, String organizationUserId) {
+    public void storeMerchantFile(String entityId, String initiativeId, MultipartFile file, String organizationUserId) {
         long startTime = System.currentTimeMillis();
         try {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} sent to storage", initiativeId, file.getOriginalFilename());
             InputStream inputStreamFile = file.getInputStream();
-            fileStorageConnector.uploadMerchantFile(inputStreamFile, String.format(MerchantConstants.MERCHANT_FILE_PATH_TEMPLATE, organizationId, initiativeId, file.getOriginalFilename()), file.getContentType());
-            saveMerchantFile(file.getOriginalFilename(), organizationId, initiativeId, organizationUserId, MerchantConstants.Status.ON_EVALUATION);
+            fileStorageConnector.uploadMerchantFile(inputStreamFile, String.format(MerchantConstants.MERCHANT_FILE_PATH_TEMPLATE, entityId, initiativeId, file.getOriginalFilename()), file.getContentType());
+            saveMerchantFile(file.getOriginalFilename(), entityId, initiativeId, organizationUserId, MerchantConstants.Status.ON_EVALUATION);
             Utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
         } catch (Exception e) {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} storage failed", initiativeId, file.getOriginalFilename());
-            auditUtilities.logUploadMerchantKO(initiativeId, organizationId, file.getOriginalFilename(), "Error during file storage");
-            saveMerchantFile(file.getOriginalFilename(), organizationId, initiativeId, organizationUserId, MerchantConstants.Status.STORAGE_KO);
+            auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getOriginalFilename(), "Error during file storage");
+            saveMerchantFile(file.getOriginalFilename(), entityId, initiativeId, organizationUserId, MerchantConstants.Status.STORAGE_KO);
             Utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
             throw  new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
@@ -177,7 +177,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 MerchantFile.builder()
                         .fileName(fileName)
                         .initiativeId(initiativeId)
-                        .organizationId(organizationId)
+                        .entityId(organizationId)
                         .organizationUserId(organizationUserId)
                         .status(status)
                         .uploadDate(LocalDateTime.now())
@@ -193,13 +193,13 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             String[] subjectPathSplit = storageEventDTO.getSubject().split("/");
             if (MERCHANT.equals(subjectPathSplit[4]) && subjectPathSplit.length == 9) {
                 String fileName = subjectPathSplit[8];
-                String organizationId = subjectPathSplit[6];
+                String entityId = subjectPathSplit[6];
                 String initiativeId = subjectPathSplit[7];
-                ByteArrayOutputStream downloadedMerchantFile = downloadMerchantFile(fileName, organizationId, initiativeId);
-                saveMerchants(downloadedMerchantFile, fileName, organizationId, initiativeId);
+                ByteArrayOutputStream downloadedMerchantFile = downloadMerchantFile(fileName, entityId, initiativeId);
+                saveMerchants(downloadedMerchantFile, fileName, entityId, initiativeId);
                 merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.PROCESSED);
                 log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants completed", initiativeId, fileName);
-                auditUtilities.logSavingMerchantsOK(initiativeId, organizationId, fileName);
+                auditUtilities.logSavingMerchantsOK(initiativeId, entityId, fileName);
             }
         }
     }
@@ -223,7 +223,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
         }
     }
 
-    public void saveMerchants(ByteArrayOutputStream byteFile, String fileName, String organizationId, String initiativeId) {
+    public void saveMerchants(ByteArrayOutputStream byteFile, String fileName, String entityId, String initiativeId) {
         long startTime = System.currentTimeMillis();
 
         InitiativeBeneficiaryViewDTO initiativeDTO = getInitiativeInfo(initiativeId);
@@ -261,7 +261,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
         } catch (Exception e) {
             log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
-            auditUtilities.logUploadMerchantKO(initiativeId, organizationId, fileName, e.getMessage());
+            auditUtilities.logUploadMerchantKO(initiativeId, entityId, fileName, e.getMessage());
             Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
             throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
