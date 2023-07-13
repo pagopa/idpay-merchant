@@ -16,7 +16,7 @@ public class MerchantFileFaker {
         return MerchantFile.builder()
                 .fileName("test.csv")
                 .initiativeId("INITIATIVE_ID_%d".formatted(bias))
-                .organizationId("ORGANIZATION_ID_%d".formatted(bias))
+                .entityId("ORGANIZATION_ID_%d".formatted(bias))
                 .organizationUserId("ORGANIZATION _USER_ID")
                 .status("STATUS")
                 .uploadDate(LocalDateTime.of(2023,5,22,10, 0))

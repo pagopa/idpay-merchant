@@ -1,13 +1,13 @@
-Ragione Sociale;Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;PEC;CF;PIVA;Nome Legale Rappresentante;Cognome Legale Rappresentante;CF Legale Rappresentante;Email Aziendale Legale rappresentante;Nome Amministratore;Cognome Amministratore;CF Amministratore;Email Aziendale Amministratore;IBAN
-Prova2;Via prova 2;Comune prova 2;Provincia prova 2;ZIP PROVA 2;email2@prova.it;RNZPMP80A44X000N;RNZPMP80A44X000N;;;;;;;;;IT96I0300203280465229336885
-Prova3;Via prova 3;Comune prova 3;Provincia prova 3;ZIP PROVA 3;email3@prova.it;12345678901;12345678901;;;;;;;;;IT96I0300203280465229336888
-Prova4;Via prova 4;Comune prova 4;Provincia prova 4;ZIP PROVA 4;email4@prova.it;12345678902;12345678902;;;;;;;;;IT96I0300203280465229336855
-Prova5;Via prova 5;Comune prova 5;Provincia prova 5;ZIP PROVA 5;email4@prova.it;12345678903;12345678903;;;;;;;;;IT96I0300203280465229336844
-Prova6;Via prova 6;Comune prova 6;Provincia prova 6;ZIP PROVA 6;email4@prova.it;12345678904;12345678904;;;;;;;;;IT96I0300203280465229336833
-Prova7;Via prova 7;Comune prova 7;Provincia prova 7;ZIP PROVA 7;email4@prova.it;12345678905;12345678905;;;;;;;;;IT96I0300203280465229336822
-Prova8;Via prova 8;Comune prova 8;Provincia prova 8;ZIP PROVA 8;email4@prova.it;12345678906;12345678906;;;;;;;;;IT96I0300203280465229336811
-Prova9;Via prova 9;Comune prova 9;Provincia prova 9;ZIP PROVA 9;email4@prova.it;12345678907;12345678907;;;;;;;;;IT96I0300203280465229336800
-Prova10;Via prova 10;Comune prova 10;Provincia prova 10;ZIP PROVA 10;email4@prova.it;12345678908;12345678908;;;;;;;;;IT96I0300203280465229336812
-Prova11;Via prova 11;Comune prova 11;Provincia prova 11;ZIP PROVA 11;email4@prova.it;12345678909;12345678909;;;;;;;;;IT96I0300203280465229336813
-Prova12;Via prova 12;Comune prova 12;Provincia prova 12;ZIP PROVA 12;email4@prova.it;12345678911;12345678911;;;;;;;;;IT96I0300203280465229336814
-Prova13;Via prova 13;Comune prova 13;Provincia prova 13;ZIP PROVA 13;email4@prova.it;12345678912;12345678912;;;;;;;;;IT96I0300203280465229336815
+ACQUIRER;Ragione Sociale;Indirizzo sede legale;Comune sede legale;Provincia sede legale;CAP sede Legale;PEC;CF;PIVA;Nome Legale Rappresentante;Cognome Legale Rappresentante;CF Legale Rappresentante;Email Aziendale Legale rappresentante;Nome Amministratore;Cognome Amministratore;CF Amministratore;Email Aziendale Amministratore;IBAN
+PAGOPA;Prova2;Via prova 2;Comune prova 2;Provincia prova 2;ZIP PROVA 2;email2@prova.it;RNZPMP80A44X000N;RNZPMP80A44X000N;;;;;;;;;IT96I0300203280465229336885
+PAGOPA;Prova3;Via prova 3;Comune prova 3;Provincia prova 3;ZIP PROVA 3;email3@prova.it;12345678901;12345678901;;;;;;;;;IT96I0300203280465229336888
+PAGOPA;Prova4;Via prova 4;Comune prova 4;Provincia prova 4;ZIP PROVA 4;email4@prova.it;12345678902;12345678902;;;;;;;;;IT96I0300203280465229336855
+PAGOPA;Prova5;Via prova 5;Comune prova 5;Provincia prova 5;ZIP PROVA 5;email4@prova.it;12345678903;12345678903;;;;;;;;;IT96I0300203280465229336844
+PAGOPA;Prova6;Via prova 6;Comune prova 6;Provincia prova 6;ZIP PROVA 6;email4@prova.it;12345678904;12345678904;;;;;;;;;IT96I0300203280465229336833
+PAGOPA;Prova7;Via prova 7;Comune prova 7;Provincia prova 7;ZIP PROVA 7;email4@prova.it;12345678905;12345678905;;;;;;;;;IT96I0300203280465229336822
+PAGOPA;Prova8;Via prova 8;Comune prova 8;Provincia prova 8;ZIP PROVA 8;email4@prova.it;12345678906;12345678906;;;;;;;;;IT96I0300203280465229336811
+PAGOPA;Prova9;Via prova 9;Comune prova 9;Provincia prova 9;ZIP PROVA 9;email4@prova.it;12345678907;12345678907;;;;;;;;;IT96I0300203280465229336800
+PAGOPA;Prova10;Via prova 10;Comune prova 10;Provincia prova 10;ZIP PROVA 10;email4@prova.it;12345678908;12345678908;;;;;;;;;IT96I0300203280465229336812
+PAGOPA;Prova11;Via prova 11;Comune prova 11;Provincia prova 11;ZIP PROVA 11;email4@prova.it;12345678909;12345678909;;;;;;;;;IT96I0300203280465229336813
+PAGOPA;Prova12;Via prova 12;Comune prova 12;Provincia prova 12;ZIP PROVA 12;email4@prova.it;12345678911;12345678911;;;;;;;;;IT96I0300203280465229336814
+PAGOPA;Prova13;Via prova 13;Comune prova 13;Provincia prova 13;ZIP PROVA 13;email4@prova.it;12345678912;12345678912;;;;;;;;;IT96I0300203280465229336815
