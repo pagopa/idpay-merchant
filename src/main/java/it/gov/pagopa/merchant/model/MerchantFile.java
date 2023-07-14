@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class MerchantFile {
     private String fileName;
     private String initiativeId;
-    private String organizationId;
+    private String entityId;
     private String organizationUserId;
     private String status;
     private LocalDateTime uploadDate;
