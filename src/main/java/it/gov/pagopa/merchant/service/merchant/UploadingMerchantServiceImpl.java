@@ -33,7 +33,6 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
     public static final String COMMA = ";";
     public static final String MERCHANT = "merchant";
-    public static final String PAGOPA = "PAGOPA";
     public static final int ACQUIRER_INDEX = 0;
     public static final int BUSINESS_NAME_INDEX = 1;
     public static final int LEGAL_OFFICE_ADDRESS_INDEX = 2;
@@ -44,8 +43,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     public static final int FISCAL_CODE_INDEX = 7;
     public static final int VAT_INDEX = 8;
     public static final int IBAN_INDEX = 17;
-    public static final String FISCAL_CODE_STRUCTURE_REGEX = "^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST][0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z][0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z])$";
-    public static final String VAT_STRUCTURE_REGEX = "^(\\d{11})$";
+    public static final String FISCAL_CODE_STRUCTURE_REGEX = "(^([A-Za-z]{6}[0-9lmnpqrstuvLMNPQRSTUV]{2}[abcdehlmprstABCDEHLMPRST][0-9lmnpqrstuvLMNPQRSTUV]{2}[A-Za-z][0-9lmnpqrstuvLMNPQRSTUV]{3}[A-Za-z])$)|(^(\\d{11})$)";
     public static final String IBAN_STRUCTURE_REGEX = "^(it|IT)\\d{2}[A-Za-z]\\d{10}[0-9A-Za-z]{12}$";
     public static final String EMAIL_STRUCTURE_REGEX = "^[a-zA-Z0-9-_.!]+@[(a-zA-Z)]+\\.[(a-zA-Z)]{2,3}$";
     private final MerchantFileRepository merchantFileRepository;
@@ -71,9 +69,9 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     }
 
     @Override
-    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String entityId, String initiativeId, String organizationUserId) {
+    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String entityId, String initiativeId, String organizationUserId, String acquirerId) {
         log.info("[UPLOAD_FILE_MERCHANT] - Starting uploading file {} for initiative {}", file.getOriginalFilename(), initiativeId);
-        MerchantUpdateDTO merchantUpdateDTO = fileValidation(file, entityId, initiativeId);
+        MerchantUpdateDTO merchantUpdateDTO = fileValidation(file, entityId, initiativeId, acquirerId);
 
         if (MerchantConstants.Status.VALIDATED.equals(merchantUpdateDTO.getStatus())) {
             storeMerchantFile(entityId, initiativeId, file, organizationUserId);
@@ -82,7 +80,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
         return merchantUpdateDTO;
     }
 
-    private MerchantUpdateDTO fileValidation(MultipartFile file, String entityId, String initiativeId) {
+    private MerchantUpdateDTO fileValidation(MultipartFile file, String entityId, String initiativeId, String acquirerId) {
         if (file.isEmpty()) {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. File is empty", initiativeId);
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "File is empty");
@@ -119,7 +117,13 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.MISSING_REQUIRED_FIELDS, lineNumber);
                 }
 
-                if (!splitStr[FISCAL_CODE_INDEX].matches(FISCAL_CODE_STRUCTURE_REGEX) && !splitStr[FISCAL_CODE_INDEX].matches(VAT_STRUCTURE_REGEX)) {
+                if(!splitStr[ACQUIRER_INDEX].equals(acquirerId)) {
+                    log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Invalid acquirer Id: {}", initiativeId, splitStr[ACQUIRER_INDEX]);
+                    auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "Invalid acquirer Id");
+                    return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_ACQUIRER_WRONG, lineNumber);
+                }
+
+                if (!splitStr[FISCAL_CODE_INDEX].matches(FISCAL_CODE_STRUCTURE_REGEX)) {
                     log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Invalid fiscal code: {}", initiativeId, splitStr[FISCAL_CODE_INDEX]);
                     auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "Invalid fiscal code");
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_CF_WRONG, lineNumber);
@@ -277,7 +281,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
             throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
         }
-        if (initiativeDTO != null && !MerchantConstants.INITIATIVE_PUBLISHED.equals(initiativeDTO.getStatus())) {
+        if (!MerchantConstants.INITIATIVE_PUBLISHED.equals(initiativeDTO.getStatus())) {
             log.info("[SAVE_MERCHANTS] Initiative {} is not PUBLISHED! Status: {}", initiativeId, initiativeDTO.getStatus());
             throw new ClientExceptionWithBody(HttpStatus.FORBIDDEN, "FORBIDDEN",
                     String.format("Initiative %s not published", initiativeId));

@@ -98,7 +98,7 @@ class AcquirerControllerImplTest {
         MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
         merchantUpdateDTO.setStatus("VALIDATED");
         MockMultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv", "content".getBytes());
-        Mockito.when(merchantServiceMock.uploadMerchantFile(file, ACQUIRER_ID, INITIATIVE_ID, null)).thenReturn(merchantUpdateDTO);
+        Mockito.when(merchantServiceMock.uploadMerchantFile(file, ACQUIRER_ID, INITIATIVE_ID, null, ACQUIRER_ID)).thenReturn(merchantUpdateDTO);
 
         MockMultipartHttpServletRequestBuilder builder = multipart("/idpay/merchant/acquirer/{acquirerId}/initiative/{initiativeId}/upload",
                 ACQUIRER_ID, INITIATIVE_ID);
@@ -117,7 +117,7 @@ class AcquirerControllerImplTest {
         //MerchantUpdateDTO resultDTO = objectMapper.readValue(result.getResponse().getContentAsString(), MerchantUpdateDTO.class);
 
         //Assertions.assertEquals(merchantUpdateDTO, resultDTO);
-        Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.isNull());
+        Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.isNull(), Mockito.anyString());
     }
 
 

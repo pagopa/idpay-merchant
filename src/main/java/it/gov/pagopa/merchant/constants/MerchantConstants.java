@@ -21,6 +21,7 @@ public class MerchantConstants {
             public static final String INVALID_FILE_FORMAT = "merchant.invalid.file.format";
             public static final String INVALID_FILE_NAME = "merchant.invalid.file.name";
             public static final String MISSING_REQUIRED_FIELDS = "merchant.missing.required.fields";
+            public static final String INVALID_FILE_ACQUIRER_WRONG = "merchant.invalid.file.acquirer.wrong";
             public static final String INVALID_FILE_CF_WRONG = "merchant.invalid.file.cf.wrong";
             public static final String INVALID_FILE_IBAN_WRONG = "merchant.invalid.file.iban.wrong";
             public static final String INVALID_FILE_EMAIL_WRONG = "merchant.invalid.file.email.wrong";
