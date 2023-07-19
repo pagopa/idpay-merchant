@@ -12,7 +12,8 @@ public interface UploadingMerchantService {
             MultipartFile file,
             String organizationId,
             String initiativeId,
-            String organizationUserId);
+            String organizationUserId,
+            String acquirerId);
 
     void ingestionMerchantFile(List<StorageEventDTO> storageEventDto);
 

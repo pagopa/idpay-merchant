@@ -59,4 +59,18 @@ class Initiative2InitiativeDTOMapperTest {
         });
     }
 
+    @Test
+    void applyTest_missingEndDate() {
+        Initiative initiative = InitiativeFaker.mockInstance(1);
+        initiative.setEndDate(null);
+        InitiativeDTO initiativeDTO = mapper.apply(initiative);
+
+        assertNotNull(initiativeDTO);
+        assertEquals(MerchantConstants.INITIATIVE_PUBLISHED, initiativeDTO.getStatus());
+        assertAll(() -> {
+            assertNotNull(initiativeDTO);
+            TestUtils.checkNotNullFields(initiativeDTO, "endDate");
+        });
+    }
+
 }

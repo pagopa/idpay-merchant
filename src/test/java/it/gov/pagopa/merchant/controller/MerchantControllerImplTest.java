@@ -13,7 +13,6 @@ import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -22,12 +21,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.Collections;
 
@@ -48,6 +45,7 @@ class MerchantControllerImplTest {
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
+    private static final String ACQUIRER_ID = "PAGOPA";
     private static final String MERCHANT_ID = "MERCHANT_ID";
     private static final String FISCAL_CODE = "FISCAL_CODE";
 
@@ -56,7 +54,7 @@ class MerchantControllerImplTest {
         MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
         merchantUpdateDTO.setStatus("VALIDATED");
         MockMultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv", "content".getBytes());
-        Mockito.when(merchantServiceMock.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, "ORGANIZATION_USER_ID")).thenReturn(merchantUpdateDTO);
+        Mockito.when(merchantServiceMock.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, "ORGANIZATION_USER_ID", ACQUIRER_ID)).thenReturn(merchantUpdateDTO);
 
         MockMultipartHttpServletRequestBuilder builder = multipart("/idpay/merchant/organization/{organizationId}/initiative/{initiativeId}/upload",
                 ORGANIZATION_ID, INITIATIVE_ID);
@@ -76,7 +74,7 @@ class MerchantControllerImplTest {
         //MerchantUpdateDTO resultDTO = objectMapper.readValue(result.getResponse().getContentAsString(), MerchantUpdateDTO.class);
 
         //Assertions.assertEquals(merchantUpdateDTO, resultDTO);
-        Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     }
     @Test
     void getMerchantDetail() throws Exception {

@@ -59,7 +59,8 @@ class UploadingMerchantServiceTest {
     @Mock
     private FileStorageConnector fileStorageConnector;
     private static final String INITIATIVE_ID = "INITIATIVEID1";
-    private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
+    private static final String ENTITY_ID = "ORGANIZATION_ID";
+    private static final String ACQUIRER_ID = "PAGOPA";
     private static final String ORGANIZATION_USER_ID = "ORGANIZATION_USER_ID";
     private static final String FILENAME = "test.csv";
     private static final String PATH_VALID_FILE = "merchantExampleFiles/example_valid.csv";
@@ -77,7 +78,7 @@ class UploadingMerchantServiceTest {
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
         Mockito.when(merchantFileRepository.findByFileNameAndInitiativeId(Mockito.anyString(), Mockito.anyString())).thenReturn(Collections.emptyList());
 
-        MerchantUpdateDTO result = uploadingMerchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, ORGANIZATION_USER_ID);
+        MerchantUpdateDTO result = uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID);
 
         assertEquals(MerchantConstants.Status.VALIDATED, result.getStatus());
         assertNotNull(result.getElabTimeStamp());
@@ -92,7 +93,7 @@ class UploadingMerchantServiceTest {
         FileInputStream inputStream = new FileInputStream(file1);
         MultipartFile file = new MockMultipartFile("file", FILENAME, content, inputStream);
 
-        MerchantUpdateDTO result = uploadingMerchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, ORGANIZATION_USER_ID);
+        MerchantUpdateDTO result = uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID);
 
         assertEquals(MerchantConstants.Status.KO, result.getStatus());
         assertEquals(error, result.getErrorKey());
@@ -108,7 +109,7 @@ class UploadingMerchantServiceTest {
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
         Mockito.when(merchantFileRepository.findByFileNameAndInitiativeId(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of(merchantFile));
 
-        MerchantUpdateDTO result = uploadingMerchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, ORGANIZATION_USER_ID);
+        MerchantUpdateDTO result = uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID);
 
         assertEquals(MerchantConstants.Status.KO, result.getStatus());
         assertEquals(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_NAME, result.getErrorKey());
@@ -118,15 +119,16 @@ class UploadingMerchantServiceTest {
 
     @ParameterizedTest
     @CsvSource({"example_merchant_missing_required_fields.csv, merchant.missing.required.fields",
+            "example_merchant_invalid_acquirer.csv, merchant.invalid.file.acquirer.wrong",
             "example_merchant_invalid_cf.csv, merchant.invalid.file.cf.wrong",
             "example_merchant_invalid_iban.csv, merchant.invalid.file.iban.wrong",
-            "example_merchant_invalid _mail.csv, merchant.invalid.file.email.wrong"})
+            "example_merchant_invalid_mail.csv, merchant.invalid.file.email.wrong"})
     void uploadMerchantFile_ReadingFileError(String path, String error) throws IOException {
         File file1 = new ClassPathResource("merchantExampleFiles" + File.separator + path).getFile();
         FileInputStream inputStream = new FileInputStream(file1);
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
 
-        MerchantUpdateDTO result = uploadingMerchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, ORGANIZATION_USER_ID);
+        MerchantUpdateDTO result = uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID);
 
         assertEquals(MerchantConstants.Status.KO, result.getStatus());
         assertEquals(error, result.getErrorKey());
@@ -139,7 +141,7 @@ class UploadingMerchantServiceTest {
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
 
         ClientException result = assertThrows(ClientException.class,
-                () -> uploadingMerchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, ORGANIZATION_USER_ID));
+                () -> uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID));
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
         assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
         assertEquals(String.format(MerchantConstants.CSV_READING_ERROR, INITIATIVE_ID, FILENAME,
@@ -156,7 +158,7 @@ class UploadingMerchantServiceTest {
                 .uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 
         ClientException result = assertThrows(ClientException.class,
-                () -> uploadingMerchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, ORGANIZATION_USER_ID));
+                () -> uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID));
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
         assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
         assertEquals(String.format(MerchantConstants.STORAGE_ERROR, INITIATIVE_ID, FILENAME), result.getMessage());
@@ -175,6 +177,18 @@ class UploadingMerchantServiceTest {
 
         try {
             uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
+        } catch (Exception e) {
+            fail();
+        }
+        Mockito.verify(merchantFileRepository, Mockito.times(0))
+                .setMerchantFileStatus(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+    }
+
+    @Test
+    void ingestionMerchantFile_storageEventDTOEmptyList() {
+
+        try {
+            uploadingMerchantService.ingestionMerchantFile(Collections.emptyList());
         } catch (Exception e) {
             fail();
         }
@@ -217,6 +231,7 @@ class UploadingMerchantServiceTest {
         assertEquals(String.format("Initiative %s not published",
                 INITIATIVE_ID), result.getMessage());
     }
+
     @Test
     void ingestionMerchantFile_initiativeException() throws IOException, URISyntaxException, StorageException {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
