@@ -15,6 +15,7 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
                     "businessName : 1, " +
                     "legalOfficeAddress : 1, " +
                     "legalOfficeMunicipality : 1, " +
+                    "legalOfficeProvince : 1, " +
                     "legalOfficeZipCode : 1, " +
                     "certifiedEmail : 1, " +
                     "fiscalCode : 1, " +
