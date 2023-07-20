@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface MerchantService {
-    MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId);
+    MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId, String acquirerId);
     MerchantDetailDTO getMerchantDetail(String organizationId, String initiativeId, String merchantId);
     MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId);
     MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable);

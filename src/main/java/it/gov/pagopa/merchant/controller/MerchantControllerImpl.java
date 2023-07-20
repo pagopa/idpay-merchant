@@ -28,7 +28,7 @@ public class MerchantControllerImpl implements MerchantController {
                                                               String organizationId,
                                                               String initiativeId,
                                                               String organizationUserId) {
-    return ResponseEntity.ok(merchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId));
+    return ResponseEntity.ok(merchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId, "PAGOPA"));
   }
   @Override
   public ResponseEntity<MerchantListDTO> getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable) {

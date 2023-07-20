@@ -1,10 +1,10 @@
 package it.gov.pagopa.merchant.mapper;
 
+import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
-import it.gov.pagopa.merchant.test.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -56,6 +56,20 @@ class Initiative2InitiativeDTOMapperTest {
         assertAll(() -> {
             assertNotNull(initiativeDTO);
             TestUtils.checkNotNullFields(initiativeDTO);
+        });
+    }
+
+    @Test
+    void applyTest_missingEndDate() {
+        Initiative initiative = InitiativeFaker.mockInstance(1);
+        initiative.setEndDate(null);
+        InitiativeDTO initiativeDTO = mapper.apply(initiative);
+
+        assertNotNull(initiativeDTO);
+        assertEquals(MerchantConstants.INITIATIVE_PUBLISHED, initiativeDTO.getStatus());
+        assertAll(() -> {
+            assertNotNull(initiativeDTO);
+            TestUtils.checkNotNullFields(initiativeDTO, "endDate");
         });
     }
 

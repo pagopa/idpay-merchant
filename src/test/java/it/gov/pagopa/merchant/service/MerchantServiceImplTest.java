@@ -45,6 +45,7 @@ class MerchantServiceImplTest {
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
+    private static final String ACQUIRER_ID = "PAGOPA";
     private static final String MERCHANT_ID = "MERCHANT_ID";
     private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper();
 
@@ -72,9 +73,9 @@ class MerchantServiceImplTest {
     void uploadMerchantFile () {
         MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
         MultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv", "Content".getBytes());
-        Mockito.when(merchantService.uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(merchantUpdateDTO);
+        Mockito.when(merchantService.uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(merchantUpdateDTO);
 
-        MerchantUpdateDTO result = merchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, "ORGANIZATION_USER_ID");
+        MerchantUpdateDTO result = merchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, "ORGANIZATION_USER_ID", ACQUIRER_ID);
         Assertions.assertNotNull(result);
     }
     @Test
