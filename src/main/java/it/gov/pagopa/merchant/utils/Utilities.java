@@ -6,14 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
 import java.util.UUID;
 
 @Slf4j
 public final class Utilities {
     private Utilities() {}
-
-    public static final ZoneId ZONEID = ZoneId.of("Europe/Rome");
 
     public static Pageable getPageable(Pageable pageable) {
         if (pageable == null) {

@@ -2,7 +2,7 @@ package it.gov.pagopa.merchant.controller.acquirer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.merchant.configuration.JsonConfig;
+import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
