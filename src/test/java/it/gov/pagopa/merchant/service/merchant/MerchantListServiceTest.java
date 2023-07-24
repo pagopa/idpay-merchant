@@ -5,7 +5,7 @@ import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
-import it.gov.pagopa.merchant.test.utils.TestUtils;
+import it.gov.pagopa.common.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +40,7 @@ class MerchantListServiceTest {
     Merchant merchant2 = MerchantFaker.mockInstance(1);
     merchant2.setBusinessName("NAME_2");
     merchant2.setFiscalCode("FISCAL_CODE_2");
+    merchant2.getInitiativeList().get(0).setUpdateDate(null);
     when(repositoryMock.findByFilter(Mockito.any(), Mockito.any())).thenReturn(List.of(merchant1, merchant2));
 
     MerchantDTO merchantDTO1 = MerchantDTO.builder()
@@ -53,7 +54,7 @@ class MerchantListServiceTest {
             .businessName(merchant2.getBusinessName())
             .fiscalCode(merchant2.getFiscalCode())
             .merchantStatus("STATUS")
-            .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
+            .updateStatusDate("").build();
     MerchantListDTO merchantListDTO_expected = MerchantListDTO.builder().content(List.of(merchantDTO1, merchantDTO2))
             .pageSize(15).totalElements(2).totalPages(1).build();
 

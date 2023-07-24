@@ -40,6 +40,6 @@ public class AcquirerControllerImpl implements AcquirerController {
     public ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(MultipartFile file,
                                                                 String acquirerId,
                                                                 String initiativeId) {
-        return ResponseEntity.ok(merchantService.uploadMerchantFile(file, acquirerId, initiativeId,null));
+        return ResponseEntity.ok(merchantService.uploadMerchantFile(file, acquirerId, initiativeId,null, acquirerId));
     }
 }
