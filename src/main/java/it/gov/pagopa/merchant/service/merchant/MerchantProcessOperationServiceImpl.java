@@ -36,6 +36,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
             UpdateResult updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getOperationId());
             BsonValue value = updateResult.getUpsertedId();
+            log.info("{}",value);
             //List<String> merchantId = deletedMerchant.stream().map(Merchant::getMerchantId).toList();
             if (value != null) {
                 String merchant = value.asDocument().toJson();
