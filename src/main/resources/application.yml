@@ -15,7 +15,7 @@ spring:
   cloud:
     stream:
       function:
-        definition: notificationQueue;errors;merchantFileConsumer
+        definition: notificationQueue;errors;merchantFileConsumer;consumerCommands
       binders:
         kafka-errors:
           type: kafka
@@ -32,6 +32,19 @@ spring:
               brokers: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_BROKER:${KAFKA_BROKER:}}
               configuration:
                 sasl.jaas.config: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_SASL_JAAS_CONFIG:}
+        kafka-commands:
+          type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
+                      configuration:
+                        sasl:
+                          jaas:
+                            config: ${KAFKA_COMMANDS_IN_SASL_JAAS_CONFIG:}
 
       bindings:
         errors-out-0:
@@ -43,6 +56,11 @@ spring:
           group: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_GROUP_ID:idpay-file-merchant-group}
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           binder: kafka-reward-notification-upload
+        consumerCommands-in-0:
+          binder: kafka-commands
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          destination: ${KAFKA_TOPIC_COMMANDS:idpay-commands}
+          group: ${KAFKA_COMMANDS_GROUP_IN:idpay-commands-timeline-consumer-group}
 
       kafka:
         binder:
@@ -79,6 +97,19 @@ spring:
                 socket.connection.setup.timeout:
                   max.ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
                   ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
+          consumerCommand-in-0:
+            consumer:
+              autoCommitOffset: ${KAFKA_COMMANDS_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
+              configuration:
+                connections.max.idle.ms: ${KAFKA_COMMANDS_REQUEST_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:180000}}
+                max.poll:
+                  interval.ms: ${KAFKA_COMMANDS_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
+                  records: ${KAFKA_COMMANDS_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
+                socket.connection.setup.timeout:
+                  max.ms: ${KAFKA_COMMANDS_REQUEST_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
+                  ms: ${KAFKA_COMMANDS_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
+              standardHeaders: ${KAFKA_COMMANDS_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
+              startOffset: ${KAFKA_COMMANDS_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
 
   data:
     mongodb:
