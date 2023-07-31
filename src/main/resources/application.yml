@@ -60,7 +60,7 @@ spring:
           binder: kafka-commands
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_COMMANDS:idpay-commands}
-          group: ${KAFKA_COMMANDS_GROUP_IN:idpay-commands-timeline-consumer-group}
+          group: ${KAFKA_COMMANDS_GROUP_IN:idpay-commands-merchant-consumer-group}
 
       kafka:
         binder:

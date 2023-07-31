@@ -70,7 +70,7 @@ microservice-chart:
       KAFKA_BROKER: kafka_broker
       KAFKA_ERRORS_BROKER: kafka_broker
       KAFKA_ERRORS_TOPIC: idpay_error_topic
-      KAFKA_BINDER_BROKER_ENDPOINT_LIST_01: kafka_broker
+      KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
       KAFKA_REWARD_NOTIFICATION_UPLOAD_BROKER: kafka_broker
       KAFKA_REWARD_NOTIFICATION_UPLOAD_TOPIC: idpay_reward_notification_storage_events_topic
       #KAFKA_TOPIC_COMMANDS: idpay-commands

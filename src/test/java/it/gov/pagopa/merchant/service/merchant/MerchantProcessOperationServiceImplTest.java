@@ -56,8 +56,8 @@ class MerchantProcessOperationServiceImplTest {
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
         List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
 
-        //Mockito.lenient().when(repositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
-          //      .thenReturn(deletedMerchant);
+        Mockito.lenient().when(repositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
+                .thenReturn(deletedMerchant);
 
         Mockito.lenient().when(merchantFileRepository.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
                 .thenReturn(deletedMerchantFile);

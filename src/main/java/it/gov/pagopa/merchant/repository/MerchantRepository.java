@@ -1,6 +1,5 @@
 package it.gov.pagopa.merchant.repository;
 
-import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -42,5 +41,5 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
     Optional<Merchant> retrieveByMerchantIdAndInitiativeId(String merchantId, String initiativeId);
 
     @Query(value = "{'initiativeList.initiativeId' : ?1}")
-    List<Initiative> deleteByInitiativeId(String initiativeId);
+    List<Merchant> deleteByInitiativeId(String initiativeId);
 }
