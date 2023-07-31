@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.repository;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -42,7 +43,7 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
         return mongoTemplate.updateMulti(Query.query(criteria),
-                new Update().pull(Merchant.Fields.initiativeList, Initiative.builder().initiativeId(initiativeId).build()),
+                new Update().pull(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.initiativeId,initiativeId)),
                 Merchant.class);
     }
 
