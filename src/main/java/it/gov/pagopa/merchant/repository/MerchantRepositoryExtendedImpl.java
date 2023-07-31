@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.repository;
 
+import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.utils.Utilities;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,6 +35,15 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
             criteria.and(Merchant.Fields.fiscalCode).is(fiscalCode);
         }
         return criteria;
+    }
+
+    @Override
+    public UpdateResult findAndRemoveInitiativeOnMerchant(String initiativeId) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
+        return mongoTemplate.updateMulti(Query.query(criteria),
+                new Update().pull(Merchant.Fields.initiativeList, Initiative.builder().initiativeId(initiativeId).build()),
+                Merchant.class);
     }
 
     @Override
