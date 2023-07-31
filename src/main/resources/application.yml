@@ -13,9 +13,9 @@ spring:
     multipart:
       max-file-size: ${MERCHANT_FILE_MAX_FILE_SIZE:10485760} #10 MB
   cloud:
+    function:
+      definition: notificationQueue;errors;merchantFileConsumer;consumerCommands
     stream:
-      function:
-        definition: notificationQueue;errors;merchantFileConsumer;consumerCommands
       binders:
         kafka-errors:
           type: kafka
