@@ -9,7 +9,6 @@ import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.BsonValue;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,20 +34,15 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         if (MerchantConstants.OPERATION_TYPE_DELETE_INITIATIVE.equals(queueCommandOperationDTO.getOperationType())) {
 
             UpdateResult updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getOperationId());
-            BsonValue value = updateResult.getUpsertedId();
-            log.info("id={}, modifiedCount={}",updateResult.getUpsertedId(), updateResult.getModifiedCount());
-            //List<String> merchantId = deletedMerchant.stream().map(Merchant::getMerchantId).toList();
-            if (value != null) {
-                String merchant = value.asDocument().toJson();
-                log.info("[DELETE_MERCHANT] Deleted {} merchant on initiative {}", merchant,
-                        queueCommandOperationDTO.getOperationId());
-            }
+
+            log.info("[DELETE_MERCHANT] Deleted {} merchants on initiative {}", updateResult.getModifiedCount(),
+                    queueCommandOperationDTO.getOperationId());
             List<MerchantFile> deletedMerchantFile = merchantFileRepository.deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
 
-            log.info("[DELETE_MERCHANT_FILE] Deleted {} merchant file/s on initiative {}", deletedMerchantFile.size(),
+            log.info("[DELETE_MERCHANT_FILE] Deleted {} merchant files on initiative {}", deletedMerchantFile.size(),
                     queueCommandOperationDTO.getOperationId());
 
-            //merchantId.forEach(mId -> auditUtilities.logDeleteMerchant(mId, queueCommandOperationDTO.getOperationId()));
+            auditUtilities.logDeleteMerchant(updateResult.getModifiedCount(), queueCommandOperationDTO.getOperationId());
             deletedMerchantFile.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(queueCommandOperationDTO.getOperationId()));
         }
         Utilities.performanceLog(startTime, "DELETE_MERCHANT_AND_MERCHANT_FILE");

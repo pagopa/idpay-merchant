@@ -1,5 +1,8 @@
 package it.gov.pagopa.merchant.repository;
 
+import com.mongodb.client.result.UpdateResult;
+import org.bson.BsonValue;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -15,8 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = MerchantRepositoryExtendedImpl.class)
@@ -59,5 +61,36 @@ class MerchantRepositoryExtendedImplTest {
     assertEquals(1, criteria.getCriteriaObject().size());
   }
 
+  @Test
+  void findAndRemoveInitiativeOnMerchant() {
+    UpdateResult updateResult = new UpdateResult() {
+      @Override
+      public boolean wasAcknowledged() {
+        return false;
+      }
+
+      @Override
+      public long getMatchedCount() {
+        return 0;
+      }
+
+      @Override
+      public long getModifiedCount() {
+        return 1;
+      }
+
+      @Override
+      public BsonValue getUpsertedId() {
+        return null;
+      }
+    };
+
+
+    when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(updateResult);
+
+    UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID);
+
+    Assertions.assertEquals(1, result.getModifiedCount());
+  }
 
 }

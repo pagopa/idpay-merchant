@@ -1,14 +1,13 @@
 package it.gov.pagopa.merchant.service.merchant;
 
+import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
-import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
-import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
-import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFileFaker;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
+import org.bson.BsonValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,24 +46,40 @@ class MerchantProcessOperationServiceImplTest {
                 .operationType(operationType)
                 .build();
 
-        Merchant merchant = MerchantFaker.mockInstance(1);
-        merchant.setInitiativeList((List.of(
-                InitiativeFaker.mockInstance(1),
-                InitiativeFaker.mockInstance(2))));
-        List<Merchant> deletedMerchant = List.of(merchant);
+        UpdateResult updateResult = new UpdateResult() {
+            @Override
+            public boolean wasAcknowledged() {
+                return false;
+            }
+
+            @Override
+            public long getMatchedCount() {
+                return 0;
+            }
+
+            @Override
+            public long getModifiedCount() {
+                return 1;
+            }
+
+            @Override
+            public BsonValue getUpsertedId() {
+                return null;
+            }
+        };
 
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
         List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
 
-        Mockito.lenient().when(repositoryMock.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
-                .thenReturn(deletedMerchant);
+        Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getOperationId()))
+                .thenReturn(updateResult);
 
         Mockito.lenient().when(merchantFileRepository.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
                 .thenReturn(deletedMerchantFile);
 
         merchantProcessOperationService.processOperation(queueCommandOperationDTO);
 
-        Mockito.verify(repositoryMock, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
+        Mockito.verify(repositoryMock, Mockito.times(times)).findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getOperationId());
         Mockito.verify(merchantFileRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
     }
 

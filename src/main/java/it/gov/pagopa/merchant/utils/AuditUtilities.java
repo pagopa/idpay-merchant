@@ -26,7 +26,7 @@ public class AuditUtilities {
     }
     private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s", SRCIP);
     private static final String CEF_PATTERN = CEF + " msg={} cs1Label=initiativeId cs1={} cs2Label=entityId cs2={} cs3Label=fileName cs3={}";
-    private static final String CEF_BASE_PATTERN = CEF + " msg={} smerchant={} cs1Label=initiativeId cs1={}";
+    private static final String CEF_BASE_PATTERN = CEF + " msg={} sdeletedMerchant={} cs1Label=initiativeId cs1={}";
     private static final String CEF_PATTERN_MERCHANT_FILE = CEF + " msg={} cs1Label=initiativeId cs1={}";
 
     private void logAuditString(String pattern, String... parameters) {
@@ -60,10 +60,10 @@ public class AuditUtilities {
                 "Saving Merchants completed.", initiativeId, organizationId, fileName
         );
     }
-    public void logDeleteMerchant(String merchantId, String initiativeId) {
+    public void logDeleteMerchant(Long deletedMerchant, String initiativeId) {
         logAuditString(
                 CEF_BASE_PATTERN,
-                "Merchants deleted", merchantId, initiativeId);
+                "Merchants deleted",deletedMerchant.toString(), initiativeId);
     }
     public void logDeleteMerchantFile(String initiativeId) {
         logAuditString(

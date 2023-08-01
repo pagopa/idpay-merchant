@@ -5,7 +5,6 @@ import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.utils.Utilities;
-import org.bson.Document;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -45,7 +44,7 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
         return mongoTemplate.updateMulti(Query.query(criteria),
                 new Update().pull(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.initiativeId,initiativeId)),
-                Document.class, "merchant");
+                Merchant.class);
     }
 
     @Override
