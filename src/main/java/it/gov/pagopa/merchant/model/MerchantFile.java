@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
 @Document(collection = "merchant_file")
 @CompoundIndex(name = "merchant_file_unique_idx", def = "{'fileName': 1, 'initiativeId': 1}", unique = true)
 public class MerchantFile {
+    @MongoId
+    private String id;
     private String fileName;
     private String initiativeId;
     private String entityId;
