@@ -42,7 +42,7 @@ class MerchantProcessOperationServiceImplTest {
     @MethodSource("operationTypeAndInvocationTimes")
     void processOperation_deleteOperation(String operationType, int times) {
         QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-                .operationId(INITIATIVE_ID)
+                .entityId(INITIATIVE_ID)
                 .operationType(operationType)
                 .build();
 
@@ -71,16 +71,16 @@ class MerchantProcessOperationServiceImplTest {
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
         List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
 
-        Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getOperationId()))
+        Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId()))
                 .thenReturn(updateResult);
 
-        Mockito.lenient().when(merchantFileRepository.deleteByInitiativeId(queueCommandOperationDTO.getOperationId()))
+        Mockito.lenient().when(merchantFileRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId()))
                 .thenReturn(deletedMerchantFile);
 
         merchantProcessOperationService.processOperation(queueCommandOperationDTO);
 
-        Mockito.verify(repositoryMock, Mockito.times(times)).findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getOperationId());
-        Mockito.verify(merchantFileRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getOperationId());
+        Mockito.verify(repositoryMock, Mockito.times(times)).findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId());
+        Mockito.verify(merchantFileRepository, Mockito.times(times)).deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
     }
 
     private static Stream<Arguments> operationTypeAndInvocationTimes() {

@@ -159,7 +159,7 @@ class MerchantServiceImplTest {
     @Test
     void processOperation() {
         QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-                .operationId(INITIATIVE_ID)
+                .entityId(INITIATIVE_ID)
                 .operationType(OPERATION_TYPE_DELETE_INITIATIVE)
                 .build();
 
