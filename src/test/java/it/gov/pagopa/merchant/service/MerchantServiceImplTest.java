@@ -163,7 +163,7 @@ class MerchantServiceImplTest {
                 .operationType(OPERATION_TYPE_DELETE_INITIATIVE)
                 .build();
 
-        merchantProcessOperationService.processOperation(queueCommandOperationDTO);
+        merchantService.processOperation(queueCommandOperationDTO);
 
         Mockito.verify(merchantProcessOperationService).processOperation(queueCommandOperationDTO);
     }
