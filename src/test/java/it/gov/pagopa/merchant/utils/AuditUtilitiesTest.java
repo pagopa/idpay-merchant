@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.utils;
 
 import ch.qos.logback.classic.LoggerContext;
 import it.gov.pagopa.common.utils.MemoryAppender;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ class AuditUtilitiesTest {
     private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s", AuditUtilities.SRCIP);
     private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "TEST_ORG_ID";
+    private static final Long DELETED_MERCHANT = 1L;
     private static final String FILE_NAME = "TEST_FILE_NAME";
     private final AuditUtilities auditUtilities = new AuditUtilities();
     private MemoryAppender memoryAppender;
@@ -72,6 +74,35 @@ class AuditUtilitiesTest {
                 CEF + " msg=Saving Merchants completed."
                         + " cs1Label=initiativeId cs1=%s cs2Label=entityId cs2=%s cs3Label=fileName cs3=%s"
                         .formatted(INITIATIVE_ID, ORGANIZATION_ID, FILE_NAME),
+                memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+        );
+    }
+    @Test
+    void logDeleteMerchant_ok(){
+        auditUtilities.logDeleteMerchant(DELETED_MERCHANT, INITIATIVE_ID);
+
+        Assertions.assertEquals(
+                ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s msg=Merchants deleted" +
+                        " sdeletedMerchant=%s cs1Label=initiativeId cs1=%s")
+                        .formatted(
+                                AuditUtilities.SRCIP,
+                                DELETED_MERCHANT,
+                                INITIATIVE_ID
+                        ),
+                memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
+        );
+    }
+    @Test
+    void logDeleteMerchantFile_ok(){
+        auditUtilities.logDeleteMerchantFile(INITIATIVE_ID);
+
+        Assertions.assertEquals(
+                ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s msg=Merchant files deleted" +
+                        " cs1Label=initiativeId cs1=%s")
+                        .formatted(
+                                AuditUtilities.SRCIP,
+                                INITIATIVE_ID
+                        ),
                 memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
         );
     }
