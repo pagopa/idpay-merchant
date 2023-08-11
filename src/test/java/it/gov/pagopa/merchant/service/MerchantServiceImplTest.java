@@ -1,14 +1,12 @@
 package it.gov.pagopa.merchant.service;
 
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantListDTO;
-import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
+import it.gov.pagopa.merchant.service.merchant.MerchantProcessOperationService;
 import it.gov.pagopa.merchant.service.merchant.UploadingMerchantService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
@@ -39,6 +37,8 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantListService merchantListServiceMock;
     @Mock
+    private MerchantProcessOperationService merchantProcessOperationService;
+    @Mock
     private MerchantRepository merchantRepositoryMock;
     @Mock
     private UploadingMerchantService uploadingMerchantServiceMock;
@@ -47,6 +47,7 @@ class MerchantServiceImplTest {
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
     private static final String ACQUIRER_ID = "PAGOPA";
     private static final String MERCHANT_ID = "MERCHANT_ID";
+    private static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
     private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper();
 
     private MerchantServiceImpl merchantService;
@@ -56,7 +57,7 @@ class MerchantServiceImplTest {
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantRepositoryMock,
+                merchantProcessOperationService, merchantRepositoryMock,
                 uploadingMerchantServiceMock,
                 initiative2InitiativeDTOMapper);
     }
@@ -153,5 +154,17 @@ class MerchantServiceImplTest {
         when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.empty());
 
         assertNull(merchantService.getMerchantInitiativeList(MERCHANT_ID));
+    }
+
+    @Test
+    void processOperation() {
+        QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
+                .entityId(INITIATIVE_ID)
+                .operationType(OPERATION_TYPE_DELETE_INITIATIVE)
+                .build();
+
+        merchantService.processOperation(queueCommandOperationDTO);
+
+        Mockito.verify(merchantProcessOperationService).processOperation(queueCommandOperationDTO);
     }
 }
