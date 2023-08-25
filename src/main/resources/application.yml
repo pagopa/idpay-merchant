@@ -50,7 +50,7 @@ spring:
           environment:
             spring.cloud.stream.kafka.binder:
               configuration:
-                sasl.jaas.config: ${KAFKA_COMMANDS_IN_SASL_JAAS_CONFIG:}
+                sasl.jaas.config: ${KAFKA_COMMANDS_OUT_SASL_JAAS_CONFIG:}
 
       bindings:
         errors-out-0:
