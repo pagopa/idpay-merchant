@@ -274,7 +274,7 @@ class UploadingMerchantServiceTest {
         Mockito.when(fileStorageConnector.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
 
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
-
+        Mockito.when(commandsProducer.sendCommand(Mockito.any())).thenReturn(true);
         try {
             uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
         } catch (Exception e) {
@@ -301,6 +301,7 @@ class UploadingMerchantServiceTest {
 
         Merchant merchant = MerchantFaker.mockInstance(1);
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(merchant));
+        Mockito.when(commandsProducer.sendCommand(Mockito.any())).thenReturn(true);
 
         try {
             uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
