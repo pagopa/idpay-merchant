@@ -14,7 +14,7 @@ spring:
       max-file-size: ${MERCHANT_FILE_MAX_FILE_SIZE:10485760} #10 MB
   cloud:
     function:
-      definition: notificationQueue;errors;merchantFileConsumer;consumerCommands
+      definition: merchantFileConsumer;consumerCommands
     stream:
       binders:
         kafka-errors:
@@ -49,9 +49,9 @@ spring:
           type: kafka
           environment:
             spring.cloud.stream.kafka.binder:
+              brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
               configuration:
                 sasl.jaas.config: ${KAFKA_COMMANDS_OUT_SASL_JAAS_CONFIG:}
-
       bindings:
         errors-out-0:
           destination: ${KAFKA_ERRORS_TOPIC:idpay-errors}
