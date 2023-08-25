@@ -268,7 +268,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             });
             Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         } catch (Exception e) {
-            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e.getMessage());
+            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, fileName, e.getMessage());
             Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
@@ -343,10 +343,7 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 .operationTime(LocalDateTime.now())
                 .build();
         if(!commandsProducer.sendCommand(createMerchantStatistics)){
-            log.error("[CREATE_INITIATIVE_STATISTICS] - Initiative: {}. Something went wrong while sending the message on Commands Queue", initiativeId);
-            throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                    MerchantConstants.INTERNAL_SERVER_ERROR,
-                    "Something went wrong while sending the message on Commands Queue");
+            log.error("[CREATE_MERCHANT_STATISTICS] - Initiative: {}. Something went wrong while sending the message on Commands Queue", initiativeId);
         }
     }
 }

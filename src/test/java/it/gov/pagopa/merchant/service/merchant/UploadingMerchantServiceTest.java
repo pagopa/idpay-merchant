@@ -301,7 +301,7 @@ class UploadingMerchantServiceTest {
 
         Merchant merchant = MerchantFaker.mockInstance(1);
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(merchant));
-        Mockito.when(commandsProducer.sendCommand(Mockito.any())).thenReturn(true);
+        Mockito.when(commandsProducer.sendCommand(Mockito.any())).thenReturn(false);
 
         try {
             uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
@@ -312,6 +312,7 @@ class UploadingMerchantServiceTest {
         inputStream.close();
         outputStream.close();
     }
+
     @Test
     void ingestionMerchantFile_saveException() throws IOException, URISyntaxException, StorageException {
 
@@ -337,5 +338,4 @@ class UploadingMerchantServiceTest {
         inputStream.close();
         outputStream.close();
     }
-
 }
