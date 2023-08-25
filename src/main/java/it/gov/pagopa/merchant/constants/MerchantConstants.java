@@ -42,4 +42,5 @@ public class MerchantConstants {
     public static final String MERCHANT_SAVING_ERROR = "Initiative %s - file %s: error during merchant saving";
     public static final String MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE = "MerchantId for acquirerId %s and fiscalCode %s not found.";
     public static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
+    public static final String OPERATION_TYPE_CREATE_MERCHANT_STATISTICS = "CREATE_MERCHANT_STATISTICS";
 }

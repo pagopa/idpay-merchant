@@ -4,8 +4,10 @@ import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.event.producer.CommandsProducer;
 import it.gov.pagopa.merchant.exception.ClientExceptionNoBody;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.model.Initiative;
@@ -55,17 +57,19 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
     private final FileStorageConnector fileStorageConnector;
 
     private final AuditUtilities auditUtilities;
+    private final CommandsProducer commandsProducer;
 
     public UploadingMerchantServiceImpl(MerchantFileRepository merchantFileRepository,
                                         MerchantRepository merchantRepository,
                                         InitiativeRestConnector initiativeRestConnector,
                                         FileStorageConnector fileStorageConnector,
-                                        AuditUtilities auditUtilities) {
+                                        AuditUtilities auditUtilities, CommandsProducer commandsProducer) {
         this.merchantFileRepository = merchantFileRepository;
         this.merchantRepository = merchantRepository;
         this.initiativeRestConnector = initiativeRestConnector;
         this.fileStorageConnector = fileStorageConnector;
         this.auditUtilities = auditUtilities;
+        this.commandsProducer = commandsProducer;
     }
 
     @Override
@@ -260,10 +264,11 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                     merchant.setEnabled(true);
                 }
                 merchantRepository.save(merchant);
+                initializeMerchantStatistics(initiativeId, merchant.getMerchantId());
             });
             Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         } catch (Exception e) {
-            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
+            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e.getMessage());
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, fileName, e.getMessage());
             Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
@@ -331,4 +336,17 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
                 .elabTimeStamp(LocalDateTime.now()).build();
     }
 
+    private void initializeMerchantStatistics(String initiativeId, String merchantId) {
+        QueueCommandOperationDTO createMerchantStatistics = QueueCommandOperationDTO.builder()
+                .entityId(initiativeId.concat("_").concat(merchantId))
+                .operationType(MerchantConstants.OPERATION_TYPE_CREATE_MERCHANT_STATISTICS)
+                .operationTime(LocalDateTime.now())
+                .build();
+        if(!commandsProducer.sendCommand(createMerchantStatistics)){
+            log.error("[CREATE_INITIATIVE_STATISTICS] - Initiative: {}. Something went wrong while sending the message on Commands Queue", initiativeId);
+            throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
+                    MerchantConstants.INTERNAL_SERVER_ERROR,
+                    "Something went wrong while sending the message on Commands Queue");
+        }
+    }
 }
