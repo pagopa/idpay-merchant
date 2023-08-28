@@ -14,7 +14,7 @@ spring:
       max-file-size: ${MERCHANT_FILE_MAX_FILE_SIZE:10485760} #10 MB
   cloud:
     function:
-      definition: notificationQueue;errors;merchantFileConsumer;consumerCommands
+      definition: merchantFileConsumer;consumerCommands
     stream:
       binders:
         kafka-errors:
@@ -45,7 +45,13 @@ spring:
                         sasl:
                           jaas:
                             config: ${KAFKA_COMMANDS_IN_SASL_JAAS_CONFIG:}
-
+        kafka-commands-outcome:
+          type: kafka
+          environment:
+            spring.cloud.stream.kafka.binder:
+              brokers: ${KAFKA_BINDER_BROKER_ENDPOINT_LIST:}
+              configuration:
+                sasl.jaas.config: ${KAFKA_COMMANDS_OUT_SASL_JAAS_CONFIG:}
       bindings:
         errors-out-0:
           destination: ${KAFKA_ERRORS_TOPIC:idpay-errors}
@@ -61,7 +67,10 @@ spring:
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           destination: ${KAFKA_TOPIC_COMMANDS:idpay-commands}
           group: ${KAFKA_COMMANDS_GROUP_IN:idpay-commands-merchant-consumer-group}
-
+        commandsQueue-out-0:
+          binder: kafka-commands-outcome
+          destination: ${KAFKA_COMMANDS_OUTCOME_TOPIC:idpay-commands}
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
       kafka:
         binder:
           auto-create-topics: false
@@ -110,7 +119,14 @@ spring:
                   ms: ${KAFKA_COMMANDS_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
               standardHeaders: ${KAFKA_COMMANDS_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
               startOffset: ${KAFKA_COMMANDS_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
-
+          commandsQueue-out-0:
+            producer:
+              configuration:
+                client.id: commandsQueue-producer
+                retry.backoff.ms: ${KAFKA_COMMANDS_PRODUCER_CONFIG_RETRY_BO_MS:${KAFKA_RETRY_MS:10000}}
+                linger.ms: ${KAFKA_COMMANDS_PRODUCER_CONFIG_LINGER_MS:${KAFKA_LINGER_MS:2}}
+                batch.size: ${KAFKA_COMMANDS_PRODUCER_CONFIG_BATCH_SIZE:${KAFKA_BATCH_SIZE:16384}}
+                metadata.max.idle.ms: ${KAFKA_COMMANDS_PRODUCER_DEFAULT_METADATA_MAX_IDLE_MS:180000}
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017}
