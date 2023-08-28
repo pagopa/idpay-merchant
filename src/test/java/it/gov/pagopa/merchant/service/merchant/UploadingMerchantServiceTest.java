@@ -10,6 +10,7 @@ import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.event.producer.CommandsProducer;
 import it.gov.pagopa.merchant.exception.ClientException;
 import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -58,6 +59,9 @@ class UploadingMerchantServiceTest {
     private AuditUtilities auditUtilities;
     @Mock
     private FileStorageConnector fileStorageConnector;
+    @Mock
+    private CommandsProducer commandsProducer;
+
     private static final String INITIATIVE_ID = "INITIATIVEID1";
     private static final String ENTITY_ID = "ORGANIZATION_ID";
     private static final String ACQUIRER_ID = "PAGOPA";
@@ -69,7 +73,7 @@ class UploadingMerchantServiceTest {
     @BeforeEach
     public void setUp() {
         uploadingMerchantService = new UploadingMerchantServiceImpl(merchantFileRepository, repositoryMock, initiativeRestConnector,
-                fileStorageConnector, auditUtilities);
+                fileStorageConnector, auditUtilities, commandsProducer);
     }
     @Test
     void uploadMerchantFile_ValidFile() throws IOException {
@@ -270,7 +274,7 @@ class UploadingMerchantServiceTest {
         Mockito.when(fileStorageConnector.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
 
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
-
+        Mockito.when(commandsProducer.sendCommand(Mockito.any())).thenReturn(true);
         try {
             uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
         } catch (Exception e) {
@@ -297,6 +301,7 @@ class UploadingMerchantServiceTest {
 
         Merchant merchant = MerchantFaker.mockInstance(1);
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(merchant));
+        Mockito.when(commandsProducer.sendCommand(Mockito.any())).thenReturn(false);
 
         try {
             uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
@@ -307,6 +312,7 @@ class UploadingMerchantServiceTest {
         inputStream.close();
         outputStream.close();
     }
+
     @Test
     void ingestionMerchantFile_saveException() throws IOException, URISyntaxException, StorageException {
 
@@ -332,5 +338,4 @@ class UploadingMerchantServiceTest {
         inputStream.close();
         outputStream.close();
     }
-
 }
