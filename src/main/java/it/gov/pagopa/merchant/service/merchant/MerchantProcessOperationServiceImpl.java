@@ -29,22 +29,21 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
     @Override
     public void processOperation(QueueCommandOperationDTO queueCommandOperationDTO) {
-        long startTime = System.currentTimeMillis();
 
         if (MerchantConstants.OPERATION_TYPE_DELETE_INITIATIVE.equals(queueCommandOperationDTO.getOperationType())) {
+            long startTime = System.currentTimeMillis();
 
             UpdateResult updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId());
 
-            log.info("[DELETE_MERCHANT] Deleted {} merchants on initiative {}", updateResult.getModifiedCount(),
-                    queueCommandOperationDTO.getEntityId());
+            log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", queueCommandOperationDTO.getEntityId());
             List<MerchantFile> deletedMerchantFile = merchantFileRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
 
-            log.info("[DELETE_MERCHANT_FILE] Deleted {} merchant files on initiative {}", deletedMerchantFile.size(),
+            log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
                     queueCommandOperationDTO.getEntityId());
 
             auditUtilities.logDeleteMerchant(updateResult.getModifiedCount(), queueCommandOperationDTO.getEntityId());
             deletedMerchantFile.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(queueCommandOperationDTO.getEntityId()));
+            Utilities.performanceLog(startTime, "DELETE_INITIATIVE");
         }
-        Utilities.performanceLog(startTime, "DELETE_MERCHANT_AND_MERCHANT_FILE");
     }
 }
