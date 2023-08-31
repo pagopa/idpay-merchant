@@ -214,29 +214,6 @@ class UploadingMerchantServiceTest {
     }
 
     @Test
-    void ingestionMerchantFile_InitiativeNotPublished() throws URISyntaxException, StorageException, IOException {
-        StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
-        List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
-
-        ClassPathResource resource = new ClassPathResource(PATH_VALID_FILE);
-        InputStream inputStream = resource.getInputStream();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        StreamUtils.copy(inputStream, outputStream);
-        Mockito.when(fileStorageConnector.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
-
-        InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
-        initiativeBeneficiaryViewDTO.setStatus("DRAFT");
-        Mockito.when(initiativeRestConnector.getInitiativeBeneficiaryView(Mockito.anyString())).thenReturn(initiativeBeneficiaryViewDTO);
-
-        ClientException result = assertThrows(ClientException.class,
-                () -> uploadingMerchantService.ingestionMerchantFile(storageEventDTOS));
-        assertEquals(HttpStatus.FORBIDDEN, result.getHttpStatus());
-        assertEquals("FORBIDDEN", ((ClientExceptionWithBody) result).getCode());
-        assertEquals(String.format("Initiative %s not published",
-                INITIATIVE_ID), result.getMessage());
-    }
-
-    @Test
     void ingestionMerchantFile_initiativeException() throws IOException, URISyntaxException, StorageException {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);

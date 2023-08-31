@@ -286,11 +286,6 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
             throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
         }
-        if (!MerchantConstants.INITIATIVE_PUBLISHED.equals(initiativeDTO.getStatus())) {
-            log.info("[SAVE_MERCHANTS] Initiative {} is not PUBLISHED! Status: {}", initiativeId, initiativeDTO.getStatus());
-            throw new ClientExceptionWithBody(HttpStatus.FORBIDDEN, "FORBIDDEN",
-                    String.format("Initiative %s not published", initiativeId));
-        }
         return initiativeDTO;
     }
 
