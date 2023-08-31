@@ -83,11 +83,11 @@ class AuditUtilitiesTest {
 
         Assertions.assertEquals(
                 ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s msg=Merchants deleted" +
-                        " sdeletedMerchant=%s cs1Label=initiativeId cs1=%s")
+                        " cs1Label=initiativeId cs1=%s cs2Label=numberMerchants cs2=%s")
                         .formatted(
                                 AuditUtilities.SRCIP,
-                                DELETED_MERCHANT,
-                                INITIATIVE_ID
+                                INITIATIVE_ID,
+                                DELETED_MERCHANT
                         ),
                 memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
         );
