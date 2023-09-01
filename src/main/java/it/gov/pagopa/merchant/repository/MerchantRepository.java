@@ -40,6 +40,9 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
     @Query(value = "{merchantId : ?0, 'initiativeList.initiativeId' : ?1}")
     Optional<Merchant> retrieveByMerchantIdAndInitiativeId(String merchantId, String initiativeId);
 
+    @Query(value = "{'initiativeList.initiativeId' : ?0}")
+    List<Merchant> retrieveByInitiativeId(String initiativeId);
+
     @Query(value = "{'initiativeList.initiativeId' : ?1}")
     List<Merchant> deleteByInitiativeId(String initiativeId);
 }

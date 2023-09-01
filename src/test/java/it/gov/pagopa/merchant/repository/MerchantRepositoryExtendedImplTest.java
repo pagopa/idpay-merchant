@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.repository;
 
 import com.mongodb.client.result.UpdateResult;
-import it.gov.pagopa.merchant.constants.MerchantConstants;
 import org.bson.BsonValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -91,19 +88,6 @@ class MerchantRepositoryExtendedImplTest {
     when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(UPDATE_RESULT);
 
     UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID);
-
-    Assertions.assertEquals(1, result.getModifiedCount());
-  }
-
-  @Test
-  void findAndUpdateInitiativeOnMerchant() {
-
-    when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(UPDATE_RESULT);
-
-    UpdateResult result = merchantRepositoryExtended.findAndUpdateInitiativeOnMerchant(
-            INITIATIVE_ID,
-            MerchantConstants.INITIATIVE_PUBLISHED,
-            LocalDateTime.now());
 
     Assertions.assertEquals(1, result.getModifiedCount());
   }

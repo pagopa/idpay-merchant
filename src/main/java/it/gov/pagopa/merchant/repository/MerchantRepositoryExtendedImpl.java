@@ -49,12 +49,14 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
     }
 
     @Override
-    public UpdateResult findAndUpdateInitiativeOnMerchant(String initiativeId, String status, LocalDateTime updateDate) {
-        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
-        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
-        Update update = new Update().set(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.status,status))
-                .set(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.updateDate, updateDate));
-        return mongoTemplate.updateMulti(Query.query(criteria), update, Merchant.class);
+    public void updateInitiativeOnMerchant(Merchant merchant, String initiativeId) {
+        for (Initiative initiative: merchant.getInitiativeList()) {
+            if(initiativeId.equals(initiative.getInitiativeId())){
+                initiative.setStatus("PUBLISHED");
+                initiative.setUpdateDate(LocalDateTime.now());
+            }
+        }
+        mongoTemplate.save(merchant);
     }
 
     @Override

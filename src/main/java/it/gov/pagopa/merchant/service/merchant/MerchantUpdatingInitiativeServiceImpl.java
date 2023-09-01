@@ -1,12 +1,14 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.QueueInitiativeDTO;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -24,11 +26,11 @@ public class MerchantUpdatingInitiativeServiceImpl implements MerchantUpdatingIn
         if ("DISCOUNT".equals(queueInitiativeDTO.getInitiativeRewardType()) && MerchantConstants.INITIATIVE_PUBLISHED.equals(queueInitiativeDTO.getStatus())) {
             long startTime = System.currentTimeMillis();
 
-            UpdateResult updateResult = merchantRepository.findAndUpdateInitiativeOnMerchant(queueInitiativeDTO.getInitiativeId(),
-                    queueInitiativeDTO.getStatus(),
-                    queueInitiativeDTO.getUpdateDate());
+            List<Merchant> merchantList = merchantRepository.retrieveByInitiativeId(queueInitiativeDTO.getInitiativeId());
 
-            log.info("[UPDATE_INITIATIVE] Updated initiative {} to status published: {} records updated", queueInitiativeDTO.getInitiativeId(), updateResult.getModifiedCount());
+            merchantList.forEach(merchant -> merchantRepository.updateInitiativeOnMerchant(merchant, queueInitiativeDTO.getInitiativeId()));
+
+            log.info("[UPDATE_INITIATIVE] Updated initiative {} to status published", queueInitiativeDTO.getInitiativeId());
 
             Utilities.performanceLog(startTime, "UPDATE_INITIATIVE");
         }
