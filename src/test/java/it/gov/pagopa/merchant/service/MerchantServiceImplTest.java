@@ -4,10 +4,7 @@ import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
-import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
-import it.gov.pagopa.merchant.service.merchant.MerchantListService;
-import it.gov.pagopa.merchant.service.merchant.MerchantProcessOperationService;
-import it.gov.pagopa.merchant.service.merchant.UploadingMerchantService;
+import it.gov.pagopa.merchant.service.merchant.*;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
@@ -39,6 +36,8 @@ class MerchantServiceImplTest {
     @Mock
     private MerchantProcessOperationService merchantProcessOperationService;
     @Mock
+    private MerchantUpdatingInitiativeService merchantUpdatingInitiativeService;
+    @Mock
     private MerchantRepository merchantRepositoryMock;
     @Mock
     private UploadingMerchantService uploadingMerchantServiceMock;
@@ -57,7 +56,7 @@ class MerchantServiceImplTest {
         merchantService = new MerchantServiceImpl(
                 merchantDetailServiceMock,
                 merchantListServiceMock,
-                merchantProcessOperationService, merchantRepositoryMock,
+                merchantProcessOperationService, merchantUpdatingInitiativeService, merchantRepositoryMock,
                 uploadingMerchantServiceMock,
                 initiative2InitiativeDTOMapper);
     }

@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -45,6 +46,15 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         return mongoTemplate.updateMulti(Query.query(criteria),
                 new Update().pull(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.initiativeId,initiativeId)),
                 Merchant.class);
+    }
+
+    @Override
+    public UpdateResult findAndUpdateInitiativeOnMerchant(String initiativeId, String status, LocalDateTime updateDate) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
+        Update update = new Update().set(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.status,status))
+                .set(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.updateDate, updateDate));
+        return mongoTemplate.updateMulti(Query.query(criteria), update, Merchant.class);
     }
 
     @Override

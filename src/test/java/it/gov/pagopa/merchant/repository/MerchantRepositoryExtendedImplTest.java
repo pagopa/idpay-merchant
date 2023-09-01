@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.repository;
 
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import org.bson.BsonValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,12 +18,35 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = MerchantRepositoryExtendedImpl.class)
 class MerchantRepositoryExtendedImplTest {
+  public static final UpdateResult UPDATE_RESULT = new UpdateResult() {
+    @Override
+    public boolean wasAcknowledged() {
+      return false;
+    }
+
+    @Override
+    public long getMatchedCount() {
+      return 0;
+    }
+
+    @Override
+    public long getModifiedCount() {
+      return 1;
+    }
+
+    @Override
+    public BsonValue getUpsertedId() {
+      return null;
+    }
+  };
   @Autowired
   MerchantRepositoryExtended merchantRepositoryExtended;
   @MockBean MongoTemplate mongoTemplate;
@@ -63,32 +87,23 @@ class MerchantRepositoryExtendedImplTest {
 
   @Test
   void findAndRemoveInitiativeOnMerchant() {
-    UpdateResult updateResult = new UpdateResult() {
-      @Override
-      public boolean wasAcknowledged() {
-        return false;
-      }
 
-      @Override
-      public long getMatchedCount() {
-        return 0;
-      }
-
-      @Override
-      public long getModifiedCount() {
-        return 1;
-      }
-
-      @Override
-      public BsonValue getUpsertedId() {
-        return null;
-      }
-    };
-
-
-    when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(updateResult);
+    when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(UPDATE_RESULT);
 
     UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID);
+
+    Assertions.assertEquals(1, result.getModifiedCount());
+  }
+
+  @Test
+  void findAndUpdateInitiativeOnMerchant() {
+
+    when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(UPDATE_RESULT);
+
+    UpdateResult result = merchantRepositoryExtended.findAndUpdateInitiativeOnMerchant(
+            INITIATIVE_ID,
+            MerchantConstants.INITIATIVE_PUBLISHED,
+            LocalDateTime.now());
 
     Assertions.assertEquals(1, result.getModifiedCount());
   }
