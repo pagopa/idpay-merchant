@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -38,4 +39,7 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
 
     @Query(value = "{merchantId : ?0, 'initiativeList.initiativeId' : ?1}")
     Optional<Merchant> retrieveByMerchantIdAndInitiativeId(String merchantId, String initiativeId);
+
+    @Query(value = "{'initiativeList.initiativeId' : ?1}")
+    List<Merchant> deleteByInitiativeId(String initiativeId);
 }

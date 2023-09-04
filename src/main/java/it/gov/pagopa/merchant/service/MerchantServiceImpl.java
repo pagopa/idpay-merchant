@@ -1,14 +1,12 @@
 package it.gov.pagopa.merchant.service;
 
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantListDTO;
-import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.merchant.MerchantListService;
+import it.gov.pagopa.merchant.service.merchant.MerchantProcessOperationService;
 import it.gov.pagopa.merchant.service.merchant.UploadingMerchantService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +20,7 @@ public class MerchantServiceImpl implements MerchantService{
 
     private final MerchantDetailService merchantDetailService;
     private final MerchantListService merchantListService;
+    private final MerchantProcessOperationService merchantProcessOperationService;
     private final MerchantRepository merchantRepository;
     private final UploadingMerchantService uploadingMerchantService;
     private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
@@ -29,11 +28,12 @@ public class MerchantServiceImpl implements MerchantService{
     public MerchantServiceImpl(
             MerchantDetailService merchantDetailService,
             MerchantListService merchantListService,
-            MerchantRepository merchantRepository,
+            MerchantProcessOperationService merchantProcessOperationService, MerchantRepository merchantRepository,
             UploadingMerchantService uploadingMerchantService,
             Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
+        this.merchantProcessOperationService = merchantProcessOperationService;
         this.merchantRepository = merchantRepository;
         this.uploadingMerchantService = uploadingMerchantService;
         this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
@@ -81,5 +81,10 @@ public class MerchantServiceImpl implements MerchantService{
         return merchant.map(value -> value.getInitiativeList().stream()
                 .map(initiative2InitiativeDTOMapper::apply)
                 .toList()).orElse(null);
+    }
+
+    @Override
+    public void processOperation(QueueCommandOperationDTO queueCommandOperationDTO) {
+        merchantProcessOperationService.processOperation(queueCommandOperationDTO);
     }
 }

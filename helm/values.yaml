@@ -70,15 +70,18 @@ microservice-chart:
       KAFKA_BROKER: kafka_broker
       KAFKA_ERRORS_BROKER: kafka_broker
       KAFKA_ERRORS_TOPIC: idpay_error_topic
+      KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
       KAFKA_REWARD_NOTIFICATION_UPLOAD_BROKER: kafka_broker
       KAFKA_REWARD_NOTIFICATION_UPLOAD_TOPIC: idpay_reward_notification_storage_events_topic
+      #KAFKA_TOPIC_COMMANDS: idpay-commands
 
   envSecret:
     MONGODB_URI: mongodb-connection-string
     KAFKA_ERRORS_SASL_JAAS_CONFIG: evh-idpay-errors-idpay-errors-producer-jaas-config-idpay-01
     BLOB_STORAGE_CONNECTION_STRING: refund-storage-connection-string
     KAFKA_REWARD_NOTIFICATION_UPLOAD_SASL_JAAS_CONFIG: evh-idpay-reward-notification-storage-events-idpay-reward-notification-storage-consumer-jaas-config-idpay-01
-
+    KAFKA_COMMANDS_IN_SASL_JAAS_CONFIG: evh-idpay-commands-idpay-commands-consumer-jaas-config-idpay-01
+    KAFKA_COMMANDS_OUT_SASL_JAAS_CONFIG: evh-idpay-commands-idpay-commands-producer-jaas-config-idpay-01
   # nodeSelector: {}
 
   # tolerations: []

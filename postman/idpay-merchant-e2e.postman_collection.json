@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "8a5d6159-7389-4c42-86f1-2a87b1086ffe",
+		"_postman_id": "55d3f343-f907-4e20-8a60-6b6514c3b6b2",
 		"name": "Merchant - e2e",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "26036736",
-		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036679-8a5d6159-7389-4c42-86f1-2a87b1086ffe?action=share&creator=26036736&source=collection_link"
+		"_exporter_id": "25824330",
+		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036736-55d3f343-f907-4e20-8a60-6b6514c3b6b2?action=share&source=collection_link&creator=25824330"
 	},
 	"item": [
 		{
@@ -1012,9 +1012,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/merchants",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"merchants"
@@ -1074,9 +1075,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/{{merchantId}}/initiative/{{initiativeId}}",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"{{merchantId}}",
 												"initiative",
 												"{{initiativeId}}"
@@ -1128,9 +1130,10 @@
 								"url": {
 									"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId-fake}}/merchants",
 									"host": [
-										"{{baseUrlToken}}/merchant"
+										"{{baseUrlToken}}"
 									],
 									"path": [
+										"merchant",
 										"initiative",
 										"{{initiativeId-fake}}",
 										"merchants"
@@ -1193,9 +1196,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1273,9 +1277,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/merchants?size=10",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"merchants"
@@ -1341,9 +1346,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/{{merchantId}}/initiative/{{initiativeId}}",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"{{merchantId}}",
 												"initiative",
 												"{{initiativeId}}"
@@ -1414,9 +1420,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1484,9 +1491,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1554,9 +1562,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1624,9 +1633,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1694,9 +1704,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1764,9 +1775,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1834,9 +1846,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1904,9 +1917,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -1974,9 +1988,10 @@
 										"url": {
 											"raw": "{{baseUrlToken}}/merchant/initiative/{{initiativeId}}/upload",
 											"host": [
-												"{{baseUrlToken}}/merchant"
+												"{{baseUrlToken}}"
 											],
 											"path": [
+												"merchant",
 												"initiative",
 												"{{initiativeId}}",
 												"upload"
@@ -2100,9 +2115,10 @@
 								"url": {
 									"raw": "{{baseUrlToken}}/merchant/{{merchantId-fake}}/initiative/{{initiativeId-fake}}",
 									"host": [
-										"{{baseUrlToken}}/merchant"
+										"{{baseUrlToken}}"
 									],
 									"path": [
+										"merchant",
 										"{{merchantId-fake}}",
 										"initiative",
 										"{{initiativeId-fake}}"
@@ -2114,6 +2130,38 @@
 					]
 				}
 			]
+		},
+		{
+			"name": "Delete Initiative",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Merchant - Delete Initiative - Status test 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AKSAPIServerUrlGeneric}}idpayportalwelfarebackendinitiative/idpay/initiative/{{initiativeId}}",
+					"host": [
+						"{{AKSAPIServerUrlGeneric}}idpayportalwelfarebackendinitiative"
+					],
+					"path": [
+						"idpay",
+						"initiative",
+						"{{initiativeId}}"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
