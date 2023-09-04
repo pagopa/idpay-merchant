@@ -50,12 +50,22 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
 
     @Override
     public void updateInitiativeOnMerchant(Merchant merchant, String initiativeId) {
-        for (Initiative initiative: merchant.getInitiativeList()) {
+        merchant.getInitiativeList().stream()
+                .filter(x->x.getInitiativeId().equals(initiativeId))
+                .forEach(initiative ->
+                        {
+                            initiative.setStatus("PUBLISHED");
+                            initiative.setUpdateDate(LocalDateTime.now());
+                        });
+
+        /*for (Initiative initiative: merchant.getInitiativeList().) {
             if(initiativeId.equals(initiative.getInitiativeId())){
                 initiative.setStatus("PUBLISHED");
                 initiative.setUpdateDate(LocalDateTime.now());
             }
         }
+
+         */
         mongoTemplate.save(merchant);
     }
 

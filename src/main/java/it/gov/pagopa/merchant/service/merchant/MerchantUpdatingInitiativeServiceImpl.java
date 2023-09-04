@@ -28,6 +28,7 @@ public class MerchantUpdatingInitiativeServiceImpl implements MerchantUpdatingIn
 
             List<Merchant> merchantList = merchantRepository.retrieveByInitiativeId(queueInitiativeDTO.getInitiativeId());
 
+
             merchantList.forEach(merchant -> merchantRepository.updateInitiativeOnMerchant(merchant, queueInitiativeDTO.getInitiativeId()));
 
             log.info("[UPDATE_INITIATIVE] Updated initiative {} to status published", queueInitiativeDTO.getInitiativeId());
