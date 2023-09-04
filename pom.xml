@@ -115,6 +115,12 @@
             <!-- Forced to 2.0 due to https://nvd.nist.gov/vuln/detail/CVE-2022-1471 -->
             <version>2.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <!-- Forced to 32.1.2-jre due to https://nvd.nist.gov/vuln/detail/CVE-2023-2976 -->
+            <version>32.1.2-jre</version>
+        </dependency>
 
 
         <!--TEST-->
