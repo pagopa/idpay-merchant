@@ -1,6 +1,6 @@
-package it.gov.pagopa.merchant.exception;
+package it.gov.pagopa.common.web.exception;
 
-import it.gov.pagopa.merchant.dto.ErrorDTO;
+import it.gov.pagopa.common.web.dto.ErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
