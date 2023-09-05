@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.repository;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.utils.Utilities;
@@ -52,24 +53,8 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
         mongoTemplate.updateMulti(Query.query(criteria),
-            new Update().set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.status), "PUBLISHED"),
+            new Update().set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.status), MerchantConstants.INITIATIVE_PUBLISHED),
             Merchant.class);
-
-        /*merchant.getInitiativeList().stream()
-                .filter(x->x.getInitiativeId().equals(initiativeId))
-                .forEach(initiative ->
-                        {
-                            initiative.setStatus("PUBLISHED");
-                            initiative.setUpdateDate(LocalDateTime.now());
-                        });*/
-
-        /*for (Initiative initiative: merchant.getInitiativeList().) {
-            if(initiativeId.equals(initiative.getInitiativeId())){
-                initiative.setStatus("PUBLISHED");
-                initiative.setUpdateDate(LocalDateTime.now());
-            }
-        }
-        mongoTemplate.save(merchant);*/
     }
 
     @Override

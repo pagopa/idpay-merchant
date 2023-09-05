@@ -92,4 +92,11 @@ class MerchantRepositoryExtendedImplTest {
     Assertions.assertEquals(1, result.getModifiedCount());
   }
 
+  @Test
+  void updateInitiativeOnMerchant() {
+    merchantRepositoryExtended.updateInitiativeOnMerchant(INITIATIVE_ID);
+
+    verify(mongoTemplate, times(1)).updateMulti(Mockito.any(), Mockito.any(), (Class<?>) Mockito.any());
+  }
+
 }

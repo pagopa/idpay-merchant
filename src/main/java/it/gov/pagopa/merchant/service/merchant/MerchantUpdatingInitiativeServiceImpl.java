@@ -2,13 +2,10 @@ package it.gov.pagopa.merchant.service.merchant;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.QueueInitiativeDTO;
-import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @Slf4j
@@ -23,10 +20,9 @@ public class MerchantUpdatingInitiativeServiceImpl implements MerchantUpdatingIn
     @Override
     public void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO) {
 
-        if ("DISCOUNT".equals(queueInitiativeDTO.getInitiativeRewardType()) && MerchantConstants.INITIATIVE_PUBLISHED.equals(queueInitiativeDTO.getStatus())) {
+        if ("DISCOUNT".equals(queueInitiativeDTO.getInitiativeRewardType()) &&
+                MerchantConstants.INITIATIVE_PUBLISHED.equals(queueInitiativeDTO.getStatus())) {
             long startTime = System.currentTimeMillis();
-
-            //List<Merchant> merchantList = merchantRepository.retrieveByInitiativeId(queueInitiativeDTO.getInitiativeId());
 
             merchantRepository.updateInitiativeOnMerchant(queueInitiativeDTO.getInitiativeId());
 

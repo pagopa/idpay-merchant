@@ -166,4 +166,15 @@ class MerchantServiceImplTest {
 
         Mockito.verify(merchantProcessOperationService).processOperation(queueCommandOperationDTO);
     }
+
+    @Test
+    void updatingMerchantInitiative(){
+        QueueInitiativeDTO queueInitiativeDTO = QueueInitiativeDTO.builder()
+                .initiativeId(INITIATIVE_ID)
+                .initiativeRewardType("DISCOUNT")
+                .build();
+
+        merchantService.updatingInitiative(queueInitiativeDTO);
+        Mockito.verify(merchantUpdatingInitiativeService, Mockito.times(1)).updatingInitiative(queueInitiativeDTO);
+    }
 }
