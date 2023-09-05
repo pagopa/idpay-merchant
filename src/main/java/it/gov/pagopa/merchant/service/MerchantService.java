@@ -14,4 +14,6 @@ public interface MerchantService {
     String retrieveMerchantId(String acquirerId, String fiscalCode);
     List<InitiativeDTO> getMerchantInitiativeList(String merchantId);
     void processOperation(QueueCommandOperationDTO queueCommandOperationDTO);
+    void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO);
+
 }
