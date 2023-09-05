@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -49,14 +48,20 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
     }
 
     @Override
-    public void updateInitiativeOnMerchant(Merchant merchant, String initiativeId) {
-        merchant.getInitiativeList().stream()
+    public void updateInitiativeOnMerchant(String initiativeId) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
+        mongoTemplate.updateMulti(Query.query(criteria),
+            new Update().set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.status), "PUBLISHED"),
+            Merchant.class);
+
+        /*merchant.getInitiativeList().stream()
                 .filter(x->x.getInitiativeId().equals(initiativeId))
                 .forEach(initiative ->
                         {
                             initiative.setStatus("PUBLISHED");
                             initiative.setUpdateDate(LocalDateTime.now());
-                        });
+                        });*/
 
         /*for (Initiative initiative: merchant.getInitiativeList().) {
             if(initiativeId.equals(initiative.getInitiativeId())){
@@ -64,9 +69,7 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
                 initiative.setUpdateDate(LocalDateTime.now());
             }
         }
-
-         */
-        mongoTemplate.save(merchant);
+        mongoTemplate.save(merchant);*/
     }
 
     @Override

@@ -26,10 +26,9 @@ public class MerchantUpdatingInitiativeServiceImpl implements MerchantUpdatingIn
         if ("DISCOUNT".equals(queueInitiativeDTO.getInitiativeRewardType()) && MerchantConstants.INITIATIVE_PUBLISHED.equals(queueInitiativeDTO.getStatus())) {
             long startTime = System.currentTimeMillis();
 
-            List<Merchant> merchantList = merchantRepository.retrieveByInitiativeId(queueInitiativeDTO.getInitiativeId());
+            //List<Merchant> merchantList = merchantRepository.retrieveByInitiativeId(queueInitiativeDTO.getInitiativeId());
 
-
-            merchantList.forEach(merchant -> merchantRepository.updateInitiativeOnMerchant(merchant, queueInitiativeDTO.getInitiativeId()));
+            merchantRepository.updateInitiativeOnMerchant(queueInitiativeDTO.getInitiativeId());
 
             log.info("[UPDATE_INITIATIVE] Updated initiative {} to status published", queueInitiativeDTO.getInitiativeId());
 

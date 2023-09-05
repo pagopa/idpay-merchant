@@ -11,6 +11,6 @@ public interface MerchantRepositoryExtended {
     List<Merchant> findByFilter(Criteria criteria, Pageable pageable);
     Criteria getCriteria(String initiativeId, String organizationId, String fiscalCode);
     UpdateResult findAndRemoveInitiativeOnMerchant (String initiativeId);
-    void updateInitiativeOnMerchant (Merchant merchant, String initiativeId);
+    void updateInitiativeOnMerchant(String initiativeId);
     long getCount(Criteria criteria);
 }
