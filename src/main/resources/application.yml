@@ -1,3 +1,14 @@
+mongo:
+  request-rate-too-large:
+    api:
+      enabled: ${MONGO_REQUEST_RATE_TOO_LARGE_API_ENABLED:false}
+      max-retry: ${MONGO_REQUEST_RATE_TOO_LARGE_API_MAX_RETRY:0}
+      max-millis-elapsed: ${MONGO_REQUEST_RATE_TOO_LARGE_API_MAX_MILLIS_ELAPSED:200}
+    batch:
+      enabled: ${MONGO_REQUEST_RATE_TOO_LARGE_BATCH_ENABLED:true}
+      max-retry: ${MONGO_REQUEST_RATE_TOO_LARGE_BATCH_MAX_RETRY:5}
+      max-millis-elapsed: ${MONGO_REQUEST_RATE_TOO_LARGE_BATCH_MAX_MILLIS_ELAPSED:0}
+
 blobStorage.connectionString: ${BLOB_STORAGE_CONNECTION_STRING:}
 blobStorage.merchant.file.containerReference: ${BLOB_STORAGE_CONTAINER_REFERENCE:}
 
@@ -14,7 +25,7 @@ spring:
       max-file-size: ${MERCHANT_FILE_MAX_FILE_SIZE:10485760} #10 MB
   cloud:
     function:
-      definition: merchantFileConsumer;consumerCommands
+      definition: merchantFileConsumer;consumerCommands;initiativeConsumer
     stream:
       binders:
         kafka-errors:
@@ -45,6 +56,13 @@ spring:
                         sasl:
                           jaas:
                             config: ${KAFKA_COMMANDS_IN_SASL_JAAS_CONFIG:}
+        kafka-initiative:
+          type: kafka
+          environment:
+            spring.cloud.stream.kafka.binder:
+              brokers: ${KAFKA_INITIATIVE_BROKER:${KAFKA_BROKER:}}
+              configuration:
+                sasl.jaas.config: ${KAFKA_INITIATIVE_SASL_JAAS_CONFIG:}
         kafka-commands-outcome:
           type: kafka
           environment:
@@ -71,6 +89,11 @@ spring:
           binder: kafka-commands-outcome
           destination: ${KAFKA_COMMANDS_OUTCOME_TOPIC:idpay-commands}
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
+        initiativeConsumer-in-0:
+          destination: ${KAFKA_INITIATIVE_TOPIC:idpay-rule-update}
+          group: ${KAFKA_INITIATIVE_GROUP_ID:idpay-rule-update-merchant-consumer-group}
+          content-type: ${KAFKA_CONTENT_TYPE:application/json}
+          binder: kafka-initiative
       kafka:
         binder:
           auto-create-topics: false
@@ -127,6 +150,19 @@ spring:
                 linger.ms: ${KAFKA_COMMANDS_PRODUCER_CONFIG_LINGER_MS:${KAFKA_LINGER_MS:2}}
                 batch.size: ${KAFKA_COMMANDS_PRODUCER_CONFIG_BATCH_SIZE:${KAFKA_BATCH_SIZE:16384}}
                 metadata.max.idle.ms: ${KAFKA_COMMANDS_PRODUCER_DEFAULT_METADATA_MAX_IDLE_MS:180000}
+          initiativeConsumer-in-0:
+            consumer:
+              autoCommitOffset: ${KAFKA_COMMANDS_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
+              configuration:
+                connections.max.idle.ms: ${KAFKA_COMMANDS_REQUEST_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:180000}}
+                max.poll:
+                  interval.ms: ${KAFKA_COMMANDS_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
+                  records: ${KAFKA_COMMANDS_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
+                socket.connection.setup.timeout:
+                  max.ms: ${KAFKA_COMMANDS_REQUEST_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
+                  ms: ${KAFKA_COMMANDS_REQUEST_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
+              standardHeaders: ${KAFKA_COMMANDS_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
+              startOffset: ${KAFKA_COMMANDS_REQUEST_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017}

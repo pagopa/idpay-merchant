@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.repository;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.utils.Utilities;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -45,6 +47,16 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         return mongoTemplate.updateMulti(Query.query(criteria),
                 new Update().pull(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.initiativeId,initiativeId)),
                 Merchant.class);
+    }
+
+    @Override
+    public void updateInitiativeOnMerchant(String initiativeId) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
+        mongoTemplate.updateMulti(Query.query(criteria),
+            new Update().set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.status), MerchantConstants.INITIATIVE_PUBLISHED)
+                        .set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.updateDate), LocalDateTime.now()),
+            Merchant.class);
     }
 
     @Override

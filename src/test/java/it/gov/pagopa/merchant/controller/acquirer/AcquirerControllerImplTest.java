@@ -6,7 +6,7 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
-import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
