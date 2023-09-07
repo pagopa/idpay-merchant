@@ -23,6 +23,27 @@ import static org.mockito.Mockito.*;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = MerchantRepositoryExtendedImpl.class)
 class MerchantRepositoryExtendedImplTest {
+  public static final UpdateResult UPDATE_RESULT = new UpdateResult() {
+    @Override
+    public boolean wasAcknowledged() {
+      return false;
+    }
+
+    @Override
+    public long getMatchedCount() {
+      return 0;
+    }
+
+    @Override
+    public long getModifiedCount() {
+      return 1;
+    }
+
+    @Override
+    public BsonValue getUpsertedId() {
+      return null;
+    }
+  };
   @Autowired
   MerchantRepositoryExtended merchantRepositoryExtended;
   @MockBean MongoTemplate mongoTemplate;
@@ -63,34 +84,19 @@ class MerchantRepositoryExtendedImplTest {
 
   @Test
   void findAndRemoveInitiativeOnMerchant() {
-    UpdateResult updateResult = new UpdateResult() {
-      @Override
-      public boolean wasAcknowledged() {
-        return false;
-      }
 
-      @Override
-      public long getMatchedCount() {
-        return 0;
-      }
-
-      @Override
-      public long getModifiedCount() {
-        return 1;
-      }
-
-      @Override
-      public BsonValue getUpsertedId() {
-        return null;
-      }
-    };
-
-
-    when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(updateResult);
+    when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(UPDATE_RESULT);
 
     UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID);
 
     Assertions.assertEquals(1, result.getModifiedCount());
+  }
+
+  @Test
+  void updateInitiativeOnMerchant() {
+    merchantRepositoryExtended.updateInitiativeOnMerchant(INITIATIVE_ID);
+
+    verify(mongoTemplate, times(1)).updateMulti(Mockito.any(), Mockito.any(), (Class<?>) Mockito.any());
   }
 
 }

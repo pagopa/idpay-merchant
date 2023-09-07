@@ -2,7 +2,7 @@ package it.gov.pagopa.merchant.service.merchant;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;

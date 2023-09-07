@@ -3,7 +3,7 @@ package it.gov.pagopa.merchant.controller.acquirer;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
-import it.gov.pagopa.merchant.exception.ClientExceptionWithBody;
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.service.MerchantService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

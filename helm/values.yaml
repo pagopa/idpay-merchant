@@ -4,6 +4,7 @@ microservice-chart:
   fullnameOverride: ""
 
   livenessProbe:
+    handlerType: httpGet
     httpGet:
       path: /actuator/health
       port: 8080
@@ -12,6 +13,7 @@ microservice-chart:
     periodSeconds: 10
 
   readinessProbe:
+    handlerType: httpGet
     httpGet:
       path: /actuator/health
       port: 8080
@@ -25,11 +27,13 @@ microservice-chart:
   service:
     create: true
     type: ClusterIP
-    port: 8080
+    ports:
+      - 8080
 
   ingress:
     create: true
     path: /idpaymerchant/(.*)
+    servicePort: 8080
     annotations: {
       nginx.ingress.kubernetes.io/proxy-body-size=2m
     }
@@ -73,6 +77,8 @@ microservice-chart:
       KAFKA_BINDER_BROKER_ENDPOINT_LIST: kafka_broker
       KAFKA_REWARD_NOTIFICATION_UPLOAD_BROKER: kafka_broker
       KAFKA_REWARD_NOTIFICATION_UPLOAD_TOPIC: idpay_reward_notification_storage_events_topic
+      KAFKA_INITIATIVE_BROKER: kafka_broker
+      KAFKA_INITIATIVE_TOPIC: idpay_rule_update_topic
       #KAFKA_TOPIC_COMMANDS: idpay-commands
 
   envSecret:
@@ -82,6 +88,8 @@ microservice-chart:
     KAFKA_REWARD_NOTIFICATION_UPLOAD_SASL_JAAS_CONFIG: evh-idpay-reward-notification-storage-events-idpay-reward-notification-storage-consumer-jaas-config-idpay-01
     KAFKA_COMMANDS_IN_SASL_JAAS_CONFIG: evh-idpay-commands-idpay-commands-consumer-jaas-config-idpay-01
     KAFKA_COMMANDS_OUT_SASL_JAAS_CONFIG: evh-idpay-commands-idpay-commands-producer-jaas-config-idpay-01
+    KAFKA_INITIATIVE_SASL_JAAS_CONFIG: evh-idpay-rule-update-idpay-rule-update-consumer-jaas-config-idpay-01
+
   # nodeSelector: {}
 
   # tolerations: []
