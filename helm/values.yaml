@@ -34,9 +34,7 @@ microservice-chart:
     create: true
     path: /idpaymerchant/(.*)
     servicePort: 8080
-    annotations: {
-      nginx.ingress.kubernetes.io/proxy-body-size=2m
-    }
+    proxyBodySize: 2m
 
   serviceAccount:
     create: false
