@@ -37,80 +37,62 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
         configureExecutionContext(true);
     }
 
-    //region test batch
+//region test batch
     @Test
     void testBatchEnabled() throws Throwable {
-        //given
         configureExecutionContext(true);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(false, maxRetry, 1000, true, maxRetry, 1000);
 
         checkRetryBehaviour(aspect);
     }
     @Test
-    void testBatchException() throws Throwable {
-        //given
+    void testBatchException() {
         configureExecutionContext(true);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(false, maxRetry, 1000, false, maxRetry, 1000);
 
-        //when
-        //then
         checkException(aspect);
     }
 
     @Test
-    void testBatchDisabledApiEnabled() throws Throwable {
-        //given
+    void testBatchDisabledApiEnabled() {
         configureExecutionContext(true);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(true, maxRetry, 1000, false, maxRetry, 1000);
 
-        //when
-        //then
         checkException(aspect);
     }
 
 //endregion
 
-    //region test Api
+//region test Api
     @Test
     void testApiEnabled() throws Throwable {
-        //given
         configureExecutionContext(false);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(true, maxRetry, 1000, false, maxRetry, 1000);
 
-        //when
-        //then
         checkRetryBehaviour(aspect);
     }
 
     @Test
-    void testApiException() throws Throwable {
-        //given
+    void testApiException() {
         configureExecutionContext(false);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(false, maxRetry, 1000, false, maxRetry, 1000);
 
-        //when
-        //then
         checkException(aspect);
     }
 
     @Test
-    void testApiDisabledBatchEnabled() throws Throwable {
-        //given
+    void testApiDisabledBatchEnabled() {
         configureExecutionContext(false);
         MongoRequestRateTooLargeAutomaticRetryAspect aspect = new MongoRequestRateTooLargeAutomaticRetryAspect(false, maxRetry, 1000, true, maxRetry, 1000);
 
-        //when
-        //then
         checkException(aspect);
     }
 
 //endregion
 
     private void checkRetryBehaviour(MongoRequestRateTooLargeAutomaticRetryAspect aspect) throws Throwable {
-        //when
         Object result = aspect.decorateRepositoryMethods(pjpMock);
 
-        //then
         Assertions.assertEquals(expectedResult, result);
         Mockito.verify(pjpMock, Mockito.times(maxRetry+1)).proceed();
     }
