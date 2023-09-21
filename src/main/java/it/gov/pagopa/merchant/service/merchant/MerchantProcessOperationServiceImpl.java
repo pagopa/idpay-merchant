@@ -11,6 +11,7 @@ import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,22 +28,53 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         this.auditUtilities = auditUtilities;
     }
 
+    @SuppressWarnings("BusyWait")
     @Override
     public void processOperation(QueueCommandOperationDTO queueCommandOperationDTO) {
 
         if (MerchantConstants.OPERATION_TYPE_DELETE_INITIATIVE.equals(queueCommandOperationDTO.getOperationType())) {
             long startTime = System.currentTimeMillis();
+            UpdateResult updateResult;
+            do {
+                updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+                        Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.PAGINATION_KEY)));
 
-            UpdateResult updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId());
+                try {
+                    Thread.sleep(Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.DELAY_KEY)));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("An error has occurred while waiting {}", e.getMessage());
+                }
+
+            } while (updateResult.getModifiedCount() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.PAGINATION_KEY))));
 
             log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", queueCommandOperationDTO.getEntityId());
-            List<MerchantFile> deletedMerchantFile = merchantFileRepository.deleteByInitiativeId(queueCommandOperationDTO.getEntityId());
+
+            List<MerchantFile> deletedOperation = new ArrayList<>();
+            List<MerchantFile> fetchedMerchantsFile;
+
+            do {
+                fetchedMerchantsFile = merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+                        Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.PAGINATION_KEY)));
+
+                deletedOperation.addAll(fetchedMerchantsFile);
+
+                try {
+                    Thread.sleep(Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.DELAY_KEY)));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("An error has occurred while waiting {}", e.getMessage());
+                }
+
+            } while (fetchedMerchantsFile.size() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.PAGINATION_KEY))));
 
             log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
                     queueCommandOperationDTO.getEntityId());
 
             auditUtilities.logDeleteMerchant(updateResult.getModifiedCount(), queueCommandOperationDTO.getEntityId());
-            deletedMerchantFile.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(queueCommandOperationDTO.getEntityId()));
+
+            deletedOperation.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(queueCommandOperationDTO.getEntityId()));
+
             Utilities.performanceLog(startTime, "DELETE_INITIATIVE");
         }
     }
