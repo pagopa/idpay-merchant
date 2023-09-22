@@ -7,9 +7,7 @@ import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantFileFaker;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
-import org.bson.BsonValue;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -58,38 +56,36 @@ class MerchantProcessOperationServiceImplTest {
                 .additionalParams(additionalParams)
                 .build();
 
-        UpdateResult updateResult = new UpdateResult() {
-            @Override
-            public boolean wasAcknowledged() {
-                return false;
-            }
-
-            @Override
-            public long getMatchedCount() {
-                return 0;
-            }
-
-            @Override
-            public long getModifiedCount() {
-                return 1;
-            }
-
-            @Override
-            public BsonValue getUpsertedId() {
-                return null;
-            }
-        };
+        UpdateResult updateResult = UpdateResult.acknowledged(0,1L,null);
+        UpdateResult updateResultGT = UpdateResult.acknowledged(0,2L,null);
 
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
         List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
 
-        Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                        Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
-                .thenReturn(updateResult);
+        if (times == 2) {
+            Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+                            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+                    .thenReturn(updateResultGT)
+                    .thenReturn(updateResult);
 
-        Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
-                Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
-                .thenReturn(deletedMerchantFile);
+            List<MerchantFile> userGroupPage = createMerchantFilePage(Integer.parseInt("2"));
+
+            Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+                            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+                    .thenReturn(userGroupPage)
+                    .thenReturn(deletedMerchantFile);
+
+            Thread.currentThread().interrupt();
+        } else {
+            Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+                            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+                    .thenReturn(updateResult);
+
+            Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+                            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+                    .thenReturn(deletedMerchantFile);
+        }
+
 
         merchantProcessOperationService.processOperation(queueCommandOperationDTO);
 
@@ -98,68 +94,11 @@ class MerchantProcessOperationServiceImplTest {
         Mockito.verify(merchantFileRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
                 Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
     }
-    @Test
-    void processOperation_deleteOperation_Exception() {
-        Map<String, String> additionalParams = new HashMap<>();
-        additionalParams.put("pagination", "2");
-        additionalParams.put("delay", "1");
-
-        QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
-                .entityId(INITIATIVE_ID)
-                .operationType(OPERATION_TYPE_DELETE_INITIATIVE)
-                .operationTime(LocalDateTime.now())
-                .additionalParams(additionalParams)
-                .build();
-
-        UpdateResult updateResult = new UpdateResult() {
-            @Override
-            public boolean wasAcknowledged() {
-                return false;
-            }
-
-            @Override
-            public long getMatchedCount() {
-                return 0;
-            }
-
-            @Override
-            public long getModifiedCount() {
-                return 5;
-            }
-
-            @Override
-            public BsonValue getUpsertedId() {
-                return null;
-            }
-        };
-
-        MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
-        List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
-
-        Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                        Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
-                .thenReturn(updateResult);
-
-        List<MerchantFile> userGroupPage = createMerchantFilePage(Integer.parseInt("2"));
-
-        Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
-                        Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
-                .thenReturn(userGroupPage)
-                .thenReturn(deletedMerchantFile);
-
-        Thread.currentThread().interrupt();
-
-        merchantProcessOperationService.processOperation(queueCommandOperationDTO);
-
-        Mockito.verify(repositoryMock, Mockito.times(1)).findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
-        Mockito.verify(merchantFileRepository, Mockito.times(2)).deletePaged(queueCommandOperationDTO.getEntityId(),
-                Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
-    }
 
     private static Stream<Arguments> operationTypeAndInvocationTimes() {
         return Stream.of(
                 Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 1),
+                Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 2),
                 Arguments.of("OPERATION_TYPE_TEST", 0)
         );
     }
