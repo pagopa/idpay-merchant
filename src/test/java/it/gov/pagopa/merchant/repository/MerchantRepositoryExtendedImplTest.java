@@ -87,7 +87,7 @@ class MerchantRepositoryExtendedImplTest {
 
     when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(UPDATE_RESULT);
 
-    UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID);
+    UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID, 2);
 
     Assertions.assertEquals(1, result.getModifiedCount());
   }
