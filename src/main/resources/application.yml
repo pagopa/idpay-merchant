@@ -11,6 +11,10 @@ mongo:
 
 blobStorage.connectionString: ${BLOB_STORAGE_CONNECTION_STRING:}
 blobStorage.merchant.file.containerReference: ${BLOB_STORAGE_CONTAINER_REFERENCE:}
+app:
+  delete:
+    paginationSize: ${DELETE_PAGINATION_SIZE}
+    delayTime: ${DELETE_DELAY_TIME}
 
 spring:
   application:
