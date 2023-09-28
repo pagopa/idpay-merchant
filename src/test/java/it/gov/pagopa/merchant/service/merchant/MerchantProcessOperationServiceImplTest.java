@@ -15,10 +15,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -57,7 +53,7 @@ class MerchantProcessOperationServiceImplTest {
                 .build();
 
         UpdateResult updateResult = UpdateResult.acknowledged(0,1L,null);
-        UpdateResult updateResultGT = UpdateResult.acknowledged(0,2L,null);
+        UpdateResult updateResultGT = UpdateResult.acknowledged(0,100L,null);
 
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
         List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
