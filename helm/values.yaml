@@ -61,6 +61,8 @@ microservice-chart:
     APPLICATIONINSIGHTS_PREVIEW_PROFILER_ENABLED: "false"
     ENABLE_AUDIT_APPENDER: "TRUE"
     BLOB_STORAGE_CONTAINER_REFERENCE: merchant
+    DELETE_PAGINATION_SIZE: "100"
+    DELETE_DELAY_TIME: "1000"
 
   envConfigMapExternals:
     idpay-common:

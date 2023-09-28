@@ -24,15 +24,19 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
     private final AuditUtilities auditUtilities;
 
 
-    private final String pagination;
+    private final int pageSize;
 
-    private final String delay;
+    private final long delay;
 
-    public MerchantProcessOperationServiceImpl(MerchantFileRepository merchantFileRepository, MerchantRepository merchantRepository, AuditUtilities auditUtilities, @Value("${app.delete.paginationSize}") String pagination, @Value("${app.delete.delayTime}") String delay) {
+    public MerchantProcessOperationServiceImpl(MerchantFileRepository merchantFileRepository,
+                                               MerchantRepository merchantRepository,
+                                               AuditUtilities auditUtilities,
+                                               @Value("${app.delete.paginationSize}") int pageSize,
+                                               @Value("${app.delete.delayTime}") long delay) {
         this.merchantRepository = merchantRepository;
         this.merchantFileRepository = merchantFileRepository;
         this.auditUtilities = auditUtilities;
-        this.pagination = pagination;
+        this.pageSize = pageSize;
         this.delay = delay;
     }
 
@@ -45,16 +49,16 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
             UpdateResult updateResult;
             do {
                 updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                        Integer.parseInt(pagination));
+                        pageSize);
 
                 try {
-                    Thread.sleep(Long.parseLong(delay));
+                    Thread.sleep(delay);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("An error has occurred while waiting {}", e.getMessage());
                 }
 
-            } while (updateResult.getModifiedCount() == (Integer.parseInt(pagination)));
+            } while (updateResult.getModifiedCount() == pageSize);
 
             log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", queueCommandOperationDTO.getEntityId());
 
@@ -63,18 +67,18 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
             do {
                 fetchedMerchantsFile = merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
-                        Integer.parseInt(pagination));
+                        pageSize);
 
                 deletedOperation.addAll(fetchedMerchantsFile);
 
                 try {
-                    Thread.sleep(Long.parseLong(delay));
+                    Thread.sleep(delay);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("An error has occurred while waiting {}", e.getMessage());
                 }
 
-            } while (fetchedMerchantsFile.size() == (Integer.parseInt(pagination)));
+            } while (fetchedMerchantsFile.size() == (pageSize));
 
             log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
                     queueCommandOperationDTO.getEntityId());
