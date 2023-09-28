@@ -18,9 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,53 +34,51 @@ class MerchantProcessOperationServiceImplTest {
     private static final String INITIATIVE_ID = "INITIATIVEID1";
     private static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
 
+    private static final int PAGE_SIZE = 100;
+
     @BeforeEach
     public void setUp() {
         merchantProcessOperationService = new MerchantProcessOperationServiceImpl(merchantFileRepository, repositoryMock
-                , auditUtilities);
+                , auditUtilities,PAGE_SIZE, 1000);
     }
 
     @ParameterizedTest
     @MethodSource("operationTypeAndInvocationTimes")
     void processOperation_deleteOperation(String operationType, int times) {
-        Map<String, String> additionalParams = new HashMap<>();
-        additionalParams.put("pagination", "2");
-        additionalParams.put("delay", "1");
 
         QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
                 .entityId(INITIATIVE_ID)
                 .operationType(operationType)
                 .operationTime(LocalDateTime.now())
-                .additionalParams(additionalParams)
                 .build();
 
         UpdateResult updateResult = UpdateResult.acknowledged(0,1L,null);
-        UpdateResult updateResultGT = UpdateResult.acknowledged(0,2L,null);
+        UpdateResult updateResultGT = UpdateResult.acknowledged(0,100L,null);
 
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
         List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
 
         if (times == 2) {
             Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+                            PAGE_SIZE))
                     .thenReturn(updateResultGT)
                     .thenReturn(updateResult);
 
-            List<MerchantFile> userGroupPage = createMerchantFilePage(Integer.parseInt("2"));
+            List<MerchantFile> userGroupPage = createMerchantFilePage();
 
             Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
-                            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+                            PAGE_SIZE))
                     .thenReturn(userGroupPage)
                     .thenReturn(deletedMerchantFile);
 
             Thread.currentThread().interrupt();
         } else {
             Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+                            PAGE_SIZE))
                     .thenReturn(updateResult);
 
             Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
-                            Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination"))))
+                            PAGE_SIZE))
                     .thenReturn(deletedMerchantFile);
         }
 
@@ -90,9 +86,9 @@ class MerchantProcessOperationServiceImplTest {
         merchantProcessOperationService.processOperation(queueCommandOperationDTO);
 
         Mockito.verify(repositoryMock, Mockito.times(times)).findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
+                PAGE_SIZE);
         Mockito.verify(merchantFileRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
-                Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get("pagination")));
+                PAGE_SIZE);
     }
 
     private static Stream<Arguments> operationTypeAndInvocationTimes() {
@@ -102,10 +98,10 @@ class MerchantProcessOperationServiceImplTest {
                 Arguments.of("OPERATION_TYPE_TEST", 0)
         );
     }
-    private List<MerchantFile> createMerchantFilePage(int pageSize){
+    private List<MerchantFile> createMerchantFilePage(){
         List<MerchantFile> merchantFilePage = new ArrayList<>();
 
-        for(int i=0;i<pageSize; i++){
+        for(int i = 0; i< MerchantProcessOperationServiceImplTest.PAGE_SIZE; i++){
             merchantFilePage.add(MerchantFile.builder()
                     .id("MERCHNT_ID"+i)
                     .initiativeId(INITIATIVE_ID)

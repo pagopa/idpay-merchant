@@ -9,6 +9,7 @@ import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,10 +23,21 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
     private final MerchantFileRepository merchantFileRepository;
     private final AuditUtilities auditUtilities;
 
-    public MerchantProcessOperationServiceImpl(MerchantFileRepository merchantFileRepository, MerchantRepository merchantRepository, AuditUtilities auditUtilities) {
+
+    private final int pageSize;
+
+    private final long delay;
+
+    public MerchantProcessOperationServiceImpl(MerchantFileRepository merchantFileRepository,
+                                               MerchantRepository merchantRepository,
+                                               AuditUtilities auditUtilities,
+                                               @Value("${app.delete.paginationSize}") int pageSize,
+                                               @Value("${app.delete.delayTime}") long delay) {
         this.merchantRepository = merchantRepository;
         this.merchantFileRepository = merchantFileRepository;
         this.auditUtilities = auditUtilities;
+        this.pageSize = pageSize;
+        this.delay = delay;
     }
 
     @SuppressWarnings("BusyWait")
@@ -37,16 +49,16 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
             UpdateResult updateResult;
             do {
                 updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                        Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.PAGINATION_KEY)));
+                        pageSize);
 
                 try {
-                    Thread.sleep(Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.DELAY_KEY)));
+                    Thread.sleep(delay);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("An error has occurred while waiting {}", e.getMessage());
                 }
 
-            } while (updateResult.getModifiedCount() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.PAGINATION_KEY))));
+            } while (updateResult.getModifiedCount() == pageSize);
 
             log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", queueCommandOperationDTO.getEntityId());
 
@@ -55,18 +67,18 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
             do {
                 fetchedMerchantsFile = merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
-                        Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.PAGINATION_KEY)));
+                        pageSize);
 
                 deletedOperation.addAll(fetchedMerchantsFile);
 
                 try {
-                    Thread.sleep(Long.parseLong(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.DELAY_KEY)));
+                    Thread.sleep(delay);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     log.error("An error has occurred while waiting {}", e.getMessage());
                 }
 
-            } while (fetchedMerchantsFile.size() == (Integer.parseInt(queueCommandOperationDTO.getAdditionalParams().get(MerchantConstants.PAGINATION_KEY))));
+            } while (fetchedMerchantsFile.size() == (pageSize));
 
             log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
                     queueCommandOperationDTO.getEntityId());

@@ -56,6 +56,11 @@ import javax.management.MalformedObjectNameException;
                 "spring.cloud.stream.binders.kafka-reward-notification-upload.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
                 "spring.cloud.stream.binders.kafka-errors.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
                 //endregion
+
+                //region delete
+                "app.delete.paginationSize=100",
+                "app.delete.delayTime=1000"
+                //end region
         })
 @AutoConfigureMockMvc
 @AutoConfigureWireMock(stubs = "classpath:/mappings", port = 0)
