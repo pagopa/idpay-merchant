@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.repository;
 
 import it.gov.pagopa.merchant.model.MerchantFile;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -14,7 +15,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = MerchantFileRepositoryExtendedImpl.class)
 class MerchantFileRepositoryExtendedImplTest {
@@ -39,6 +40,25 @@ class MerchantFileRepositoryExtendedImplTest {
         merchantFileRepositoryExtended.setMerchantFileStatus(INITIATIVE_ID,FILENAME,STATUS);
 
         Mockito.verify(mongoTemplate, Mockito.times(1)).updateFirst(query,update,MerchantFile.class);
+    }
+    @Test
+    void deletePaged() {
+
+        String initiativeId = "initiativeId";
+        int pageSize = 2;
+
+        MerchantFile file = MerchantFile.builder().initiativeId("initiativeId1").build();
+
+        List<MerchantFile> fileList = List.of(file);
+
+        Mockito.when(mongoTemplate.findAllAndRemove(Mockito.any(Query.class), Mockito.eq(MerchantFile.class)))
+                .thenReturn(fileList);
+
+        List<MerchantFile> deletedGroups = merchantFileRepositoryExtended.deletePaged(initiativeId, pageSize);
+
+        Mockito.verify(mongoTemplate, Mockito.times(1)).findAllAndRemove(Mockito.any(Query.class),Mockito.eq(MerchantFile.class));
+
+        Assertions.assertEquals(fileList, deletedGroups);
     }
 
 }
