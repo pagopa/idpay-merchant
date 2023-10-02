@@ -65,9 +65,13 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
             for (Merchant merchant1 : merchant) {
                 merchantRepository.findAndRemoveInitiativeOnMerchantTest(queueCommandOperationDTO.getEntityId(), merchant1.getMerchantId());
+                try {
+                    Thread.sleep(delay/pageSize);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("An error has occurred while waiting {}", e.getMessage());
+                }
             }
-
-            log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", queueCommandOperationDTO.getEntityId());
 
             List<MerchantFile> deletedOperation = new ArrayList<>();
             List<MerchantFile> fetchedMerchantsFile;
