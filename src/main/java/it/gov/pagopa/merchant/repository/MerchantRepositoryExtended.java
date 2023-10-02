@@ -13,4 +13,6 @@ public interface MerchantRepositoryExtended {
     UpdateResult findAndRemoveInitiativeOnMerchant(String initiativeId, int pageSize);
     void updateInitiativeOnMerchant(String initiativeId);
     long getCount(Criteria criteria);
+    List<Merchant> findByInitiativeIdWithBatch(String initiativeId, int batchSize);
+    UpdateResult findAndRemoveInitiativeOnMerchantTest(String initiativeId, String merchantId);
 }

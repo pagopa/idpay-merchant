@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service.merchant;
 import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -47,7 +48,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         if (MerchantConstants.OPERATION_TYPE_DELETE_INITIATIVE.equals(queueCommandOperationDTO.getOperationType())) {
             long startTime = System.currentTimeMillis();
             UpdateResult updateResult;
-            do {
+            /*do {
                 updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
                         pageSize);
 
@@ -59,6 +60,12 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
                 }
 
             } while (updateResult.getModifiedCount() == pageSize);
+             */
+            List<Merchant> merchant = merchantRepository.findByInitiativeIdWithBatch(queueCommandOperationDTO.getEntityId(), pageSize);
+
+            for (Merchant merchant1 : merchant) {
+                merchantRepository.findAndRemoveInitiativeOnMerchantTest(queueCommandOperationDTO.getEntityId(), merchant1.getMerchantId());
+            }
 
             log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", queueCommandOperationDTO.getEntityId());
 
@@ -83,7 +90,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
             log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
                     queueCommandOperationDTO.getEntityId());
 
-            auditUtilities.logDeleteMerchant(updateResult.getModifiedCount(), queueCommandOperationDTO.getEntityId());
+            //auditUtilities.logDeleteMerchant(updateResult.getModifiedCount(), queueCommandOperationDTO.getEntityId());
 
             deletedOperation.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(queueCommandOperationDTO.getEntityId()));
 

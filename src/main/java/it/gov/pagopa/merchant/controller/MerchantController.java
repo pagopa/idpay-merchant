@@ -44,4 +44,7 @@ public interface MerchantController {
     @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
     @ResponseStatus(code = HttpStatus.OK)
     String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId, @PathVariable("fiscalCode") String fiscalCode);
+
+    @DeleteMapping("/initiative/{initiativeId}/delete")
+    void processOperation(@PathVariable("initiativeId") String initiativeId);
 }

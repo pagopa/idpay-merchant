@@ -66,4 +66,20 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         return mongoTemplate.count(Query.query(criteria), Merchant.class);
     }
 
+    @Override
+    public List<Merchant> findByInitiativeIdWithBatch(String initiativeId, int batchSize) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
+        Query query = Query.query(criteria).cursorBatchSize(batchSize);
+        return mongoTemplate.find(query, Merchant.class);
+    }
+
+    @Override
+    public UpdateResult findAndRemoveInitiativeOnMerchantTest(String initiativeId, String merchantId) {
+        Criteria criteria = Criteria.where(Merchant.Fields.merchantId).is(merchantId);
+        return mongoTemplate.updateFirst(Query.query(criteria),
+                new Update().pull(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.initiativeId,initiativeId)),
+                Merchant.class);
+    }
+
 }
