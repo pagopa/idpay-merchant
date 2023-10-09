@@ -75,6 +75,15 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
     }
 
     @Override
+    public List<Merchant> findByInitiativeIdPageable(String initiativeId, int batchSize) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
+        Pageable pageable = PageRequest.of(0, batchSize);
+        Query query = Query.query(criteria).with(Utilities.getPageable(pageable));
+        return mongoTemplate.find(query, Merchant.class);
+    }
+
+    @Override
     public UpdateResult findAndRemoveInitiativeOnMerchantTest(String initiativeId, String merchantId) {
         Criteria criteria = Criteria.where(Merchant.Fields.merchantId).is(merchantId);
         return mongoTemplate.updateFirst(Query.query(criteria),

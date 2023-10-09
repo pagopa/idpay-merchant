@@ -91,7 +91,6 @@ public class MerchantControllerImpl implements MerchantController {
 
       log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
 
-       */
     List<Merchant> merchant = merchantRepository.findByInitiativeIdWithBatch(initiativeId, pageSize);
 
     for (Merchant merchant1 : merchant) {
@@ -106,6 +105,27 @@ public class MerchantControllerImpl implements MerchantController {
 
     log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
 
+       */
+    List<Merchant> merchantList;
+
+    do {
+      merchantList = merchantRepository.findByInitiativeIdPageable(initiativeId, pageSize);
+
+      for (Merchant merchant : merchantList) {
+        merchantRepository.findAndRemoveInitiativeOnMerchantTest(initiativeId, merchant.getMerchantId());
+      }
+
+      log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
+
+      try {
+        Thread.sleep(delay);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        log.error("An error has occurred while waiting {}", e.getMessage());
+      }
+
+    } while (merchantList.size() == (pageSize));
+
       List<MerchantFile> deletedOperation = new ArrayList<>();
       List<MerchantFile> fetchedMerchantsFile;
 
@@ -115,6 +135,9 @@ public class MerchantControllerImpl implements MerchantController {
 
         deletedOperation.addAll(fetchedMerchantsFile);
 
+        log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
+                initiativeId);
+
         try {
           Thread.sleep(delay);
         } catch (InterruptedException e) {
@@ -123,9 +146,6 @@ public class MerchantControllerImpl implements MerchantController {
         }
 
       } while (fetchedMerchantsFile.size() == (pageSize));
-
-      log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
-              initiativeId);
 
       //auditUtilities.logDeleteMerchant(updateResult.getModifiedCount(), initiativeId);
 

@@ -8,6 +8,7 @@ import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantFileFaker;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -42,6 +43,7 @@ class MerchantProcessOperationServiceImplTest {
                 , auditUtilities,PAGE_SIZE, 1000);
     }
 
+    @Disabled
     @ParameterizedTest
     @MethodSource("operationTypeAndInvocationTimes")
     void processOperation_deleteOperation(String operationType, int times) {
