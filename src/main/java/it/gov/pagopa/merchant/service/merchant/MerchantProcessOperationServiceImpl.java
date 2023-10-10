@@ -111,11 +111,13 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
                 log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
 
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    log.error("An error has occurred while waiting {}", e.getMessage());
+                if(merchantList.size() == (pageSize)){
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.error("An error has occurred while waiting {}", e.getMessage());
+                    }
                 }
 
             } while (merchantList.size() == (pageSize));
