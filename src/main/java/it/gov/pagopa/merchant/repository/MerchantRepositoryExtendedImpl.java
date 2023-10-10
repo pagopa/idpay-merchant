@@ -46,8 +46,7 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         Pageable pageable = PageRequest.of(0, pageSize);
         Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
-        Query query = Query.query(criteria).with(pageable);
-        return mongoTemplate.updateMulti(query,
+        return mongoTemplate.updateMulti(Query.query(criteria).with(pageable),
                 new Update().pull(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.initiativeId,initiativeId)),
                 Merchant.class);
     }
