@@ -101,13 +101,15 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
              */
 
             List<Merchant> merchantList;
+            int count = pageSize;
 
-            do {
+            while (count == pageSize){
                 merchantList = merchantRepository.findByInitiativeIdPageable(initiativeId, pageSize);
 
                 for (Merchant merchant : merchantList) {
                     merchantRepository.findAndRemoveInitiativeOnMerchantTest(initiativeId, merchant.getMerchantId());
                 }
+                count = merchantList.size();
 
                 log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
 
@@ -118,7 +120,28 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
                     log.error("An error has occurred while waiting {}", e.getMessage());
                 }
 
-            } while (merchantList.size() == (pageSize));
+            }
+
+            /*
+
+            do {
+                merchantList = merchantRepository.findByInitiativeIdPageable(initiativeId, pageSize);
+
+                for (Merchant merchant : merchantList) {
+                    merchantRepository.findAndRemoveInitiativeOnMerchantTest(initiativeId, merchant.getMerchantId());
+                }
+                count = merchantList.size();
+
+                log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
+
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("An error has occurred while waiting {}", e.getMessage());
+                }
+
+            } while (count == (pageSize));
 
             List<MerchantFile> deletedOperation = new ArrayList<>();
             List<MerchantFile> fetchedMerchantsFile;
@@ -140,6 +163,29 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
                 }
 
             } while (fetchedMerchantsFile.size() == (pageSize));
+             */
+
+            List<MerchantFile> deletedOperation = new ArrayList<>();
+            List<MerchantFile> fetchedMerchantsFile;
+            int countMerchantFile = pageSize;
+
+            while (countMerchantFile == pageSize) {
+                fetchedMerchantsFile = merchantFileRepository.deletePaged(initiativeId,
+                        pageSize);
+                countMerchantFile = fetchedMerchantsFile.size();
+
+                deletedOperation.addAll(fetchedMerchantsFile);
+
+                log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
+                        initiativeId);
+
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("An error has occurred while waiting {}", e.getMessage());
+                }
+            }
 
             //auditUtilities.logDeleteMerchant(updateResult.getModifiedCount(), initiativeId);
 
