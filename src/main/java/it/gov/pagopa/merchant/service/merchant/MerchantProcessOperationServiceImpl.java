@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.service.merchant;
 
+import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -100,14 +101,20 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
              */
 
-            List<Merchant> merchantList;
+            //List<Merchant> merchantList;
+            long count;
 
             do {
-                merchantList = merchantRepository.findByInitiativeIdPageable(initiativeId, pageSize);
+                /*merchantList = merchantRepository.findByInitiativeIdPageable(initiativeId, pageSize);
 
                 for (Merchant merchant : merchantList) {
                     merchantRepository.findAndRemoveInitiativeOnMerchantTest(initiativeId, merchant.getMerchantId());
                 }
+
+                 */
+                UpdateResult updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(), pageSize);
+
+                count = updateResult.getModifiedCount();
 
                 log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
 
@@ -118,7 +125,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
                     log.error("An error has occurred while waiting {}", e.getMessage());
                 }
 
-            } while (merchantList.size() == (pageSize));
+            } while (count == (pageSize));
 
             List<MerchantFile> deletedOperation = new ArrayList<>();
             List<MerchantFile> fetchedMerchantsFile;
