@@ -10,10 +10,8 @@ import java.util.List;
 public interface MerchantRepositoryExtended {
     List<Merchant> findByFilter(Criteria criteria, Pageable pageable);
     Criteria getCriteria(String initiativeId, String organizationId, String fiscalCode);
-    UpdateResult findAndRemoveInitiativeOnMerchant(String initiativeId, int pageSize);
     void updateInitiativeOnMerchant(String initiativeId);
     long getCount(Criteria criteria);
-    List<Merchant> findByInitiativeIdWithBatch(String initiativeId, int batchSize);
     List<Merchant> findByInitiativeIdPageable(String initiativeId, int batchSize);
-    UpdateResult findAndRemoveInitiativeOnMerchantTest(String initiativeId, String merchantId);
+    UpdateResult findAndRemoveInitiativeOnMerchant(String initiativeId, String merchantId);
 }

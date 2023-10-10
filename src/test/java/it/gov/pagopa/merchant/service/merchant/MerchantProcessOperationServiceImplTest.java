@@ -1,14 +1,15 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
+import it.gov.pagopa.merchant.model.Initiative;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFileFaker;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -43,7 +44,6 @@ class MerchantProcessOperationServiceImplTest {
                 , auditUtilities,PAGE_SIZE, 1000);
     }
 
-    @Disabled
     @ParameterizedTest
     @MethodSource("operationTypeAndInvocationTimes")
     void processOperation_deleteOperation(String operationType, int times) {
@@ -54,17 +54,20 @@ class MerchantProcessOperationServiceImplTest {
                 .operationTime(LocalDateTime.now())
                 .build();
 
-        UpdateResult updateResult = UpdateResult.acknowledged(0,1L,null);
-        UpdateResult updateResultGT = UpdateResult.acknowledged(0,100L,null);
+        Merchant merchant = MerchantFaker.mockInstance(1);
+        List<Merchant> merchantList = List.of(merchant);
 
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
         List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
 
         if (times == 2) {
-            Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+
+            List<Merchant> merchants = createMerchantPage();
+
+            Mockito.lenient().when(repositoryMock.findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
                             PAGE_SIZE))
-                    .thenReturn(updateResultGT)
-                    .thenReturn(updateResult);
+                    .thenReturn(merchants)
+                    .thenReturn(merchantList);
 
             List<MerchantFile> userGroupPage = createMerchantFilePage();
 
@@ -75,9 +78,9 @@ class MerchantProcessOperationServiceImplTest {
 
             Thread.currentThread().interrupt();
         } else {
-            Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+            Mockito.lenient().when(repositoryMock.findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
                             PAGE_SIZE))
-                    .thenReturn(updateResult);
+                    .thenReturn(merchantList);
 
             Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
                             PAGE_SIZE))
@@ -87,7 +90,7 @@ class MerchantProcessOperationServiceImplTest {
 
         merchantProcessOperationService.processOperation(queueCommandOperationDTO);
 
-        Mockito.verify(repositoryMock, Mockito.times(times)).findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+        Mockito.verify(repositoryMock, Mockito.times(times)).findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
                 PAGE_SIZE);
         Mockito.verify(merchantFileRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
                 PAGE_SIZE);
@@ -111,5 +114,22 @@ class MerchantProcessOperationServiceImplTest {
         }
 
         return merchantFilePage;
+    }
+
+    private List<Merchant> createMerchantPage(){
+        List<Merchant> merchantPage = new ArrayList<>();
+
+        Initiative initiative = Initiative.builder()
+                .initiativeId(INITIATIVE_ID)
+                .build();
+
+        for(int i = 0; i< MerchantProcessOperationServiceImplTest.PAGE_SIZE; i++){
+            merchantPage.add(Merchant.builder()
+                    .merchantId("MERCHNT_ID"+i)
+                    .initiativeList(List.of(initiative))
+                    .build());
+        }
+
+        return merchantPage;
     }
 }
