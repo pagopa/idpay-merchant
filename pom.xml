@@ -10,7 +10,7 @@
     </parent>
     <groupId>it.gov.pagopa.merchant</groupId>
     <artifactId>idpay-merchant</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <name>idpay-merchant</name>
     <description>IDPay Merchant Microservice</description>
     <properties>

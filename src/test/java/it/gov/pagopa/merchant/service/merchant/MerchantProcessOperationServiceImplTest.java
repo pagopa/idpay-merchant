@@ -1,10 +1,12 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
+import it.gov.pagopa.merchant.model.Initiative;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFileFaker;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,17 +54,20 @@ class MerchantProcessOperationServiceImplTest {
                 .operationTime(LocalDateTime.now())
                 .build();
 
-        UpdateResult updateResult = UpdateResult.acknowledged(0,1L,null);
-        UpdateResult updateResultGT = UpdateResult.acknowledged(0,100L,null);
+        Merchant merchant = MerchantFaker.mockInstance(1);
+        List<Merchant> merchantList = List.of(merchant);
 
         MerchantFile merchantFile = MerchantFileFaker.mockInstance(1);
         List<MerchantFile> deletedMerchantFile = List.of(merchantFile);
 
         if (times == 2) {
-            Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+
+            List<Merchant> merchants = createMerchantPage();
+
+            Mockito.lenient().when(repositoryMock.findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
                             PAGE_SIZE))
-                    .thenReturn(updateResultGT)
-                    .thenReturn(updateResult);
+                    .thenReturn(merchants)
+                    .thenReturn(merchantList);
 
             List<MerchantFile> userGroupPage = createMerchantFilePage();
 
@@ -72,10 +77,28 @@ class MerchantProcessOperationServiceImplTest {
                     .thenReturn(deletedMerchantFile);
 
             Thread.currentThread().interrupt();
-        } else {
-            Mockito.lenient().when(repositoryMock.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+        } else if (times == 3) {
+
+            List<Merchant> merchants = createMerchantPage();
+
+            Mockito.lenient().when(repositoryMock.findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
                             PAGE_SIZE))
-                    .thenReturn(updateResult);
+                    .thenReturn(merchants)
+                    .thenReturn(merchants)
+                    .thenReturn(merchantList);
+
+            List<MerchantFile> userGroupPage = createMerchantFilePage();
+
+            Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+                            PAGE_SIZE))
+                    .thenReturn(userGroupPage)
+                    .thenReturn(userGroupPage)
+                    .thenReturn(deletedMerchantFile);
+
+        } else {
+            Mockito.lenient().when(repositoryMock.findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
+                            PAGE_SIZE))
+                    .thenReturn(merchantList);
 
             Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
                             PAGE_SIZE))
@@ -85,7 +108,7 @@ class MerchantProcessOperationServiceImplTest {
 
         merchantProcessOperationService.processOperation(queueCommandOperationDTO);
 
-        Mockito.verify(repositoryMock, Mockito.times(times)).findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
+        Mockito.verify(repositoryMock, Mockito.times(times)).findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
                 PAGE_SIZE);
         Mockito.verify(merchantFileRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
                 PAGE_SIZE);
@@ -95,6 +118,7 @@ class MerchantProcessOperationServiceImplTest {
         return Stream.of(
                 Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 1),
                 Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 2),
+                Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 3),
                 Arguments.of("OPERATION_TYPE_TEST", 0)
         );
     }
@@ -109,5 +133,22 @@ class MerchantProcessOperationServiceImplTest {
         }
 
         return merchantFilePage;
+    }
+
+    private List<Merchant> createMerchantPage(){
+        List<Merchant> merchantPage = new ArrayList<>();
+
+        Initiative initiative = Initiative.builder()
+                .initiativeId(INITIATIVE_ID)
+                .build();
+
+        for(int i = 0; i< MerchantProcessOperationServiceImplTest.PAGE_SIZE; i++){
+            merchantPage.add(Merchant.builder()
+                    .merchantId("MERCHNT_ID"+i)
+                    .initiativeList(List.of(initiative))
+                    .build());
+        }
+
+        return merchantPage;
     }
 }

@@ -1,8 +1,8 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import com.mongodb.client.result.UpdateResult;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -40,54 +40,74 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         this.delay = delay;
     }
 
-    @SuppressWarnings("BusyWait")
     @Override
     public void processOperation(QueueCommandOperationDTO queueCommandOperationDTO) {
 
         if (MerchantConstants.OPERATION_TYPE_DELETE_INITIATIVE.equals(queueCommandOperationDTO.getOperationType())) {
             long startTime = System.currentTimeMillis();
-            UpdateResult updateResult;
-            do {
-                updateResult = merchantRepository.findAndRemoveInitiativeOnMerchant(queueCommandOperationDTO.getEntityId(),
-                        pageSize);
 
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    log.error("An error has occurred while waiting {}", e.getMessage());
-                }
+            String initiativeId = queueCommandOperationDTO.getEntityId();
 
-            } while (updateResult.getModifiedCount() == pageSize);
+            deleteMerchant(initiativeId);
 
-            log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", queueCommandOperationDTO.getEntityId());
-
-            List<MerchantFile> deletedOperation = new ArrayList<>();
-            List<MerchantFile> fetchedMerchantsFile;
-
-            do {
-                fetchedMerchantsFile = merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
-                        pageSize);
-
-                deletedOperation.addAll(fetchedMerchantsFile);
-
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    log.error("An error has occurred while waiting {}", e.getMessage());
-                }
-
-            } while (fetchedMerchantsFile.size() == (pageSize));
-
-            log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
-                    queueCommandOperationDTO.getEntityId());
-
-            auditUtilities.logDeleteMerchant(updateResult.getModifiedCount(), queueCommandOperationDTO.getEntityId());
-
-            deletedOperation.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(queueCommandOperationDTO.getEntityId()));
+            deleteMerchantFile(initiativeId);
 
             Utilities.performanceLog(startTime, "DELETE_INITIATIVE");
+
         }
+    }
+
+    @SuppressWarnings("BusyWait")
+    private void deleteMerchantFile(String initiativeId) {
+        List<MerchantFile> deletedOperation = new ArrayList<>();
+        List<MerchantFile> fetchedMerchantsFile;
+
+        do {
+            fetchedMerchantsFile = merchantFileRepository.deletePaged(initiativeId,
+                    pageSize);
+
+            deletedOperation.addAll(fetchedMerchantsFile);
+
+            if (fetchedMerchantsFile.size() == (pageSize)){
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("An error has occurred while waiting {}", e.getMessage());
+                }
+            }
+
+        } while (fetchedMerchantsFile.size() == (pageSize));
+
+        log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
+                initiativeId);
+
+        deletedOperation.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(initiativeId));
+    }
+
+    @SuppressWarnings("BusyWait")
+    private void deleteMerchant(String initiativeId) {
+        List<Merchant> merchantList;
+
+        do {
+            merchantList = merchantRepository.findByInitiativeIdPageable(initiativeId, pageSize);
+
+            for (Merchant merchant : merchantList) {
+                merchantRepository.findAndRemoveInitiativeOnMerchant(initiativeId, merchant.getMerchantId());
+                auditUtilities.logDeleteMerchant(merchant.getMerchantId(), initiativeId);
+            }
+
+            if(merchantList.size() == (pageSize)){
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("An error has occurred while waiting {}", e.getMessage());
+                }
+            }
+
+        } while (merchantList.size() == (pageSize));
+
+        log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
     }
 }
