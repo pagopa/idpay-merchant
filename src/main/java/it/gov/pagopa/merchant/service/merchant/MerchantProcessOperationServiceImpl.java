@@ -40,7 +40,6 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         this.delay = delay;
     }
 
-    @SuppressWarnings("BusyWait")
     @Override
     public void processOperation(QueueCommandOperationDTO queueCommandOperationDTO) {
 
@@ -58,6 +57,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         }
     }
 
+    @SuppressWarnings("BusyWait")
     private void deleteMerchantFile(String initiativeId) {
         List<MerchantFile> deletedOperation = new ArrayList<>();
         List<MerchantFile> fetchedMerchantsFile;
@@ -68,11 +68,13 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
             deletedOperation.addAll(fetchedMerchantsFile);
 
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.error("An error has occurred while waiting {}", e.getMessage());
+            if (fetchedMerchantsFile.size() == (pageSize)){
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    log.error("An error has occurred while waiting {}", e.getMessage());
+                }
             }
 
         } while (fetchedMerchantsFile.size() == (pageSize));
@@ -83,6 +85,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         deletedOperation.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(initiativeId));
     }
 
+    @SuppressWarnings("BusyWait")
     private void deleteMerchant(String initiativeId) {
         List<Merchant> merchantList;
 
@@ -95,7 +98,6 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
             }
 
             if(merchantList.size() == (pageSize)){
-
                 try {
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {

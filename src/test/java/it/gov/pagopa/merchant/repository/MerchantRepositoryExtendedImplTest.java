@@ -1,6 +1,8 @@
 package it.gov.pagopa.merchant.repository;
 
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.merchant.model.Merchant;
+import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import org.bson.BsonValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -54,6 +58,7 @@ class MerchantRepositoryExtendedImplTest {
   private static final String ORGANIZATION_ID = "TEST_ORGANIZATION_ID";
   private static final String FISCAL_CODE = "FISCAL_CODE";
   private static final String MERCHANT_ID = "MERCHANT_ID";
+  private static final int PAGE = 60;
 
 
   @Test
@@ -91,6 +96,14 @@ class MerchantRepositoryExtendedImplTest {
     UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID, MERCHANT_ID);
 
     Assertions.assertEquals(1, result.getModifiedCount());
+  }
+
+  @Test
+  void findByInitiativeIdPageable() {
+
+    List<Merchant> merchantList = merchantRepositoryExtended.findByInitiativeIdPageable(INITIATIVE_ID, PAGE);
+
+    verify(mongoTemplate, times(1)).find(Mockito.any(), (Class<?>) Mockito.any());
   }
 
   @Test
