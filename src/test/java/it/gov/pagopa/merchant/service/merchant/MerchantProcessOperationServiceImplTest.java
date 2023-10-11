@@ -77,6 +77,24 @@ class MerchantProcessOperationServiceImplTest {
                     .thenReturn(deletedMerchantFile);
 
             Thread.currentThread().interrupt();
+        } else if (times == 3) {
+
+            List<Merchant> merchants = createMerchantPage();
+
+            Mockito.lenient().when(repositoryMock.findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
+                            PAGE_SIZE))
+                    .thenReturn(merchants)
+                    .thenReturn(merchants)
+                    .thenReturn(merchantList);
+
+            List<MerchantFile> userGroupPage = createMerchantFilePage();
+
+            Mockito.lenient().when(merchantFileRepository.deletePaged(queueCommandOperationDTO.getEntityId(),
+                            PAGE_SIZE))
+                    .thenReturn(userGroupPage)
+                    .thenReturn(userGroupPage)
+                    .thenReturn(deletedMerchantFile);
+
         } else {
             Mockito.lenient().when(repositoryMock.findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
                             PAGE_SIZE))
@@ -100,6 +118,7 @@ class MerchantProcessOperationServiceImplTest {
         return Stream.of(
                 Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 1),
                 Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 2),
+                Arguments.of(OPERATION_TYPE_DELETE_INITIATIVE, 3),
                 Arguments.of("OPERATION_TYPE_TEST", 0)
         );
     }
