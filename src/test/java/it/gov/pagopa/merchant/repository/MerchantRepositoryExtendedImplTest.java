@@ -1,8 +1,6 @@
 package it.gov.pagopa.merchant.repository;
 
 import com.mongodb.client.result.UpdateResult;
-import it.gov.pagopa.merchant.model.Merchant;
-import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import org.bson.BsonValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,8 +16,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -101,7 +97,7 @@ class MerchantRepositoryExtendedImplTest {
   @Test
   void findByInitiativeIdPageable() {
 
-    List<Merchant> merchantList = merchantRepositoryExtended.findByInitiativeIdPageable(INITIATIVE_ID, PAGE);
+    merchantRepositoryExtended.findByInitiativeIdPageable(INITIATIVE_ID, PAGE);
 
     verify(mongoTemplate, times(1)).find(Mockito.any(), (Class<?>) Mockito.any());
   }
