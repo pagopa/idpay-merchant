@@ -40,6 +40,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         this.delay = delay;
     }
 
+    @SuppressWarnings("BusyWait")
     @Override
     public void processOperation(QueueCommandOperationDTO queueCommandOperationDTO) {
 
@@ -57,7 +58,6 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
         }
     }
 
-    @SuppressWarnings("BusyWait")
     private void deleteMerchantFile(String initiativeId) {
         List<MerchantFile> deletedOperation = new ArrayList<>();
         List<MerchantFile> fetchedMerchantsFile;
@@ -68,9 +68,6 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
             deletedOperation.addAll(fetchedMerchantsFile);
 
-            log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
-                    initiativeId);
-
             try {
                 Thread.sleep(delay);
             } catch (InterruptedException e) {
@@ -80,11 +77,12 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
 
         } while (fetchedMerchantsFile.size() == (pageSize));
 
+        log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant_file",
+                initiativeId);
 
         deletedOperation.forEach(merchantFile -> auditUtilities.logDeleteMerchantFile(initiativeId));
     }
 
-    @SuppressWarnings("BusyWait")
     private void deleteMerchant(String initiativeId) {
         List<Merchant> merchantList;
 
@@ -95,8 +93,6 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
                 merchantRepository.findAndRemoveInitiativeOnMerchant(initiativeId, merchant.getMerchantId());
                 auditUtilities.logDeleteMerchant(merchant.getMerchantId(), initiativeId);
             }
-
-            log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
 
             if(merchantList.size() == (pageSize)){
 
@@ -109,5 +105,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
             }
 
         } while (merchantList.size() == (pageSize));
+
+        log.info("[DELETE_INITIATIVE] Deleted initiative {} from collection: merchant", initiativeId);
     }
 }
