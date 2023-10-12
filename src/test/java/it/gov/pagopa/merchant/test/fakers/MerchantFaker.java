@@ -5,7 +5,6 @@ import it.gov.pagopa.merchant.model.Merchant;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MerchantFaker {
     private MerchantFaker() {
