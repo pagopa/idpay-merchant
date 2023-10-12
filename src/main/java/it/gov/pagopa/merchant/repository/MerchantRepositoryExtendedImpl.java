@@ -42,16 +42,6 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
     }
 
     @Override
-    public UpdateResult findAndRemoveInitiativeOnMerchant(String initiativeId, int pageSize) {
-        Pageable pageable = PageRequest.of(0, pageSize);
-        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
-        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
-        return mongoTemplate.updateMulti(Query.query(criteria).with(pageable),
-                new Update().pull(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.initiativeId,initiativeId)),
-                Merchant.class);
-    }
-
-    @Override
     public void updateInitiativeOnMerchant(String initiativeId) {
         Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
@@ -64,6 +54,23 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
     @Override
     public long getCount(Criteria criteria) {
         return mongoTemplate.count(Query.query(criteria), Merchant.class);
+    }
+
+    @Override
+    public List<Merchant> findByInitiativeIdPageable(String initiativeId, int batchSize) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+        Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
+        Pageable pageable = PageRequest.of(0, batchSize);
+        Query query = Query.query(criteria).with(Utilities.getPageable(pageable));
+        return mongoTemplate.find(query, Merchant.class);
+    }
+
+    @Override
+    public UpdateResult findAndRemoveInitiativeOnMerchant(String initiativeId, String merchantId) {
+        Criteria criteria = Criteria.where(Merchant.Fields.merchantId).is(merchantId);
+        return mongoTemplate.updateFirst(Query.query(criteria),
+                new Update().pull(Merchant.Fields.initiativeList, new BasicDBObject(Initiative.Fields.initiativeId,initiativeId)),
+                Merchant.class);
     }
 
 }

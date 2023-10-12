@@ -14,7 +14,7 @@ class AuditUtilitiesTest {
     private static final String CEF = String.format("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s", AuditUtilities.SRCIP);
     private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "TEST_ORG_ID";
-    private static final Long DELETED_MERCHANT = 1L;
+    private static final String MERCHANT_ID = "TEST_MERCHANT_ID";
     private static final String FILE_NAME = "TEST_FILE_NAME";
     private final AuditUtilities auditUtilities = new AuditUtilities();
     private MemoryAppender memoryAppender;
@@ -79,15 +79,15 @@ class AuditUtilitiesTest {
     }
     @Test
     void logDeleteMerchant_ok(){
-        auditUtilities.logDeleteMerchant(DELETED_MERCHANT, INITIATIVE_ID);
+        auditUtilities.logDeleteMerchant(MERCHANT_ID, INITIATIVE_ID);
 
         Assertions.assertEquals(
-                ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s msg=Merchants deleted" +
-                        " cs1Label=initiativeId cs1=%s cs2Label=numberMerchants cs2=%s")
+                ("CEF:0|PagoPa|IDPAY|1.0|7|User interaction|2| event=Merchant dstip=%s msg=Merchant deleted" +
+                        " cs1Label=initiativeId cs1=%s cs2Label=merchantId cs2=%s")
                         .formatted(
                                 AuditUtilities.SRCIP,
                                 INITIATIVE_ID,
-                                DELETED_MERCHANT
+                                MERCHANT_ID
                         ),
                 memoryAppender.getLoggedEvents().get(0).getFormattedMessage()
         );

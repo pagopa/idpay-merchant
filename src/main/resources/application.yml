@@ -14,7 +14,7 @@ blobStorage.merchant.file.containerReference: ${BLOB_STORAGE_CONTAINER_REFERENCE
 app:
   delete:
     paginationSize: ${DELETE_PAGINATION_SIZE:100}
-    delayTime: ${DELETE_DELAY_TIME:1000}
+    delayTime: ${DELETE_DELAY_TIME:30000}
 
 spring:
   application:

@@ -52,8 +52,10 @@ class MerchantRepositoryExtendedImplTest {
 
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";
   private static final String ORGANIZATION_ID = "TEST_ORGANIZATION_ID";
-
   private static final String FISCAL_CODE = "FISCAL_CODE";
+  private static final String MERCHANT_ID = "MERCHANT_ID";
+  private static final int PAGE = 60;
+
 
   @Test
   void findByFilter() {
@@ -85,11 +87,19 @@ class MerchantRepositoryExtendedImplTest {
   @Test
   void findAndRemoveInitiativeOnMerchant() {
 
-    when(mongoTemplate.updateMulti(any(), any(), (Class<?>) any())).thenReturn(UPDATE_RESULT);
+    when(mongoTemplate.updateFirst(any(), any(), (Class<?>) any())).thenReturn(UPDATE_RESULT);
 
-    UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID, 2);
+    UpdateResult result = merchantRepositoryExtended.findAndRemoveInitiativeOnMerchant(INITIATIVE_ID, MERCHANT_ID);
 
     Assertions.assertEquals(1, result.getModifiedCount());
+  }
+
+  @Test
+  void findByInitiativeIdPageable() {
+
+    merchantRepositoryExtended.findByInitiativeIdPageable(INITIATIVE_ID, PAGE);
+
+    verify(mongoTemplate, times(1)).find(Mockito.any(), (Class<?>) Mockito.any());
   }
 
   @Test
