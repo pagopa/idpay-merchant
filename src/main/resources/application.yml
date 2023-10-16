@@ -44,9 +44,9 @@ spring:
           type: kafka
           environment:
             spring.cloud.stream.kafka.binder:
-              brokers: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_BROKER:${KAFKA_BROKER:}}
+              brokers: ${KAFKA_MERCHANT_FILE_UPLOAD_BROKER:${KAFKA_BROKER:}}
               configuration:
-                sasl.jaas.config: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_SASL_JAAS_CONFIG:}
+                sasl.jaas.config: ${KAFKA_MERCHANT_FILE_UPLOAD_SASL_JAAS_CONFIG:}
         kafka-commands:
           type: kafka
           environment:
@@ -80,8 +80,8 @@ spring:
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           binder: kafka-errors
         merchantFileConsumer-in-0:
-          destination: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_TOPIC:idpay-reward-notification-storage-events}
-          group: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_GROUP_ID:idpay-file-merchant-group}
+          destination: ${KAFKA_MERCHANT_FILE_UPLOAD_TOPIC:idpay-reward-notification-storage-events}
+          group: ${KAFKA_MERCHANT_FILE_UPLOAD_GROUP_ID:idpay-file-merchant-group}
           content-type: ${KAFKA_CONTENT_TYPE:application/json}
           binder: kafka-reward-notification-upload
         consumerCommands-in-0:
@@ -120,19 +120,17 @@ spring:
                 batch.size: ${KAFKA_ERRORS_BATCH_SIZE:${KAFKA_BATCH_SIZE:16384}}
           merchantFileConsumer-in-0:
             consumer:
-              startOffset: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
-              autoCommitOffset: false
-              ackMode: MANUAL_IMMEDIATE
-              ackTime: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_ACK_MILLIS:500}
-              standardHeaders: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
+              startOffset: ${KAFKA_MERCHANT_FILE_UPLOAD_START_OFFSET:${KAFKA_CONSUMER_CONFIG_START_OFFSET:earliest}}
+              autoCommitOffset: ${KAFKA_MERCHANT_FILE_UPLOAD_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
+              standardHeaders: ${KAFKA_MERCHANT_FILE_UPLOAD_STANDARD_HEADERS:${KAFKA_CONSUMER_CONFIG_STANDARD_HEADERS:both}}
               configuration:
                 max.poll:
-                  records: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
-                  interval.ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
-                connections.max.idle.ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:180000}}
+                  records: ${KAFKA_MERCHANT_FILE_UPLOAD_MAX_POLL_SIZE:${KAFKA_CONSUMER_CONFIG_MAX_POLL_SIZE:500}}
+                  interval.ms: ${KAFKA_MERCHANT_FILE_UPLOAD_INTERVAL_TIMEOUT_MS:${KAFKA_CONFIG_MAX_POLL_INTERVAL_TIMEOUT_MS:300000}}
+                connections.max.idle.ms: ${KAFKA_MERCHANT_FILE_UPLOAD_CONNECTIONS_MAX_IDLE_MS:${KAFKA_CONSUMER_CONFIG_CONNECTIONS_MAX_IDLE_MS:180000}}
                 socket.connection.setup.timeout:
-                  max.ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
-                  ms: ${KAFKA_REWARD_NOTIFICATION_UPLOAD_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
+                  max.ms: ${KAFKA_MERCHANT_FILE_UPLOAD_CONNECTION_TIMEOUT_MAX_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MAX_MS:200000}}
+                  ms: ${KAFKA_MERCHANT_FILE_UPLOAD_CONNECTION_TIMEOUT_MS:${KAFKA_CONSUMER_CONFIG_CONNECTION_TIMEOUT_MS:100000}}
           consumerCommands-in-0:
             consumer:
               autoCommitOffset: ${KAFKA_COMMANDS_AUTO_COMMIT:${KAFKA_CONSUMER_CONFIG_AUTO_COMMIT:true}}
