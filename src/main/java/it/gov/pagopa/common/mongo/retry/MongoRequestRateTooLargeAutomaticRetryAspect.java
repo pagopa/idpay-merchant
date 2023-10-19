@@ -42,11 +42,15 @@ public class MongoRequestRateTooLargeAutomaticRetryAspect {
         this.maxMillisElapsedBatch = maxMillisElapsedBatch;
     }
 
+    @Pointcut("execution(* org.springframework.data.mongodb.repository.*MongoRepository+.*(..))")
+    public void inSpringRepositoryClass() {
+    }
+
     @Pointcut("within(it.gov.pagopa..*Repository*)")
     public void inRepositoryClass() {
     }
 
-    @Around("inRepositoryClass()")
+    @Around("inRepositoryClass() or inSpringRepositoryClass()")
     public Object decorateRepositoryMethods(ProceedingJoinPoint pjp) throws Throwable {
 
         if(isNotControllerContext()){
