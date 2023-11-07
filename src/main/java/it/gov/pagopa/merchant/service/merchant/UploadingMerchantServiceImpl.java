@@ -1,5 +1,11 @@
 package it.gov.pagopa.merchant.service.merchant;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import it.gov.pagopa.common.kafka.BaseKafkaConsumer;
+import it.gov.pagopa.common.web.exception.ClientExceptionNoBody;
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
@@ -8,30 +14,34 @@ import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.event.producer.CommandsProducer;
-import it.gov.pagopa.common.web.exception.ClientExceptionNoBody;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import it.gov.pagopa.merchant.service.MerchantErrorNotifierService;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import it.gov.pagopa.merchant.utils.Utilities;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.messaging.Message;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
-public class UploadingMerchantServiceImpl implements UploadingMerchantService {
+public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<StorageEventDTO>> implements UploadingMerchantService {
 
     public static final String COMMA = ";";
     public static final String MERCHANT = "merchant";
@@ -58,18 +68,27 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
     private final AuditUtilities auditUtilities;
     private final CommandsProducer commandsProducer;
+    private final MerchantErrorNotifierService merchantErrorNotifierService;
+    private final ObjectReader objectReader;
 
     public UploadingMerchantServiceImpl(MerchantFileRepository merchantFileRepository,
                                         MerchantRepository merchantRepository,
                                         InitiativeRestConnector initiativeRestConnector,
                                         FileStorageConnector fileStorageConnector,
-                                        AuditUtilities auditUtilities, CommandsProducer commandsProducer) {
+                                        AuditUtilities auditUtilities, CommandsProducer commandsProducer,
+                                        MerchantErrorNotifierService merchantErrorNotifierService,
+                                        @Value("${spring.application.name}") String applicationName,
+                                        ObjectMapper objectMapper) {
+        super(applicationName);
         this.merchantFileRepository = merchantFileRepository;
         this.merchantRepository = merchantRepository;
         this.initiativeRestConnector = initiativeRestConnector;
         this.fileStorageConnector = fileStorageConnector;
         this.auditUtilities = auditUtilities;
         this.commandsProducer = commandsProducer;
+
+        this.merchantErrorNotifierService = merchantErrorNotifierService;
+        this.objectReader = objectMapper.readerFor(new TypeReference<List<StorageEventDTO>>() {});
     }
 
     @Override
@@ -193,8 +212,25 @@ public class UploadingMerchantServiceImpl implements UploadingMerchantService {
 
         merchantFileRepository.save(merchantFile);
     }
+
     @Override
-    public void ingestionMerchantFile(List<StorageEventDTO> storageEventDTOList) {
+    protected void onError(Message<String> message, Throwable e) {
+        merchantErrorNotifierService.notifyMerchantFileUpload(message,
+            "[MERCHANT_UPLOAD_FILE] An error occurred uploading the merchant file", true, e);
+    }
+
+    @Override
+    protected ObjectReader getObjectReader() {
+        return this.objectReader;
+    }
+
+    @Override
+    protected void onDeserializationError(Message<String> message, Throwable e) {
+        merchantErrorNotifierService.notifyMerchantFileUpload(message, "[MERCHANT_UPLOAD_FILE] Unexpected JSON", true, e);
+    }
+
+    @Override
+    public void execute(List<StorageEventDTO> storageEventDTOList, Message<String> message) {
         log.info("[SAVE_MERCHANTS] - Saving merchants started");
         StorageEventDTO storageEventDTO = storageEventDTOList.stream().findFirst().orElse(null);
         if (storageEventDTO != null && StringUtils.isNotBlank(storageEventDTO.getSubject())) {

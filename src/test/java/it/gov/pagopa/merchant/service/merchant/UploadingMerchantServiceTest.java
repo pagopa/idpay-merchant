@@ -1,9 +1,21 @@
 package it.gov.pagopa.merchant.service.merchant;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+
 import com.microsoft.azure.storage.StorageException;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
+import it.gov.pagopa.common.stream.service.ErrorPublisher;
+import it.gov.pagopa.common.utils.TestUtils;
+import it.gov.pagopa.common.web.exception.ClientException;
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
@@ -11,17 +23,27 @@ import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.event.producer.CommandsProducer;
-import it.gov.pagopa.common.web.exception.ClientException;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import it.gov.pagopa.merchant.service.MerchantErrorNotifierService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeBeneficiaryViewDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFileFaker;
 import it.gov.pagopa.merchant.test.fakers.StorageEventDTOFaker;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,18 +55,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.*;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class UploadingMerchantServiceTest {
@@ -61,6 +76,10 @@ class UploadingMerchantServiceTest {
     private FileStorageConnector fileStorageConnector;
     @Mock
     private CommandsProducer commandsProducer;
+    @Mock
+    private MerchantErrorNotifierService merchantErrorNotifierService;
+    @Mock
+    private ErrorPublisher errorPublisher;
 
     private static final String INITIATIVE_ID = "INITIATIVEID1";
     private static final String ENTITY_ID = "ORGANIZATION_ID";
@@ -69,11 +88,12 @@ class UploadingMerchantServiceTest {
     private static final String FILENAME = "test.csv";
     private static final String PATH_VALID_FILE = "merchantExampleFiles/example_valid.csv";
     private static final String PATH_VALID_FILE_2 = "merchantExampleFiles/example_merchant_valid_iban.csv";
+    private static final String APPLICATION_NAME = "applicationName";
 
     @BeforeEach
     public void setUp() {
         uploadingMerchantService = new UploadingMerchantServiceImpl(merchantFileRepository, repositoryMock, initiativeRestConnector,
-                fileStorageConnector, auditUtilities, commandsProducer);
+                fileStorageConnector, auditUtilities, commandsProducer, merchantErrorNotifierService, APPLICATION_NAME, TestUtils.objectMapper);
     }
     @Test
     void uploadMerchantFile_ValidFile() throws IOException {
@@ -159,7 +179,7 @@ class UploadingMerchantServiceTest {
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
 
         Mockito.doThrow(new StorageException(null, null, null)).when(fileStorageConnector)
-                .uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+                .uploadMerchantFile(any(), Mockito.anyString(), Mockito.anyString());
 
         ClientException result = assertThrows(ClientException.class,
                 () -> uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID));
@@ -180,7 +200,7 @@ class UploadingMerchantServiceTest {
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
 
         try {
-            uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
+            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
         } catch (Exception e) {
             fail();
         }
@@ -192,7 +212,7 @@ class UploadingMerchantServiceTest {
     void ingestionMerchantFile_storageEventDTOEmptyList() {
 
         try {
-            uploadingMerchantService.ingestionMerchantFile(Collections.emptyList());
+            uploadingMerchantService.execute(buildMessage(null));
         } catch (Exception e) {
             fail();
         }
@@ -206,13 +226,12 @@ class UploadingMerchantServiceTest {
 
         Mockito.when(fileStorageConnector.downloadMerchantFile(Mockito.anyString())).thenThrow(new StorageException(null, null, null));
 
-        ClientException result = assertThrows(ClientException.class,
-                () -> uploadingMerchantService.ingestionMerchantFile(storageEventDTOS));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
-        assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
-        assertEquals(String.format(MerchantConstants.DOWNLOAD_ERROR, INITIATIVE_ID, FILENAME), result.getMessage());
-    }
+        Mockito.doNothing().when(merchantErrorNotifierService).notifyMerchantFileUpload(any(), anyString(), anyBoolean(), any());
 
+        uploadingMerchantService.execute(buildMessage(storageEventDTOS));
+
+        Mockito.verify(merchantFileRepository, Mockito.times(1)).setMerchantFileStatus(anyString(), anyString(), anyString());
+    }
     @Test
     void ingestionMerchantFile_initiativeException() throws IOException, URISyntaxException, StorageException {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
@@ -231,10 +250,12 @@ class UploadingMerchantServiceTest {
                 .when(initiativeRestConnector)
                 .getInitiativeBeneficiaryView(Mockito.anyString());
 
-        ClientException result = assertThrows(ClientException.class,
-                () -> uploadingMerchantService.ingestionMerchantFile(storageEventDTOS));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
-        assertEquals("Something went wrong", result.getMessage());
+        try {
+            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
+        }catch (FeignException e){
+            fail();
+        }
+        Mockito.verify(fileStorageConnector, Mockito.times(1)).downloadMerchantFile(Mockito.anyString());
     }
     @Test
     void ingestionMerchantFile_saveMerchantCheck() throws IOException, URISyntaxException, StorageException {
@@ -251,9 +272,9 @@ class UploadingMerchantServiceTest {
         Mockito.when(fileStorageConnector.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
 
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
-        Mockito.when(commandsProducer.sendCommand(Mockito.any())).thenReturn(true);
+        Mockito.when(commandsProducer.sendCommand(any())).thenReturn(true);
         try {
-            uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
+            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
         } catch (Exception e) {
             fail();
         }
@@ -278,14 +299,15 @@ class UploadingMerchantServiceTest {
 
         Merchant merchant = MerchantFaker.mockInstance(1);
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(merchant));
-        Mockito.when(commandsProducer.sendCommand(Mockito.any())).thenReturn(false);
+        Mockito.when(commandsProducer.sendCommand(any())).thenReturn(false);
 
         try {
-            uploadingMerchantService.ingestionMerchantFile(storageEventDTOS);
+            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
         } catch (Exception e) {
             fail();
         }
         Mockito.verify(repositoryMock, Mockito.times(3)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
+
         inputStream.close();
         outputStream.close();
     }
@@ -307,12 +329,19 @@ class UploadingMerchantServiceTest {
 
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString())).thenReturn(null);
 
-        ClientException result = assertThrows(ClientException.class,
-                () -> uploadingMerchantService.ingestionMerchantFile(storageEventDTOS));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
-        assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
-        assertEquals(String.format(MerchantConstants.MERCHANT_SAVING_ERROR, INITIATIVE_ID, FILENAME), result.getMessage());
+        try {
+            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
+        } catch (Exception e) {
+            fail();
+        }
+        Mockito.verify(repositoryMock, Mockito.times(1)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
+
         inputStream.close();
         outputStream.close();
+    }
+
+    @NotNull
+    private Message<String> buildMessage(List<StorageEventDTO> storageEventDTOS) {
+        return MessageBuilder.withPayload(TestUtils.jsonSerializer(storageEventDTOS)).build();
     }
 }
