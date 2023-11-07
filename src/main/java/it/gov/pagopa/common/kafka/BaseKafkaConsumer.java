@@ -1,14 +1,12 @@
 package it.gov.pagopa.common.kafka;
 
 import com.fasterxml.jackson.databind.ObjectReader;
-import it.gov.pagopa.common.kafka.service.ErrorNotifierService;
 import it.gov.pagopa.common.kafka.utils.CommonUtilities;
 import it.gov.pagopa.common.kafka.utils.KafkaConstants;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
@@ -22,9 +20,6 @@ public abstract class BaseKafkaConsumer<T> {
     /** Key used inside the {@link Context} to store a msg identifier used for logging purpose */
     protected static final String CONTEXT_KEY_MSG_ID = "MSG_ID";
     private final String applicationName;
-
-    @Autowired
-    ErrorNotifierService errorNotifierService;
 
     protected BaseKafkaConsumer(String applicationName) {
         this.applicationName = applicationName;
