@@ -19,6 +19,7 @@ public abstract class BaseKafkaConsumer<T> {
     protected static final String CONTEXT_KEY_START_TIME = "START_TIME";
     /** Key used inside the {@link Context} to store a msg identifier used for logging purpose */
     protected static final String CONTEXT_KEY_MSG_ID = "MSG_ID";
+
     private final String applicationName;
 
     protected BaseKafkaConsumer(String applicationName) {
