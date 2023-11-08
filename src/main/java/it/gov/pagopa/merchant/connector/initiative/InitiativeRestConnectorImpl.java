@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.connector.initiative;
 
+import feign.FeignException;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,10 @@ public class InitiativeRestConnectorImpl implements InitiativeRestConnector {
 
   @Override
   public InitiativeBeneficiaryViewDTO getInitiativeBeneficiaryView(String initiativeId) {
-    return initiativeRestClient.getInitiativeBeneficiaryView(initiativeId);
+    try{
+      return initiativeRestClient.getInitiativeBeneficiaryView(initiativeId);
+    } catch (FeignException.NotFound e){
+      return null;
+    }
   }
 }
