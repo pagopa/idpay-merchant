@@ -237,10 +237,11 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 String entityId = subjectPathSplit[6];
                 String initiativeId = subjectPathSplit[7];
                 ByteArrayOutputStream downloadedMerchantFile = downloadMerchantFile(fileName, entityId, initiativeId);
-                saveMerchants(downloadedMerchantFile, fileName, entityId, initiativeId);
-                merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.PROCESSED);
-                log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants completed", initiativeId, fileName);
-                auditUtilities.logSavingMerchantsOK(initiativeId, entityId, fileName);
+                if(saveMerchants(downloadedMerchantFile, fileName, entityId, initiativeId)) {
+                    merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.PROCESSED);
+                    log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants completed", initiativeId, fileName);
+                    auditUtilities.logSavingMerchantsOK(initiativeId, entityId, fileName);
+                }
             }
         }
     }
@@ -264,14 +265,14 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         }
     }
 
-    private void saveMerchants(ByteArrayOutputStream byteFile, String fileName, String entityId, String initiativeId) {
+    private boolean saveMerchants(ByteArrayOutputStream byteFile, String fileName, String entityId, String initiativeId) {
         long startTime = System.currentTimeMillis();
 
         InitiativeBeneficiaryViewDTO initiativeDTO = getInitiativeInfo(initiativeId);
         if (initiativeDTO == null) {
             log.error("[INITIATIVE REST CONNECTOR] - Initiative not found {}", initiativeId);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.INITIATIVE_NOT_FOUND);
-            return;
+            return false;
         }
 
         log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants", initiativeId, fileName);
@@ -303,6 +304,8 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 merchantRepository.save(merchant);
                 initializeMerchantStatistics(initiativeId, merchant.getMerchantId());
             });
+
+            return true;
         } catch (Exception e) {
             log.error("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
