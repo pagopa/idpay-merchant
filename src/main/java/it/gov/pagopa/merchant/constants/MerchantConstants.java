@@ -14,6 +14,7 @@ public class MerchantConstants {
         public static final String MERCHANT_SAVING_KO = "MERCHANT_SAVING_KO";
         public static final String VALIDATED = "VALIDATED";
         public static final String KO = "KO";
+        public static final String INITIATIVE_NOT_FOUND = "INITIATIVE_NOT_FOUND";
 
         public static final class KOkeyMessage {
             private KOkeyMessage(){}

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.gov.pagopa.common.kafka.BaseKafkaConsumer;
-import it.gov.pagopa.common.web.exception.ClientExceptionNoBody;
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
@@ -22,15 +21,6 @@ import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.MerchantErrorNotifierService;
 import it.gov.pagopa.merchant.utils.AuditUtilities;
 import it.gov.pagopa.merchant.utils.Utilities;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +28,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -88,7 +84,8 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         this.commandsProducer = commandsProducer;
 
         this.merchantErrorNotifierService = merchantErrorNotifierService;
-        this.objectReader = objectMapper.readerFor(new TypeReference<List<StorageEventDTO>>() {});
+        this.objectReader = objectMapper.readerFor(new TypeReference<List<StorageEventDTO>>() {
+        });
     }
 
     @Override
@@ -126,7 +123,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
             List<String> lines = br.lines().skip(1).toList();
-            for(String line : lines) {
+            for (String line : lines) {
                 lineNumber++;
 
                 String[] splitStr = line.split(COMMA, -1);
@@ -140,7 +137,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.MISSING_REQUIRED_FIELDS, lineNumber);
                 }
 
-                if(!splitStr[ACQUIRER_INDEX].equals(acquirerId)) {
+                if (!splitStr[ACQUIRER_INDEX].equals(acquirerId)) {
                     log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Invalid acquirer Id: {}", initiativeId, splitStr[ACQUIRER_INDEX]);
                     auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), "Invalid acquirer Id");
                     return toMerchantUpdateKO(MerchantConstants.Status.KOkeyMessage.INVALID_FILE_ACQUIRER_WRONG, lineNumber);
@@ -193,7 +190,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getOriginalFilename(), "Error during file storage");
             saveMerchantFile(file.getOriginalFilename(), entityId, initiativeId, organizationUserId, MerchantConstants.Status.STORAGE_KO);
             Utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
-            throw  new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
+            throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
                     String.format(MerchantConstants.STORAGE_ERROR, initiativeId, file.getOriginalFilename()));
         }
@@ -216,7 +213,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
     @Override
     protected void onError(Message<String> message, Throwable e) {
         merchantErrorNotifierService.notifyMerchantFileUpload(message,
-            "[MERCHANT_UPLOAD_FILE] An error occurred uploading the merchant file", true, e);
+                "[MERCHANT_UPLOAD_FILE] An error occurred uploading the merchant file", true, e);
     }
 
     @Override
@@ -248,7 +245,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         }
     }
 
-    public ByteArrayOutputStream downloadMerchantFile(String fileName, String organizationId, String initiativeId) {
+    private ByteArrayOutputStream downloadMerchantFile(String fileName, String organizationId, String initiativeId) {
         long startTime = System.currentTimeMillis();
         try {
             log.info("[SAVE_MERCHANTS] - Initiative: {}. Downloading merchants file {}", initiativeId, fileName);
@@ -267,15 +264,19 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         }
     }
 
-    public void saveMerchants(ByteArrayOutputStream byteFile, String fileName, String entityId, String initiativeId) {
+    private void saveMerchants(ByteArrayOutputStream byteFile, String fileName, String entityId, String initiativeId) {
         long startTime = System.currentTimeMillis();
 
         InitiativeBeneficiaryViewDTO initiativeDTO = getInitiativeInfo(initiativeId);
+        if (initiativeDTO == null) {
+            log.error("[INITIATIVE REST CONNECTOR] - Initiative not found {}", initiativeId);
+            merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.INITIATIVE_NOT_FOUND);
+            return;
+        }
 
-        try {
-            log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants", initiativeId, fileName);
-            byte[] bytes = byteFile.toByteArray();
-            BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
+        log.info("[SAVE_MERCHANTS] - Initiative: {} - file {}. Saving merchants", initiativeId, fileName);
+        try (byteFile;
+             BufferedReader br = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(byteFile.toByteArray())))) {
 
             br.lines().skip(1).forEach(line -> {
                 String[] splitStr = line.split(COMMA);
@@ -302,25 +303,23 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 merchantRepository.save(merchant);
                 initializeMerchantStatistics(initiativeId, merchant.getMerchantId());
             });
-            Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         } catch (Exception e) {
-            log.info("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
+            log.error("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, fileName, e.getMessage());
+            throw new IllegalStateException(String.format(MerchantConstants.MERCHANT_SAVING_ERROR, initiativeId, fileName), e);
+        } finally {
             Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
-            throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                    MerchantConstants.INTERNAL_SERVER_ERROR,
-                    String.format(MerchantConstants.MERCHANT_SAVING_ERROR, initiativeId, fileName));
         }
     }
 
-    public InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
+    private InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
         InitiativeBeneficiaryViewDTO initiativeDTO;
         try {
             initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
         } catch (Exception e) {
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
-            throw new ClientExceptionNoBody(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong", e);
+            throw new IllegalStateException("Something went wrong fetching initiative", e);
         }
         return initiativeDTO;
     }
@@ -359,7 +358,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 .enabled(true).build();
     }
 
-    private MerchantUpdateDTO toMerchantUpdateKO(String errorKey, Integer errorRow){
+    private MerchantUpdateDTO toMerchantUpdateKO(String errorKey, Integer errorRow) {
         return MerchantUpdateDTO.builder()
                 .status(MerchantConstants.Status.KO)
                 .errorKey(errorKey)
@@ -373,7 +372,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 .operationType(MerchantConstants.OPERATION_TYPE_CREATE_MERCHANT_STATISTICS)
                 .operationTime(LocalDateTime.now())
                 .build();
-        if(!commandsProducer.sendCommand(createMerchantStatistics)){
+        if (!commandsProducer.sendCommand(createMerchantStatistics)) {
             log.error("[CREATE_MERCHANT_STATISTICS] - Initiative: {}. Something went wrong while sending the message on Commands Queue", initiativeId);
         }
     }
