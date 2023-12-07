@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import it.gov.pagopa.common.kafka.KafkaTestUtilitiesService;
 import it.gov.pagopa.common.mongo.MongoTestUtilitiesService;
+import it.gov.pagopa.common.mongo.singleinstance.AutoConfigureSingleInstanceMongodb;
 import it.gov.pagopa.common.utils.TestIntegrationUtils;
 import it.gov.pagopa.merchant.connector.file_storage.AzureBlobClient;
 import jakarta.annotation.PostConstruct;
@@ -37,7 +38,7 @@ import javax.management.MalformedObjectNameException;
                 // region mongodb
                 "logging.level.org.mongodb.driver=WARN",
                 "logging.level.de.flapdoodle.embed.mongo.spring.autoconfigure=WARN",
-                "de.flapdoodle.mongodb.embedded.version=4.0.21",
+                "de.flapdoodle.mongodb.embedded.version=4.2.24",
                 // endregion
 
                 //region wiremock
@@ -68,6 +69,7 @@ import javax.management.MalformedObjectNameException;
         })
 @AutoConfigureMockMvc
 @AutoConfigureWireMock(stubs = "classpath:/mappings", port = 0)
+@AutoConfigureSingleInstanceMongodb
 public abstract class BaseIntegrationTest {
 
     @Autowired
