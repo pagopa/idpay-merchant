@@ -163,7 +163,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             }
             br.close();
         } catch (Exception e) {
-            log.error("[UPLOAD_FILE_MERCHANT] - Generic Error: {}", e.getMessage());
+            log.error("[UPLOAD_FILE_MERCHANT] - Generic Error: {}", e);
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), e.getMessage());
             throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
                     MerchantConstants.INTERNAL_SERVER_ERROR,
