@@ -3,10 +3,11 @@ package it.gov.pagopa.merchant.controller.acquirer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
-import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AcquirerControllerImpl.class)
-@Import(JsonConfig.class)
+@Import({JsonConfig.class, ServiceExceptionConfig.class})
 class AcquirerControllerImplTest {
     @MockBean private MerchantService merchantServiceMock;
 
@@ -74,8 +75,8 @@ class AcquirerControllerImplTest {
                         get("/idpay/merchant/acquirer/initiatives")
                                 .header("x-merchant-id", MERCHANT_ID))
                 .andExpect(status().isNotFound())
-                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
-                .andExpect(res -> Assertions.assertEquals(String.format(MerchantConstants.MERCHANT_BY_MERCHANT_ID_MESSAGE, MERCHANT_ID),
+                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof MerchantNotFoundException))
+                .andExpect(res -> Assertions.assertEquals(ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,
                         Objects.requireNonNull(res.getResolvedException()).getMessage()))
                 .andReturn();
 

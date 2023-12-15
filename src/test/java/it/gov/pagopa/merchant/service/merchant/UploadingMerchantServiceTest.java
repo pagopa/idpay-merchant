@@ -5,15 +5,16 @@ import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
 import it.gov.pagopa.common.utils.TestUtils;
-import it.gov.pagopa.common.web.exception.ClientException;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.event.producer.CommandsProducer;
+import it.gov.pagopa.merchant.exception.custom.FileOperationException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
 import it.gov.pagopa.merchant.repository.MerchantFileRepository;
@@ -34,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.mock.web.MockMultipartFile;
@@ -152,12 +152,10 @@ class UploadingMerchantServiceTest {
         FileInputStream inputStream = new FileInputStream(file1);
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
 
-        ClientException result = assertThrows(ClientException.class,
+        FileOperationException result = assertThrows(FileOperationException.class,
                 () -> uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
-        assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
-        assertEquals(String.format(MerchantConstants.CSV_READING_ERROR, INITIATIVE_ID, FILENAME,
-                        "Index 17 out of bounds for length 16"), result.getMessage());
+        assertEquals(ExceptionCode.GENERIC_ERROR, result.getCode());
+        assertEquals(ExceptionMessage.CSV_READING_ERROR, result.getMessage());
         inputStream.close();
     }
     @Test
@@ -169,11 +167,10 @@ class UploadingMerchantServiceTest {
         Mockito.doThrow(new StorageException(null, null, null)).when(fileStorageConnectorMock)
                 .uploadMerchantFile(any(), Mockito.anyString(), Mockito.anyString());
 
-        ClientException result = assertThrows(ClientException.class,
+        FileOperationException result = assertThrows(FileOperationException.class,
                 () -> uploadingMerchantService.uploadMerchantFile(file, ENTITY_ID, INITIATIVE_ID, ORGANIZATION_USER_ID, ACQUIRER_ID));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getHttpStatus());
-        assertEquals("INTERNAL SERVER ERROR", ((ClientExceptionWithBody) result).getCode());
-        assertEquals(String.format(MerchantConstants.STORAGE_ERROR, INITIATIVE_ID, FILENAME), result.getMessage());
+        assertEquals(ExceptionCode.GENERIC_ERROR, result.getCode());
+        assertEquals(ExceptionMessage.STORAGE_ERROR, result.getMessage());
         inputStream.close();
     }
 

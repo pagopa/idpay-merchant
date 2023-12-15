@@ -1,6 +1,7 @@
 package it.gov.pagopa.common.web.exception;
 
 import it.gov.pagopa.common.web.dto.ErrorDTO;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -36,7 +37,7 @@ public class ValidationExceptionHandler {
         ErrorManager.getRequestDetails(request), message);
     log.debug("Something went wrong while validating http request", ex);
 
-    return new ErrorDTO("INVALID_REQUEST", message);
+    return new ErrorDTO(ExceptionCode.INVALID_REQUEST, message);
   }
 
   @ExceptionHandler(MissingRequestHeaderException.class)
@@ -50,6 +51,6 @@ public class ValidationExceptionHandler {
         ErrorManager.getRequestDetails(request), message);
     log.debug("Something went wrong handling request", ex);
 
-    return new ErrorDTO("INVALID_REQUEST", message);
+    return new ErrorDTO(ExceptionCode.INVALID_REQUEST, message);
   }
 }

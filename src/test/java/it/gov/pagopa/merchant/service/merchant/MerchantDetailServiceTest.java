@@ -1,22 +1,21 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.common.utils.TestUtils;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.common.web.exception.ClientException;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
-import it.gov.pagopa.common.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 
@@ -62,11 +61,10 @@ class MerchantDetailServiceTest {
     when(repositoryMock.retrieveByInitiativeIdAndOrganizationIdAndMerchantId(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(Optional.empty());
 
-    ClientException result = assertThrows(ClientException.class,
+    MerchantNotFoundException result = assertThrows(MerchantNotFoundException.class,
             () -> service.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID));
-    assertEquals(HttpStatus.NOT_FOUND, result.getHttpStatus());
-    assertEquals(MerchantConstants.NOT_FOUND, ((ClientExceptionWithBody) result).getCode());
-    assertEquals(String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID, MERCHANT_ID),
+    assertEquals(ExceptionCode.MERCHANT_NOT_ONBOARDED, result.getCode());
+    assertEquals(String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID),
             result.getMessage());
   }
 

@@ -77,7 +77,7 @@ class ErrorManagerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"Error\",\"message\":\"Something gone wrong\"}"));
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"MERCHANT_GENERIC_ERROR\",\"message\":\"Something gone wrong\"}"));
 
     Mockito.doThrow(new ClientException(HttpStatus.BAD_REQUEST, "ClientException with httpStatus and message"))
         .when(testControllerSpy).testEndpoint();
@@ -85,7 +85,7 @@ class ErrorManagerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"Error\",\"message\":\"Something gone wrong\"}"));
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"MERCHANT_GENERIC_ERROR\",\"message\":\"Something gone wrong\"}"));
 
     Mockito.doThrow(new ClientException(HttpStatus.BAD_REQUEST, "ClientException with httpStatus, message and throwable", new Throwable()))
         .when(testControllerSpy).testEndpoint();
@@ -93,7 +93,7 @@ class ErrorManagerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"Error\",\"message\":\"Something gone wrong\"}"));
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"MERCHANT_GENERIC_ERROR\",\"message\":\"Something gone wrong\"}"));
   }
 
   @Test
@@ -104,6 +104,6 @@ class ErrorManagerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/test")
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"Error\",\"message\":\"Something gone wrong\"}"));
+        .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"MERCHANT_GENERIC_ERROR\",\"message\":\"Something gone wrong\"}"));
   }
 }

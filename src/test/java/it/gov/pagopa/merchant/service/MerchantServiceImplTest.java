@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -149,10 +150,13 @@ class MerchantServiceImplTest {
     }
 
     @Test
-    void getMerchantInitiativeList_notFound() {
+    void getMerchantInitiativeList_emptyList() {
+
         when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.empty());
 
-        assertNull(merchantService.getMerchantInitiativeList(MERCHANT_ID));
+        List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
+
+        assertEquals(Collections.emptyList(), result);
     }
 
     @Test

@@ -3,11 +3,13 @@ package it.gov.pagopa.merchant.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
-import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
@@ -20,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -35,7 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @WebMvcTest(MerchantControllerImpl.class)
-@Import(JsonConfig.class)
+@Import({JsonConfig.class, ServiceExceptionConfig.class})
 class MerchantControllerImplTest {
     @MockBean private MerchantService merchantServiceMock;
 
@@ -96,15 +97,15 @@ class MerchantControllerImplTest {
     @Test
     void getMerchantDetail_notFound() throws Exception {
         Mockito.when(merchantServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenThrow(new ClientExceptionWithBody(HttpStatus.NOT_FOUND,
-                        MerchantConstants.NOT_FOUND,
-                        String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID, MERCHANT_ID)));
+                .thenThrow(new MerchantNotFoundException(
+                        ExceptionCode.MERCHANT_NOT_ONBOARDED,
+                        String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID)));
 
         mockMvc.perform(
                 get("/idpay/merchant/{merchantId}/organization/{organizationId}/initiative/{initiativeId}",
                         MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID)
         ).andExpect(status().isNotFound())
-                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
+                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof MerchantNotFoundException))
                 .andReturn();
 
         Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(),anyString(), anyString());
@@ -159,7 +160,7 @@ class MerchantControllerImplTest {
         MvcResult result = mockMvc.perform(
                 get("/idpay/merchant/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id", "ACQUIRERID", "FISCALCODE"))
                 .andExpect(status().isNotFound())
-                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof ClientExceptionWithBody))
+                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof MerchantNotFoundException))
                 .andReturn();
 
         ErrorDTO errorDTO = objectMapper.readValue(
@@ -167,8 +168,8 @@ class MerchantControllerImplTest {
                 ErrorDTO.class
         );
 
-        Assertions.assertEquals(MerchantConstants.NOT_FOUND, errorDTO.getCode());
-        Assertions.assertEquals(String.format(MerchantConstants.MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE,"ACQUIRERID" , "FISCALCODE"),errorDTO.getMessage());
+        Assertions.assertEquals(ExceptionCode.MERCHANT_NOT_FOUND, errorDTO.getCode());
+        Assertions.assertEquals(ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,errorDTO.getMessage());
         Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(),anyString());
     }
 }
