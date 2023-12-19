@@ -12,7 +12,7 @@ public class MerchantErrorManagerConfig {
   ErrorDTO defaultErrorDTO() {
     return new ErrorDTO(
         ExceptionCode.GENERIC_ERROR,
-        "A generic error occurred for payment"
+        "A generic error occurred"
     );
   }
 
