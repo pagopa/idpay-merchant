@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.controller.acquirer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
+import it.gov.pagopa.merchant.configuration.MerchantErrorManagerConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
@@ -33,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AcquirerControllerImpl.class)
-@Import({JsonConfig.class, ServiceExceptionConfig.class})
+@Import({JsonConfig.class, ServiceExceptionConfig.class, MerchantErrorManagerConfig.class})
 class AcquirerControllerImplTest {
     @MockBean private MerchantService merchantServiceMock;
 
