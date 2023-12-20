@@ -25,7 +25,7 @@ public class ValidationExceptionHandler {
 
     public ValidationExceptionHandler(@Nullable ErrorDTO templateValidationErrorDTO) {
         this.templateValidationErrorDTO = Optional.ofNullable(templateValidationErrorDTO)
-                .orElse(new ErrorDTO("INVALID_REQUESTS", "Invalid requests"));
+                .orElse(new ErrorDTO("INVALID_REQUEST", "Invalid request"));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
