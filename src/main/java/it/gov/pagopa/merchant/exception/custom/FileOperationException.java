@@ -7,12 +7,8 @@ import static it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode.G
 
 public class FileOperationException extends ServiceException {
 
-    public FileOperationException(String message) {
-        this(GENERIC_ERROR, message);
-    }
-
-    public FileOperationException(String code, String message) {
-        this(code, message, null, false, null);
+    public FileOperationException(String message, Throwable ex) {
+        this(GENERIC_ERROR, message, null, true, ex);
     }
 
     public FileOperationException(String code, String message, ServiceExceptionResponse response, boolean printStackTrace, Throwable ex) {

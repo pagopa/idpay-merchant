@@ -15,7 +15,6 @@ import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.event.producer.CommandsProducer;
 import it.gov.pagopa.merchant.exception.custom.FileOperationException;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
-import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
@@ -168,7 +167,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             log.error("[UPLOAD_FILE_MERCHANT] - Generic Error: {}", e.getMessage());
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), e.getMessage());
             throw new FileOperationException(
-                    ExceptionMessage.CSV_READING_ERROR);
+                    ExceptionMessage.CSV_READING_ERROR, e);
         }
         log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} validated", initiativeId, file.getOriginalFilename());
         auditUtilities.logValidationMerchantOK(initiativeId, entityId, file.getName());
@@ -192,7 +191,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             saveMerchantFile(file.getOriginalFilename(), entityId, initiativeId, organizationUserId, MerchantConstants.Status.STORAGE_KO);
             Utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
             throw new FileOperationException(
-                    ExceptionMessage.STORAGE_ERROR);
+                    ExceptionMessage.STORAGE_ERROR, e);
         }
     }
 
@@ -260,7 +259,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.DOWNLOAD_KO);
             Utilities.performanceLog(startTime, "DOWNLOAD_MERCHANT_FILE");
             throw new FileOperationException(
-                    ExceptionMessage.DOWNLOAD_ERROR);
+                    ExceptionMessage.DOWNLOAD_ERROR, e);
         }
     }
 
@@ -309,7 +308,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             log.error("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed:", initiativeId, fileName, e);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, fileName, e.getMessage());
-            throw new MerchantNotFoundException(ExceptionMessage.MERCHANT_SAVING_ERROR);
+            throw new FileOperationException(ExceptionMessage.MERCHANT_SAVING_ERROR, e);
         } finally {
             Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         }
