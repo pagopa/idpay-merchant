@@ -11,7 +11,7 @@ public class FileOperationException extends ServiceException {
         this(GENERIC_ERROR, message, null, true, ex);
     }
 
-    public FileOperationException(String code, String message, ServiceExceptionPayload response, boolean printStackTrace, Throwable ex) {
-        super(code, message, response, printStackTrace, ex);
+    public FileOperationException(String code, String message, ServiceExceptionPayload payload, boolean printStackTrace, Throwable ex) {
+        super(code, message, payload, printStackTrace, ex);
     }
 }
