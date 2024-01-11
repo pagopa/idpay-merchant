@@ -31,10 +31,6 @@ import javax.management.MalformedObjectNameException;
 }, controlledShutdown = true)
 @TestPropertySource(
         properties = {
-                // even if enabled into application.yml, spring test will not load it
-                // https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing.spring-boot-applications.jmx
-                "spring.jmx.enabled=true",
-
                 // region mongodb
                 "logging.level.org.mongodb.driver=WARN",
                 "logging.level.de.flapdoodle.embed.mongo.spring.autoconfigure=WARN",
@@ -53,7 +49,6 @@ import javax.management.MalformedObjectNameException;
                 "logging.level.state.change.logger=WARN",
                 "spring.cloud.stream.kafka.binder.configuration.security.protocol=PLAINTEXT",
                 "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-                "spring.cloud.stream.kafka.binder.zkNodes=${spring.embedded.zookeeper.connect}",
                 "spring.cloud.stream.binders.kafka-reward-notification-upload.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
                 "spring.cloud.stream.binders.kafka-errors.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
                 "spring.cloud.stream.binders.kafka-initiative.environment.spring.cloud.stream.kafka.binder.brokers=${spring.embedded.kafka.brokers}",
