@@ -188,6 +188,15 @@
             </dependency>
 
             <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <!-- Forced to >= 4.1.104 due to https://nvd.nist.gov/vuln/detail/CVE-2023-44487 -->
+                <version>4.1.104.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>com.azure.spring</groupId>
                 <artifactId>spring-cloud-azure-dependencies</artifactId>
                 <version>5.8.0</version>
