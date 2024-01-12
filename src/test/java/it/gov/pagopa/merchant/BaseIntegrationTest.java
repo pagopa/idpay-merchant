@@ -6,7 +6,7 @@ import it.gov.pagopa.common.kafka.KafkaTestUtilitiesService;
 import it.gov.pagopa.common.mongo.MongoTestUtilitiesService;
 import it.gov.pagopa.common.mongo.singleinstance.AutoConfigureSingleInstanceMongodb;
 import it.gov.pagopa.common.utils.TestIntegrationUtils;
-import it.gov.pagopa.merchant.connector.file_storage.AzureBlobClient;
+import it.gov.pagopa.merchant.connector.file_storage.MerchantBlobClientImpl;
 import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +92,7 @@ public abstract class BaseIntegrationTest {
     protected String topicErrors;
 
     @MockBean
-    private AzureBlobClient azureBlobClientMock;
+    private MerchantBlobClientImpl merchantBlobClientImplMock;
 
     @BeforeAll
     public static void unregisterPreviouslyKafkaServers() throws MalformedObjectNameException, MBeanRegistrationException, InstanceNotFoundException {

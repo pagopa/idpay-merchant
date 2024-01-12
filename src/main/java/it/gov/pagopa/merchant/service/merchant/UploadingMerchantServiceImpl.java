@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.gov.pagopa.common.kafka.BaseKafkaConsumer;
-import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
+import it.gov.pagopa.merchant.connector.file_storage.MerchantFileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
@@ -61,7 +61,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
 
     private final InitiativeRestConnector initiativeRestConnector;
 
-    private final FileStorageConnector fileStorageConnector;
+    private final MerchantFileStorageConnector merchantFileStorageConnector;
 
     private final AuditUtilities auditUtilities;
     private final CommandsProducer commandsProducer;
@@ -71,7 +71,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
     public UploadingMerchantServiceImpl(MerchantFileRepository merchantFileRepository,
                                         MerchantRepository merchantRepository,
                                         InitiativeRestConnector initiativeRestConnector,
-                                        FileStorageConnector fileStorageConnector,
+                                        MerchantFileStorageConnector merchantFileStorageConnector,
                                         AuditUtilities auditUtilities, CommandsProducer commandsProducer,
                                         MerchantErrorNotifierService merchantErrorNotifierService,
                                         @Value("${spring.application.name}") String applicationName,
@@ -80,7 +80,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         this.merchantFileRepository = merchantFileRepository;
         this.merchantRepository = merchantRepository;
         this.initiativeRestConnector = initiativeRestConnector;
-        this.fileStorageConnector = fileStorageConnector;
+        this.merchantFileStorageConnector = merchantFileStorageConnector;
         this.auditUtilities = auditUtilities;
         this.commandsProducer = commandsProducer;
 
@@ -182,7 +182,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         try {
             log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} sent to storage", initiativeId, file.getOriginalFilename());
             InputStream inputStreamFile = file.getInputStream();
-            fileStorageConnector.uploadMerchantFile(inputStreamFile, String.format(MerchantConstants.MERCHANT_FILE_PATH_TEMPLATE, entityId, initiativeId, file.getOriginalFilename()), file.getContentType());
+            merchantFileStorageConnector.uploadMerchantFile(inputStreamFile, String.format(MerchantConstants.MERCHANT_FILE_PATH_TEMPLATE, entityId, initiativeId, file.getOriginalFilename()), file.getContentType());
             saveMerchantFile(file.getOriginalFilename(), entityId, initiativeId, organizationUserId, MerchantConstants.Status.ON_EVALUATION);
             Utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
         } catch (Exception e) {
@@ -250,7 +250,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         try {
             log.info("[SAVE_MERCHANTS] - Initiative: {}. Downloading merchants file {}", initiativeId, fileName);
             String fileNamePath = String.format(MerchantConstants.MERCHANT_FILE_PATH_TEMPLATE, organizationId, initiativeId, fileName);
-            ByteArrayOutputStream merchantFile = fileStorageConnector.downloadMerchantFile(fileNamePath);
+            ByteArrayOutputStream merchantFile = merchantFileStorageConnector.downloadMerchantFile(fileNamePath);
             Utilities.performanceLog(startTime, "DOWNLOAD_MERCHANT_FILE");
             return merchantFile;
         } catch (Exception e) {
