@@ -1,11 +1,11 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import com.microsoft.azure.storage.StorageException;
+import com.azure.storage.blob.models.BlobStorageException;
 import feign.FeignException;
 import feign.Request;
 import feign.RequestTemplate;
 import it.gov.pagopa.common.utils.TestUtils;
-import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
+import it.gov.pagopa.merchant.connector.file_storage.MerchantFileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
@@ -42,7 +42,6 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +62,7 @@ class UploadingMerchantServiceTest {
     @Mock
     private AuditUtilities auditUtilitiesMock;
     @Mock
-    private FileStorageConnector fileStorageConnectorMock;
+    private MerchantFileStorageConnector merchantFileStorageConnectorMock;
     @Mock
     private CommandsProducer commandsProducerMock;
     @Mock
@@ -81,7 +80,7 @@ class UploadingMerchantServiceTest {
     @BeforeEach
     public void setUp() {
         uploadingMerchantService = new UploadingMerchantServiceImpl(merchantFileRepositoryMock, repositoryMock, initiativeRestConnectorMock,
-                fileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper);
+                merchantFileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper);
     }
     @Test
     void uploadMerchantFile_ValidFile() throws IOException {
@@ -159,12 +158,12 @@ class UploadingMerchantServiceTest {
         inputStream.close();
     }
     @Test
-    void uploadMerchantFile_storeMerchantException() throws URISyntaxException, IOException, StorageException {
+    void uploadMerchantFile_storeMerchantException() throws IOException {
         File file1 = new ClassPathResource(PATH_VALID_FILE_2).getFile();
         FileInputStream inputStream = new FileInputStream(file1);
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
 
-        Mockito.doThrow(new StorageException(null, null, null)).when(fileStorageConnectorMock)
+        Mockito.doThrow(new BlobStorageException(null, null, null)).when(merchantFileStorageConnectorMock)
                 .uploadMerchantFile(any(), Mockito.anyString(), Mockito.anyString());
 
         FileOperationException result = assertThrows(FileOperationException.class,
@@ -205,11 +204,11 @@ class UploadingMerchantServiceTest {
                 .setMerchantFileStatus(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     }
     @Test
-    void ingestionMerchantFile_downloadException() throws URISyntaxException, StorageException {
+    void ingestionMerchantFile_downloadException() {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
 
-        Mockito.when(fileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenThrow(new StorageException(null, null, null));
+        Mockito.when(merchantFileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenThrow(new BlobStorageException(null, null, null));
 
         Mockito.doNothing().when(merchantErrorNotifierServiceMock).notifyMerchantFileUpload(any(), anyString(), anyBoolean(), any());
 
@@ -218,7 +217,7 @@ class UploadingMerchantServiceTest {
         Mockito.verify(merchantFileRepositoryMock, Mockito.times(1)).setMerchantFileStatus(anyString(), anyString(), anyString());
     }
     @Test
-    void ingestionMerchantFile_initiativeException() throws IOException, URISyntaxException, StorageException {
+    void ingestionMerchantFile_initiativeException() throws IOException {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
 
@@ -236,10 +235,11 @@ class UploadingMerchantServiceTest {
         }catch (FeignException e){
             fail();
         }
-        Mockito.verify(fileStorageConnectorMock, Mockito.times(1)).downloadMerchantFile(Mockito.anyString());
+        Mockito.verify(merchantFileStorageConnectorMock, Mockito.times(1)).downloadMerchantFile(Mockito.anyString());
     }
+
     @Test
-    void ingestionMerchantFile_saveMerchantCheck() throws IOException, URISyntaxException, StorageException {
+    void ingestionMerchantFile_saveMerchantCheck() throws IOException {
         InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
         Mockito.when(initiativeRestConnectorMock.getInitiativeBeneficiaryView(Mockito.anyString())).thenReturn(initiativeBeneficiaryViewDTO);
 
@@ -250,7 +250,7 @@ class UploadingMerchantServiceTest {
         InputStream inputStream = resource.getInputStream();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         StreamUtils.copy(inputStream, outputStream);
-        Mockito.when(fileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
+        Mockito.when(merchantFileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
 
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(commandsProducerMock.sendCommand(any())).thenReturn(true);
@@ -264,8 +264,9 @@ class UploadingMerchantServiceTest {
         inputStream.close();
         outputStream.close();
     }
+
     @Test
-    void ingestionMerchantFile_saveMerchantCheckIban() throws IOException, URISyntaxException, StorageException {
+    void ingestionMerchantFile_saveMerchantCheckIban() throws IOException {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
 
@@ -273,7 +274,7 @@ class UploadingMerchantServiceTest {
         InputStream inputStream = resource.getInputStream();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         StreamUtils.copy(inputStream, outputStream);
-        Mockito.when(fileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
+        Mockito.when(merchantFileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
 
         InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
         Mockito.when(initiativeRestConnectorMock.getInitiativeBeneficiaryView(Mockito.anyString())).thenReturn(initiativeBeneficiaryViewDTO);
@@ -294,7 +295,7 @@ class UploadingMerchantServiceTest {
     }
 
     @Test
-    void ingestionMerchantFile_saveException() throws IOException, URISyntaxException, StorageException {
+    void ingestionMerchantFile_saveException() throws IOException {
 
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
@@ -315,7 +316,7 @@ class UploadingMerchantServiceTest {
     }
 
     @Test
-    void ingestionMerchantFile_initiativeNotFound() throws IOException, URISyntaxException, StorageException {
+    void ingestionMerchantFile_initiativeNotFound() throws IOException {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
 
@@ -327,16 +328,16 @@ class UploadingMerchantServiceTest {
 
         uploadingMerchantService.execute(buildMessage(storageEventDTOS));
 
-        Mockito.verify(fileStorageConnectorMock).downloadMerchantFile(Mockito.anyString());
+        Mockito.verify(merchantFileStorageConnectorMock).downloadMerchantFile(Mockito.anyString());
         Mockito.verify(merchantFileRepositoryMock).setMerchantFileStatus("INITIATIVEID1", "test.csv", MerchantConstants.Status.INITIATIVE_NOT_FOUND);
     }
 
-    private void configureMerchantFileDownloadMock(String pathValidFile) throws IOException, URISyntaxException, StorageException {
+    private void configureMerchantFileDownloadMock(String pathValidFile) throws IOException {
         ClassPathResource resource = new ClassPathResource(pathValidFile);
         try(InputStream inputStream = resource.getInputStream()) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             StreamUtils.copy(inputStream, outputStream);
-            Mockito.when(fileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
+            Mockito.when(merchantFileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
         }
     }
 
