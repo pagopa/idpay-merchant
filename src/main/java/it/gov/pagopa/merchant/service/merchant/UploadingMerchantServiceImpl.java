@@ -4,15 +4,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import it.gov.pagopa.common.kafka.BaseKafkaConsumer;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.connector.file_storage.FileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.event.producer.CommandsProducer;
+import it.gov.pagopa.merchant.exception.custom.FileOperationException;
+import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.MerchantFile;
@@ -24,7 +26,6 @@ import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -165,9 +166,8 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         } catch (Exception e) {
             log.error("[UPLOAD_FILE_MERCHANT] - Generic Error: {}", e.getMessage());
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getName(), e.getMessage());
-            throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                    MerchantConstants.INTERNAL_SERVER_ERROR,
-                    String.format(MerchantConstants.CSV_READING_ERROR, initiativeId, file.getOriginalFilename(), e.getMessage()));
+            throw new FileOperationException(
+                    ExceptionMessage.CSV_READING_ERROR, e);
         }
         log.info("[UPLOAD_FILE_MERCHANT] - Initiative: {}. Merchants file {} validated", initiativeId, file.getOriginalFilename());
         auditUtilities.logValidationMerchantOK(initiativeId, entityId, file.getName());
@@ -190,9 +190,8 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, file.getOriginalFilename(), "Error during file storage");
             saveMerchantFile(file.getOriginalFilename(), entityId, initiativeId, organizationUserId, MerchantConstants.Status.STORAGE_KO);
             Utilities.performanceLog(startTime, "STORE_MERCHANT_FILE");
-            throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                    MerchantConstants.INTERNAL_SERVER_ERROR,
-                    String.format(MerchantConstants.STORAGE_ERROR, initiativeId, file.getOriginalFilename()));
+            throw new FileOperationException(
+                    ExceptionMessage.STORAGE_ERROR, e);
         }
     }
 
@@ -259,9 +258,8 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             auditUtilities.logUploadMerchantKO(initiativeId, organizationId, fileName, e.getMessage());
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.DOWNLOAD_KO);
             Utilities.performanceLog(startTime, "DOWNLOAD_MERCHANT_FILE");
-            throw new ClientExceptionWithBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                    MerchantConstants.INTERNAL_SERVER_ERROR,
-                    String.format(MerchantConstants.DOWNLOAD_ERROR, initiativeId, fileName));
+            throw new FileOperationException(
+                    ExceptionMessage.DOWNLOAD_ERROR, e);
         }
     }
 
@@ -307,10 +305,10 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
 
             return true;
         } catch (Exception e) {
-            log.error("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed: {}", initiativeId, fileName, e);
+            log.error("[SAVE_MERCHANTS] - Initiative: {} - file: {}. Merchants saving failed:", initiativeId, fileName, e);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.MERCHANT_SAVING_KO);
             auditUtilities.logUploadMerchantKO(initiativeId, entityId, fileName, e.getMessage());
-            throw new IllegalStateException(String.format(MerchantConstants.MERCHANT_SAVING_ERROR, initiativeId, fileName), e);
+            throw new FileOperationException(ExceptionMessage.MERCHANT_SAVING_ERROR, e);
         } finally {
             Utilities.performanceLog(startTime, "SAVE_MERCHANTS");
         }
@@ -322,7 +320,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
             initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
         } catch (Exception e) {
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
-            throw new IllegalStateException("Something went wrong fetching initiative", e);
+            throw new InitiativeInvocationException(ExceptionMessage.INITIATIVE_CONNECTOR_ERROR);
         }
         return initiativeDTO;
     }

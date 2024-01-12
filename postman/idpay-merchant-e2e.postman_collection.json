@@ -2091,7 +2091,7 @@
 											"\r",
 											"pm.test(\"Merchant - Unhappy case - Get merchant detail - Response contains info about a not existing initiativeId\", function () {\r",
 											"    const responseJson = pm.response.json();\r",
-											"    pm.expect(responseJson.message).to.eql(\"Initiative initiativeId-fake and merchant merchantId-fake not found.\");\r",
+											"    pm.expect(responseJson.code).to.eql(\"MERCHANT_NOT_ONBOARDED\");\r",
 											"});\r",
 											""
 										],
