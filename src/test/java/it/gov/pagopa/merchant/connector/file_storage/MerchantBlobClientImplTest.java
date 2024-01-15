@@ -36,7 +36,7 @@ class MerchantBlobClientImplTest {
     }
 
     @Test
-    void whenUploadMerchantFileThenDownloadMethodIsInvoked(){
+    void whenUploadMerchantFileThenUploadMethodIsInvoked(){
         // Given
         InputStream is = Mockito.mock(InputStream.class);
         String destination = "FILENAME";
