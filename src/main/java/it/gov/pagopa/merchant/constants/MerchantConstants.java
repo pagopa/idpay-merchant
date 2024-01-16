@@ -30,20 +30,29 @@ public class MerchantConstants {
         }
     }
 
+    public static final class ExceptionCode {
+        private ExceptionCode(){}
+        public static final String MERCHANT_NOT_FOUND = "MERCHANT_NOT_FOUND";
+        public static final String MERCHANT_NOT_ONBOARDED = "MERCHANT_NOT_ONBOARDED";
+        public static final String INVALID_REQUEST = "MERCHANT_INVALID_REQUEST";
+        public static final String TOO_MANY_REQUESTS = "MERCHANT_TOO_MANY_REQUESTS";
+        public static final String GENERIC_ERROR = "MERCHANT_GENERIC_ERROR";
+    }
+
+    public static final class ExceptionMessage {
+        private ExceptionMessage(){}
+        public static final String INITIATIVE_AND_MERCHANT_NOT_FOUND = "The current merchant is not onboarded on initiative [%s]";
+        public static final String MERCHANT_NOT_FOUND_MESSAGE = "Cannot find current merchant";
+        public static final String CSV_READING_ERROR = "An error occurred during file reading";
+        public static final String STORAGE_ERROR = "An error occurred during file storage";
+        public static final String DOWNLOAD_ERROR = "An error occurred during file download";
+        public static final String MERCHANT_SAVING_ERROR = "An error occurred during file saving";
+        public static final String INITIATIVE_CONNECTOR_ERROR = "An error occurred in the microservice initiative";
+    }
+
     public static final String INITIATIVE_CLOSED = "CLOSED";
     public static final String INITIATIVE_PUBLISHED = "PUBLISHED";
-    public static final String NOT_FOUND = "NOT FOUND";
-    public static final String INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
-    public static final String INITIATIVE_AND_MERCHANT_NOT_FOUND = "Initiative %s and merchant %s not found.";
-    public static final String MERCHANT_BY_MERCHANT_ID_MESSAGE = "Merchant %s not found.";
 
-    public static final String CSV_READING_ERROR = "Initiative %s - file %s: error during file reading - %s";
-    public static final String STORAGE_ERROR = "Initiative %s - file %s: error during file storage";
-    public static final String DOWNLOAD_ERROR = "Initiative %s - file %s: error during file download";
-    public static final String MERCHANT_SAVING_ERROR = "Initiative %s - file %s: error during merchant saving";
-    public static final String MERCHANTID_BY_ACQUIRERID_AND_FISCALCODE_MESSAGE = "MerchantId for acquirerId %s and fiscalCode %s not found.";
     public static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
     public static final String OPERATION_TYPE_CREATE_MERCHANT_STATISTICS = "CREATE_MERCHANT_STATISTICS";
-    public static final String PAGINATION_KEY = "pagination";
-    public static final String DELAY_KEY = "delay";
 }
