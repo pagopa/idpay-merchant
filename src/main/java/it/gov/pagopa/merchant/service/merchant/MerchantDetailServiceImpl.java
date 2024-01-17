@@ -1,15 +1,16 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @Slf4j
@@ -28,9 +29,9 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
         log.info("[GET_MERCHANT_DETAIL] Get merchant with id {} for initiative {}", merchantId, initiativeId);
 
         Merchant merchantDetail = merchantRepository.retrieveByInitiativeIdAndOrganizationIdAndMerchantId(initiativeId, organizationId, merchantId)
-                .orElseThrow(() -> new ClientExceptionWithBody(HttpStatus.NOT_FOUND,
-                        MerchantConstants.NOT_FOUND,
-                        String.format(MerchantConstants.INITIATIVE_AND_MERCHANT_NOT_FOUND, initiativeId, merchantId)));
+                .orElseThrow(() -> new MerchantNotFoundException(
+                        ExceptionCode.MERCHANT_NOT_ONBOARDED,
+                        String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, initiativeId)));
 
         Utilities.performanceLog(startTime, "GET_MERCHANT_DETAIL");
         return merchantModelToDTOMapper.toMerchantDetailDTO(merchantDetail, initiativeId);

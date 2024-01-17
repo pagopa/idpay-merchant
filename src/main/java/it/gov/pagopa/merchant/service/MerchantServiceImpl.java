@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,7 +82,7 @@ public class MerchantServiceImpl implements MerchantService{
         return merchant.map(value -> value.getInitiativeList().stream()
                 .filter(i -> MerchantConstants.INITIATIVE_PUBLISHED.equals(i.getStatus()))
                 .map(initiative2InitiativeDTOMapper::apply)
-                .toList()).orElse(null);
+                .toList()).orElse(Collections.emptyList());
     }
 
     @Override
