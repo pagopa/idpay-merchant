@@ -53,6 +53,8 @@ import static org.mockito.ArgumentMatchers.*;
 @ExtendWith(MockitoExtension.class)
 class UploadingMerchantServiceTest {
     UploadingMerchantService uploadingMerchantService;
+    UploadingMerchantServiceImpl uploadingMerchantServiceImpl;
+
     @Mock
     private MerchantRepository repositoryMock;
     @Mock
@@ -67,6 +69,10 @@ class UploadingMerchantServiceTest {
     private CommandsProducer commandsProducerMock;
     @Mock
     private MerchantErrorNotifierService merchantErrorNotifierServiceMock;
+    @Mock
+    Message<String> message;
+    @Mock
+    Throwable exception;
 
     private static final String INITIATIVE_ID = "INITIATIVEID1";
     private static final String ENTITY_ID = "ORGANIZATION_ID";
@@ -80,6 +86,8 @@ class UploadingMerchantServiceTest {
     @BeforeEach
     public void setUp() {
         uploadingMerchantService = new UploadingMerchantServiceImpl(merchantFileRepositoryMock, repositoryMock, initiativeRestConnectorMock,
+                merchantFileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper);
+        uploadingMerchantServiceImpl = new UploadingMerchantServiceImpl(merchantFileRepositoryMock, repositoryMock, initiativeRestConnectorMock,
                 merchantFileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper);
     }
     @Test
@@ -330,6 +338,18 @@ class UploadingMerchantServiceTest {
 
         Mockito.verify(merchantFileStorageConnectorMock).downloadMerchantFile(Mockito.anyString());
         Mockito.verify(merchantFileRepositoryMock).setMerchantFileStatus("INITIATIVEID1", "test.csv", MerchantConstants.Status.INITIATIVE_NOT_FOUND);
+    }
+    @Test
+    void testOnDeserializationError() {
+
+        uploadingMerchantServiceImpl.onDeserializationError(message, exception);
+
+        Mockito.verify(merchantErrorNotifierServiceMock).notifyMerchantFileUpload(
+                message,
+                "[MERCHANT_UPLOAD_FILE] Unexpected JSON",
+                true,
+                exception
+        );
     }
 
     private void configureMerchantFileDownloadMock(String pathValidFile) throws IOException {
