@@ -1,0 +1,214 @@
+asyncapi: 2.0.0
+info:
+  title: Merchant Service
+  version: 1.0.0
+  description: >-
+    It purpose is to handler and notify merchant correlation events and any errors
+tags:
+  - name: "initiativeRulesConsumer"
+    description: "Handle update of the initiative information on merchants"
+  - name: "rewardNotificationStorageConsumer"
+    description: "Receive information about upload refunded status"
+  - name: "sendCommandOperation"
+    description: "Send command for create merchant statistics"
+  - name: "receiveCommandOperation"
+    description: "Receive command for cancel initiative event"
+  - name: "sendError"
+    description: "Notify errors that have occurred"
+channels:
+  rule-update:
+    subscribe:
+      message:
+        $ref: '#/components/messages/RuleUpdate'
+      bindings:
+        kafka:
+          topic: idpay-rule-update
+      tags:
+        - name: "initiativeRulesConsumer"
+  reward-notification-storage:
+    subscribe:
+      message:
+        $ref: '#/components/messages/StorageEventUpload'
+      bindings:
+        kafka:
+          topic: idpay-reward-notification-storage-events
+      tags:
+        - name: "rewardNotificationStorageConsumer"
+  command-operation:
+    subscribe:
+      message:
+        $ref: '#/components/messages/DeleteInitiative'
+      bindings:
+        kafka:
+          topic: idpay-commands
+      tags:
+        - name: "receiveCommandOperation"
+    publish:
+      message:
+        $ref: '#/components/messages/InitializeMerchantStatistics'
+      bindings:
+        kafka:
+          topic: idpay-commands
+      tags:
+        - name: sendCommandOperation
+  notify-errors:
+    publish:
+      message:
+        oneOf:
+          - $ref: '#/components/messages/MerchantFileDeserializeError'
+          - $ref: '#/components/messages/MerchantFileHandlerError'
+      bindings:
+        kafka:
+          topic: idpay-errors
+      tags:
+        - name: "sendError"
+components:
+  messages:
+    RuleUpdate:
+      contentType: application/json
+      description: >-
+        Handle update of the initiative information on merchants
+      summary: Update of the initiative information on merchants
+      payload:
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/RuleUpdate"
+    StorageEventUpload:
+      contentType: application/json
+      description: >-
+        Receive information about upload refunded status
+      summary: Receive information about upload refunded status
+      payload:
+        $ref: "#/components/schemas/StorageEventDtoList"
+    InitializeMerchantStatistics:
+      contentType: application/json
+      description: >-
+        Send merchant information for initialize merchant statistics
+      summary: Merchant information for initialize statistics
+      payload:
+        $ref: "#/components/schemas/QueueCommandOperationDTO"
+    DeleteInitiative:
+      contentType: application/json
+      description: >-
+        Event consumed from application when a delete initiative command has published
+      summary: Delete documents of the initiative
+      payload:
+        $ref: "https://raw.githubusercontent.com/pagopa/idpay-portal-welfare-backend-initiative/main/specs/asyncapi.yml#/components/schemas/QueueCommandOperationDTO"
+    MerchantFileDeserializeError:
+      contentType: application/json
+      description: >-
+        Error notify ocurred on the deserialization of event with information about upload of the refund status
+      summary: Error notify on deserialization event of information about upload of the refund status
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/StorageEventDtoList"
+    MerchantFileHandlerError:
+      contentType: application/json
+      description: >-
+        Error notify when handling the information about upload of the refund status
+      summary: Error when handling the information about upload of the refund status
+      headers:
+        $ref: "#/components/schemas/ErrorQueueHeader"
+      payload:
+        $ref: "#/components/schemas/StorageEventDtoList"
+
+  schemas:
+    StorageEventDtoList:
+      type: array
+      description: List of StorageEventDto
+      items:
+        $ref: "#/components/schemas/StorageEventDto"
+    StorageEventDto:
+      type: object
+      description: DTO for storage events
+      properties:
+        id:
+          type: string
+          description: ID of the storage event
+        subject:
+          type: string
+          description: Subject of the storage event
+        eventType:
+          type: string
+          description: Type of the storage event
+        data:
+          $ref: '#/components/schemas/StorageEventData'
+        eventTime:
+          type: string
+          format: date-time
+          description: Timestamp of the storage event
+    StorageEventData:
+      type: object
+      description: Data associated with a storage event
+      properties:
+        eTag:
+          type: string
+          description: ETag associated with the storage event
+        contentLength:
+          type: integer
+          description: Length of the content associated with the storage event
+        url:
+          type: string
+          description: URL associated with the storage event
+    QueueCommandOperationDTO:
+      type: object
+      properties:
+        operationType:
+          type: string
+          description: "Constant that define operation type"
+          example: "CREATE_MERCHANT_STATISTICS"
+        entityId:
+          type: string
+          description: "Entity to be handled with operationType, concant initiative identifiaed with merchant identified (INITIATIVEID_MERCHANTID)"
+          example: "661626073785876cb5aa7601_ad73860e-212b-3330-a4a4-0e46b2fd4b99"
+        operationTime:
+          type: string
+          format: date-time
+          description: "Operation time"
+          example: "2024-04-11T07:23:08.874869466"
+    ErrorQueueHeader:
+      type: object
+      properties:
+        key:
+          type: string
+          description: "key of message kafka"
+          example: "bcf3651c-d2d3-4998-81a9-5f24302ab674"
+        applicationName:
+          type: string
+          description: The name of the application that generated the error.
+          example: "idpay-merchant"
+        group:
+          type: string
+          description: The Kafka group to which the error message belongs.
+          example: "idpay-merchar-consumer-group"
+        srcType:
+          type: string
+          description: The type of the source of the error message.
+          example: "kafka"
+        srcServer:
+          type: string
+          description: The source server of the error message.
+          example: "kafka-broker-1.example.com:9092"
+        srcTopic:
+          type: string
+          description: The Kafka topic of the source of the error message.
+          example: "idpay-reward-notification-storage-events"
+        description:
+          type: string
+          description: Description of the error.
+          example: "An error occurred during the handling upload merchant refund status"
+        retryable:
+          type: boolean
+          description: Indicates whether the error is retryable or not.
+          example: false
+        stacktrace:
+          type: string
+          description: The stack trace of the error.
+          example: "UploadMerchantFileHandlerException(): Error occurred during handling upload merchant refund status..."
+        rootCause:
+          type: string
+          description: Cause of the error.
+          example: "com.example.UploadMerchantFileHandlerException"
+        cause:
+          type: string
+          description: Message of the error.
+          example: "Error occurred during handling upload merchant refund status"
