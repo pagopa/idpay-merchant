@@ -200,7 +200,7 @@ rest-client:
 
 management:
   health:
-    mongo.enabled: ${HEALTH_MONGO_ENABLED:true}
+    mongo.enabled: ${HEALTH_MONGO_ENABLED:false}
   endpoint:
     health:
       probes.enabled: true
