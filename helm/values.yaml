@@ -63,7 +63,7 @@ microservice-chart:
     BLOB_STORAGE_CONTAINER_REFERENCE: merchant
     DELETE_PAGINATION_SIZE: "60"
     DELETE_DELAY_TIME: "1000"
-    HEALTH_MONGO_ENABLED: false
+    HEALTH_MONGO_ENABLED: "false"
 
   externalConfigMapValues:
     idpay-common:
