@@ -28,7 +28,16 @@ microservice-chart:
           value: "70"
 
   envConfig:
-    JAVA_TOOL_OPTIONS: "-Xms256m -Xmx512m -Djava.util.concurrent.ForkJoinPool.common.parallelism=7 -Dio.netty.eventLoopThreads=100 -javaagent:/app/applicationinsights-agent.jar -Dapplicationinsights.configuration.file=/mnt/file-config-external/appinsights-config/applicationinsights.json"
+    JAVA_TOOL_OPTIONS: >-
+      -XX:InitialRAMPercentage=75.0
+      -XX:MaxRAMPercentage=85.0
+      -XX:+UseG1GC
+      -XX:+UseContainerSupport
+      -Djava.security.egd=file:/dev/./urandom
+      -Djava.util.concurrent.ForkJoinPool.common.parallelism=7
+      -Dio.netty.eventLoopThreads=100
+      -javaagent:/app/applicationinsights-agent.jar
+      -Dapplicationinsights.configuration.file=/mnt/file-config-external/appinsights-config/applicationinsights.json
 
   envSecret:
     aks-api-url: cstar-p-weu-prod01-aks-apiserver-url
