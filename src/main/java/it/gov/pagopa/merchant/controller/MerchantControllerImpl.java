@@ -48,4 +48,5 @@ public class MerchantControllerImpl implements MerchantController {
     }
     return merchantId;
   }
+  
 }
