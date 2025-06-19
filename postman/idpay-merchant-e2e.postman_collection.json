@@ -2318,7 +2318,7 @@
 		},
 		{
 			"key": "basePath",
-			"value": "./postman"
+			"value": "./"
 		}
 	]
 }
