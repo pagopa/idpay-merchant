@@ -25,10 +25,10 @@ on:
       postman_branch:
         description: postman branch name'
         required: false
-        default: 'release-dev'
+        default: 'develop'
 
 env:
-  # branch choosed by workflow_dispatch or by push event
+  # branch chose by workflow_dispatch or by push event
   CURRENT_BRANCH: ${{ github.event.inputs.branch || github.ref_name }}
 
 jobs:
