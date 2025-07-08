@@ -38,6 +38,7 @@ public class MerchantFaker {
                 .fiscalCode("FISCAL_CODE")
                 .vatNumber("VAT_NUMBER_%d".formatted(bias))
                 .iban("IT00TEST")
+                .holder("NOME COGNOME")
                 .enabled(true);
     }
 }

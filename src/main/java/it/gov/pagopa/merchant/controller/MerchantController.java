@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import it.gov.pagopa.merchant.dto.IbanPutDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
@@ -38,6 +39,15 @@ public interface MerchantController {
             @PathVariable("organizationId") String organizationId,
             @PathVariable("initiativeId") String initiativeId,
             @PathVariable("merchantId") String merchantId
+    );
+
+    @Operation(summary = "Patches the iban and/or the holder of a merchant")
+    @PatchMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
+    ResponseEntity<MerchantDetailDTO> updateIban(
+        @PathVariable("merchantId") String merchantId,
+        @PathVariable("organizationId") String organizationId,
+        @PathVariable("initiativeId") String initiativeId,
+        @RequestBody IbanPutDTO ibanPutDTO
     );
 
     @Operation(summary = "Returns the merchant id")

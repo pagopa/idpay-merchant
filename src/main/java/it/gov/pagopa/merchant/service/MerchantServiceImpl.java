@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -15,12 +16,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class MerchantServiceImpl implements MerchantService{
+public class MerchantServiceImpl implements MerchantService {
 
     private final MerchantDetailService merchantDetailService;
     private final MerchantListService merchantListService;
     private final MerchantProcessOperationService merchantProcessOperationService;
     private final MerchantUpdatingInitiativeService merchantUpdatingInitiativeService;
+    private final MerchantUpdateIbanService merchantUpdateIbanService;
     private final MerchantRepository merchantRepository;
     private final UploadingMerchantService uploadingMerchantService;
     private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
@@ -28,13 +30,14 @@ public class MerchantServiceImpl implements MerchantService{
     public MerchantServiceImpl(
             MerchantDetailService merchantDetailService,
             MerchantListService merchantListService,
-            MerchantProcessOperationService merchantProcessOperationService, MerchantUpdatingInitiativeService merchantUpdatingInitiativeService, MerchantRepository merchantRepository,
+            MerchantProcessOperationService merchantProcessOperationService, MerchantUpdatingInitiativeService merchantUpdatingInitiativeService, MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
             UploadingMerchantService uploadingMerchantService,
             Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
         this.merchantProcessOperationService = merchantProcessOperationService;
         this.merchantUpdatingInitiativeService = merchantUpdatingInitiativeService;
+        this.merchantUpdateIbanService = merchantUpdateIbanService;
         this.merchantRepository = merchantRepository;
         this.uploadingMerchantService = uploadingMerchantService;
         this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
@@ -68,11 +71,17 @@ public class MerchantServiceImpl implements MerchantService{
                                            Pageable pageable) {
         return merchantListService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable);
     }
+
     @Override
     public String retrieveMerchantId(String acquirerId, String fiscalCode) {
         return merchantRepository.retrieveByAcquirerIdAndFiscalCode(acquirerId, fiscalCode)
-                .map(Merchant::getMerchantId)
-                .orElse(null);
+            .map(Merchant::getMerchantId)
+            .orElse(null);
+    }
+
+    @Override
+    public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, IbanPutDTO ibanPutDTO) {
+        return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId, ibanPutDTO);
     }
 
     @Override
