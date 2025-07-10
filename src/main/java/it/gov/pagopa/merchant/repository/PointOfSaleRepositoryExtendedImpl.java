@@ -1,6 +1,5 @@
 package it.gov.pagopa.merchant.repository;
 
-import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.utils.Utilities;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +45,7 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
     @Override
     public long getCount(Criteria criteria) {
-        return mongoTemplate.count(Query.query(criteria), Merchant.class);
+        return mongoTemplate.count(Query.query(criteria), PointOfSale.class);
     }
 
 
