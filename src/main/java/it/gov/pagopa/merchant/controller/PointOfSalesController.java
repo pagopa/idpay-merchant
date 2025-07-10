@@ -1,0 +1,62 @@
+package it.gov.pagopa.merchant.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import it.gov.pagopa.common.web.dto.ErrorDTO;
+import it.gov.pagopa.merchant.dto.sale.ListPointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.sale.PointOfSaleDTO;
+import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/idpay/merchant")
+@Validated
+public interface PointOfSalesController {
+
+    @Operation(summary = "Save the sale list of the merchant", description = "", security = {
+            @SecurityRequirement(name = "Bearer")}, tags = {"initiative"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "429", description = "Too many Request - Rate limit exceeded", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
+    @PutMapping(value = "/{merchantId}/point-of-sales")
+    ResponseEntity<Void> savePointOfSales(
+            @Parameter(in = ParameterIn.PATH, description = "The merchant ID", required = true, schema = @Schema()) @PathVariable("merchantId") @NotBlank String merchantId,
+            @Parameter(in = ParameterIn.DEFAULT, schema = @Schema()) @RequestBody @Validated(ValidationApiEnabledGroup.class) List<PointOfSaleDTO> pointOfSaleDTOList);
+
+
+    @Operation(summary = "Save the sale list of the merchant", description = "", security = {
+            @SecurityRequirement(name = "Bearer")}, tags = {"initiative"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No Content"),
+            @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "429", description = "Too many Request - Rate limit exceeded", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
+    @GetMapping(value = "/{merchantId}/point-of-sales")
+    ResponseEntity<ListPointOfSaleDTO> getPointOfSales(
+            @Parameter(in = ParameterIn.PATH, description = "The merchant ID", required = true, schema = @Schema()) @PathVariable("merchantId") @NotBlank String merchantId,
+            @RequestParam (name="tipologia", required = false) String type,
+            @RequestParam (name="città", required = false) String city,
+            @RequestParam (name="indirizzo", required = false) String address,
+            @RequestParam (name="referente", required = false) String contactName,
+            @PageableDefault(size = 15) Pageable pageable);
+
+}
