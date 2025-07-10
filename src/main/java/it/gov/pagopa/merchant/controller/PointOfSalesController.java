@@ -12,8 +12,6 @@ import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.merchant.dto.sale.ListPointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.sale.PointOfSaleDTO;
 import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
