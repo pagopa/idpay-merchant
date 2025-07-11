@@ -24,15 +24,15 @@ public class PointOfSalesControllerImpl implements PointOfSalesController {
 
 
   @Override
-  public ResponseEntity<Void> savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSaleDTOList){
-    log.info("[POINT-OF-SALE][SAVE] Received request to save {} point(s) for merchantId={}",pointOfSaleDTOList.size(),merchantId);
+  public ResponseEntity<Void> savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSales){
+    log.info("[POINT-OF-SALE][SAVE] Received request to save {} point(s) for merchantId={}",pointOfSales.size(),merchantId);
 
-    if(pointOfSaleDTOList.isEmpty()){
+    if(pointOfSales.isEmpty()){
       log.warn("[POINT-OF-SALE][SAVE] Point of sales list is empty for merchantId={}",merchantId);
       throw new InvalidRequestException("Point of sales list cannot be empty.");
     }
     
-    pointOfSaleService.savePointOfSales(merchantId, pointOfSaleDTOList);
+    pointOfSaleService.savePointOfSales(merchantId, pointOfSales);
 
     log.info("[POINT-OF-SALE][SAVE] Successfully saved point of sales for merchantId={}",merchantId);
     return ResponseEntity.noContent().build();
@@ -52,6 +52,7 @@ public class PointOfSalesControllerImpl implements PointOfSalesController {
             .contactName(contactName)
             .pageable(pageable)
             .build();
+
     List<PointOfSaleDTO> list = pointOfSaleService.getPointOfSales(pointOfSaleFilteredDTO);
 
     log.info("[POINT-OF-SALE][GET] Returning {} point(s) for merchantId={}",list.size(), merchantId);

@@ -15,8 +15,8 @@ import java.util.List;
 public class PointOfSaleDTO {
 
     @NotBlank
-    @JsonProperty("saleType")
-    private SaleTypeEnum saleType;
+    @JsonProperty("type")
+    private SaleTypeEnum type;
 
     @NotBlank
     @JsonProperty("franchiseName")

@@ -12,6 +12,7 @@ import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.merchant.dto.sale.ListPointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.sale.PointOfSaleDTO;
 import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -26,8 +27,10 @@ import java.util.List;
 @Validated
 public interface PointOfSalesController {
 
-    @Operation(summary = "Save the sale list of the merchant", description = "", security = {
-            @SecurityRequirement(name = "Bearer")}, tags = {"initiative"})
+    @Operation(
+            summary = "Save the sale list of the merchant",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"Merchant Point of Sales"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
@@ -36,12 +39,13 @@ public interface PointOfSalesController {
             @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
     @PutMapping(value = "/{merchantId}/point-of-sales")
     ResponseEntity<Void> savePointOfSales(
-            @Parameter(in = ParameterIn.PATH, description = "The merchant ID", required = true, schema = @Schema()) @PathVariable("merchantId") @NotBlank String merchantId,
-            @Parameter(in = ParameterIn.DEFAULT, schema = @Schema()) @RequestBody @Validated(ValidationApiEnabledGroup.class) List<PointOfSaleDTO> pointOfSaleDTOList);
+            @PathVariable("merchantId") @NotBlank String merchantId,
+            @RequestBody @Validated(ValidationApiEnabledGroup.class) List<@Valid PointOfSaleDTO> pointOfSales);
 
 
-    @Operation(summary = "Save the sale list of the merchant", description = "", security = {
-            @SecurityRequirement(name = "Bearer")}, tags = {"initiative"})
+    @Operation(summary = "Save the sale list of the merchant",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"Merchant Point of Sales"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "No Content"),
             @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
@@ -50,7 +54,7 @@ public interface PointOfSalesController {
             @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
     @GetMapping(value = "/{merchantId}/point-of-sales")
     ResponseEntity<ListPointOfSaleDTO> getPointOfSales(
-            @Parameter(in = ParameterIn.PATH, description = "The merchant ID", required = true, schema = @Schema()) @PathVariable("merchantId") @NotBlank String merchantId,
+            @PathVariable("merchantId") @NotBlank String merchantId,
             @RequestParam (name="tipologia", required = false) String type,
             @RequestParam (name="città", required = false) String city,
             @RequestParam (name="indirizzo", required = false) String address,

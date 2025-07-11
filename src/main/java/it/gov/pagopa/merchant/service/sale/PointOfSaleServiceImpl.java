@@ -27,14 +27,36 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     @Override
     public void savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSaleDTOList){
-        pointOfSaleRepository.saveAll(pointOfSaleDTOList.stream().map(pointOfSaleDTO -> pointOfSaleDTOMapper.PointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,merchantId)).toList());
+        List<PointOfSale> pointOfSales = pointOfSaleDTOList.stream()
+                .map(pointOfSaleDTO -> pointOfSaleDTOMapper.PointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,merchantId))
+                .toList();
+        pointOfSaleRepository.saveAll(pointOfSales);
     }
 
     @Override
     public List<PointOfSaleDTO> getPointOfSales(PointOfSaleFilteredDTO filteredDTO){
-        Criteria criteria = pointOfSaleRepository.getCriteria(filteredDTO.getMerchantId(), filteredDTO.getType(), filteredDTO.getCity(), filteredDTO.getAddress(), filteredDTO.getContactName());
+        Criteria criteria = buildCriteria(filteredDTO);
+
         List<PointOfSale> onboardinglist = pointOfSaleRepository.findByFilter(criteria, filteredDTO.getPageable());
+
         return onboardinglist.stream().map(pointOfSaleDTOMapper::PointOfSaleEntityToPointOfSaleDTO).toList();
+    }
+
+    private Criteria buildCriteria(PointOfSaleFilteredDTO filteredDTO) {
+        Criteria criteria = Criteria.where(PointOfSale.Fields.merchantId).is(filteredDTO.getMerchantId());
+        if (filteredDTO.getType() != null) {
+            criteria.and(PointOfSale.Fields.saleType).is(filteredDTO.getType());
+        }
+        if (filteredDTO.getCity() != null) {
+            criteria.and(PointOfSale.Fields.city).is(filteredDTO.getCity());
+        }
+        if (filteredDTO.getAddress() != null) {
+            criteria.and(PointOfSale.Fields.address).is(filteredDTO.getAddress());
+        }
+        if (filteredDTO.getContactName() != null) {
+            criteria.and(PointOfSale.Fields.contactName).is(filteredDTO.getContactName());
+        }
+        return criteria;
     }
 
 }
