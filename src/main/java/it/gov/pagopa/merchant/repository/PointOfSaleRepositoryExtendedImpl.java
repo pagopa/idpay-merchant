@@ -19,8 +19,30 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         this.mongoTemplate = mongoTemplate;
     }
 
+
     @Override
     public List<PointOfSale> findByFilter(Criteria criteria, Pageable pageable) {
+        return mongoTemplate.find(Query.query(criteria).with(Utilities.getPageable(pageable)), PointOfSale.class);
+    }
+
+    @Override
+    public Criteria getCriteria(String merchantId, String type, String city, String address, String contactName) {
+
+        Criteria criteria = Criteria.where(PointOfSale.Fields.merchantId).is(merchantId);
+
+        if (type != null) {
+            criteria.and(PointOfSale.Fields.type).is(type);
+        }
+        if (city != null) {
+            criteria.and(PointOfSale.Fields.city).is(city);
+        }
+        if (address != null) {
+            criteria.and(PointOfSale.Fields.address).is(address);
+        }
+        if (contactName != null) {
+            criteria.and(PointOfSale.Fields.contactName).is(contactName);
+        }
+        return criteria;
         Query query = Query.query(criteria).with(Utilities.getPageable(pageable));
         return mongoTemplate.find(query, PointOfSale.class);
     }

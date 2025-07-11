@@ -8,14 +8,14 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldNameConstants
 @Document(collection = "point_of_sales")
 public class PointOfSale {
+
     @MongoId
     private String id;
 

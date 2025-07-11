@@ -8,6 +8,10 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.InvalidRequestException;
+
+import it.gov.pagopa.merchant.dto.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.service.point_of_sale.PointOfSaleService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,11 +20,15 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-public class PointOfSaleControllerImpl implements PointOfSaleController {
+public class PointOfSaleControllerImpl implements PointOfSaleController{
 
+    private final PointOfSaleService pointOfSaleService;
   private final PointOfSaleService pointOfSaleService;
   private final Validator validator;
 
+    public PointOfSaleControllerImpl(PointOfSaleService pointOfSaleService) {
+        this.pointOfSaleService = pointOfSaleService;
+    }
   public PointOfSaleControllerImpl(PointOfSaleService pointOfSaleService,
                                    Validator validator) {
     this.pointOfSaleService = pointOfSaleService;
@@ -28,6 +36,10 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   }
 
 
+    @Override
+    public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String merchantId, String type, String city, String address, String contactName, Pageable pageable) {
+        return ResponseEntity.ok(pointOfSaleService.getPointOfSalesList(merchantId, type, city, address, contactName, pageable));
+    }
   @Override
   public ResponseEntity<Void> savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSales){
     log.info("[POINT-OF-SALE][SAVE] Received request to save {} point(s) for merchantId={}",pointOfSales.size(),merchantId);
@@ -38,7 +50,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
       log.warn("[POINT-OF-SALE][SAVE] Point of sales list is empty for merchantId={}",merchantId);
       throw new InvalidRequestException("Point of sales list cannot be empty.");
     }
-    
+
     pointOfSaleService.savePointOfSales(merchantId, pointOfSales);
 
     log.info("[POINT-OF-SALE][SAVE] Successfully saved point of sales for merchantId={}",merchantId);

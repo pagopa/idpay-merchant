@@ -1,0 +1,97 @@
+package it.gov.pagopa.merchant.mapper;
+
+import it.gov.pagopa.merchant.dto.ChannelDTO;
+import it.gov.pagopa.merchant.dto.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.enums.ChannelTypeEnum;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.model.Channel;
+import it.gov.pagopa.merchant.model.PointOfSale;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+
+@Component
+public class PointOfSaleMapper {
+
+    public PointOfSaleDTO pointOfSaleEntityToPointOfSaleDTO(PointOfSale pointOfSale){
+        if(pointOfSale == null){
+            return  null;
+        }
+        return PointOfSaleDTO.builder()
+                .type(PointOfSaleTypeEnum.valueOf(pointOfSale.getType()))
+                .franchiseName(pointOfSale.getFranchiseName())
+                .contactEmail(pointOfSale.getContactEmail())
+                .contactName(pointOfSale.getContactName())
+                .contactSurname(pointOfSale.getContactSurname())
+                .channels(channelEntityToChannelDTO(pointOfSale.getChannels()))
+                .region(pointOfSale.getRegion())
+                .province(pointOfSale.getProvince())
+                .city(pointOfSale.getCity())
+                .zipCode(pointOfSale.getZipCode())
+                .address(pointOfSale.getAddress())
+                .streetNumber(pointOfSale.getStreetNumber())
+                .website(pointOfSale.getWebsite())
+                .build();
+    }
+
+    public PointOfSale pointOfSaleDTOtoPointOfSaleEntity(PointOfSaleDTO pointOfSaleDTO, String merchantId){
+        if(pointOfSaleDTO == null){
+            return null;
+        }
+        PointOfSale pointOfSale = PointOfSale.builder()
+                .type(pointOfSaleDTO.getType().name())
+                .franchiseName(pointOfSaleDTO.getFranchiseName())
+                .contactEmail(pointOfSaleDTO.getContactEmail())
+                .contactName(pointOfSaleDTO.getContactName())
+                .contactSurname(pointOfSaleDTO.getContactSurname())
+                .channels(channelDTOtoChannelEntity(pointOfSaleDTO.getChannels()))
+                .creationDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .merchantId(merchantId)
+                .build();
+
+        if(PointOfSaleTypeEnum.FISICO.equals(pointOfSaleDTO.getType())){
+            pointOfSale.setRegion(pointOfSaleDTO.getRegion());
+            pointOfSale.setProvince(pointOfSaleDTO.getProvince());
+            pointOfSale.setCity(pointOfSaleDTO.getCity());
+            pointOfSale.setZipCode(pointOfSaleDTO.getZipCode());
+            pointOfSale.setAddress(pointOfSaleDTO.getAddress());
+            pointOfSale.setStreetNumber(pointOfSaleDTO.getStreetNumber());
+        }
+        else if(PointOfSaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
+            pointOfSale.setWebsite(pointOfSale.getWebsite());
+        }
+
+        return pointOfSale;
+    }
+
+    private List<Channel> channelDTOtoChannelEntity(List<ChannelDTO> channelDTOS){
+        if (CollectionUtils.isEmpty(channelDTOS)) {
+            return Collections.emptyList();
+        } else {
+            return channelDTOS.stream().map(dto ->
+                    Channel.builder()
+                            .type(dto.getType().name())
+                            .contact(dto.getContact())
+                            .build()
+            ).toList();
+        }
+    }
+
+    private List<ChannelDTO> channelEntityToChannelDTO(List<Channel> channels){
+        if(CollectionUtils.isEmpty(channels)){
+            return Collections.emptyList();
+        }
+        else{
+            return channels.stream().map(entity ->
+                    ChannelDTO.builder()
+                            .type(ChannelTypeEnum.valueOf(entity.getType()))
+                            .contact(entity.getContact())
+                            .build()
+            ).toList();
+        }
+    }
+}

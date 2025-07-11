@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface PointOfSaleRepositoryExtended {
     List<PointOfSale> findByFilter(Criteria criteria, Pageable pageable);
+    Criteria getCriteria(String merchantId, String type, String city, String address, String contactName);
     long getCount(Criteria criteria);
 }
