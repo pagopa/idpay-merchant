@@ -47,7 +47,6 @@ public class PointOfSaleDTOMapper {
                 .contactEmail(pointOfSaleDTO.getContactEmail())
                 .contactName(pointOfSaleDTO.getContactName())
                 .contactSurname(pointOfSaleDTO.getContactSurname())
-                .channels(ChannelDTOtoChannelEntity(pointOfSaleDTO.getChannels()))
                 .creationDate(LocalDateTime.now())
                 .updateDate(LocalDateTime.now())
                 .merchantId(merchantId)
@@ -60,6 +59,7 @@ public class PointOfSaleDTOMapper {
             pointOfSale.setZipCode(pointOfSaleDTO.getZipCode());
             pointOfSale.setAddress(pointOfSaleDTO.getAddress());
             pointOfSale.setStreetNumber(pointOfSaleDTO.getStreetNumber());
+            pointOfSale.setChannels(ChannelDTOtoChannelEntity(pointOfSaleDTO.getChannels()));
         }
         else if(SaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
             pointOfSale.setWebsite(pointOfSale.getWebsite());

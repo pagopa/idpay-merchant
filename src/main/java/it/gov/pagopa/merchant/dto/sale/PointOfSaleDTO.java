@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.dto.sale;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.merchant.dto.enums.SaleTypeEnum;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 @Builder
 public class PointOfSaleDTO {
 
-    @NotBlank
+    @NotNull
     @JsonProperty("type")
     private SaleTypeEnum type;
 
