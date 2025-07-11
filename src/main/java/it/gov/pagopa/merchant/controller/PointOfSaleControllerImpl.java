@@ -1,11 +1,13 @@
 package it.gov.pagopa.merchant.controller;
 
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.errors.InvalidRequestException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +29,10 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
     
     if(pointOfSales.isEmpty()){
       log.warn("[POINT-OF-SALE][SAVE] Point of sales list is empty for merchantId={}",merchantId);
-      throw new InvalidRequestException("Point of sales list cannot be empty.");
+      throw new ClientExceptionWithBody(
+              HttpStatus.BAD_REQUEST,
+              "POINT_OF_SALE_BAD_REQUEST",
+              "Point of sales list cannot be empty.");
     }
 
     pointOfSaleService.savePointOfSales(merchantId, pointOfSales);

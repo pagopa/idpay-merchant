@@ -73,7 +73,7 @@ class PointOfSaleControllerImplTest {
                                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .content(objectMapper.writeValueAsString(List.of()))
                                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().is5xxServerError())
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
                 .andDo(print())
                 .andReturn();
     }
