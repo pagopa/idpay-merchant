@@ -21,7 +21,7 @@ public class PointOfSaleDTOMapper {
             return  null;
         }
         return PointOfSaleDTO.builder()
-                .saleType(SaleTypeEnum.valueOf(pointOfSale.getSaleType()))
+                .type(SaleTypeEnum.valueOf(pointOfSale.getSaleType()))
                 .franchiseName(pointOfSale.getFranchiseName())
                 .contactEmail(pointOfSale.getContactEmail())
                 .contactName(pointOfSale.getContactName())
@@ -42,7 +42,7 @@ public class PointOfSaleDTOMapper {
             return null;
         }
         PointOfSale pointOfSale = PointOfSale.builder()
-                .saleType(pointOfSaleDTO.getSaleType().name())
+                .saleType(pointOfSaleDTO.getType().name())
                 .franchiseName(pointOfSaleDTO.getFranchiseName())
                 .contactEmail(pointOfSaleDTO.getContactEmail())
                 .contactName(pointOfSaleDTO.getContactName())
@@ -53,7 +53,7 @@ public class PointOfSaleDTOMapper {
                 .merchantId(merchantId)
                 .build();
 
-        if(SaleTypeEnum.FISICO.equals(pointOfSaleDTO.getSaleType())){
+        if(SaleTypeEnum.FISICO.equals(pointOfSaleDTO.getType())){
             pointOfSale.setRegion(pointOfSaleDTO.getRegion());
             pointOfSale.setProvince(pointOfSaleDTO.getProvince());
             pointOfSale.setCity(pointOfSaleDTO.getCity());
@@ -61,7 +61,7 @@ public class PointOfSaleDTOMapper {
             pointOfSale.setAddress(pointOfSaleDTO.getAddress());
             pointOfSale.setStreetNumber(pointOfSaleDTO.getStreetNumber());
         }
-        else if(SaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getSaleType())){
+        else if(SaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
             pointOfSale.setWebsite(pointOfSale.getWebsite());
         }
 
