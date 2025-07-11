@@ -1,4 +1,4 @@
-package it.gov.pagopa.merchant.dto.point_of_sales;
+package it.gov.pagopa.merchant.dto.pointofsales;
 
 import lombok.*;
 

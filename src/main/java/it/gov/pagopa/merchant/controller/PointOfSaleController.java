@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
-import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -35,7 +35,7 @@ public interface PointOfSaleController {
     @PutMapping(value = "/{merchantId}/point-of-sales")
     ResponseEntity<Void> savePointOfSales(
             @PathVariable("merchantId") @NotBlank String merchantId,
-            @RequestBody @Validated(ValidationApiEnabledGroup.class) List<@Valid PointOfSaleDTO> pointOfSales);
+            @RequestBody @Validated(ValidationApiEnabledGroup.class) @Valid List<PointOfSaleDTO> pointOfSales);
 
 
 }

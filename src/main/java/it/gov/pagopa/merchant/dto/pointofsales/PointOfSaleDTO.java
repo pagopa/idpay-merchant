@@ -1,10 +1,13 @@
-package it.gov.pagopa.merchant.dto.point_of_sales;
+package it.gov.pagopa.merchant.dto.pointofsales;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.validator.constraints.URL;
 
 import java.util.List;
 
@@ -14,6 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PointOfSaleDTO {
+
+    private static final String VALID_LINK = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 
     @NotNull
     @JsonProperty("type")
@@ -41,6 +46,7 @@ public class PointOfSaleDTO {
     @JsonProperty("streetNumber")
     private String streetNumber;
 
+    @URL(protocol = "https", regexp = VALID_LINK, groups = ValidationApiEnabledGroup.class)
     @JsonProperty("website")
     private String website;
 
@@ -54,5 +60,6 @@ public class PointOfSaleDTO {
     private String contactSurname;
 
     @JsonProperty("channels")
+    @Valid
     private List<ChannelDTO> channels;
 }

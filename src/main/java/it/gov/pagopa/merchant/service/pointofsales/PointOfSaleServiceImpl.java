@@ -1,8 +1,8 @@
-package it.gov.pagopa.merchant.service.point_of_sales;
+package it.gov.pagopa.merchant.service.pointofsales;
 
-import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSaleFilteredDTO;
-import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSalePage;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleFilteredDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSalePage;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;

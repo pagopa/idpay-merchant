@@ -2,10 +2,9 @@ package it.gov.pagopa.merchant.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
-import it.gov.pagopa.merchant.configuration.PointOfSaleErrorManagerConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
-import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.service.point_of_sales.PointOfSaleService;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(PointOfSaleControllerImpl.class)
-@Import({JsonConfig.class, ServiceExceptionConfig.class, PointOfSaleErrorManagerConfig.class})
+@Import({JsonConfig.class, ServiceExceptionConfig.class})
 class PointOfSaleControllerImplTest {
 
     @MockBean private PointOfSaleService pointOfSaleService;
