@@ -1,7 +1,7 @@
-package it.gov.pagopa.merchant.dto.sale;
+package it.gov.pagopa.merchant.dto.point_of_sales;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import it.gov.pagopa.merchant.dto.enums.SaleTypeEnum;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -17,7 +17,7 @@ public class PointOfSaleDTO {
 
     @NotNull
     @JsonProperty("type")
-    private SaleTypeEnum type;
+    private PointOfSaleTypeEnum type;
 
     @NotBlank
     @JsonProperty("franchiseName")

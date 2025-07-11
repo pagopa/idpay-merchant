@@ -1,4 +1,4 @@
-package it.gov.pagopa.merchant.dto.sale;
+package it.gov.pagopa.merchant.dto.point_of_sales;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.merchant.dto.enums.ChannelTypeEnum;

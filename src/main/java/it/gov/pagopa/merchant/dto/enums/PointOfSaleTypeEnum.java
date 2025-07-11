@@ -3,13 +3,14 @@ package it.gov.pagopa.merchant.dto.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum SaleTypeEnum {
+public enum PointOfSaleTypeEnum {
+
     FISICO("FISICO"),
     ONLINE("ONLINE");
 
     private final String value;
 
-    SaleTypeEnum(String value) {
+    PointOfSaleTypeEnum(String value) {
         this.value = value;
     }
 
@@ -20,8 +21,8 @@ public enum SaleTypeEnum {
     }
 
     @JsonCreator
-    public static SaleTypeEnum fromValue(String text) {
-        for (SaleTypeEnum b : SaleTypeEnum.values()) {
+    public static PointOfSaleTypeEnum fromValue(String text) {
+        for (PointOfSaleTypeEnum b : PointOfSaleTypeEnum.values()) {
             if (String.valueOf(b.value).equals(text)) {
                 return b;
             }

@@ -1,9 +1,9 @@
 package it.gov.pagopa.merchant.mapper;
 
 import it.gov.pagopa.merchant.dto.enums.ChannelTypeEnum;
-import it.gov.pagopa.merchant.dto.enums.SaleTypeEnum;
-import it.gov.pagopa.merchant.dto.sale.ChannelDTO;
-import it.gov.pagopa.merchant.dto.sale.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.dto.point_of_sales.ChannelDTO;
+import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.model.Channel;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import org.springframework.stereotype.Component;
@@ -16,17 +16,17 @@ import java.util.List;
 @Component
 public class PointOfSaleDTOMapper {
 
-    public PointOfSaleDTO PointOfSaleEntityToPointOfSaleDTO(PointOfSale pointOfSale){
+    public PointOfSaleDTO pointOfSaleEntityToPointOfSaleDTO(PointOfSale pointOfSale){
         if(pointOfSale == null){
             return  null;
         }
         return PointOfSaleDTO.builder()
-                .type(SaleTypeEnum.valueOf(pointOfSale.getSaleType()))
+                .type(PointOfSaleTypeEnum.valueOf(pointOfSale.getType()))
                 .franchiseName(pointOfSale.getFranchiseName())
                 .contactEmail(pointOfSale.getContactEmail())
                 .contactName(pointOfSale.getContactName())
                 .contactSurname(pointOfSale.getContactSurname())
-                .channels(ChannelEntityToChannelDTO(pointOfSale.getChannels()))
+                .channels(channelEntityToChannelDTO(pointOfSale.getChannels()))
                 .region(pointOfSale.getRegion())
                 .province(pointOfSale.getProvince())
                 .city(pointOfSale.getCity())
@@ -37,12 +37,12 @@ public class PointOfSaleDTOMapper {
                 .build();
     }
     
-    public PointOfSale PointOfSaleDTOtoPointOfSaleEntity(PointOfSaleDTO pointOfSaleDTO, String merchantId){
-        if(pointOfSaleDTO == null){
+    public PointOfSale pointOfSaleDTOtoPointOfSaleEntity(PointOfSaleDTO pointOfSaleDTO, String merchantId){
+        if(pointOfSaleDTO == null || merchantId == null){
             return null;
         }
         PointOfSale pointOfSale = PointOfSale.builder()
-                .saleType(pointOfSaleDTO.getType().name())
+                .type(pointOfSaleDTO.getType().name())
                 .franchiseName(pointOfSaleDTO.getFranchiseName())
                 .contactEmail(pointOfSaleDTO.getContactEmail())
                 .contactName(pointOfSaleDTO.getContactName())
@@ -52,23 +52,23 @@ public class PointOfSaleDTOMapper {
                 .merchantId(merchantId)
                 .build();
 
-        if(SaleTypeEnum.FISICO.equals(pointOfSaleDTO.getType())){
+        if(PointOfSaleTypeEnum.FISICO.equals(pointOfSaleDTO.getType())){
             pointOfSale.setRegion(pointOfSaleDTO.getRegion());
             pointOfSale.setProvince(pointOfSaleDTO.getProvince());
             pointOfSale.setCity(pointOfSaleDTO.getCity());
             pointOfSale.setZipCode(pointOfSaleDTO.getZipCode());
             pointOfSale.setAddress(pointOfSaleDTO.getAddress());
             pointOfSale.setStreetNumber(pointOfSaleDTO.getStreetNumber());
-            pointOfSale.setChannels(ChannelDTOtoChannelEntity(pointOfSaleDTO.getChannels()));
+            pointOfSale.setChannels(channelDTOtoChannelEntity(pointOfSaleDTO.getChannels()));
         }
-        else if(SaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
+        else if(PointOfSaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
             pointOfSale.setWebsite(pointOfSale.getWebsite());
         }
 
         return pointOfSale;
     }
 
-    private List<Channel> ChannelDTOtoChannelEntity(List<ChannelDTO> channelDTOS){
+    private List<Channel> channelDTOtoChannelEntity(List<ChannelDTO> channelDTOS){
         if (CollectionUtils.isEmpty(channelDTOS)) {
             return Collections.emptyList();
         } else {
@@ -81,7 +81,7 @@ public class PointOfSaleDTOMapper {
         }
     }
 
-    private List<ChannelDTO> ChannelEntityToChannelDTO(List<Channel> channels){
+    private List<ChannelDTO> channelEntityToChannelDTO(List<Channel> channels){
         if(CollectionUtils.isEmpty(channels)){
             return Collections.emptyList();
         }

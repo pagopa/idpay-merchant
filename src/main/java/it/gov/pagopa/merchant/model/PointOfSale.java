@@ -19,7 +19,7 @@ public class PointOfSale {
     @MongoId
     private String id;
 
-    private String saleType;
+    private String type;
     private String franchiseName;
     private String region;
     private String province;

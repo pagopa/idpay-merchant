@@ -1,7 +1,8 @@
-package it.gov.pagopa.merchant.service.sale;
+package it.gov.pagopa.merchant.service.point_of_sales;
 
-import it.gov.pagopa.merchant.dto.sale.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.sale.PointOfSaleFilteredDTO;
+import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSaleFilteredDTO;
+import it.gov.pagopa.merchant.dto.point_of_sales.PointOfSalePage;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
@@ -28,24 +29,23 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     @Override
     public void savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSaleDTOList){
         List<PointOfSale> pointOfSales = pointOfSaleDTOList.stream()
-                .map(pointOfSaleDTO -> pointOfSaleDTOMapper.PointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,merchantId))
+                .map(pointOfSaleDTO -> pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,merchantId))
                 .toList();
         pointOfSaleRepository.saveAll(pointOfSales);
     }
 
     @Override
-    public List<PointOfSaleDTO> getPointOfSales(PointOfSaleFilteredDTO filteredDTO){
-        Criteria criteria = buildCriteria(filteredDTO);
+    public PointOfSalePage getPointOfSales(PointOfSaleFilteredDTO filteredDTO){
+        //TO-DO
 
-        List<PointOfSale> onboardinglist = pointOfSaleRepository.findByFilter(criteria, filteredDTO.getPageable());
-
-        return onboardinglist.stream().map(pointOfSaleDTOMapper::PointOfSaleEntityToPointOfSaleDTO).toList();
+        return null;
     }
 
     private Criteria buildCriteria(PointOfSaleFilteredDTO filteredDTO) {
         Criteria criteria = Criteria.where(PointOfSale.Fields.merchantId).is(filteredDTO.getMerchantId());
+
         if (filteredDTO.getType() != null) {
-            criteria.and(PointOfSale.Fields.saleType).is(filteredDTO.getType());
+            criteria.and(PointOfSale.Fields.type).is(filteredDTO.getType());
         }
         if (filteredDTO.getCity() != null) {
             criteria.and(PointOfSale.Fields.city).is(filteredDTO.getCity());
@@ -56,6 +56,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         if (filteredDTO.getContactName() != null) {
             criteria.and(PointOfSale.Fields.contactName).is(filteredDTO.getContactName());
         }
+
         return criteria;
     }
 

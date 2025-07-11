@@ -12,6 +12,7 @@ import java.util.List;
 
 @Repository
 public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryExtended {
+
     private final MongoTemplate mongoTemplate;
 
     public PointOfSaleRepositoryExtendedImpl(MongoTemplate mongoTemplate) {
@@ -24,6 +25,9 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         return mongoTemplate.find(query, PointOfSale.class);
     }
 
-
+    @Override
+    public long getCount(Criteria criteria) {
+        return mongoTemplate.count(Query.query(criteria), PointOfSale.class);
+    }
 
 }
