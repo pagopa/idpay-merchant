@@ -26,6 +26,7 @@ public class ChannelDTO {
   private static final String VALID_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
   private static final String VALID_MOBILE = "^\\+?[0-9]{7,15}$";
   private static final String VALID_LANDING = "^https://[-a-zA-Z0-9+&@#/%?=|!:,.;]*[-a-zA-Z0-9+&@#/%=|]$";
+
   @AssertTrue(message = "Invalid contact format for the web type", groups = ValidationApiEnabledGroup.class)
   public boolean isContactValid() {
     if (contact == null || type == null) return true;

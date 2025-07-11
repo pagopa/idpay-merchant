@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -64,5 +65,12 @@ class PointOfSaleRepositoryExtendedImplTest {
     verify(mongoTemplate, times(1)).count(Mockito.any(),
         (Class<?>) Mockito.any());
   }
+
+  @Test
+  void getCriteria() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY","ADDRESS","CONTANCT-NAME");
+    assertEquals(5, criteria.getCriteriaObject().size());
+  }
+
 
 }

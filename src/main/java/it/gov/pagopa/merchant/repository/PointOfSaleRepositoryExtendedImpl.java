@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.repository;
 
 import it.gov.pagopa.merchant.model.PointOfSale;
-import it.gov.pagopa.merchant.utils.Utilities;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -22,7 +21,8 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
     @Override
     public List<PointOfSale> findByFilter(Criteria criteria, Pageable pageable) {
-        return mongoTemplate.find(Query.query(criteria).with(Utilities.getPageable(pageable)), PointOfSale.class);
+        Query query = Query.query(criteria).with(pageable);
+        return mongoTemplate.find(query, PointOfSale.class);
     }
 
     @Override
@@ -43,8 +43,6 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
             criteria.and(PointOfSale.Fields.contactName).is(contactName);
         }
         return criteria;
-        Query query = Query.query(criteria).with(Utilities.getPageable(pageable));
-        return mongoTemplate.find(query, PointOfSale.class);
     }
 
     @Override

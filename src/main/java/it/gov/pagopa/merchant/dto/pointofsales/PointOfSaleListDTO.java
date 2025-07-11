@@ -1,4 +1,4 @@
-package it.gov.pagopa.merchant.dto;
+package it.gov.pagopa.merchant.dto.pointofsales;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

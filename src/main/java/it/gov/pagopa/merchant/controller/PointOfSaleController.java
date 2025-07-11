@@ -1,10 +1,6 @@
 package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.dto.PointOfSaleListDTO;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,9 +8,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,18 +26,6 @@ import java.util.List;
 @Validated
 public interface PointOfSaleController {
 
-    @Operation(summary = "Return the point of sales list")
-    @GetMapping(value = "/{merchantId}/point-of-sales")
-    ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(
-            @PathVariable("merchantId") String merchantId,
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String address,
-            @RequestParam(required = false) String contactName,
-            @PageableDefault(size = 8,
-             sort = "franchiseName",
-             direction = Sort.Direction.ASC) Pageable pageable);
-}
     @Operation(
             summary = "Save the sale list of the merchant",
             security = {@SecurityRequirement(name = "Bearer")},
@@ -53,5 +41,17 @@ public interface PointOfSaleController {
             @PathVariable("merchantId") @NotBlank String merchantId,
             @RequestBody @Validated(ValidationApiEnabledGroup.class) @Valid List<PointOfSaleDTO> pointOfSales);
 
+    @Operation(
+            summary = "Return the point of sale list of the merchant",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"Merchant Point of Sales"})
+    @GetMapping(value = "/{merchantId}/point-of-sales")
+    ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(
+            @PathVariable("merchantId") String merchantId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) String contactName,
+            @PageableDefault(size = 8) Pageable pageable);
 
 }
