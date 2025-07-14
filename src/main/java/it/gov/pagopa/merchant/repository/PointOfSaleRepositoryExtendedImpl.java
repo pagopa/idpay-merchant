@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.repository;
 
+import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -30,16 +31,16 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
         Criteria criteria = Criteria.where(PointOfSale.Fields.merchantId).is(merchantId);
 
-        if (type != null) {
+        if (StringUtils.isNotBlank(type)) {
             criteria.and(PointOfSale.Fields.type).is(type);
         }
-        if (city != null) {
+        if (StringUtils.isNotBlank(city)) {
             criteria.and(PointOfSale.Fields.city).is(city);
         }
-        if (address != null) {
+        if (StringUtils.isNotBlank(address)) {
             criteria.and(PointOfSale.Fields.address).is(address);
         }
-        if (contactName != null) {
+        if (StringUtils.isNotBlank(contactName)) {
             criteria.and(PointOfSale.Fields.contactName).is(contactName);
         }
         return criteria;
