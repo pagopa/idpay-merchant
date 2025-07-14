@@ -25,15 +25,14 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
 
   @Override
   public ResponseEntity<Void> savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSales){
-    log.info("[POINT-OF-SALE][SAVE] Received request to save {} point(s) for merchantId={}",pointOfSales.size(),merchantId);
-    
-    if(pointOfSales.isEmpty()){
+    if(pointOfSales == null || pointOfSales.isEmpty()){
       log.warn("[POINT-OF-SALE][SAVE] Point of sales list is empty for merchantId={}",merchantId);
       throw new ClientExceptionWithBody(
               HttpStatus.BAD_REQUEST,
-              "POINT_OF_SALE_BAD_REQUEST",
+              MerchantConstants.ExceptionCode.POINT_OF_SALE_BAD_REQUEST,
               "Point of sales list cannot be empty.");
     }
+    log.info("[POINT-OF-SALE][SAVE] Received request to save {} point(s) for merchantId={}",pointOfSales.size(),merchantId);
 
     pointOfSaleService.savePointOfSales(merchantId, pointOfSales);
 

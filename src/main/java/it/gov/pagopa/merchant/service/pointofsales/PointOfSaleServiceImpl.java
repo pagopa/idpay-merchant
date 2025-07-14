@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
@@ -9,7 +10,6 @@ import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -80,7 +80,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
                         .collect(Collectors.joining("; "));
                 throw new ClientExceptionWithBody(
                         HttpStatus.BAD_REQUEST,
-                        "POINT_OF_SALE_BAD_REQUEST",
+                        MerchantConstants.ExceptionCode.POINT_OF_SALE_BAD_REQUEST,
                         errorMessages);
                     }
         });
