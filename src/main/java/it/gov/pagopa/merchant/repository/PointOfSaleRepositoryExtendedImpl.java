@@ -1,7 +1,8 @@
 package it.gov.pagopa.merchant.repository;
 
-import io.micrometer.common.util.StringUtils;
+
 import it.gov.pagopa.merchant.model.PointOfSale;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
