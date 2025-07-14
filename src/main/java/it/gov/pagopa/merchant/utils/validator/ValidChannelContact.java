@@ -1,6 +1,5 @@
 package it.gov.pagopa.merchant.utils.validator;
 
-import it.gov.pagopa.merchant.dto.enums.ChannelTypeEnum;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

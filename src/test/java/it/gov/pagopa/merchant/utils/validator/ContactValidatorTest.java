@@ -87,7 +87,7 @@ class ContactValidatorDiffblueTest {
         List<ConstraintViolationCreationContext> constraintViolationCreationContexts = context
                 .getConstraintViolationCreationContexts();
         assertEquals(1, constraintViolationCreationContexts.size());
-        ConstraintViolationCreationContext getResult = constraintViolationCreationContexts.get(0);
+        ConstraintViolationCreationContext getResult = constraintViolationCreationContexts.getFirst();
         assertEquals("Formato WEB non valido: Contact", getResult.getMessage());
         assertNull(getResult.getDynamicPayload());
         assertEquals(ExpressionLanguageFeatureLevel.DEFAULT, getResult.getExpressionLanguageFeatureLevel());
