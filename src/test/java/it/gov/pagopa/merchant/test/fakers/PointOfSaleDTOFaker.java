@@ -13,7 +13,7 @@ public class PointOfSaleDTOFaker {
 
     public static PointOfSaleDTO.PointOfSaleDTOBuilder mockInstanceBuilder() {
         return PointOfSaleDTO.builder()
-                .type(PointOfSaleTypeEnum.FISICO)
+                .type(PointOfSaleTypeEnum.PHYSICAL)
                 .franchiseName("FRANCHISE-NAME")
                 .region("REGION")
                 .province("PROVINCE")

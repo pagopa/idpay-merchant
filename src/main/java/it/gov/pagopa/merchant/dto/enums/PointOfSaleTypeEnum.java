@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum PointOfSaleTypeEnum {
 
-    FISICO("FISICO"),
+    PHYSICAL("PHYSICAL"),
     ONLINE("ONLINE");
 
     private final String value;

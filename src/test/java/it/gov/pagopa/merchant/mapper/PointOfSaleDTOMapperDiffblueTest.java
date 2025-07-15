@@ -38,7 +38,7 @@ class PointOfSaleDTOMapperTest {
                 .province("Province")
                 .region("us-east-2")
                 .streetNumber("42")
-                .type("FISICO")
+                .type("PHYSICAL")
                 .website("Website")
                 .zipCode("21654")
                 .build();
@@ -61,7 +61,7 @@ class PointOfSaleDTOMapperTest {
                 .province("Province")
                 .region("us-east-2")
                 .streetNumber("42")
-                .type("FISICO")
+                .type("PHYSICAL")
                 .website("Website")
                 .zipCode("21654")
                 .build();
@@ -98,7 +98,7 @@ class PointOfSaleDTOMapperTest {
                 .province("Province")
                 .region("us-east-2")
                 .streetNumber("42")
-                .type(PointOfSaleTypeEnum.FISICO)
+                .type(PointOfSaleTypeEnum.PHYSICAL)
                 .website("Website")
                 .zipCode("21654")
                 .build();
@@ -121,7 +121,7 @@ class PointOfSaleDTOMapperTest {
                 .province("Province")
                 .region("us-east-2")
                 .streetNumber("42")
-                .type(PointOfSaleTypeEnum.FISICO)
+                .type(PointOfSaleTypeEnum.PHYSICAL)
                 .website("Website")
                 .zipCode("21654")
                 .build();
@@ -133,7 +133,7 @@ class PointOfSaleDTOMapperTest {
         // Assert
         assertEquals("21654", actualPointOfSaleDTOtoPointOfSaleEntityResult.getZipCode());
         assertEquals("42", actualPointOfSaleDTOtoPointOfSaleEntityResult.getStreetNumber());
-        assertEquals("FISICO", actualPointOfSaleDTOtoPointOfSaleEntityResult.getType());
+        assertEquals("PHYSICAL", actualPointOfSaleDTOtoPointOfSaleEntityResult.getType());
         assertEquals("Oxford", actualPointOfSaleDTOtoPointOfSaleEntityResult.getCity());
         assertEquals("Province", actualPointOfSaleDTOtoPointOfSaleEntityResult.getProvince());
         assertEquals("us-east-2", actualPointOfSaleDTOtoPointOfSaleEntityResult.getRegion());
@@ -156,7 +156,7 @@ class PointOfSaleDTOMapperTest {
         when(pointOfSaleDTO.getStreetNumber()).thenReturn("42");
         when(pointOfSaleDTO.getZipCode()).thenReturn("21654");
         when(pointOfSaleDTO.getChannels()).thenReturn(new ArrayList<>());
-        when(pointOfSaleDTO.getType()).thenReturn(PointOfSaleTypeEnum.FISICO);
+        when(pointOfSaleDTO.getType()).thenReturn(PointOfSaleTypeEnum.PHYSICAL);
 
         // Act
         PointOfSale actualPointOfSaleDTOtoPointOfSaleEntityResult = pointOfSaleDTOMapper
@@ -178,7 +178,7 @@ class PointOfSaleDTOMapperTest {
         assertEquals("21654", actualPointOfSaleDTOtoPointOfSaleEntityResult.getZipCode());
         assertEquals("42 Main St", actualPointOfSaleDTOtoPointOfSaleEntityResult.getAddress());
         assertEquals("42", actualPointOfSaleDTOtoPointOfSaleEntityResult.getStreetNumber());
-        assertEquals("FISICO", actualPointOfSaleDTOtoPointOfSaleEntityResult.getType());
+        assertEquals("PHYSICAL", actualPointOfSaleDTOtoPointOfSaleEntityResult.getType());
         assertEquals("Oxford", actualPointOfSaleDTOtoPointOfSaleEntityResult.getCity());
         assertEquals("Province", actualPointOfSaleDTOtoPointOfSaleEntityResult.getProvince());
         assertEquals("us-east-2", actualPointOfSaleDTOtoPointOfSaleEntityResult.getRegion());
@@ -267,7 +267,7 @@ class PointOfSaleDTOMapperTest {
         when(pointOfSaleDTO.getStreetNumber()).thenReturn("42");
         when(pointOfSaleDTO.getZipCode()).thenReturn("21654");
         when(pointOfSaleDTO.getChannels()).thenReturn(channelDTOList);
-        when(pointOfSaleDTO.getType()).thenReturn(PointOfSaleTypeEnum.FISICO);
+        when(pointOfSaleDTO.getType()).thenReturn(PointOfSaleTypeEnum.PHYSICAL);
 
         // Act
         PointOfSale actualPointOfSaleDTOtoPointOfSaleEntityResult = pointOfSaleDTOMapper
