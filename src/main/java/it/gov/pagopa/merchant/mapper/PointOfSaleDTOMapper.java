@@ -52,7 +52,7 @@ public class PointOfSaleDTOMapper {
                 .merchantId(merchantId)
                 .build();
 
-        if(PointOfSaleTypeEnum.FISICO.equals(pointOfSaleDTO.getType())){
+        if(PointOfSaleTypeEnum.PHYSICAL.equals(pointOfSaleDTO.getType())){
             pointOfSale.setRegion(pointOfSaleDTO.getRegion());
             pointOfSale.setProvince(pointOfSaleDTO.getProvince());
             pointOfSale.setCity(pointOfSaleDTO.getCity());
