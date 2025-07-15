@@ -24,7 +24,7 @@ public class MerchantDetailDTO {
     private String vatNumber;
     private String status;
     private String iban;
-    private String holder; // intestatario iban
+    private String ibanHolder; // intestatario iban
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;
 }

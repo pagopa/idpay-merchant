@@ -29,7 +29,7 @@ public class Merchant {
     private String fiscalCode;
     private String vatNumber;
     private String iban;
-    private String holder; // intestatario iban
+    private String ibanHolder; // intestatario iban
     private List<Initiative> initiativeList;
     private boolean enabled;
 }

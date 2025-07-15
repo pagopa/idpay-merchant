@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.dto.IbanPutDTO;
+import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
@@ -47,7 +47,7 @@ public interface MerchantController {
         @PathVariable("merchantId") String merchantId,
         @PathVariable("organizationId") String organizationId,
         @PathVariable("initiativeId") String initiativeId,
-        @RequestBody IbanPutDTO ibanPutDTO
+        @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
     );
 
     @Operation(summary = "Returns the merchant id")

@@ -22,7 +22,7 @@ public class MerchantModelToDTOMapper {
                     merchantDetailDTO.setVatNumber(merchant.getVatNumber());
                     merchantDetailDTO.setStatus(initiative.getMerchantStatus());
                     merchantDetailDTO.setIban(merchant.getIban());
-                    merchantDetailDTO.setHolder(merchant.getHolder());
+                    merchantDetailDTO.setIbanHolder(merchant.getIbanHolder());
                     merchantDetailDTO.setCreationDate(initiative.getCreationDate());
                     merchantDetailDTO.setUpdateDate(initiative.getUpdateDate());
                 }

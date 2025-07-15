@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IbanPutDTO {
+public class MerchantIbanPatchDTO {
   private String iban;
-  private String holder; // intestatario iban
+  private String ibanHolder; // intestatario iban
 }

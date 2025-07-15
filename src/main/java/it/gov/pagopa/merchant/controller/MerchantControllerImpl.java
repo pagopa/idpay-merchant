@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
-import it.gov.pagopa.merchant.dto.IbanPutDTO;
+import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
@@ -41,9 +41,10 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
-  public ResponseEntity<MerchantDetailDTO> updateIban(String merchantId, String organizationId, String initiativeId, IbanPutDTO ibanPutDTO) {
+  public ResponseEntity<MerchantDetailDTO> updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
     log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}", merchantId, initiativeId);
-    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(merchantId, organizationId, initiativeId, ibanPutDTO);
+    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(merchantId, organizationId, initiativeId,
+        merchantIbanPatchDTO);
     return ResponseEntity.ok(merchantDetailDTO);
   }
 

@@ -37,8 +37,8 @@ public class MerchantFaker {
                 .certifiedEmail("MAIL")
                 .fiscalCode("FISCAL_CODE")
                 .vatNumber("VAT_NUMBER_%d".formatted(bias))
-                .iban("IT00TEST")
-                .holder("NOME COGNOME")
+                .iban("IT60X0542811101000000123456")
+                .ibanHolder("Nome Cognome")
                 .enabled(true);
     }
 }

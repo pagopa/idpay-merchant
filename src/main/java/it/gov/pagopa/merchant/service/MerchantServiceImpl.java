@@ -2,7 +2,6 @@ package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
-import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -80,8 +79,9 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, IbanPutDTO ibanPutDTO) {
-        return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId, ibanPutDTO);
+    public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
+        return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId,
+            merchantIbanPatchDTO);
     }
 
     @Override
