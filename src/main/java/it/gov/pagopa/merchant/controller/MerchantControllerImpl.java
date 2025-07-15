@@ -42,7 +42,8 @@ public class MerchantControllerImpl implements MerchantController {
 
   @Override
   public ResponseEntity<MerchantDetailDTO> updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
-    log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}", merchantId, initiativeId);
+    String sanitizedInitiativeId = initiativeId.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
+    log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}", merchantId, sanitizedInitiativeId);
     MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(merchantId, organizationId, initiativeId,
         merchantIbanPatchDTO);
     return ResponseEntity.ok(merchantDetailDTO);
