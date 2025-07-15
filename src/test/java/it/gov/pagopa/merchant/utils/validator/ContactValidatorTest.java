@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 
 @ContextConfiguration(classes = {ContactValidator.class})
 @ExtendWith(SpringExtension.class)
-class ContactValidatorDiffblueTest {
+class ContactValidatorTest {
     @Autowired
     private ContactValidator contactValidator;
 
