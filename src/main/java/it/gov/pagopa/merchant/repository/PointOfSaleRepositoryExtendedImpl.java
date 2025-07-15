@@ -1,8 +1,8 @@
 package it.gov.pagopa.merchant.repository;
 
-import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -42,12 +42,11 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         }
 
         if (StringUtils.isNotBlank(address)) {
-            if (PointOfSaleTypeEnum.ONLINE.name().equalsIgnoreCase(type)) {
+            if (StringUtils.startsWithIgnoreCase(address,"http")) {
                 Pattern websitePattern = Pattern.compile(Pattern.quote(address.trim()), Pattern.CASE_INSENSITIVE);
                 criteria.and(PointOfSale.Fields.website).regex(websitePattern);
-
             }
-            else if (PointOfSaleTypeEnum.PHYSICAL.name().equals(type)) {
+            else {
                 String[] parts = address.split(",");
                 String addressPart = parts[0].trim();
                 criteria.and(PointOfSale.Fields.address).regex(Pattern.quote(addressPart), "i");
