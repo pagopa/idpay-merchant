@@ -69,7 +69,7 @@ class PointOfSaleRepositoryExtendedImplTest {
   @Test
   void getCriteria() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY","ADDRESS","CONTANCT-NAME");
-    assertEquals(3, criteria.getCriteriaObject().size());
+    assertEquals(5, criteria.getCriteriaObject().size());
   }
 
 

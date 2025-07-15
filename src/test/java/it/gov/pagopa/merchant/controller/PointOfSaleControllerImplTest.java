@@ -39,7 +39,7 @@ class PointOfSaleControllerImplTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final String BASE_URL = "/idpay/merchant";
+    private static final String BASE_URL = "/idpay/merchant/portal";
     private static final String SAVE_POINT_OF_SALES = "/%s/point-of-sales";
     private static final String GET_POINT_OF_SALES = "/%s/point-of-sales";
 

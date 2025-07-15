@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/idpay/merchant")
+@RequestMapping("/idpay/merchant/portal")
 @Validated
 public interface PointOfSaleController {
 
