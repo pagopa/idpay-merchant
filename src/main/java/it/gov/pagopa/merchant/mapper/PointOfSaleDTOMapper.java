@@ -21,7 +21,7 @@ public class PointOfSaleDTOMapper {
             return  null;
         }
         return PointOfSaleDTO.builder()
-                .type(PointOfSaleTypeEnum.valueOf(pointOfSale.getType()))
+                .type(PointOfSaleTypeEnum.fromValue(pointOfSale.getType()))
                 .franchiseName(pointOfSale.getFranchiseName())
                 .contactEmail(pointOfSale.getContactEmail())
                 .contactName(pointOfSale.getContactName())
@@ -62,7 +62,7 @@ public class PointOfSaleDTOMapper {
             pointOfSale.setChannels(channelDTOtoChannelEntity(pointOfSaleDTO.getChannels()));
         }
         else if(PointOfSaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
-            pointOfSale.setWebsite(pointOfSale.getWebsite());
+            pointOfSale.setWebsite(pointOfSaleDTO.getWebsite());
         }
 
         return pointOfSale;

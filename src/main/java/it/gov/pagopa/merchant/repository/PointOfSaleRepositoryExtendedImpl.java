@@ -37,6 +37,10 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
             criteria.and(PointOfSale.Fields.type).is(type);
         }
 
+        if (StringUtils.isNotBlank(city)) {
+            criteria.and(PointOfSale.Fields.city).is(city);
+        }
+
         if (StringUtils.isNotBlank(address)) {
             if (PointOfSaleTypeEnum.ONLINE.name().equalsIgnoreCase(type)) {
                 Pattern websitePattern = Pattern.compile(Pattern.quote(address.trim()), Pattern.CASE_INSENSITIVE);
