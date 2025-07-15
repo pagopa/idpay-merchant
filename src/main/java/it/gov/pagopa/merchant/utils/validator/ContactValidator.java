@@ -8,7 +8,7 @@ public class ContactValidator implements ConstraintValidator<ValidChannelContact
 
     private static final String REGEX_WEB = "^https://[-a-zA-Z0-9+&@#/%?=|!:,.;]*[-a-zA-Z0-9+&@#/%=|]$";
     private static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-    private static final String REGEX_MOBILE = "^\\+?[0-9]{7,15}$";
+    private static final String REGEX_MOBILE = "^\\+?\\d{7,15}$";
 
     @Override
     public boolean isValid(ChannelDTO dto, ConstraintValidatorContext context) {

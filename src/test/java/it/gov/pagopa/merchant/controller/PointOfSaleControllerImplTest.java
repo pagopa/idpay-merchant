@@ -15,9 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -81,7 +78,6 @@ class PointOfSaleControllerImplTest {
     @Test
     void getPointOfSalesListOK() throws Exception {
 
-        Pageable paging = PageRequest.of(0, 20, Sort.by("franchiseName"));
         PointOfSaleListDTO pointOfSaleListDTO = PointOfSaleListDTOFaker.mockInstance();
 
         Mockito.when(pointOfSaleService.getPointOfSalesList(any(),any(),any(),any(),any(),any())).thenReturn(pointOfSaleListDTO);

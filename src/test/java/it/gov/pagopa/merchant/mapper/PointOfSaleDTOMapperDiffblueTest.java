@@ -217,7 +217,6 @@ class PointOfSaleDTOMapperTest {
     @Test
     void testPointOfSaleDTOtoPointOfSaleEntity_givenPointOfSaleDTOMapper() {
         // Arrange
-        PointOfSaleDTOMapper pointOfSaleDTOMapper = new PointOfSaleDTOMapper();
         PointOfSaleDTOBuilder builderResult = PointOfSaleDTO.builder();
         PointOfSaleDTO pointOfSaleDTO = builderResult.channels(new ArrayList<>())
                 .city("Oxford")

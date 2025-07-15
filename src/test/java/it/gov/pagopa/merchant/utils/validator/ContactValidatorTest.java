@@ -119,7 +119,6 @@ class ContactValidatorDiffblueTest {
     @Test
     void testIsValidWithChannelDTOConstraintValidatorContext5() {
         // Arrange
-        ContactValidator contactValidator = new ContactValidator();
         ChannelDTO dto = new ChannelDTO(ChannelTypeEnum.MOBILE, "999999999");
 
         ClockProvider clockProvider = mock(ClockProvider.class);
