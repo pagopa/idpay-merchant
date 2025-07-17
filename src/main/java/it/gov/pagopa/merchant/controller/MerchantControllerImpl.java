@@ -40,15 +40,6 @@ public class MerchantControllerImpl implements MerchantController {
     return ResponseEntity.ok(merchantService.getMerchantDetail(organizationId, initiativeId, merchantId));
   }
 
-  @Override
-  public ResponseEntity<MerchantDetailDTO> updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
-    String sanitizedInitiativeId = initiativeId.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
-    log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}", merchantId, sanitizedInitiativeId);
-    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(merchantId, organizationId, initiativeId,
-        merchantIbanPatchDTO);
-    return ResponseEntity.ok(merchantDetailDTO);
-  }
-
   public String retrieveMerchantId(String acquirerId, String fiscalCode) {
     log.info("[GET_MERCHANT_ID] The Merchant with {}, {} requested to retrieve merchantId", acquirerId , fiscalCode);
     String merchantId = merchantService.retrieveMerchantId(acquirerId, fiscalCode);

@@ -41,15 +41,6 @@ public interface MerchantController {
             @PathVariable("merchantId") String merchantId
     );
 
-    @Operation(summary = "Patches the iban and/or the holder of a merchant")
-    @PatchMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
-    ResponseEntity<MerchantDetailDTO> updateIban(
-        @PathVariable("merchantId") String merchantId,
-        @PathVariable("organizationId") String organizationId,
-        @PathVariable("initiativeId") String initiativeId,
-        @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
-    );
-
     @Operation(summary = "Returns the merchant id")
     @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
     @ResponseStatus(code = HttpStatus.OK)

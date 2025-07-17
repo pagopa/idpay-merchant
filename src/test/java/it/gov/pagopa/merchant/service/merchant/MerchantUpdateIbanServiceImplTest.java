@@ -68,10 +68,10 @@ class MerchantUpdateIbanServiceImplTest {
     MerchantDetailDTO expectedDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
-    when(merchantDetailServiceMock.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
+    when(merchantDetailServiceMock.getMerchantDetail(INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
 
     // When
-    MerchantDetailDTO result = service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO);
+    MerchantDetailDTO result = service.updateIban(MERCHANT_ID, INITIATIVE_ID, patchDTO);
 
     // Then
     assertNotNull(result);
@@ -93,10 +93,10 @@ class MerchantUpdateIbanServiceImplTest {
     MerchantDetailDTO expectedDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
-    when(merchantDetailServiceMock.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
+    when(merchantDetailServiceMock.getMerchantDetail(INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
 
     // When
-    MerchantDetailDTO result = service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO);
+    MerchantDetailDTO result = service.updateIban(MERCHANT_ID, INITIATIVE_ID, patchDTO);
 
     // Then
     assertNotNull(result);
@@ -118,10 +118,10 @@ class MerchantUpdateIbanServiceImplTest {
     MerchantDetailDTO expectedDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
-    when(merchantDetailServiceMock.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
+    when(merchantDetailServiceMock.getMerchantDetail(INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
 
     // When
-    MerchantDetailDTO result = service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO);
+    MerchantDetailDTO result = service.updateIban(MERCHANT_ID, INITIATIVE_ID, patchDTO);
 
     // Then
     assertNotNull(result);
@@ -143,7 +143,7 @@ class MerchantUpdateIbanServiceImplTest {
 
     // When & Then
     MerchantNotFoundException e = assertThrows(MerchantNotFoundException.class,
-        () -> service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO));
+        () -> service.updateIban(MERCHANT_ID, INITIATIVE_ID, patchDTO));
     assertEquals(String.format("Merchant with id %s not found.", MERCHANT_ID), e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
   }
@@ -161,9 +161,9 @@ class MerchantUpdateIbanServiceImplTest {
 
     // When & Then
     MerchantNotFoundException e = assertThrows(MerchantNotFoundException.class,
-        () -> service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO));
-    assertEquals(String.format("Merchant with id %s is not associated with initiative %s for organization %s.",
-        MERCHANT_ID, INITIATIVE_ID, ORGANIZATION_ID), e.getMessage());
+        () -> service.updateIban(MERCHANT_ID, INITIATIVE_ID, patchDTO));
+    assertEquals(String.format("Merchant with id %s is not associated with initiative %s.",
+        MERCHANT_ID, INITIATIVE_ID), e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
   }
 
@@ -178,7 +178,7 @@ class MerchantUpdateIbanServiceImplTest {
 
     // When & Then
     IllegalStateException e = assertThrows(IllegalStateException.class,
-        () -> service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO));
+        () -> service.updateIban(MERCHANT_ID, INITIATIVE_ID, patchDTO));
     assertEquals("Invalid state of merchant, IBAN field is not empty", e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
   }
@@ -194,7 +194,7 @@ class MerchantUpdateIbanServiceImplTest {
 
     // When & Then
     IllegalStateException e = assertThrows(IllegalStateException.class,
-        () -> service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO));
+        () -> service.updateIban(MERCHANT_ID, INITIATIVE_ID, patchDTO));
     assertEquals("Invalid state of merchant, IBAN Holder field is not empty", e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
   }
@@ -209,7 +209,7 @@ class MerchantUpdateIbanServiceImplTest {
 
     // When & Then
     IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-        () -> service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO));
+        () -> service.updateIban(MERCHANT_ID,  INITIATIVE_ID, patchDTO));
     assertEquals("Invalid IBAN format.", e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
   }
@@ -224,7 +224,7 @@ class MerchantUpdateIbanServiceImplTest {
 
     // When & Then
     IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-        () -> service.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, patchDTO));
+        () -> service.updateIban(MERCHANT_ID, INITIATIVE_ID, patchDTO));
     assertEquals("Invalid IBAN holder format.", e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
   }

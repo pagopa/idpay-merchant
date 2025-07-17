@@ -30,18 +30,18 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
   }
 
   @Override
-  public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
+  public MerchantDetailDTO updateIban(String merchantId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
     Merchant merchant = merchantRepository.findById(merchantId)
         .orElseThrow(() -> new MerchantNotFoundException(
             String.format("Merchant with id %s not found.", merchantId)
         ));
 
     merchant.getInitiativeList().stream()
-        .filter(i -> i.getInitiativeId().equals(initiativeId) && i.getOrganizationId().equals(organizationId))
+        .filter(i -> i.getInitiativeId().equals(initiativeId))
         .findFirst()
         .orElseThrow(() -> new MerchantNotFoundException(
-            String.format("Merchant with id %s is not associated with initiative %s for organization %s.",
-                merchantId, initiativeId, organizationId)
+            String.format("Merchant with id %s is not associated with initiative %s.",
+                merchantId, initiativeId)
         ));
 
     if (!Objects.isNull(merchantIbanPatchDTO.getIban())) {
@@ -70,6 +70,6 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
 
     merchantRepository.save(merchant);
 
-    return merchantDetailService.getMerchantDetail(organizationId, initiativeId, merchantId);
+    return merchantDetailService.getMerchantDetail(initiativeId, merchantId);
   }
 }

@@ -195,11 +195,11 @@ class MerchantServiceImplTest {
         MerchantIbanPatchDTO merchantIbanPatchDTO = new MerchantIbanPatchDTO("IT60X0542811101000000123456", "New Holder");
         MerchantDetailDTO expectedDto = MerchantDetailDTOFaker.mockInstance(1);
 
-        when(merchantUpdateIbanService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, merchantIbanPatchDTO))
+        when(merchantUpdateIbanService.updateIban(MERCHANT_ID, INITIATIVE_ID, merchantIbanPatchDTO))
             .thenReturn(expectedDto);
 
         // When
-        MerchantDetailDTO result = merchantService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+        MerchantDetailDTO result = merchantService.updateIban(MERCHANT_ID, INITIATIVE_ID,
             merchantIbanPatchDTO);
 
         // Then
@@ -207,7 +207,7 @@ class MerchantServiceImplTest {
         assertEquals(expectedDto, result);
 
         // Verify that the call was delegated to the correct service
-        verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, merchantIbanPatchDTO);
+        verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, INITIATIVE_ID, merchantIbanPatchDTO);
     }
 
     @Test
@@ -216,18 +216,18 @@ class MerchantServiceImplTest {
         MerchantIbanPatchDTO merchantIbanPatchDTO = new MerchantIbanPatchDTO("INVALID_IBAN", null);
 
         // Mock the underlying service to throw an exception
-        when(merchantUpdateIbanService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, merchantIbanPatchDTO))
+        when(merchantUpdateIbanService.updateIban(MERCHANT_ID, INITIATIVE_ID, merchantIbanPatchDTO))
             .thenThrow(new IllegalArgumentException("Invalid IBAN format."));
 
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> merchantService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+            () -> merchantService.updateIban(MERCHANT_ID, INITIATIVE_ID,
                 merchantIbanPatchDTO));
 
         assertEquals("Invalid IBAN format.", exception.getMessage());
 
         // Verify the call was still made
-        verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, merchantIbanPatchDTO);
+        verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, INITIATIVE_ID, merchantIbanPatchDTO);
     }
 
     @Test
@@ -237,17 +237,17 @@ class MerchantServiceImplTest {
         String expectedExceptionMessage = String.format("Merchant with id %s not found.", MERCHANT_ID);
 
         // Mock the underlying service to throw an exception
-        when(merchantUpdateIbanService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, merchantIbanPatchDTO))
+        when(merchantUpdateIbanService.updateIban(MERCHANT_ID, INITIATIVE_ID, merchantIbanPatchDTO))
             .thenThrow(new MerchantNotFoundException(expectedExceptionMessage));
 
         // When & Then
         MerchantNotFoundException exception = assertThrows(MerchantNotFoundException.class,
-            () -> merchantService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+            () -> merchantService.updateIban(MERCHANT_ID, INITIATIVE_ID,
                 merchantIbanPatchDTO));
 
         assertEquals(expectedExceptionMessage, exception.getMessage());
 
         // Verify the call was still made
-        verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID, merchantIbanPatchDTO);
+        verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, INITIATIVE_ID, merchantIbanPatchDTO);
     }
 }
