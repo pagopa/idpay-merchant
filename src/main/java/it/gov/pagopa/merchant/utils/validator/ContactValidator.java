@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.utils.validator;
 
+import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.merchant.dto.pointofsales.ChannelDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -17,6 +18,10 @@ public class ContactValidator implements ConstraintValidator<ValidChannelContact
         }
 
         String contact = dto.getContact();
+
+        if(StringUtils.isBlank(contact)){
+            return true;
+        }
 
         boolean valid;
         String message;
