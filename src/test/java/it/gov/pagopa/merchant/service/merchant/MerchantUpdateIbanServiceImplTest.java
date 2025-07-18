@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service.merchant;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
+import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -31,6 +32,8 @@ class MerchantUpdateIbanServiceImplTest {
   private MerchantRepository merchantRepositoryMock;
   @Mock
   private MerchantDetailService merchantDetailServiceMock;
+  @Mock
+  private MerchantModelToDTOMapper merchantModelToDTOMapper;
 
   private MerchantUpdateIbanService service;
 
@@ -44,7 +47,7 @@ class MerchantUpdateIbanServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    service = new MerchantUpdateIbanServiceImpl(merchantRepositoryMock, merchantDetailServiceMock);
+    service = new MerchantUpdateIbanServiceImpl(merchantRepositoryMock, merchantDetailServiceMock, merchantModelToDTOMapper);
   }
 
   private Merchant buildMerchant() {
