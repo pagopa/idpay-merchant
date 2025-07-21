@@ -112,9 +112,9 @@ public class PointOfSaleDTOMapper {
             }
             else {
                 if(trimmed.length()<200){
-                    Pattern pattern = Pattern.compile("^(.*?)\\s+(\\d+\\w*(?:/\\w*)?)$");
+                    Pattern pattern = Pattern.compile("^(.+?)\\s+(\\d+[\\w/\\-]*)$");
                     Matcher matcher = pattern.matcher(trimmed);
-                    if (matcher.find()) {
+                    if (matcher.matches()) {
                         address = matcher.group(1).trim();
                         streetNumber = matcher.group(2).trim();
                     }
