@@ -100,7 +100,6 @@ class PointOfSaleDTOMapperTest {
                 .franchiseName("Franchise Name")
                 .province("Province")
                 .region("us-east-2")
-                .streetNumber("42")
                 .type(PointOfSaleTypeEnum.PHYSICAL)
                 .website("Website")
                 .zipCode("21654")
@@ -123,7 +122,6 @@ class PointOfSaleDTOMapperTest {
                 .franchiseName("Franchise Name")
                 .province("Province")
                 .region("us-east-2")
-                .streetNumber("42")
                 .type(PointOfSaleTypeEnum.ONLINE)
                 .website("Website")
                 .zipCode("21654")
@@ -149,7 +147,6 @@ class PointOfSaleDTOMapperTest {
         when(pointOfSaleDTO.getFranchiseName()).thenReturn("Franchise Name");
         when(pointOfSaleDTO.getProvince()).thenReturn("Province");
         when(pointOfSaleDTO.getRegion()).thenReturn("us-east-2");
-        when(pointOfSaleDTO.getStreetNumber()).thenReturn("42");
         when(pointOfSaleDTO.getZipCode()).thenReturn("21654");
         when(pointOfSaleDTO.getChannels()).thenReturn(new ArrayList<>());
         when(pointOfSaleDTO.getType()).thenReturn(PointOfSaleTypeEnum.PHYSICAL);
@@ -168,12 +165,10 @@ class PointOfSaleDTOMapperTest {
         verify(pointOfSaleDTO).getFranchiseName();
         verify(pointOfSaleDTO).getProvince();
         verify(pointOfSaleDTO).getRegion();
-        verify(pointOfSaleDTO).getStreetNumber();
         verify(pointOfSaleDTO, atLeast(1)).getType();
         verify(pointOfSaleDTO).getZipCode();
         assertEquals("21654", actualPointOfSaleDTOtoPointOfSaleEntityResult.getZipCode());
         assertEquals("42 Main St", actualPointOfSaleDTOtoPointOfSaleEntityResult.getAddress());
-        assertEquals("42", actualPointOfSaleDTOtoPointOfSaleEntityResult.getStreetNumber());
         assertEquals("PHYSICAL", actualPointOfSaleDTOtoPointOfSaleEntityResult.getType());
         assertEquals("Oxford", actualPointOfSaleDTOtoPointOfSaleEntityResult.getCity());
         assertEquals("Province", actualPointOfSaleDTOtoPointOfSaleEntityResult.getProvince());
@@ -223,7 +218,6 @@ class PointOfSaleDTOMapperTest {
                 .franchiseName("Franchise Name")
                 .province("Province")
                 .region("us-east-2")
-                .streetNumber("42")
                 .type(PointOfSaleTypeEnum.ONLINE)
                 .website("Website")
                 .zipCode("21654")
@@ -261,7 +255,6 @@ class PointOfSaleDTOMapperTest {
         when(pointOfSaleDTO.getFranchiseName()).thenReturn("Franchise Name");
         when(pointOfSaleDTO.getProvince()).thenReturn("Province");
         when(pointOfSaleDTO.getRegion()).thenReturn("us-east-2");
-        when(pointOfSaleDTO.getStreetNumber()).thenReturn("42");
         when(pointOfSaleDTO.getZipCode()).thenReturn("21654");
         when(pointOfSaleDTO.getChannels()).thenReturn(channelDTOList);
         when(pointOfSaleDTO.getType()).thenReturn(PointOfSaleTypeEnum.PHYSICAL);
@@ -280,7 +273,6 @@ class PointOfSaleDTOMapperTest {
         verify(pointOfSaleDTO).getFranchiseName();
         verify(pointOfSaleDTO).getProvince();
         verify(pointOfSaleDTO).getRegion();
-        verify(pointOfSaleDTO).getStreetNumber();
         verify(pointOfSaleDTO, atLeast(1)).getType();
         verify(pointOfSaleDTO).getZipCode();
         List<Channel> channels = actualPointOfSaleDTOtoPointOfSaleEntityResult.getChannels();

@@ -13,6 +13,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class PointOfSaleDTOMapper {
@@ -33,8 +35,7 @@ public class PointOfSaleDTOMapper {
                 .province(pointOfSale.getProvince())
                 .city(pointOfSale.getCity())
                 .zipCode(pointOfSale.getZipCode())
-                .address(pointOfSale.getAddress())
-                .streetNumber(pointOfSale.getStreetNumber())
+                .address(pointOfSale.getAddress()+", "+pointOfSale.getStreetNumber())
                 .website(pointOfSale.getWebsite())
                 .build();
     }
@@ -58,8 +59,7 @@ public class PointOfSaleDTOMapper {
             pointOfSale.setProvince(pointOfSaleDTO.getProvince());
             pointOfSale.setCity(pointOfSaleDTO.getCity());
             pointOfSale.setZipCode(pointOfSaleDTO.getZipCode());
-            pointOfSale.setAddress(pointOfSaleDTO.getAddress());
-            pointOfSale.setStreetNumber(pointOfSaleDTO.getStreetNumber());
+            mapAddress(pointOfSaleDTO, pointOfSale);
             pointOfSale.setChannels(channelDTOtoChannelEntity(pointOfSaleDTO.getChannels()));
         }
         else if(PointOfSaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
@@ -93,6 +93,34 @@ public class PointOfSaleDTOMapper {
                             .contact(entity.getContact())
                             .build()
             ).toList();
+        }
+    }
+
+    private void mapAddress(PointOfSaleDTO dto, PointOfSale entity) {
+        String fullAddress = dto.getAddress();
+
+        if (fullAddress != null && !fullAddress.isBlank()) {
+            String trimmed = fullAddress.trim();
+
+            String address = trimmed;
+            String streetNumber = null;
+
+            if (trimmed.contains(",")) {
+                String[] parts = trimmed.split(",", 2);
+                address = parts[0].trim();
+                streetNumber = parts[1].trim();
+            }
+            else {
+                Pattern pattern = Pattern.compile("^(.*?)\\s+(\\d+\\w*(?:/\\w*)?)$");
+                Matcher matcher = pattern.matcher(trimmed);
+                if (matcher.find()) {
+                    address = matcher.group(1).trim();
+                    streetNumber = matcher.group(2).trim();
+                }
+            }
+
+            entity.setAddress(address);
+            entity.setStreetNumber(streetNumber);
         }
     }
 
