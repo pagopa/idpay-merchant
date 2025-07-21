@@ -139,13 +139,13 @@ class ContactValidatorTest {
   @Test
   void testIsValidWithChannelDTOConstraintValidatorContext8() {
     // Arrange
-    ContactValidator contactValidator = new ContactValidator();
+    ContactValidator validator = new ContactValidator();
     ChannelDTO dto = new ChannelDTO(ChannelTypeEnum.MOBILE, "999999999");
 
     ClockProvider clockProvider = mock(ClockProvider.class);
 
     // Act and Assert
-    assertTrue(contactValidator.isValid(dto,
+    assertTrue(validator.isValid(dto,
         new ConstraintValidatorContextImpl(clockProvider, PathImpl.createRootPath(), null,
             "Constraint Validator Payload", ExpressionLanguageFeatureLevel.DEFAULT,
             ExpressionLanguageFeatureLevel.DEFAULT)));
