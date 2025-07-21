@@ -64,6 +64,12 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
+    public MerchantDetailDTO getMerchantDetail(String merchantId) {
+        return merchantDetailService.getMerchantDetail(merchantId);
+    }
+
+
+    @Override
     public MerchantListDTO getMerchantList(String organizationId,
                                            String initiativeId,
                                            String fiscalCode,

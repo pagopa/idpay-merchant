@@ -1,48 +1,50 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
+import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
-import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
+import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class PointOfSaleServiceImpl implements PointOfSaleService {
 
+    private final MerchantService merchantService;
     private final PointOfSaleRepository pointOfSaleRepository;
     private final PointOfSaleDTOMapper pointOfSaleDTOMapper;
-    private final Validator validator;
+    private final PointOfSaleValidator pointOfSaleValidator;
 
     public PointOfSaleServiceImpl(
+            MerchantService merchantService,
             PointOfSaleRepository pointOfSaleRepository,
             PointOfSaleDTOMapper pointOfSaleDTOMapper,
-            Validator validator) {
+            PointOfSaleValidator pointOfSaleValidator) {
+        this.merchantService = merchantService;
         this.pointOfSaleRepository = pointOfSaleRepository;
         this.pointOfSaleDTOMapper = pointOfSaleDTOMapper;
-        this.validator = validator;
+        this.pointOfSaleValidator = pointOfSaleValidator;
     }
 
     @Override
     public void savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSaleDTOList){
-        checkViolations(pointOfSaleDTOList);
+        checkMerchantExist(merchantId);
+        pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOList);
+
         List<PointOfSale> pointOfSales = pointOfSaleDTOList.stream()
                 .map(pointOfSaleDTO -> pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,merchantId))
                 .toList();
@@ -51,6 +53,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     @Override
     public PointOfSaleListDTO getPointOfSalesList(String merchantId, String type, String city, String address, String contactName, Pageable pageable) {
+        checkMerchantExist(merchantId);
 
         Criteria criteria = pointOfSaleRepository.getCriteria(merchantId, type, city, address, contactName);
 
@@ -71,19 +74,13 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
                 .build();
     }
 
-    private void checkViolations(List<PointOfSaleDTO> pointOfSaleDTOS){
-        pointOfSaleDTOS.forEach(pointOfSaleDTO -> {
-            Set<ConstraintViolation<PointOfSaleDTO>> violations = validator.validate(pointOfSaleDTO, ValidationApiEnabledGroup.class);
-            if( !violations.isEmpty()){
-                String errorMessages = violations.stream()
-                        .map(ConstraintViolation::getMessage)
-                        .collect(Collectors.joining("; "));
-                throw new ClientExceptionWithBody(
-                        HttpStatus.BAD_REQUEST,
-                        MerchantConstants.ExceptionCode.POINT_OF_SALE_BAD_REQUEST,
-                        errorMessages);
-                    }
-        });
+    private void checkMerchantExist(String merchantId){
+        MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId);
+        if(merchantDetail == null){
+            throw new MerchantNotFoundException(
+                    MerchantConstants.ExceptionCode.MERCHANT_NOT_ONBOARDED,
+                    String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,merchantId));
+        }
     }
 
 }

@@ -38,17 +38,20 @@ public class MerchantConstants {
         public static final String TOO_MANY_REQUESTS = "MERCHANT_TOO_MANY_REQUESTS";
         public static final String GENERIC_ERROR = "MERCHANT_GENERIC_ERROR";
         public static final String POINT_OF_SALE_BAD_REQUEST = "POINT_OF_SALE_BAD_REQUEST";
+        public static final String INVALID_CSV = "INVALID_CSV";
+        public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
     }
 
     public static final class ExceptionMessage {
         private ExceptionMessage(){}
         public static final String INITIATIVE_AND_MERCHANT_NOT_FOUND = "The current merchant is not onboarded on initiative [%s]";
-        public static final String MERCHANT_NOT_FOUND_MESSAGE = "Cannot find current merchant";
+        public static final String MERCHANT_NOT_FOUND_MESSAGE = "Cannot find current merchant %s";
         public static final String CSV_READING_ERROR = "An error occurred during file reading";
         public static final String STORAGE_ERROR = "An error occurred during file storage";
         public static final String DOWNLOAD_ERROR = "An error occurred during file download";
         public static final String MERCHANT_SAVING_ERROR = "An error occurred during file saving";
         public static final String INITIATIVE_CONNECTOR_ERROR = "An error occurred in the microservice initiative";
+        public static final String VALIDATION_ERROR = "Some fields are invalid. See details for more information.";
     }
 
     public static final String INITIATIVE_CLOSED = "CLOSED";

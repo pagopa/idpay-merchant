@@ -88,7 +88,7 @@ class ContactValidatorTest {
                 .getConstraintViolationCreationContexts();
         assertEquals(1, constraintViolationCreationContexts.size());
         ConstraintViolationCreationContext getResult = constraintViolationCreationContexts.getFirst();
-        assertEquals("Formato WEB non valido: Contact", getResult.getMessage());
+        assertEquals("Invalid WEB/LANDING format: Contact", getResult.getMessage());
         assertNull(getResult.getDynamicPayload());
         assertEquals(ExpressionLanguageFeatureLevel.DEFAULT, getResult.getExpressionLanguageFeatureLevel());
         assertFalse(actualIsValidResult);

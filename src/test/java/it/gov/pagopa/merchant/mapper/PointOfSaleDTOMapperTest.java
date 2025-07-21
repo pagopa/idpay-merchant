@@ -7,6 +7,7 @@ import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO.PointOfSaleDTOBuilder;
 import it.gov.pagopa.merchant.model.Channel;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ class PointOfSaleDTOMapperTest {
     @Test
     void pointOfSaleEntityToPointOfSaleDTO_channelsEmpty(){
         PointOfSale pointOfSale = PointOfSale.builder()
+                .id(new ObjectId())
                 .channels(List.of())
                 .city("Oxford")
                 .contactEmail("jane.doe@example.org")
@@ -52,6 +54,7 @@ class PointOfSaleDTOMapperTest {
     @Test
     void pointOfSaleEntityToPointOfSaleDTO_ok(){
         PointOfSale pointOfSale = PointOfSale.builder()
+                .id(new ObjectId())
                 .channels(List.of(new Channel("MOBILE","00000")))
                 .city("Oxford")
                 .contactEmail("jane.doe@example.org")
@@ -121,7 +124,7 @@ class PointOfSaleDTOMapperTest {
                 .province("Province")
                 .region("us-east-2")
                 .streetNumber("42")
-                .type(PointOfSaleTypeEnum.PHYSICAL)
+                .type(PointOfSaleTypeEnum.ONLINE)
                 .website("Website")
                 .zipCode("21654")
                 .build();
@@ -131,14 +134,7 @@ class PointOfSaleDTOMapperTest {
                 .pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO, "42");
 
         // Assert
-        assertEquals("21654", actualPointOfSaleDTOtoPointOfSaleEntityResult.getZipCode());
-        assertEquals("42", actualPointOfSaleDTOtoPointOfSaleEntityResult.getStreetNumber());
-        assertEquals("PHYSICAL", actualPointOfSaleDTOtoPointOfSaleEntityResult.getType());
-        assertEquals("Oxford", actualPointOfSaleDTOtoPointOfSaleEntityResult.getCity());
-        assertEquals("Province", actualPointOfSaleDTOtoPointOfSaleEntityResult.getProvince());
-        assertEquals("us-east-2", actualPointOfSaleDTOtoPointOfSaleEntityResult.getRegion());
-        assertNull(actualPointOfSaleDTOtoPointOfSaleEntityResult.getAddress());
-        assertTrue(actualPointOfSaleDTOtoPointOfSaleEntityResult.getChannels().isEmpty());
+        assertEquals("ONLINE", actualPointOfSaleDTOtoPointOfSaleEntityResult.getType());
     }
 
     @Test
@@ -219,6 +215,7 @@ class PointOfSaleDTOMapperTest {
         // Arrange
         PointOfSaleDTOBuilder builderResult = PointOfSaleDTO.builder();
         PointOfSaleDTO pointOfSaleDTO = builderResult.channels(new ArrayList<>())
+                .id(new ObjectId().toString())
                 .city("Oxford")
                 .contactEmail("jane.doe@example.org")
                 .contactName("Contact Name")

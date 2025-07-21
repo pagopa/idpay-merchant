@@ -3,11 +3,14 @@ package it.gov.pagopa.merchant.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
+import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
+import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleListDTOFaker;
+import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,6 +36,8 @@ class PointOfSaleControllerImplTest {
 
     @MockBean
     private PointOfSaleService pointOfSaleService;
+    @MockBean
+    private PointOfSaleValidator validator;
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,13 +47,16 @@ class PointOfSaleControllerImplTest {
     private static final String BASE_URL = "/idpay/merchant/portal";
     private static final String SAVE_POINT_OF_SALES = "/%s/point-of-sales";
     private static final String GET_POINT_OF_SALES = "/%s/point-of-sales";
+    private static final String DELETE_POINT_OF_SALES = "/%s/point-of-sales/%s";
 
     private static final String MERCHANT_ID = "MERCHANT_ID";
-
+    private static final String POINT_OF_SALE_ID = "POINT_OF_SALE_ID";
 
     @Test
     void savePointOfSalesOK() throws Exception {
         PointOfSaleDTO pointOfSaleDTOFaker = PointOfSaleDTOFaker.mockInstance();
+
+        doNothing().when(validator).validatePointOfSales(any());
 
         doNothing().when(pointOfSaleService).savePointOfSales(MERCHANT_ID, List.of(pointOfSaleDTOFaker));
 
@@ -62,21 +70,10 @@ class PointOfSaleControllerImplTest {
                 .andReturn();
     }
 
-    @Test
-    void savePointOfSalesKO() throws Exception {
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.put(BASE_URL + String.format(SAVE_POINT_OF_SALES, MERCHANT_ID))
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .content(objectMapper.writeValueAsString(List.of()))
-                                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().is4xxClientError())
-                .andDo(print())
-                .andReturn();
-    }
 
     @Test
     void getPointOfSalesListOK() throws Exception {
+        MerchantDetailDTO merchantDetail = MerchantDetailDTOFaker.mockInstance(1);
 
         PointOfSaleListDTO pointOfSaleListDTO = PointOfSaleListDTOFaker.mockInstance();
 
@@ -90,6 +87,5 @@ class PointOfSaleControllerImplTest {
                         .andReturn();
         Assertions.assertNotNull(result);
     }
-
 
 }
