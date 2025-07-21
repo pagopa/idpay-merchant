@@ -39,7 +39,7 @@ public class PointOfSaleDTOMapper {
                 .website(pointOfSale.getWebsite())
                 .build();
     }
-    
+
     public PointOfSale pointOfSaleDTOtoPointOfSaleEntity(PointOfSaleDTO pointOfSaleDTO, String merchantId){
         if(pointOfSaleDTO == null || merchantId == null){
             return null;
@@ -111,13 +111,11 @@ public class PointOfSaleDTOMapper {
                 streetNumber = parts[1].trim();
             }
             else {
-                if(trimmed.length()<200){
-                    Pattern pattern = Pattern.compile("^(.+?)\\s+(\\d+[\\w/\\-]*)$");
-                    Matcher matcher = pattern.matcher(trimmed);
-                    if (matcher.matches()) {
-                        address = matcher.group(1).trim();
-                        streetNumber = matcher.group(2).trim();
-                    }
+                Pattern pattern = Pattern.compile("^(.*?)\\s+(\\d+\\w*(?:/\\w*)?)$");
+                Matcher matcher = pattern.matcher(trimmed);
+                if (matcher.find()) {
+                    address = matcher.group(1).trim();
+                    streetNumber = matcher.group(2).trim();
                 }
             }
 
