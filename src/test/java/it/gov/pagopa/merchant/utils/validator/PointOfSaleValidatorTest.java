@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.utils.validator;
 
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.common.web.exception.ValidationException;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.ChannelDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import jakarta.validation.ConstraintViolation;
@@ -18,13 +19,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {PointOfSaleValidator.class})
@@ -52,6 +49,34 @@ class PointOfSaleValidatorTest {
                 () -> pointOfSaleValidator.validatePointOfSales(new ArrayList<>()));
 
         assertEquals("Point of sales list cannot be empty.", exception.getMessage());
+    }
+
+    @Test
+    void validateViolationsPointOfSalesWhenPhysicalTypeShouldUsePhysicalGroup() {
+        PointOfSaleDTO dto = new PointOfSaleDTO();
+        dto.setType(PointOfSaleTypeEnum.PHYSICAL);
+
+        List<PointOfSaleDTO> list = List.of(dto);
+
+        when(validator.validate(dto, PhysicalGroup.class)).thenReturn(Collections.emptySet());
+
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(list));
+
+        verify(validator).validate(dto, PhysicalGroup.class);
+    }
+
+    @Test
+    void validateViolationsPointOfSalesWhenOnlineTypeShouldUseOnlineGroup() {
+        PointOfSaleDTO dto = new PointOfSaleDTO();
+        dto.setType(PointOfSaleTypeEnum.ONLINE);
+
+        List<PointOfSaleDTO> list = List.of(dto);
+
+        when(validator.validate(dto, OnlineGroup.class)).thenReturn(Collections.emptySet());
+
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(list));
+
+        verify(validator).validate(dto, OnlineGroup.class);
     }
 
     @Test
@@ -177,7 +202,5 @@ class PointOfSaleValidatorTest {
 
         Assertions.assertFalse(exception.getMessage().contains("contactEmail must be a valid EMAIL"));
     }
-
-
 
 }
