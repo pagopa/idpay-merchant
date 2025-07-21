@@ -3,6 +3,8 @@ package it.gov.pagopa.merchant.dto.pointofsales;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.utils.validator.OnlineGroup;
+import it.gov.pagopa.merchant.utils.validator.PhysicalGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -29,35 +31,35 @@ public class PointOfSaleDTO {
     @JsonProperty("franchiseName")
     private String franchiseName;
 
-    @NotNull(message = "Region must not be null")
+    @NotBlank(message = "Region must not be null", groups = PhysicalGroup.class)
     @JsonProperty("region")
     private String region;
 
-    @NotNull(message = "Province must not be null")
+    @NotBlank(message = "Province must not be null", groups = PhysicalGroup.class)
     @JsonProperty("province")
     private String province;
 
-    @NotNull(message = "City must not be null")
+    @NotBlank(message = "City must not be null", groups = PhysicalGroup.class)
     @JsonProperty("city")
     private String city;
 
-    @NotNull(message = "ZipCode must not be null")
+    @NotBlank(message = "ZipCode must not be null", groups = PhysicalGroup.class)
     @JsonProperty("zipCode")
     private String zipCode;
 
-    @NotNull(message = "Address must not be null")
+    @NotBlank(message = "Address must not be null", groups = PhysicalGroup.class)
     @JsonProperty("address")
     private String address;
 
-    @NotNull(message = "StreetNumber must not be null")
+    @NotBlank(message = "StreetNumber must not be null", groups = PhysicalGroup.class)
     @JsonProperty("streetNumber")
     private String streetNumber;
 
-    @NotNull(message = "website must not be null")
+    @NotBlank(message = "website must not be null", groups = OnlineGroup.class)
     @JsonProperty("website")
     private String website;
 
-    @NotNull(message = "contactEmail must not be null")
+    @NotBlank(message = "contactEmail must not be null", groups = {PhysicalGroup.class, OnlineGroup.class})
     @JsonProperty("contactEmail")
     private String contactEmail;
 

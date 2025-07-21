@@ -42,7 +42,15 @@ public class PointOfSaleValidator{
 
         for (int i = 0; i < pointOfSaleDTOS.size(); i++) {
             PointOfSaleDTO dto = pointOfSaleDTOS.get(i);
-            Set<ConstraintViolation<PointOfSaleDTO>> violations = validator.validate(dto);
+
+            Set<ConstraintViolation<PointOfSaleDTO>> violations = Set.of();
+
+            if("PHYSICAL".equalsIgnoreCase(dto.getType().name())){
+                violations = validator.validate(dto, PhysicalGroup.class);
+            }
+            else if("ONLINE".equalsIgnoreCase(dto.getType().name())){
+                violations = validator.validate(dto, OnlineGroup.class);
+            }
             
             validateEmailAndWebsite(errors, i, dto);
 
