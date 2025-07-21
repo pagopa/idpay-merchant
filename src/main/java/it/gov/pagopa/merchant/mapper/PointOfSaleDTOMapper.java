@@ -111,7 +111,7 @@ public class PointOfSaleDTOMapper {
                 streetNumber = parts[1].trim();
             }
             else {
-                Pattern pattern = Pattern.compile("^(.*?)\\s+(\\d+\\w*(?:/\\w*)?)$");
+                Pattern pattern = Pattern.compile("^(.*?)[,\\s]+(\\d+[\\w/]*)$");
                 Matcher matcher = pattern.matcher(trimmed);
                 if (matcher.find()) {
                     address = matcher.group(1).trim();

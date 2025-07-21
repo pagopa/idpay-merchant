@@ -55,49 +55,39 @@ class ContactValidatorTest {
             ExpressionLanguageFeatureLevel.DEFAULT)));
   }
 
-
   @Test
-  void testIsValidWithChannelDTOConstraintValidatorContext3() {
-    // Arrange
+  void testIsValidWithChannelDTOConstraintValidatorContext4() {
+
     ChannelDTO dto = new ChannelDTO(ChannelTypeEnum.WEB, " ");
 
     ClockProvider clockProvider = mock(ClockProvider.class);
 
     // Act and Assert
     assertTrue(contactValidator.isValid(dto,
-        new ConstraintValidatorContextImpl(clockProvider, PathImpl.createRootPath(), null,
-            "Constraint Validator Payload", ExpressionLanguageFeatureLevel.DEFAULT,
-            ExpressionLanguageFeatureLevel.DEFAULT)));
-  }
+            new ConstraintValidatorContextImpl(clockProvider, PathImpl.createRootPath(), null,
+                    "Constraint Validator Payload", ExpressionLanguageFeatureLevel.DEFAULT,
+                    ExpressionLanguageFeatureLevel.DEFAULT)));
 
-  @Test
-  void testIsValidWithChannelDTOConstraintValidatorContext4() {
+
     // Arrange
-    ChannelDTO dto = new ChannelDTO(ChannelTypeEnum.WEB, "");
-
-    ClockProvider clockProvider = mock(ClockProvider.class);
+    dto = new ChannelDTO(ChannelTypeEnum.WEB, "");
 
     // Act and Assert
     assertTrue(contactValidator.isValid(dto,
         new ConstraintValidatorContextImpl(clockProvider, PathImpl.createRootPath(), null,
             "Constraint Validator Payload", ExpressionLanguageFeatureLevel.DEFAULT,
             ExpressionLanguageFeatureLevel.DEFAULT)));
-  }
 
 
-  @Test
-  void testIsValidWithChannelDTOConstraintValidatorContext5() {
-    // Arrange
-    ChannelDTO dto = new ChannelDTO(ChannelTypeEnum.WEB, "https://UU");
-
-    ClockProvider clockProvider = mock(ClockProvider.class);
+    dto = new ChannelDTO(ChannelTypeEnum.WEB, "https://UU");
 
     // Act and Assert
     assertTrue(contactValidator.isValid(dto,
-        new ConstraintValidatorContextImpl(clockProvider, PathImpl.createRootPath(), null,
-            "Constraint Validator Payload", ExpressionLanguageFeatureLevel.DEFAULT,
-            ExpressionLanguageFeatureLevel.DEFAULT)));
+            new ConstraintValidatorContextImpl(clockProvider, PathImpl.createRootPath(), null,
+                    "Constraint Validator Payload", ExpressionLanguageFeatureLevel.DEFAULT,
+                    ExpressionLanguageFeatureLevel.DEFAULT)));
   }
+
 
   @Test
   void testIsValidWithChannelDTOConstraintValidatorContext6() {
@@ -117,7 +107,7 @@ class ContactValidatorTest {
     List<ConstraintViolationCreationContext> constraintViolationCreationContexts = context
         .getConstraintViolationCreationContexts();
     assertEquals(1, constraintViolationCreationContexts.size());
-    ConstraintViolationCreationContext getResult = constraintViolationCreationContexts.get(0);
+    ConstraintViolationCreationContext getResult = constraintViolationCreationContexts.getFirst();
     assertEquals("Invalid WEB/LANDING format: Contact", getResult.getMessage());
     assertNull(getResult.getDynamicPayload());
     assertEquals(ExpressionLanguageFeatureLevel.DEFAULT, getResult.getExpressionLanguageFeatureLevel());

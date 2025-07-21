@@ -11,8 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 class ValidationExceptionTest {
-    private final static String MESSAGE = "TestMessage";
-    private final static Throwable EXCEPTION = new RuntimeException("TestException");
 
     @Test
     void testConstructorWithHttpStatusMessageAndThrowable() {

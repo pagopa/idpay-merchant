@@ -139,7 +139,7 @@ class PointOfSaleDTOMapperTest {
     void testPointOfSaleDTOtoPointOfSaleEntity_givenArrayList_thenReturnZipCodeIs21654() {
         // Arrange
         PointOfSaleDTO pointOfSaleDTO = mock(PointOfSaleDTO.class);
-        when(pointOfSaleDTO.getAddress()).thenReturn("42 Main St");
+        when(pointOfSaleDTO.getAddress()).thenReturn("Main St, 42");
         when(pointOfSaleDTO.getCity()).thenReturn("Oxford");
         when(pointOfSaleDTO.getContactEmail()).thenReturn("jane.doe@example.org");
         when(pointOfSaleDTO.getContactName()).thenReturn("Contact Name");
@@ -168,7 +168,7 @@ class PointOfSaleDTOMapperTest {
         verify(pointOfSaleDTO, atLeast(1)).getType();
         verify(pointOfSaleDTO).getZipCode();
         assertEquals("21654", actualPointOfSaleDTOtoPointOfSaleEntityResult.getZipCode());
-        assertEquals("42 Main St", actualPointOfSaleDTOtoPointOfSaleEntityResult.getAddress());
+        assertEquals("Main St", actualPointOfSaleDTOtoPointOfSaleEntityResult.getAddress());
         assertEquals("PHYSICAL", actualPointOfSaleDTOtoPointOfSaleEntityResult.getType());
         assertEquals("Oxford", actualPointOfSaleDTOtoPointOfSaleEntityResult.getCity());
         assertEquals("Province", actualPointOfSaleDTOtoPointOfSaleEntityResult.getProvince());
