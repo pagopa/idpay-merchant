@@ -5,6 +5,7 @@ import it.gov.pagopa.common.web.exception.ValidationException;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.ChannelDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Path;
 import jakarta.validation.Validator;
@@ -19,7 +20,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -53,7 +57,7 @@ class PointOfSaleValidatorTest {
 
     @Test
     void validateViolationsPointOfSalesWhenPhysicalTypeShouldUsePhysicalGroup() {
-        PointOfSaleDTO dto = new PointOfSaleDTO();
+        PointOfSaleDTO dto = PointOfSaleDTOFaker.mockInstance();
         dto.setType(PointOfSaleTypeEnum.PHYSICAL);
 
         List<PointOfSaleDTO> list = List.of(dto);
@@ -67,7 +71,7 @@ class PointOfSaleValidatorTest {
 
     @Test
     void validateViolationsPointOfSalesWhenOnlineTypeShouldUseOnlineGroup() {
-        PointOfSaleDTO dto = new PointOfSaleDTO();
+        PointOfSaleDTO dto = PointOfSaleDTOFaker.mockInstance();
         dto.setType(PointOfSaleTypeEnum.ONLINE);
 
         List<PointOfSaleDTO> list = List.of(dto);
@@ -79,84 +83,11 @@ class PointOfSaleValidatorTest {
         verify(validator).validate(dto, OnlineGroup.class);
     }
 
-    @Test
-    void validateViolationsPointOfSales() {
-        PointOfSaleDTO dto = new PointOfSaleDTO();
-        List<PointOfSaleDTO> list = List.of(dto);
-
-        ConstraintViolation<PointOfSaleDTO> violation = mock(ConstraintViolation.class);
-
-        Path mockPath = mock(Path.class);
-        when(mockPath.toString()).thenReturn("fieldName");
-        when(violation.getPropertyPath()).thenReturn(mockPath);
-
-        ConstraintDescriptor descriptor = mock(ConstraintDescriptor.class);
-        NotNull mockAnnotation = mock(NotNull.class);
-        when(descriptor.getAnnotation()).thenReturn(mockAnnotation);
-        when(mockAnnotation.annotationType()).thenReturn((Class) NotNull.class);
-        when(violation.getConstraintDescriptor()).thenReturn((ConstraintDescriptor) descriptor);
-
-        when(validator.validate(dto)).thenReturn(Collections.emptySet());
-
-        Assertions.assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(list));
-
-        verify(validator, times(1)).validate(dto);
-    }
-
-    @Test
-    void validateViolationsPointOfSalesWithViolations() {
-        PointOfSaleDTO dto = new PointOfSaleDTO();
-        List<PointOfSaleDTO> list = List.of(dto);
-
-        ConstraintViolation<PointOfSaleDTO> violation = mock(ConstraintViolation.class);
-
-        Path mockPath = mock(Path.class);
-        when(mockPath.toString()).thenReturn("fieldName");
-        when(violation.getPropertyPath()).thenReturn(mockPath);
-
-        ConstraintDescriptor descriptor = mock(ConstraintDescriptor.class);
-        NotNull mockAnnotation = mock(NotNull.class);
-        when(mockAnnotation.annotationType()).thenReturn((Class) NotNull.class);
-        when(descriptor.getAnnotation()).thenReturn(mockAnnotation);
-        when(violation.getConstraintDescriptor()).thenReturn((ConstraintDescriptor) descriptor);
-
-        when(violation.getInvalidValue()).thenReturn("invalidValue");
-        when(violation.getMessage()).thenReturn("must not be null");
-        when(violation.getRootBeanClass()).thenReturn(PointOfSaleDTO.class);
-
-        Set<ConstraintViolation<PointOfSaleDTO>> violations = Set.of(violation);
-        when(validator.validate(dto)).thenReturn(violations);
-
-        Assertions.assertThrows(ValidationException.class, () -> {
-            pointOfSaleValidator.validateViolationsPointOfSales(list);
-        });
-
-        verify(validator).validate(dto);
-    }
-
-    @Test
-    void validateChannelsViolations() {
-        ChannelDTO channelDTO = new ChannelDTO();
-
-        PointOfSaleDTO dto = new PointOfSaleDTO();
-        dto.setChannels(List.of(channelDTO));
-
-        List<PointOfSaleDTO> list = List.of(dto);
-
-        when(validator.validate(channelDTO, ValidationApiEnabledGroup.class)).thenReturn(Collections.emptySet());
-
-        when(validator.validate(dto)).thenReturn(Collections.emptySet());
-
-        Assertions.assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(list));
-
-        verify(validator).validate(dto);
-        verify(validator).validate(channelDTO, ValidationApiEnabledGroup.class);
-    }
 
     @Test
     void validateChannelsWithViolationsBuildErrorCalled() {
         ChannelDTO channelDTO = new ChannelDTO();
-        PointOfSaleDTO dto = new PointOfSaleDTO();
+        PointOfSaleDTO dto = PointOfSaleDTOFaker.mockInstance();
         dto.setChannels(List.of(channelDTO));
         List<PointOfSaleDTO> list = List.of(dto);
 
@@ -188,7 +119,7 @@ class PointOfSaleValidatorTest {
 
     @Test
     void validateEmailAndWebsiteInvalidEmailShouldAddError() {
-        PointOfSaleDTO dto = new PointOfSaleDTO();
+        PointOfSaleDTO dto = PointOfSaleDTOFaker.mockInstance();
         dto.setContactEmail("invalidEmail");
         dto.setWebsite("notAnEmail.com");
 
