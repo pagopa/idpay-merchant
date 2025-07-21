@@ -86,6 +86,17 @@ class MerchantServiceImplTest {
         MerchantUpdateDTO result = merchantService.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, "ORGANIZATION_USER_ID", ACQUIRER_ID);
         Assertions.assertNotNull(result);
     }
+
+    @Test
+    void getMerchantDetail1(){
+        MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
+        when(merchantDetailServiceMock.getMerchantDetail(Mockito.anyString())).thenReturn(dto);
+
+        MerchantDetailDTO result = merchantService.getMerchantDetail(MERCHANT_ID);
+        assertNotNull(result);
+    }
+
+
     @Test
     void getMerchantDetail(){
         MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);

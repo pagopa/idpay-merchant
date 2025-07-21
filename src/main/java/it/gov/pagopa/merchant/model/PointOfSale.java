@@ -1,11 +1,14 @@
 package it.gov.pagopa.merchant.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -17,7 +20,7 @@ import java.util.List;
 public class PointOfSale {
 
     @MongoId
-    private String id;
+    private ObjectId id;
 
     private String type;
     private String franchiseName;
@@ -35,6 +38,4 @@ public class PointOfSale {
 
     private String merchantId;
 
-    private LocalDateTime creationDate;
-    private LocalDateTime updateDate;
 }

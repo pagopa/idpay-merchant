@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidChannelContact {
-    String message() default "Contatto non valido";
+    String message() default "Invalid contact";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -10,6 +10,7 @@ public interface MerchantService {
     MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId, String acquirerId);
     MerchantDetailDTO getMerchantDetail(String organizationId, String initiativeId, String merchantId);
     MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId);
+    MerchantDetailDTO getMerchantDetail(String merchantId);
     MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable);
     MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO);
     String retrieveMerchantId(String acquirerId, String fiscalCode);

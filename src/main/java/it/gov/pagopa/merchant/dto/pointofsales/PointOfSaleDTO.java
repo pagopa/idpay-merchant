@@ -3,12 +3,10 @@ package it.gov.pagopa.merchant.dto.pointofsales;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
-import it.gov.pagopa.merchant.utils.validator.ValidationApiEnabledGroup;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.validator.constraints.URL;
 
 import java.util.List;
 
@@ -20,7 +18,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PointOfSaleDTO {
 
-    private static final String VALID_LINK = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+    @JsonProperty("id")
+    private String id;
 
     @NotNull
     @JsonProperty("type")
@@ -30,34 +29,43 @@ public class PointOfSaleDTO {
     @JsonProperty("franchiseName")
     private String franchiseName;
 
+    @NotNull(message = "Region must not be null")
     @JsonProperty("region")
     private String region;
 
+    @NotNull(message = "Province must not be null")
     @JsonProperty("province")
     private String province;
 
+    @NotNull(message = "City must not be null")
     @JsonProperty("city")
     private String city;
 
+    @NotNull(message = "ZipCode must not be null")
     @JsonProperty("zipCode")
     private String zipCode;
 
+    @NotNull(message = "Address must not be null")
     @JsonProperty("address")
     private String address;
 
+    @NotNull(message = "StreetNumber must not be null")
     @JsonProperty("streetNumber")
     private String streetNumber;
 
-    @URL(protocol = "https", regexp = VALID_LINK, groups = ValidationApiEnabledGroup.class)
+    @NotNull(message = "website must not be null")
     @JsonProperty("website")
     private String website;
 
+    @NotNull(message = "contactEmail must not be null")
     @JsonProperty("contactEmail")
     private String contactEmail;
 
+    @NotNull(message = "contactName must not be null")
     @JsonProperty("contactName")
     private String contactName;
 
+    @NotNull(message = "contactSurname must not be null")
     @JsonProperty("contactSurname")
     private String contactSurname;
 

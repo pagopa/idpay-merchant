@@ -25,18 +25,19 @@ public class ContactValidator implements ConstraintValidator<ValidChannelContact
 
         boolean valid;
         String message;
+
         switch (dto.getType()) {
             case WEB, LANDING:
                 valid = contact.matches(REGEX_WEB);
-                message = String.format("Formato %s non valido: %s",dto.getType(),contact);
+                message = "Invalid WEB/LANDING format: "+contact;
                 break;
             case EMAIL:
                 valid = contact.matches(REGEX_EMAIL);
-                message = String.format("Formato EMAIL non valido: %s",contact);
+                message = "Invalid EMAIL format: "+contact;
                 break;
             case MOBILE:
                 valid = contact.matches(REGEX_MOBILE);
-                message = String.format("Formato MOBILE non valido: %s",contact);
+                message = "Invalid MOBILE format: "+contact;
                 break;
             default:
                 return true;

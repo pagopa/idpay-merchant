@@ -1,6 +1,7 @@
 package it.gov.pagopa.common.web.exception;
 
 import it.gov.pagopa.common.web.dto.ErrorDTO;
+import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,17 @@ public class ErrorManager {
   protected ResponseEntity<ErrorDTO> handleException(RuntimeException error, HttpServletRequest request) {
     logClientException(error, request);
 
-    if(error instanceof ClientExceptionNoBody clientExceptionNoBody){
+    if(error instanceof ValidationException){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+              ValidationErrorDTO.builder()
+                      .status(400)
+                      .error("Bad Request")
+                      .message(error.getMessage())
+                      .details(((ValidationException) error).getErrors())
+                      .build()
+      );
+    }
+    else if(error instanceof ClientExceptionNoBody clientExceptionNoBody){
       return ResponseEntity.status(clientExceptionNoBody.getHttpStatus()).build();
     }
     else {
