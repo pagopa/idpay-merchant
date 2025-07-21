@@ -31,35 +31,31 @@ public class PointOfSaleDTO {
     @JsonProperty("franchiseName")
     private String franchiseName;
 
-    @NotBlank(message = "Region must not be null", groups = PhysicalGroup.class)
+    @NotBlank(message = "Region must not be blank", groups = PhysicalGroup.class)
     @JsonProperty("region")
     private String region;
 
-    @NotBlank(message = "Province must not be null", groups = PhysicalGroup.class)
+    @NotBlank(message = "Province must not be blank", groups = PhysicalGroup.class)
     @JsonProperty("province")
     private String province;
 
-    @NotBlank(message = "City must not be null", groups = PhysicalGroup.class)
+    @NotBlank(message = "City must not be blank", groups = PhysicalGroup.class)
     @JsonProperty("city")
     private String city;
 
-    @NotBlank(message = "ZipCode must not be null", groups = PhysicalGroup.class)
+    @NotBlank(message = "ZipCode must not be blank", groups = PhysicalGroup.class)
     @JsonProperty("zipCode")
     private String zipCode;
 
-    @NotBlank(message = "Address must not be null", groups = PhysicalGroup.class)
+    @NotBlank(message = "Address must not be blank", groups = PhysicalGroup.class)
     @JsonProperty("address")
     private String address;
 
-    @NotBlank(message = "StreetNumber must not be null", groups = PhysicalGroup.class)
-    @JsonProperty("streetNumber")
-    private String streetNumber;
-
-    @NotBlank(message = "website must not be null", groups = OnlineGroup.class)
+    @NotBlank(message = "website must not be blank", groups = OnlineGroup.class)
     @JsonProperty("webSite")
     private String website;
 
-    @NotBlank(message = "contactEmail must not be null", groups = {PhysicalGroup.class, OnlineGroup.class})
+    @NotBlank(message = "contactEmail must not be blank", groups = {PhysicalGroup.class, OnlineGroup.class})
     @JsonProperty("contactEmail")
     private String contactEmail;
 
