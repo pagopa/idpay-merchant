@@ -81,7 +81,7 @@ public class PointOfSaleValidator{
     
     private void validateEmailAndWebsite(List<ValidationErrorDetail> errors, int i, PointOfSaleDTO dto){
         if(StringUtils.isNotEmpty(dto.getContactEmail())){
-            if(!dto.getWebsite().matches(REGEX_EMAIL)){
+            if(!dto.getContactEmail().matches(REGEX_EMAIL)){
                 errors.add(
                         buildError(i, "contactEmail", dto.getContactEmail(), "contactEmail must be a valid EMAIL", "INVALID_FORMAT")
                 );

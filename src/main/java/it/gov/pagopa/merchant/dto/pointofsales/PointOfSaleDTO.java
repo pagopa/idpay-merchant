@@ -56,7 +56,7 @@ public class PointOfSaleDTO {
     private String streetNumber;
 
     @NotBlank(message = "website must not be null", groups = OnlineGroup.class)
-    @JsonProperty("website")
+    @JsonProperty("webSite")
     private String website;
 
     @NotBlank(message = "contactEmail must not be null", groups = {PhysicalGroup.class, OnlineGroup.class})
