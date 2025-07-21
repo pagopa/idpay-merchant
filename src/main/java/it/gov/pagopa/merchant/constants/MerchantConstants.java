@@ -39,6 +39,7 @@ public class MerchantConstants {
         public static final String GENERIC_ERROR = "MERCHANT_GENERIC_ERROR";
         public static final String POINT_OF_SALE_BAD_REQUEST = "POINT_OF_SALE_BAD_REQUEST";
         public static final String INVALID_CSV = "INVALID_CSV";
+        public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
     }
 
     public static final class ExceptionMessage {
@@ -50,6 +51,7 @@ public class MerchantConstants {
         public static final String DOWNLOAD_ERROR = "An error occurred during file download";
         public static final String MERCHANT_SAVING_ERROR = "An error occurred during file saving";
         public static final String INITIATIVE_CONNECTOR_ERROR = "An error occurred in the microservice initiative";
+        public static final String VALIDATION_ERROR = "Some fields are invalid. See details for more information.";
     }
 
     public static final String INITIATIVE_CLOSED = "CLOSED";

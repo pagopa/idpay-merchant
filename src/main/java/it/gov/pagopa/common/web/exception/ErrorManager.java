@@ -2,6 +2,7 @@ package it.gov.pagopa.common.web.exception;
 
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,9 +30,8 @@ public class ErrorManager {
     if(error instanceof ValidationException){
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
               ValidationErrorDTO.builder()
-                      .status(400)
-                      .error("Bad Request")
-                      .message(error.getMessage())
+                      .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
+                      .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
                       .details(((ValidationException) error).getErrors())
                       .build()
       );

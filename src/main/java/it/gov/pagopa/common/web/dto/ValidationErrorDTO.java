@@ -1,21 +1,17 @@
 package it.gov.pagopa.common.web.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Data
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 public class ValidationErrorDTO extends ErrorDTO {
 
-    private int status;
-
-    private String error;
-    private String message;
-
     private List<ValidationErrorDetail> details;
+
 }
