@@ -35,7 +35,7 @@ public class PointOfSaleDTOMapper {
                 .province(pointOfSale.getProvince())
                 .city(pointOfSale.getCity())
                 .zipCode(pointOfSale.getZipCode())
-                .address(pointOfSale.getAddress()+", "+pointOfSale.getStreetNumber())
+                .address(StringUtils.isEmpty(pointOfSale.getStreetNumber()) ? pointOfSale.getAddress() : pointOfSale.getAddress()+", "+pointOfSale.getStreetNumber())
                 .website(pointOfSale.getWebsite())
                 .build();
     }

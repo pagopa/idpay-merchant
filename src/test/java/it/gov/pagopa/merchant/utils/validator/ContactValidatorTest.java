@@ -123,7 +123,6 @@ class ContactValidatorTest {
   @Test
   void testIsValidWithChannelDTOConstraintValidatorContext7() {
     // Arrange
-    ContactValidator contactValidator = new ContactValidator();
     ChannelDTO dto = new ChannelDTO(ChannelTypeEnum.EMAIL, "U@U");
 
     ClockProvider clockProvider = mock(ClockProvider.class);

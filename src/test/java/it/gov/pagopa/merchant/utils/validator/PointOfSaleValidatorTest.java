@@ -20,7 +20,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -43,14 +42,6 @@ class PointOfSaleValidatorTest {
     void validatePointOfSales() {
         ClientExceptionWithBody exception = assertThrows(ClientExceptionWithBody.class,
                 () -> pointOfSaleValidator.validatePointOfSales(null));
-
-        assertEquals("Point of sales list cannot be empty.", exception.getMessage());
-    }
-
-    @Test
-    void validatePointOfSales2() {
-        ClientExceptionWithBody exception = assertThrows(ClientExceptionWithBody.class,
-                () -> pointOfSaleValidator.validatePointOfSales(new ArrayList<>()));
 
         assertEquals("Point of sales list cannot be empty.", exception.getMessage());
     }

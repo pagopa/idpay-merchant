@@ -27,12 +27,12 @@ public class ErrorManager {
   protected ResponseEntity<ErrorDTO> handleException(RuntimeException error, HttpServletRequest request) {
     logClientException(error, request);
 
-    if(error instanceof ValidationException){
+    if(error instanceof ValidationException exception){
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
               ValidationErrorDTO.builder()
                       .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
                       .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
-                      .details(((ValidationException) error).getErrors())
+                      .details(exception.getErrors())
                       .build()
       );
     }

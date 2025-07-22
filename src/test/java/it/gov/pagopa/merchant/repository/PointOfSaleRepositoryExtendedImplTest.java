@@ -46,8 +46,6 @@ class PointOfSaleRepositoryExtendedImplTest {
   @Autowired
   PointOfSaleRepositoryExtended repositoryExtended;
   @MockBean MongoTemplate mongoTemplate;
-  @MockBean
-  Criteria criteria;
 
 
   @Test
