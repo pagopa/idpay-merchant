@@ -43,62 +43,83 @@ public class PointOfSaleValidator{
         for (int i = 0; i < pointOfSaleDTOS.size(); i++) {
             PointOfSaleDTO dto = pointOfSaleDTOS.get(i);
 
-            Set<ConstraintViolation<PointOfSaleDTO>> violations = Set.of();
+            validatePointOfSale(dto, i, errors);
+            validateEmailAndWebsite(dto, i, errors);
+            validateChannels(dto, i, errors);
 
-            if("PHYSICAL".equalsIgnoreCase(dto.getType().name())){
-                violations = validator.validate(dto, PhysicalGroup.class);
-            }
-            else if("ONLINE".equalsIgnoreCase(dto.getType().name())){
-                violations = validator.validate(dto, OnlineGroup.class);
-            }
-            
-            validateEmailAndWebsite(errors, i, dto);
-
-            for(ConstraintViolation<?> constraintViolation : violations){
-                errors.add(
-                        buildError(i, constraintViolation.getPropertyPath().toString(), constraintViolation.getInvalidValue(), resolveCode(constraintViolation), constraintViolation.getMessage())
-                );
-
-            }
-
-            if(dto.getChannels() != null){
-                for(int j = 0; j < dto.getChannels().size(); j++){
-                    ChannelDTO channelDTO = dto.getChannels().get(j);
-                    Set<ConstraintViolation<ChannelDTO>> channelViolations = validator.validate(channelDTO, ValidationApiEnabledGroup.class);
-
-                    for(ConstraintViolation<ChannelDTO> violation : channelViolations){
-                        errors.add(
-                                buildError(i, "channels["+j+"]."+violation.getPropertyPath(),violation.getInvalidValue(), violation.getMessage(), resolveCode(violation))
-                        );
-                    }
-                }
-            }
         }
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }
     }
-    
-    private void validateEmailAndWebsite(List<ValidationErrorDetail> errors, int i, PointOfSaleDTO dto){
-        if(StringUtils.isNotEmpty(dto.getContactEmail())){
-            if(!dto.getContactEmail().matches(REGEX_EMAIL)){
+
+    private void validateChannels(PointOfSaleDTO pointOfSaleDTO, int pointOfSaleIndex, List<ValidationErrorDetail> errors){
+        if(pointOfSaleDTO.getChannels() == null) return;
+        for(int j = 0; j < pointOfSaleDTO.getChannels().size(); j++){
+            ChannelDTO channelDTO = pointOfSaleDTO.getChannels().get(j);
+            Set<ConstraintViolation<ChannelDTO>> channelViolations = validator.validate(channelDTO, ValidationApiEnabledGroup.class);
+
+            for(ConstraintViolation<ChannelDTO> violation : channelViolations){
+                String propertyPath = "channels["+j+"]."+violation.getPropertyPath();
                 errors.add(
-                        buildError(i, "contactEmail", dto.getContactEmail(), "contactEmail must be a valid EMAIL", "INVALID_FORMAT")
-                );
-            }
-        }
-        if(StringUtils.isNotEmpty(dto.getWebsite())){
-            if(!dto.getWebsite().matches(VALID_LINK)){
-                errors.add(
-                        buildError(i, "website", dto.getWebsite(), "website must be a valid https URL", "INVALID_URL")
+                        buildError(
+                                pointOfSaleIndex,
+                                propertyPath,
+                                violation.getInvalidValue(),
+                                violation.getMessage(),
+                                resolveCode(violation))
                 );
             }
         }
     }
-    
+
+    private void validatePointOfSale(PointOfSaleDTO pointOfSaleDTO, int index, List<ValidationErrorDetail> errors){
+        Set<ConstraintViolation<PointOfSaleDTO>> violations = switch (pointOfSaleDTO.getType().name().toUpperCase()){
+            case "PHYSICAL" -> validator.validate(pointOfSaleDTO, PhysicalGroup.class);
+            case "ONLINE" -> validator.validate(pointOfSaleDTO, OnlineGroup.class);
+            default -> Set.of();
+        };
+
+        for(ConstraintViolation<?> violation : violations){
+            errors.add(buildError(
+                    index,
+                    violation.getPropertyPath().toString(),
+                    violation.getInvalidValue(),
+                    resolveCode(violation),
+                    violation.getMessage()
+            ));
+        }
+    }
+
+
+    private void validateEmailAndWebsite(PointOfSaleDTO pointOfSaleDTO, int i, List<ValidationErrorDetail> errors){
+        String email = pointOfSaleDTO.getContactEmail();
+        String website = pointOfSaleDTO.getWebsite();
+
+        if(StringUtils.isNotBlank(email) && !email.matches(REGEX_EMAIL)){
+            errors.add(buildError(
+                    i,
+                    "contactEmail",
+                    pointOfSaleDTO.getContactEmail(),
+                    "contactEmail must be a valid EMAIL",
+                    "INVALID_FORMAT")
+            );
+        }
+
+        if(StringUtils.isNotBlank(website) && !website.matches(VALID_LINK)){
+            errors.add(buildError(
+                    i,
+                    "website",
+                    pointOfSaleDTO.getWebsite(),
+                    "website must be a valid https URL",
+                    "INVALID_URL")
+            );
+        }
+    }
+
     private String resolveCode(ConstraintViolation<?> violation){
         String annotation = violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName();
-        
+
         return switch (annotation){
             case "NotNull", "NotBlank", "NotEmpty" -> "FIELD_REQUIRED";
             case "Pattern" -> "INVALID_FORMAT";

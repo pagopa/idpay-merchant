@@ -47,10 +47,8 @@ class PointOfSaleControllerImplTest {
     private static final String BASE_URL = "/idpay/merchant/portal";
     private static final String SAVE_POINT_OF_SALES = "/%s/point-of-sales";
     private static final String GET_POINT_OF_SALES = "/%s/point-of-sales";
-    private static final String DELETE_POINT_OF_SALES = "/%s/point-of-sales/%s";
 
     private static final String MERCHANT_ID = "MERCHANT_ID";
-    private static final String POINT_OF_SALE_ID = "POINT_OF_SALE_ID";
 
     @Test
     void savePointOfSalesOK() throws Exception {
@@ -73,8 +71,6 @@ class PointOfSaleControllerImplTest {
 
     @Test
     void getPointOfSalesListOK() throws Exception {
-        MerchantDetailDTO merchantDetail = MerchantDetailDTOFaker.mockInstance(1);
-
         PointOfSaleListDTO pointOfSaleListDTO = PointOfSaleListDTOFaker.mockInstance();
 
         Mockito.when(pointOfSaleService.getPointOfSalesList(any(),any(),any(),any(),any(),any())).thenReturn(pointOfSaleListDTO);

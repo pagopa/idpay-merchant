@@ -2,13 +2,15 @@ package it.gov.pagopa.common.web.dto;
 
 import lombok.*;
 
+import java.io.Serializable;
+
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ValidationErrorDetail {
+public class ValidationErrorDetail implements Serializable {
 
     private int index;
     private String field;

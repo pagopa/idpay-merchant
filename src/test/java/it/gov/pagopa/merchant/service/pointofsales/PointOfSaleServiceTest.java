@@ -39,7 +39,7 @@ class PointOfSaleServiceTest {
   @Mock private final PointOfSaleDTOMapper dtoMapper = new PointOfSaleDTOMapper();
   @Mock private PointOfSaleValidator validator;
 
-  private final String MERCHANT_ID = "MERCHANT_ID";
+  private static final String MERCHANT_ID = "MERCHANT_ID";
 
   PointOfSaleService service;
 
@@ -72,9 +72,12 @@ class PointOfSaleServiceTest {
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(null);
 
-    assertThrows(MerchantNotFoundException.class,
-            () -> service.savePointOfSales(MERCHANT_ID,List.of(pointOfSaleDTO)));
+    assertThrows(MerchantNotFoundException.class, () -> callSave(pointOfSaleDTO));
 
+  }
+
+  private void callSave(PointOfSaleDTO dto){
+    service.savePointOfSales(MERCHANT_ID,List.of(dto));
   }
 
 
