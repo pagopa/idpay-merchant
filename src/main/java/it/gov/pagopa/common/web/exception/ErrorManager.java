@@ -36,7 +36,8 @@ public class ErrorManager {
                       .build()
       );
     }
-    else if(error instanceof ClientExceptionNoBody clientExceptionNoBody){
+
+    if(error instanceof ClientExceptionNoBody clientExceptionNoBody){
       return ResponseEntity.status(clientExceptionNoBody.getHttpStatus()).build();
     }
     else {
@@ -55,6 +56,7 @@ public class ErrorManager {
               .body(errorDTO);
     }
   }
+
   public static void logClientException(RuntimeException error, HttpServletRequest request) {
     Throwable unwrappedException = error.getCause() instanceof ServiceException
             ? error.getCause()
