@@ -25,7 +25,8 @@ public class PointOfSaleDTOMapper {
     // Il pattern è stato leggermente modificato per essere più specifico e ridurre il rischio di backtracking eccessivo.
     // Si usano quantificatori possessivi (es. `++`, `*+`) o atomici (`?>`) se la logica lo permette,
     // per prevenire backtracking eccessivo, ma spesso possono rendere il pattern meno flessibile.
-    private static final Pattern ADDRESS_STREET_NUMBER_PATTERN = Pattern.compile("^(.*?)\\s*(\\d+[A-Za-z]?\\s*(?:[/-]?\\s*\\d*[A-Za-z])?)$");
+    private static final Pattern ADDRESS_STREET_NUMBER_PATTERN = Pattern.compile("^([A-Za-zÀ-ÿ\\s.'-]+?)\\s+(\\d+[A-Za-z]?\\s*(?:[/-]?\\s*\\d*[A-Za-z])?)$");
+
 
 
 
