@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 @Component
 public class PointOfSaleDTOMapper {
 
+    private static final Pattern ADDRESS_STREET_NUMBER_PATTERN = Pattern.compile("^([A-Za-zÀ-ÿ0-9'°.,\\-\\s]{1,100}?)(\\s+(\\d+[A-Za-z]?\\S*))?$");
+
     public PointOfSaleDTO pointOfSaleEntityToPointOfSaleDTO(PointOfSale pointOfSale){
         if(pointOfSale == null){
             return  null;
@@ -111,8 +113,7 @@ public class PointOfSaleDTOMapper {
                 streetNumber = parts[1].trim();
             }
             else {
-                Pattern pattern = Pattern.compile("^(.*?)\\s+(\\d+\\w*(?:/\\w*)?)$");
-                Matcher matcher = pattern.matcher(trimmed);
+                Matcher matcher = ADDRESS_STREET_NUMBER_PATTERN.matcher(trimmed);
                 if (matcher.find()) {
                     address = matcher.group(1).trim();
                     streetNumber = matcher.group(2).trim();

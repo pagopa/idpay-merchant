@@ -247,7 +247,7 @@ class PointOfSaleDTOMapperTest {
         ChannelDTO buildResult2 = ChannelDTO.builder().contact("Contact").type(ChannelTypeEnum.WEB).build();
         channelDTOList.add(buildResult2);
         PointOfSaleDTO pointOfSaleDTO = mock(PointOfSaleDTO.class);
-        when(pointOfSaleDTO.getAddress()).thenReturn("42 Main St");
+        when(pointOfSaleDTO.getAddress()).thenReturn("Main St 42");
         when(pointOfSaleDTO.getCity()).thenReturn("Oxford");
         when(pointOfSaleDTO.getContactEmail()).thenReturn("jane.doe@example.org");
         when(pointOfSaleDTO.getContactName()).thenReturn("Contact Name");
