@@ -79,8 +79,8 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <!-- Forced to > 3.14.0 due to GHSA-j288-q9x7-2f5v -->
-            <version>3.14.0</version>
+            <!-- Forced to > 3.18.0 due to GHSA-j288-q9x7-2f5v -->
+            <version>3.18.0</version>
         </dependency>
 
         <!-- Security fixes -->
