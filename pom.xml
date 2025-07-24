@@ -79,6 +79,8 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <!-- Forced to > 3.14.0 due to GHSA-j288-q9x7-2f5v -->
+            <version>3.14.0</version>
         </dependency>
 
         <!-- Security fixes -->
@@ -191,12 +193,14 @@
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty-core</artifactId>
-                <version>1.1.22</version>
+                <!-- Forced to > 1.1.31 due to CVE-2024-47535 cve -->
+                <version>1.1.31</version>
             </dependency>
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty-http</artifactId>
-                <version>1.1.22</version>
+                <!-- Forced to > 1.1.31 due to CVE-2024-47535 cve -->
+                <version>1.1.31</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
