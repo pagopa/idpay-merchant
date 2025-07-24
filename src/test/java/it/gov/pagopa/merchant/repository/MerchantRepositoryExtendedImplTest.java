@@ -8,13 +8,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,8 +46,9 @@ class MerchantRepositoryExtendedImplTest {
   };
   @Autowired
   MerchantRepositoryExtended merchantRepositoryExtended;
-  @MockBean MongoTemplate mongoTemplate;
-  @MockBean
+  @MockitoBean
+  MongoTemplate mongoTemplate;
+  @MockitoBean
   Criteria criteria;
 
   private static final String INITIATIVE_ID = "TEST_INITIATIVE_ID";

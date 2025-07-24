@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.13</version>
+        <version>3.5.3</version>
     </parent>
 
     <groupId>it.gov.pagopa.merchant</groupId>
@@ -79,8 +79,6 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <!-- Forced to > 3.18.0 due to GHSA-j288-q9x7-2f5v -->
-            <version>3.18.0</version>
         </dependency>
 
         <!-- Security fixes -->
@@ -88,20 +86,16 @@
             <groupId>org.xerial.snappy</groupId>
             <artifactId>snappy-java</artifactId>
             <!-- Forced to > 1.1.10.3 due to https://nvd.nist.gov/vuln/detail/CVE-2023-34453 -->
-            <version>1.1.10.5</version>
+            <version>1.1.10.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <!-- Forced to > 4.11.0 in order to update dependency of okio -->
-            <version>4.12.0</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <!-- Forced to > 2.0 due to https://nvd.nist.gov/vuln/detail/CVE-2022-1471 -->
-            <version>2.2</version>
         </dependency>
 
         <!--TEST-->
@@ -170,30 +164,26 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.azure.spring</groupId>
-                <artifactId>spring-cloud-azure-dependencies</artifactId>
-                <version>5.16.0</version>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2025.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>2023.0.2</version>
+                <groupId>com.azure.spring</groupId>
+                <artifactId>spring-cloud-azure-dependencies</artifactId>
+                <version>5.22.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty-core</artifactId>
-                <!-- Forced to > 1.1.31 due to CVE-2024-47535 cve -->
-                <version>1.2.8</version>
             </dependency>
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty-http</artifactId>
-                <!-- Forced to > 1.1.31 due to CVE-2024-47535 cve -->
-                <version>1.2.8</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -206,32 +196,23 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <!-- Forced to > 2.17.0 due to GHSA-78wr-2p64-hpwj cve -->
-                <version>2.17.0</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-bom</artifactId>
-                <version>4.1.123.Final</version>
                 <type>pom</type>
-                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
-                <version>4.1.123.Final</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-handler</artifactId>
-                <!-- Forced to > 4.1.123.Final due to GHSA-4g8c-wm8x-jfhw cve -->
-                <version>4.1.123.Final</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
-                <!-- Forced to > 10.1.43 due to CVE-2025-53506 cve -->
-                <version>10.1.43</version>
             </dependency>
             <dependency>
                 <groupId>net.minidev</groupId>
@@ -241,8 +222,6 @@
             <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
-                <!-- Forced to > 1.6.0 due to GHSA-vv7r-c36w-3prj cve -->
-                <version>1.6.0</version>
             </dependency>
         </dependencies>
 
@@ -253,7 +232,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.3</version>
                 <configuration>
                     <argLine>-Duser.timezone=Europe/Rome</argLine>
                 </configuration>
@@ -273,7 +251,6 @@
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>7.0.0</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
