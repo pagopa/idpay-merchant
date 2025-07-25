@@ -4,8 +4,6 @@
 
 trigger:
   - main
-  - uat
-  - develop
 
 pool:
   #vmImage: 'ubuntu-latest'
