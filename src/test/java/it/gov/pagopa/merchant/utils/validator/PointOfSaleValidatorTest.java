@@ -41,9 +41,8 @@ class PointOfSaleValidatorTest {
 
     @Test
     void testValidateViolationsPointOfSales() {
-        Validator validator = mock(Validator.class);
         when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
-        PointOfSaleValidator pointOfSaleValidator = new PointOfSaleValidator(validator);
+        pointOfSaleValidator = new PointOfSaleValidator(validator);
 
         ArrayList<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
         PointOfSaleDTO buildResult = PointOfSaleDTOFaker.mockInstance();
@@ -75,9 +74,8 @@ class PointOfSaleValidatorTest {
 
     @Test
     void testValidateViolationsPointOfSales1() {
-        Validator validator = mock(Validator.class);
         when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
-        PointOfSaleValidator pointOfSaleValidator = new PointOfSaleValidator(validator);
+        pointOfSaleValidator = new PointOfSaleValidator(validator);
 
         ArrayList<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
         PointOfSaleDTO buildResult = PointOfSaleDTOFaker.mockInstance();
@@ -112,9 +110,8 @@ class PointOfSaleValidatorTest {
 
     @Test
     void testValidateViolationsPointOfSales2() {
-        Validator validator = mock(Validator.class);
         when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
-        PointOfSaleValidator pointOfSaleValidator = new PointOfSaleValidator(validator);
+        pointOfSaleValidator = new PointOfSaleValidator(validator);
 
         ArrayList<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
         PointOfSaleDTO buildResult = PointOfSaleDTOFaker.mockInstance();
@@ -151,9 +148,8 @@ class PointOfSaleValidatorTest {
 
     @Test
     void testValidateViolationsPointOfSales4() {
-        Validator validator = mock(Validator.class);
         when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
-        PointOfSaleValidator pointOfSaleValidator = new PointOfSaleValidator(validator);
+        pointOfSaleValidator = new PointOfSaleValidator(validator);
 
         ArrayList<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
         PointOfSaleDTO buildResult = PointOfSaleDTOFaker.mockInstance();

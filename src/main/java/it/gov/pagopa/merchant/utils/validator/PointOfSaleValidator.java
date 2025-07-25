@@ -61,8 +61,7 @@ public class PointOfSaleValidator{
         Set<String> emails = new HashSet<>();
         for(int i = 0; i < pointOfSaleDTOS.size(); i++){
             String email = pointOfSaleDTOS.get(i).getContactEmail();
-            if(StringUtils.isNotBlank(email)){
-                if(!emails.add(email)){
+            if(StringUtils.isNotBlank(email) && !emails.add(email)){
                     errors.add(buildError(
                             i,
                             "contactEmail",
@@ -70,7 +69,6 @@ public class PointOfSaleValidator{
                             PointOfSaleConstants.CODE_ALREADY_REGISTERED,
                             "Email duplicata nella lista fornita"
                     ));
-                }
             }
         }
     }

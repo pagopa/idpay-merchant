@@ -42,7 +42,6 @@ class PointOfSaleServiceTest {
   @Mock private PointOfSaleValidator validator;
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
-  private static final String POINT_OF_SALE_ID = "POINT_OF_SALE_ID";
 
   PointOfSaleService service;
 
@@ -100,9 +99,7 @@ class PointOfSaleServiceTest {
     when(dtoMapper.pointOfSaleDTOtoPointOfSaleEntity(any(), any())).thenReturn(pointOfSale);
     when(repositoryMock.findByContactEmail(anyString())).thenReturn(List.of(pointOfSale));
 
-    assertThrows(ClientExceptionWithBody.class, () ->
-            service.savePointOfSales(MERCHANT_ID,List.of(pointOfSaleDTO))
-    );
+    assertThrows(ClientExceptionWithBody.class, () -> callSave(pointOfSaleDTO));
 
   }
 
