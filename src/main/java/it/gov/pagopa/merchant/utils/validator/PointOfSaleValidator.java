@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,8 +49,29 @@ public class PointOfSaleValidator{
             validateChannels(dto, i, errors);
 
         }
+
+        validateDuplicates(pointOfSaleDTOS, errors);
+
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
+        }
+    }
+
+    private void validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS, List<ValidationErrorDetail> errors){
+        Set<String> emails = new HashSet<>();
+        for(int i = 0; i < pointOfSaleDTOS.size(); i++){
+            String email = pointOfSaleDTOS.get(i).getContactEmail();
+            if(StringUtils.isNotBlank(email)){
+                if(!emails.add(email)){
+                    errors.add(buildError(
+                            i,
+                            "contactEmail",
+                            email,
+                            PointOfSaleConstants.CODE_ALREADY_REGISTERED,
+                            "Email duplicata nella lista fornita"
+                    ));
+                }
+            }
         }
     }
 
