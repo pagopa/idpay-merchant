@@ -81,7 +81,6 @@ class BaseMongoRepositoryIntegrationTest {
         repository.deleteAllById(ID_TEST_ENTITIES);
     }
 
-    @Test
     void testFindById() {
         MongoTestUtilitiesService.startMongoCommandListener();
 

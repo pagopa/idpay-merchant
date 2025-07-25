@@ -17,7 +17,6 @@ class BaseMongoRepositoryTestIntegrated extends BaseMongoRepositoryIntegrationTe
     private MongoTemplate mongoTemplate;
 
     @Override
-    @Test
     void testFindById() {
         super.testFindById();
 

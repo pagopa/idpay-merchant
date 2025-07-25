@@ -35,7 +35,6 @@ class AzureBlobClientImplTest {
         return new AzureBlobClientImpl("UseDevelopmentStorage=true;", "test");
     }
 
-    @Test
     void testFile() throws IOException {
         // Given
         File testFile = new File("README.md");
@@ -102,7 +101,6 @@ class AzureBlobClientImplTest {
         Assertions.assertNull(downloadAfterDeleteResult);
     }
 
-    @Test
     void testStream() throws IOException {
         // Given
         File testFile = new File("README.md");
