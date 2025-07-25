@@ -37,8 +37,6 @@ public class MerchantConstants {
         public static final String INVALID_REQUEST = "MERCHANT_INVALID_REQUEST";
         public static final String TOO_MANY_REQUESTS = "MERCHANT_TOO_MANY_REQUESTS";
         public static final String GENERIC_ERROR = "MERCHANT_GENERIC_ERROR";
-        public static final String POINT_OF_SALE_BAD_REQUEST = "POINT_OF_SALE_BAD_REQUEST";
-        public static final String INVALID_CSV = "INVALID_CSV";
         public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
     }
 

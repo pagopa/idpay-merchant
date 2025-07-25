@@ -1,8 +1,7 @@
 package it.gov.pagopa.merchant.test.fakers;
 
 import it.gov.pagopa.merchant.model.PointOfSale;
-
-import java.util.List;
+import org.bson.types.ObjectId;
 
 public class PointOfSaleFaker {
 
@@ -12,6 +11,7 @@ public class PointOfSaleFaker {
 
     public static PointOfSale.PointOfSaleBuilder mockInstanceBuilder() {
         return PointOfSale.builder()
+                .id(new ObjectId())
                 .type("PHYSICAL")
                 .merchantId("MERCHANT-ID")
                 .region("REGION")
@@ -23,6 +23,10 @@ public class PointOfSaleFaker {
                 .contactEmail("EMAIL")
                 .contactName("NAME")
                 .contactSurname("SURNAME")
-                .channels(List.of());
+                .website("https://localhost:8080")
+                .channelEmail("EMAIL@email.it")
+                .channelGeolink("https://localhost:8080")
+                .channelWebsite("https://localhost:8080")
+                .channelPhone("3333333333");
     }
 }

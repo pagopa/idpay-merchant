@@ -52,6 +52,4 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
     return ResponseEntity.ok(pointOfSaleListDTO);
   }
 
-
-
 }

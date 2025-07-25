@@ -3,28 +3,30 @@ package it.gov.pagopa.merchant.utils.validator;
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.common.web.exception.ValidationException;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
-import it.gov.pagopa.merchant.dto.pointofsales.ChannelDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Path;
 import jakarta.validation.Validator;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.metadata.ConstraintDescriptor;
+import org.hibernate.validator.constraints.URL;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.lang.annotation.Annotation;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {PointOfSaleValidator.class})
@@ -34,9 +36,155 @@ class PointOfSaleValidatorTest {
     @Autowired
     private PointOfSaleValidator pointOfSaleValidator;
 
-    @MockBean
+    @MockitoBean
     private Validator validator;
 
+    @Test
+    void testValidateViolationsPointOfSales() {
+        Validator validator = mock(Validator.class);
+        when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
+        PointOfSaleValidator pointOfSaleValidator = new PointOfSaleValidator(validator);
+
+        ArrayList<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
+        PointOfSaleDTO buildResult = PointOfSaleDTOFaker.mockInstance();
+        buildResult.setType(PointOfSaleTypeEnum.PHYSICAL);
+        buildResult.setContactEmail("");
+
+        pointOfSaleDTOS.add(buildResult);
+
+        ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+        Path path = mock(Path.class);
+        when(violation.getPropertyPath()).thenReturn(path);
+        Set<ConstraintViolation<Object>> violationSet = Set.of(violation);
+
+        ConstraintDescriptor<Annotation> constraintDescriptor = mock(ConstraintDescriptor.class);
+        when(violation.getConstraintDescriptor()).thenReturn((ConstraintDescriptor) constraintDescriptor);
+        Annotation annotation = new Annotation() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return NotBlank.class;
+            }
+        };
+        when(constraintDescriptor.getAnnotation()).thenReturn(annotation);
+
+        when(validator.validate(any(),any())).thenReturn(violationSet);
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
+
+
+    @Test
+    void testValidateViolationsPointOfSales1() {
+        Validator validator = mock(Validator.class);
+        when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
+        PointOfSaleValidator pointOfSaleValidator = new PointOfSaleValidator(validator);
+
+        ArrayList<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
+        PointOfSaleDTO buildResult = PointOfSaleDTOFaker.mockInstance();
+        buildResult.setType(PointOfSaleTypeEnum.PHYSICAL);
+        buildResult.setContactEmail("");
+
+        pointOfSaleDTOS.add(buildResult);
+
+        buildResult.setType(PointOfSaleTypeEnum.ONLINE);
+        buildResult.setWebsite("");
+        pointOfSaleDTOS.add(buildResult);
+
+        ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+        Path path = mock(Path.class);
+        when(violation.getPropertyPath()).thenReturn(path);
+        Set<ConstraintViolation<Object>> violationSet = Set.of(violation);
+
+        ConstraintDescriptor<Annotation> constraintDescriptor = mock(ConstraintDescriptor.class);
+        when(violation.getConstraintDescriptor()).thenReturn((ConstraintDescriptor) constraintDescriptor);
+        Annotation annotation = new Annotation() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Pattern.class;
+            }
+        };
+        when(constraintDescriptor.getAnnotation()).thenReturn(annotation);
+
+        when(validator.validate(any(),any())).thenReturn(violationSet);
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
+
+    @Test
+    void testValidateViolationsPointOfSales2() {
+        Validator validator = mock(Validator.class);
+        when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
+        PointOfSaleValidator pointOfSaleValidator = new PointOfSaleValidator(validator);
+
+        ArrayList<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
+        PointOfSaleDTO buildResult = PointOfSaleDTOFaker.mockInstance();
+        buildResult.setType(PointOfSaleTypeEnum.PHYSICAL);
+        buildResult.setContactEmail("");
+
+        pointOfSaleDTOS.add(buildResult);
+
+        buildResult.setType(PointOfSaleTypeEnum.ONLINE);
+        buildResult.setWebsite("");
+        pointOfSaleDTOS.add(buildResult);
+
+        ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+        Path path = mock(Path.class);
+        when(violation.getPropertyPath()).thenReturn(path);
+        Set<ConstraintViolation<Object>> violationSet = Set.of(violation);
+
+        ConstraintDescriptor<Annotation> constraintDescriptor = mock(ConstraintDescriptor.class);
+        when(violation.getConstraintDescriptor()).thenReturn((ConstraintDescriptor) constraintDescriptor);
+        Annotation annotation = new Annotation() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return URL.class;
+            }
+        };
+        when(constraintDescriptor.getAnnotation()).thenReturn(annotation);
+
+        when(validator.validate(any(),any())).thenReturn(violationSet);
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
+
+
+
+    @Test
+    void testValidateViolationsPointOfSales4() {
+        Validator validator = mock(Validator.class);
+        when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
+        PointOfSaleValidator pointOfSaleValidator = new PointOfSaleValidator(validator);
+
+        ArrayList<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
+        PointOfSaleDTO buildResult = PointOfSaleDTOFaker.mockInstance();
+        buildResult.setType(PointOfSaleTypeEnum.PHYSICAL);
+        buildResult.setContactEmail("");
+
+        pointOfSaleDTOS.add(buildResult);
+
+        buildResult.setType(PointOfSaleTypeEnum.ONLINE);
+        buildResult.setWebsite("");
+        pointOfSaleDTOS.add(buildResult);
+
+        ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+        Path path = mock(Path.class);
+        when(violation.getPropertyPath()).thenReturn(path);
+        Set<ConstraintViolation<Object>> violationSet = Set.of(violation);
+
+        ConstraintDescriptor<Annotation> constraintDescriptor = mock(ConstraintDescriptor.class);
+        when(violation.getConstraintDescriptor()).thenReturn((ConstraintDescriptor) constraintDescriptor);
+        Annotation annotation = new Annotation() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Email.class;
+            }
+        };
+        when(constraintDescriptor.getAnnotation()).thenReturn(annotation);
+
+        when(validator.validate(any(),any())).thenReturn(violationSet);
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
 
     @Test
     void validatePointOfSales() {
@@ -76,39 +224,6 @@ class PointOfSaleValidatorTest {
 
 
     @Test
-    void validateChannelsWithViolationsBuildErrorCalled() {
-        ChannelDTO channelDTO = new ChannelDTO();
-        PointOfSaleDTO dto = PointOfSaleDTOFaker.mockInstance();
-        dto.setChannels(List.of(channelDTO));
-        List<PointOfSaleDTO> list = List.of(dto);
-
-        ConstraintViolation<ChannelDTO> violation = mock(ConstraintViolation.class);
-        Path mockPath = mock(Path.class);
-        when(mockPath.toString()).thenReturn("someField");
-        when(violation.getPropertyPath()).thenReturn(mockPath);
-        when(violation.getInvalidValue()).thenReturn("badValue");
-        when(violation.getMessage()).thenReturn("must not be null");
-
-        ConstraintDescriptor descriptor = mock(ConstraintDescriptor.class);
-        NotNull mockAnnotation = mock(NotNull.class);
-        when(mockAnnotation.annotationType()).thenReturn((Class) NotNull.class);
-        when(descriptor.getAnnotation()).thenReturn(mockAnnotation);
-        when(violation.getConstraintDescriptor()).thenReturn((ConstraintDescriptor) descriptor);
-
-        Set<ConstraintViolation<ChannelDTO>> violations = Set.of(violation);
-
-        when(validator.validate(dto)).thenReturn(Collections.emptySet());
-        when(validator.validate(channelDTO, ValidationApiEnabledGroup.class)).thenReturn(violations);
-
-        PointOfSaleValidator spyValidator = Mockito.spy(pointOfSaleValidator);
-
-        Assertions.assertThrows(ValidationException.class, () -> {
-            spyValidator.validateViolationsPointOfSales(list);
-        });
-
-    }
-
-    @Test
     void validateEmailAndWebsiteInvalidEmailShouldAddError() {
         PointOfSaleDTO dto = PointOfSaleDTOFaker.mockInstance();
         dto.setContactEmail("invalidEmail");
@@ -124,5 +239,7 @@ class PointOfSaleValidatorTest {
 
         Assertions.assertFalse(exception.getMessage().contains("contactEmail must be a valid EMAIL"));
     }
+
+
 
 }

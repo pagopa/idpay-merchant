@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
+import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,6 +42,7 @@ class PointOfSaleServiceTest {
   @Mock private PointOfSaleValidator validator;
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
+  private static final String POINT_OF_SALE_ID = "POINT_OF_SALE_ID";
 
   PointOfSaleService service;
 
@@ -60,10 +63,46 @@ class PointOfSaleServiceTest {
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
 
     when(repositoryMock.saveAll(any())).thenReturn(List.of(pointOfSale));
-
+    when(dtoMapper.pointOfSaleDTOtoPointOfSaleEntity(any(), any())).thenReturn(pointOfSale);
+    when(repositoryMock.findByContactEmail(anyString())).thenReturn(List.of());
+    when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSaleDTO));
 
-    Mockito.verify(repositoryMock, Mockito.times(0)).saveAll(List.of(pointOfSale));
+    Mockito.verify(repositoryMock, Mockito.times(1)).saveAll(List.of(pointOfSale));
+
+  }
+
+  @Test
+  void savePointOfSalesOK1(){
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId(null);
+    MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
+    when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
+
+    when(repositoryMock.saveAll(any())).thenReturn(List.of(pointOfSale));
+    when(dtoMapper.pointOfSaleDTOtoPointOfSaleEntity(any(), any())).thenReturn(pointOfSale);
+    when(repositoryMock.findByContactEmail(anyString())).thenReturn(List.of());
+    service.savePointOfSales(MERCHANT_ID,List.of(pointOfSaleDTO));
+
+    Mockito.verify(repositoryMock, Mockito.times(1)).saveAll(List.of(pointOfSale));
+
+  }
+
+
+  @Test
+  void savePointOfSalesKO1(){
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
+    when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
+
+    when(dtoMapper.pointOfSaleDTOtoPointOfSaleEntity(any(), any())).thenReturn(pointOfSale);
+    when(repositoryMock.findByContactEmail(anyString())).thenReturn(List.of(pointOfSale));
+
+    assertThrows(ClientExceptionWithBody.class, () ->
+            service.savePointOfSales(MERCHANT_ID,List.of(pointOfSaleDTO))
+    );
 
   }
 

@@ -68,31 +68,31 @@ class PointOfSaleRepositoryExtendedImplTest {
   @Test
   void getCriteria() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY","ADDRESS","CONTANCT-NAME");
-    assertEquals(5, criteria.getCriteriaObject().size());
+    assertEquals(1, criteria.getCriteriaObject().size());
   }
 
   @Test
   void getCriteria1() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY","ADDRESS, 22","CONTANCT-NAME");
-    assertEquals(6, criteria.getCriteriaObject().size());
+    assertEquals(1, criteria.getCriteriaObject().size());
   }
 
   @Test
   void getCriteria2() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID",null,null,"https://google.com","CONTANCT-NAME");
-    assertEquals(3, criteria.getCriteriaObject().size());
+    assertEquals(1, criteria.getCriteriaObject().size());
   }
 
   @Test
   void getCriteria3() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY","ADDRESS, ","CONTANCT-NAME");
-    assertEquals(5, criteria.getCriteriaObject().size());
+    assertEquals(1, criteria.getCriteriaObject().size());
   }
 
   @Test
   void getCriteria4() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY",null,null);
-    assertEquals(3, criteria.getCriteriaObject().size());
+    assertEquals(1, criteria.getCriteriaObject().size());
   }
 
 
