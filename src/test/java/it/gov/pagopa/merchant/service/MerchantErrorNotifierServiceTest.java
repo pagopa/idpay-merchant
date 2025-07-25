@@ -9,7 +9,8 @@ import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
 import it.gov.pagopa.merchant.test.fakers.StorageEventDTOFaker;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
+
+import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

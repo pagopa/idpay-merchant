@@ -7,12 +7,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,7 +45,8 @@ class PointOfSaleRepositoryExtendedImplTest {
   };
   @Autowired
   PointOfSaleRepositoryExtended repositoryExtended;
-  @MockBean MongoTemplate mongoTemplate;
+  @MockitoBean
+  MongoTemplate mongoTemplate;
 
 
   @Test
@@ -61,7 +62,7 @@ class PointOfSaleRepositoryExtendedImplTest {
     Criteria criteria = new Criteria();
     repositoryExtended.getCount(criteria);
     verify(mongoTemplate, times(1)).count(Mockito.any(),
-        (Class<?>) Mockito.any());
+            (Class<?>) Mockito.any());
   }
 
   @Test
