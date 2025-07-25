@@ -1,3 +1,4 @@
+
 name: SonarCloud Analysis
 
 on:
@@ -11,6 +12,10 @@ on:
       - opened
       - edited
       - synchronize
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   sonarcloud:
@@ -36,11 +41,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-
-      - name: Setup Maven Settings
-        run: |
-          mkdir -p ~/.m2
-          echo '<settings><servers><server><id>github</id><username></username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>' > ~/.m2/settings.xml            
 
       - name: Build and test with Maven
         run: mvn clean org.jacoco:jacoco-maven-plugin:0.8.12:prepare-agent verify org.jacoco:jacoco-maven-plugin:0.8.12:report org.jacoco:jacoco-maven-plugin:0.8.12:report-aggregate -B
