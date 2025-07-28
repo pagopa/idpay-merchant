@@ -108,9 +108,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     private void verifyMerchantExists(String merchantId){
         MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId);
         if(merchantDetail == null){
-            throw new MerchantNotFoundException(
-                    MerchantConstants.ExceptionCode.MERCHANT_NOT_ONBOARDED,
-                    String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,merchantId));
+            throw new MerchantNotFoundException(String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,merchantId));
         }
     }
 
