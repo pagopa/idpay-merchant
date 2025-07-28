@@ -18,7 +18,7 @@ public final class PointOfSaleConstants {
     // ===POINT OF SALE===
     public static final String MSG_LIST_NOT_EMPTY = "Point of sales list cannot be empty.";
     public static final String MSG_NOT_FOUND = "Point of sale with id %s not found.";
-    public static final String MSG_ALREADY_REGISTERED = "Point of sale already registered for contact email %s";
+    public static final String MSG_ALREADY_REGISTERED = "Point of sale already registered for contact email";
 
     // ===EMAIL===
     public static final String CODE_INVALID_EMAIL = CODE_INVALID_FORMAT;

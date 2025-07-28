@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     }
 
     @Override
+    @Transactional
     public void savePointOfSales(String merchantId, List<PointOfSale> pointOfSales){
 
         verifyMerchantExists(merchantId);
@@ -45,7 +47,12 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
                 .map(this::preparePointOfSaleForSave)
                 .toList();
 
-        pointOfSaleRepository.saveAll(entities);
+        try{
+            pointOfSaleRepository.saveAll(entities);
+        }
+        catch (Exception e){
+            throw new DuplicateException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
+        }
     }
 
     @Override
@@ -81,13 +88,6 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
      */
     private PointOfSale preparePointOfSaleForSave(PointOfSale pointOfSale){
         ObjectId id = pointOfSale.getId();
-        String contactEmail = pointOfSale.getContactEmail();
-
-        List<PointOfSale> sameEmailList = pointOfSaleRepository.findByContactEmail(contactEmail);
-
-        if(!sameEmailList.isEmpty()){
-            throw new DuplicateException(String.format(PointOfSaleConstants.MSG_ALREADY_REGISTERED,contactEmail));
-        }
 
         boolean isInsert = id != null && StringUtils.isNotEmpty(id.toString());
         if(isInsert){

@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
+import com.mongodb.MongoException;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.custom.DuplicateException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -53,7 +54,6 @@ class PointOfSaleServiceTest {
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
 
     when(repositoryMock.saveAll(any())).thenReturn(List.of(pointOfSale));
-    when(repositoryMock.findByContactEmail(anyString())).thenReturn(List.of());
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
@@ -69,7 +69,6 @@ class PointOfSaleServiceTest {
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
 
     when(repositoryMock.saveAll(any())).thenReturn(List.of(pointOfSale));
-    when(repositoryMock.findByContactEmail(anyString())).thenReturn(List.of());
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
     Mockito.verify(repositoryMock, Mockito.times(1)).saveAll(List.of(pointOfSale));
@@ -82,9 +81,8 @@ class PointOfSaleServiceTest {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
-
-    when(repositoryMock.findByContactEmail(anyString())).thenReturn(List.of(pointOfSale));
-
+    when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
+    when(repositoryMock.saveAll(any())).thenThrow(new MongoException("DUMMY_EXCEPTION"));
     assertThrows(DuplicateException.class, () -> callSave(pointOfSale));
 
   }
