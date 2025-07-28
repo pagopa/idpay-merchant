@@ -5,16 +5,12 @@ import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.exception.custom.DuplicateException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
-import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
-import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -32,35 +28,28 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     private final MerchantService merchantService;
     private final PointOfSaleRepository pointOfSaleRepository;
-    private final PointOfSaleDTOMapper pointOfSaleDTOMapper;
-    private final PointOfSaleValidator pointOfSaleValidator;
 
     public PointOfSaleServiceImpl(
             MerchantService merchantService,
-            PointOfSaleRepository pointOfSaleRepository,
-            PointOfSaleDTOMapper pointOfSaleDTOMapper,
-            PointOfSaleValidator pointOfSaleValidator) {
+            PointOfSaleRepository pointOfSaleRepository) {
         this.merchantService = merchantService;
         this.pointOfSaleRepository = pointOfSaleRepository;
-        this.pointOfSaleDTOMapper = pointOfSaleDTOMapper;
-        this.pointOfSaleValidator = pointOfSaleValidator;
     }
 
     @Override
-    public void savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSaleDTOList){
-        verifyMerchantExists(merchantId);
-        pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOList);
+    public void savePointOfSales(String merchantId, List<PointOfSale> pointOfSales){
 
-        List<PointOfSale> entities = pointOfSaleDTOList.stream()
-                .map(pointOfSaleDTO -> pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,merchantId))
-                .map(this::handleInsertOrUpdate)
+        verifyMerchantExists(merchantId);
+
+        List<PointOfSale> entities = pointOfSales.stream()
+                .map(this::preparePointOfSaleForSave)
                 .toList();
 
         pointOfSaleRepository.saveAll(entities);
     }
 
     @Override
-    public PointOfSaleListDTO getPointOfSalesList(
+    public Page<PointOfSale> getPointOfSalesList(
             String merchantId,
             String type,
             String city,
@@ -74,21 +63,23 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         List<PointOfSale> matched = pointOfSaleRepository.findByFilter(criteria, pageable);
         long total = pointOfSaleRepository.getCount(criteria);
 
-        final Page<PointOfSale> entitiesPage = PageableExecutionUtils.getPage(matched,
-                Utilities.getPageable(pageable), () -> total);
-
-        Page<PointOfSaleDTO> result = entitiesPage.map(pointOfSaleDTOMapper::pointOfSaleEntityToPointOfSaleDTO);
-
-        return PointOfSaleListDTO.builder()
-                .content(result.getContent())
-                .pageNo(result.getNumber())
-                .pageSize(result.getSize())
-                .totalElements(result.getTotalElements())
-                .totalPages(result.getTotalPages())
-                .build();
+        return PageableExecutionUtils.getPage(matched, Utilities.getPageable(pageable), () -> total);
     }
 
-    private PointOfSale handleInsertOrUpdate(PointOfSale pointOfSale){
+    /**
+     * Prepares the PointOfSale entity for insert or uprdate
+     * <p>
+     *     If the PointOfSale already exists (determined by the presence of an ID),
+     *     it preserves the original creation date.
+     *     Also checks if there is any existing PointOfSale with the same contact email
+     *     and throws a {@link DuplicateException if found}
+     * </p>
+     *
+     * @param pointOfSale the PointOfSale entity to prepare
+     * @return the prepared PointOfSale entity for persistance
+     * @throws DuplicateException if a PointOfSale with the same contact email already exists
+     */
+    private PointOfSale preparePointOfSaleForSave(PointOfSale pointOfSale){
         ObjectId id = pointOfSale.getId();
         String contactEmail = pointOfSale.getContactEmail();
 
@@ -108,6 +99,12 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     }
 
 
+    /**
+     * Verifies if the merchant exists in the system.
+     *
+     * @param merchantId the ID of the merchant to check
+     * @throws MerchantNotFoundException if the merchant does not exist
+     */
     private void verifyMerchantExists(String merchantId){
         MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId);
         if(merchantDetail == null){
