@@ -1,9 +1,9 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.exception.custom.DuplicateException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
@@ -99,7 +99,7 @@ class PointOfSaleServiceTest {
     when(dtoMapper.pointOfSaleDTOtoPointOfSaleEntity(any(), any())).thenReturn(pointOfSale);
     when(repositoryMock.findByContactEmail(anyString())).thenReturn(List.of(pointOfSale));
 
-    assertThrows(ClientExceptionWithBody.class, () -> callSave(pointOfSaleDTO));
+    assertThrows(DuplicateException.class, () -> callSave(pointOfSaleDTO));
 
   }
 

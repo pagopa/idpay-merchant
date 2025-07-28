@@ -7,6 +7,7 @@ import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.exception.custom.DuplicateException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
@@ -94,10 +95,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         List<PointOfSale> sameEmailList = pointOfSaleRepository.findByContactEmail(contactEmail);
 
         if(!sameEmailList.isEmpty()){
-            throw new ClientExceptionWithBody(
-                    HttpStatus.BAD_REQUEST,
-                    PointOfSaleConstants.CODE_ALREADY_REGISTERED,
-                    String.format(PointOfSaleConstants.MSG_ALREADY_REGISTERED,contactEmail));
+            throw new DuplicateException(String.format(PointOfSaleConstants.MSG_ALREADY_REGISTERED,contactEmail));
         }
 
         boolean isInsert = id != null && StringUtils.isNotEmpty(id.toString());
