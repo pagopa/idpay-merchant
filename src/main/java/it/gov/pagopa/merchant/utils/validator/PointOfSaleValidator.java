@@ -44,21 +44,23 @@ public class PointOfSaleValidator{
         for (int i = 0; i < pointOfSaleDTOS.size(); i++) {
             PointOfSaleDTO dto = pointOfSaleDTOS.get(i);
 
-            validatePointOfSale(dto, i, errors);
-            validateEmailAndWebsite(dto, i, errors);
-            validateChannels(dto, i, errors);
+            errors.addAll(validatePointOfSale(dto, i));
+            errors.addAll(validateEmailAndWebsite(dto, i));
+            errors.addAll(validateChannels(dto, i));
 
         }
 
-        validateDuplicates(pointOfSaleDTOS, errors);
+        errors.addAll(validateDuplicates(pointOfSaleDTOS));
 
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }
     }
 
-    private void validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS, List<ValidationErrorDetail> errors){
+    private List<ValidationErrorDetail> validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS){
+        List<ValidationErrorDetail> errors = new ArrayList<>();
         Set<String> emails = new HashSet<>();
+        
         for(int i = 0; i < pointOfSaleDTOS.size(); i++){
             String email = pointOfSaleDTOS.get(i).getContactEmail();
             if(StringUtils.isNotBlank(email) && !emails.add(email)){
@@ -71,10 +73,11 @@ public class PointOfSaleValidator{
                     ));
             }
         }
+        return errors;
     }
 
-    private void validatePointOfSale(PointOfSaleDTO pointOfSaleDTO, int index, List<ValidationErrorDetail> errors){
-        
+    private List<ValidationErrorDetail> validatePointOfSale(PointOfSaleDTO pointOfSaleDTO, int index){
+        List<ValidationErrorDetail> errors = new ArrayList<>();
         Set<ConstraintViolation<PointOfSaleDTO>> violations = switch (pointOfSaleDTO.getType().name().toUpperCase()){
             case "PHYSICAL" -> validator.validate(pointOfSaleDTO, PhysicalGroup.class);
             case "ONLINE" -> validator.validate(pointOfSaleDTO, OnlineGroup.class);
@@ -90,11 +93,14 @@ public class PointOfSaleValidator{
                     violation.getMessage()
             ));
         }
+        
+        return  errors;
     }
 
 
-    private void validateEmailAndWebsite(PointOfSaleDTO pointOfSaleDTO, int index, List<ValidationErrorDetail> errors){
-
+    private List<ValidationErrorDetail> validateEmailAndWebsite(PointOfSaleDTO pointOfSaleDTO, int index){
+        List<ValidationErrorDetail> errors = new ArrayList<>();
+        
         validateChannelField(pointOfSaleDTO.getContactEmail(), "contactEmail", REGEX_EMAIL,
                 PointOfSaleConstants.CODE_INVALID_EMAIL, PointOfSaleConstants.MSG_INVALID_EMAIL,
                 index, errors);
@@ -103,10 +109,12 @@ public class PointOfSaleValidator{
                 PointOfSaleConstants.CODE_INVALID_WEBSITE, PointOfSaleConstants.MSG_INVALID_WEBSITE,
                 index, errors);
 
+        return errors;
     }
 
-    private void validateChannels(PointOfSaleDTO pointOfSaleDTO, int index, List<ValidationErrorDetail> errors){
-        
+    private List<ValidationErrorDetail> validateChannels(PointOfSaleDTO pointOfSaleDTO, int index){
+        List<ValidationErrorDetail> errors = new ArrayList<>();
+
         validateChannelField(pointOfSaleDTO.getChannelEmail(), "channelEmail", REGEX_EMAIL, 
                 PointOfSaleConstants.CODE_INVALID_EMAIL, PointOfSaleConstants.MSG_INVALID_EMAIL,
                 index, errors);
@@ -123,6 +131,7 @@ public class PointOfSaleValidator{
                 PointOfSaleConstants.CODE_INVALID_MOBILE, PointOfSaleConstants.MSG_INVALID_MOBILE,
                 index, errors);
 
+        return errors;
     }
     
     private void validateChannelField(String value, String field, String regex, String errorCode, String message, int index, List<ValidationErrorDetail> errors){
