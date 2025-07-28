@@ -2,7 +2,7 @@ package it.gov.pagopa.merchant.service.pointofsales;
 
 import com.mongodb.MongoException;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.exception.custom.DuplicateException;
+import it.gov.pagopa.merchant.exception.custom.DuplicateContactEmailException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
@@ -83,7 +83,7 @@ class PointOfSaleServiceTest {
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
     when(repositoryMock.saveAll(any())).thenThrow(new MongoException("DUMMY_EXCEPTION"));
-    assertThrows(DuplicateException.class, () -> callSave(pointOfSale));
+    assertThrows(DuplicateContactEmailException.class, () -> callSave(pointOfSale));
 
   }
 

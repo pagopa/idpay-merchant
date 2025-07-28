@@ -4,9 +4,9 @@ import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 
 
-public class DuplicateException extends ServiceException {
+public class DuplicateContactEmailException extends ServiceException {
 
-    public DuplicateException(String message) {
+    public DuplicateContactEmailException(String message) {
         super(PointOfSaleConstants.CODE_ALREADY_REGISTERED, message, null, false, null);
     }
 
