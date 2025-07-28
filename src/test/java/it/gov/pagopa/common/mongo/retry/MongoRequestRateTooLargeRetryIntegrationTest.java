@@ -108,6 +108,7 @@ class MongoRequestRateTooLargeRetryIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Test
     void testController_Method() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/test")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -117,6 +118,7 @@ class MongoRequestRateTooLargeRetryIntegrationTest {
         Assertions.assertEquals(1, counter[0]);
     }
 
+    @Test
     void testControllerRetryable_Method() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/test-api-retryable")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -126,6 +128,7 @@ class MongoRequestRateTooLargeRetryIntegrationTest {
         Assertions.assertEquals(counter[0], API_RETRYABLE_MAX_RETRY + 1);
     }
 
+    @Test
     void testNoController_Method() {
         try {
             TestController.buildNestedRepositoryMethodInvoke(testRepositorySpy);
@@ -140,4 +143,12 @@ class MongoRequestRateTooLargeRetryIntegrationTest {
         Assertions.assertEquals(counter[0], maxRetry + 1);
     }
 
+    @Test
+    void testSpringRepositoryInterceptor() throws Throwable {
+        // When
+        dummySpringRepository.findByIdOrderById("ID");
+
+        // Then
+        Mockito.verify(automaticRetryAspectSpy).decorateRepositoryMethods(Mockito.argThat(i -> i.getArgs()[0].equals("ID")));
+    }
 }
