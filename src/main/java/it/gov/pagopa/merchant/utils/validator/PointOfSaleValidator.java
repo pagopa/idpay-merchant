@@ -67,7 +67,7 @@ public class PointOfSaleValidator{
                             "contactEmail",
                             email,
                             PointOfSaleConstants.CODE_ALREADY_REGISTERED,
-                            "Email duplicata nella lista fornita"
+                            "Duplicate email in the provided list"
                     ));
             }
         }
