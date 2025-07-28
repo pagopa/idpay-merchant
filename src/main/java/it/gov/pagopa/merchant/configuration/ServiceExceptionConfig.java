@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.configuration;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
-import it.gov.pagopa.merchant.exception.custom.DuplicateContactEmailException;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
 import it.gov.pagopa.merchant.exception.custom.FileOperationException;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -27,7 +27,7 @@ public class ServiceExceptionConfig {
         exceptionMap.put(InitiativeInvocationException.class, HttpStatus.INTERNAL_SERVER_ERROR);
 
         // AlreadyOnboarded
-        exceptionMap.put(DuplicateContactEmailException.class, HttpStatus.BAD_REQUEST);
+        exceptionMap.put(PointOfSaleDuplicateException.class, HttpStatus.BAD_REQUEST);
 
         return exceptionMap;
     }

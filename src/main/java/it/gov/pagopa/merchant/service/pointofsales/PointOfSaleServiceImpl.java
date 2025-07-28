@@ -5,8 +5,8 @@ import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.exception.custom.DuplicateContactEmailException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -51,7 +51,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
             pointOfSaleRepository.saveAll(entities);
         }
         catch (Exception e){
-            throw new DuplicateContactEmailException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
+            throw new PointOfSaleDuplicateException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
         }
     }
 
@@ -79,12 +79,12 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
      *     If the PointOfSale already exists (determined by the presence of an ID),
      *     it preserves the original creation date.
      *     Also checks if there is any existing PointOfSale with the same contact email
-     *     and throws a {@link DuplicateContactEmailException if found}
+     *     and throws a {@link PointOfSaleDuplicateException if found}
      * </p>
      *
      * @param pointOfSale the PointOfSale entity to prepare
      * @return the prepared PointOfSale entity for persistance
-     * @throws DuplicateContactEmailException if a PointOfSale with the same contact email already exists
+     * @throws PointOfSaleDuplicateException if a PointOfSale with the same contact email already exists
      */
     private PointOfSale preparePointOfSaleForSave(PointOfSale pointOfSale){
         ObjectId id = pointOfSale.getId();
