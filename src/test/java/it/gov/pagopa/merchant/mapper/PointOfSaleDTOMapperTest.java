@@ -30,7 +30,7 @@ class PointOfSaleDTOMapperTest {
     }
 
     @Test
-    void pointOfSaleEntityToPointOfSaleDTO_ok(){
+    void pointOfSaleEntityToPointOfSaleDTO_okPointOfSalePhysical(){
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
 
         PointOfSaleDTO result = pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
@@ -39,7 +39,7 @@ class PointOfSaleDTOMapperTest {
     }
 
     @Test
-    void pointOfSaleEntityToPointOfSaleDTO_ok1(){
+    void pointOfSaleEntityToPointOfSaleDTO_okButStreetNumberIsNull(){
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
         pointOfSale.setStreetNumber(null);
 
@@ -49,7 +49,7 @@ class PointOfSaleDTOMapperTest {
     }
 
     @Test
-    void pointOfSaleEntityToPointOfSaleDTO_ok2(){
+    void pointOfSaleEntityToPointOfSaleDTO_okPointOfSaleOnline(){
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
         pointOfSale.setType("ONLINE");
 
@@ -77,13 +77,9 @@ class PointOfSaleDTOMapperTest {
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
         PointOfSale result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
-    }
 
-    @Test
-    void pointOfSaleDTOtoPointOfSaleEntity_ok1(){
-        PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
         pointOfSaleDTO.setAddress("Via Giuseppe, 33");
-        PointOfSale result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
+        result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
 
         pointOfSaleDTO.setAddress("Via Giuseppe 33");
@@ -97,18 +93,12 @@ class PointOfSaleDTOMapperTest {
         pointOfSaleDTO.setAddress("");
         result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
-    }
 
-
-    @Test
-    void pointOfSaleDTOtoPointOfSaleEntity_ok5(){
-        PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
         pointOfSaleDTO.setType(PointOfSaleTypeEnum.ONLINE);
         pointOfSaleDTO.setId(new ObjectId().toString());
-        PointOfSale result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
+        result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
     }
-
 
 
 

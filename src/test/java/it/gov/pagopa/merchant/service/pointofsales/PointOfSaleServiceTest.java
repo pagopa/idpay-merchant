@@ -72,7 +72,7 @@ class PointOfSaleServiceTest {
   }
 
   @Test
-  void savePointOfSalesOK1(){
+  void savePointOfSalesOK_withIdNull(){
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setId(null);
@@ -90,7 +90,7 @@ class PointOfSaleServiceTest {
 
 
   @Test
-  void savePointOfSalesKO1(){
+  void savePointOfSalesKO(){
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
@@ -104,7 +104,7 @@ class PointOfSaleServiceTest {
   }
 
   @Test
-  void savePointOfSalesKO(){
+  void savePointOfSalesKO_merchantIsNull(){
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(null);
 

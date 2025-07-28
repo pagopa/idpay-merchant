@@ -40,7 +40,7 @@ class PointOfSaleValidatorTest {
     private Validator validator;
 
     @Test
-    void testValidateViolationsPointOfSales() {
+    void testValidateViolationsPointOfSales_returnValidationErrorNotBlank() {
         when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
         pointOfSaleValidator = new PointOfSaleValidator(validator);
 
@@ -73,7 +73,7 @@ class PointOfSaleValidatorTest {
 
 
     @Test
-    void testValidateViolationsPointOfSales1() {
+    void testValidateViolationsPointOfSales_returnValidationErrorPattern() {
         when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
         pointOfSaleValidator = new PointOfSaleValidator(validator);
 
@@ -109,7 +109,7 @@ class PointOfSaleValidatorTest {
     }
 
     @Test
-    void testValidateViolationsPointOfSales2() {
+    void testValidateViolationsPointOfSales_returnValidationErrorURL() {
         when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
         pointOfSaleValidator = new PointOfSaleValidator(validator);
 
@@ -147,7 +147,7 @@ class PointOfSaleValidatorTest {
 
 
     @Test
-    void testValidateViolationsPointOfSales4() {
+    void testValidateViolationsPointOfSales_returnValidationErrorEmail() {
         when(validator.validate(Mockito.<PointOfSaleDTO>any(), isA(Class[].class))).thenReturn(new HashSet<>());
         pointOfSaleValidator = new PointOfSaleValidator(validator);
 
@@ -183,7 +183,7 @@ class PointOfSaleValidatorTest {
     }
 
     @Test
-    void validatePointOfSales() {
+    void testValidateViolationsPointOfSales_PointOfSaleListEmpty() {
         ClientExceptionWithBody exception = assertThrows(ClientExceptionWithBody.class,
                 () -> pointOfSaleValidator.validatePointOfSales(null));
 

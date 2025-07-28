@@ -66,31 +66,31 @@ class PointOfSaleRepositoryExtendedImplTest {
   }
 
   @Test
-  void getCriteria() {
+  void getCriteria_withAddress() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY","ADDRESS","CONTANCT-NAME");
     assertEquals(1, criteria.getCriteriaObject().size());
   }
 
   @Test
-  void getCriteria1() {
+  void getCriteria_withAddressAndStreetNumber() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY","ADDRESS, 22","CONTANCT-NAME");
     assertEquals(1, criteria.getCriteriaObject().size());
   }
 
   @Test
-  void getCriteria2() {
+  void getCriteria_typeNullAndCityNull() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID",null,null,"https://google.com","CONTANCT-NAME");
     assertEquals(1, criteria.getCriteriaObject().size());
   }
 
   @Test
-  void getCriteria3() {
+  void getCriteria_withAddressAndStreetNumberEmpty() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY","ADDRESS, ","CONTANCT-NAME");
     assertEquals(1, criteria.getCriteriaObject().size());
   }
 
   @Test
-  void getCriteria4() {
+  void getCriteria_withAddressNullAndContactNameNull() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY",null,null);
     assertEquals(1, criteria.getCriteriaObject().size());
   }
