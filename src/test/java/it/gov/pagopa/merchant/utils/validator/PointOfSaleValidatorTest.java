@@ -29,8 +29,10 @@ class PointOfSaleValidatorTest {
 
     @Test
     void testValidateViolationsPointOfSales_PointOfSaleListEmpty() {
+        List<PointOfSaleDTO> emptyList = new ArrayList<>();
+
         ClientExceptionWithBody exception = assertThrows(ClientExceptionWithBody.class,
-                () -> pointOfSaleValidator.validatePointOfSales(List.of()));
+                () -> pointOfSaleValidator.validatePointOfSales(emptyList));
 
         assertEquals("Point of sales list cannot be empty.", exception.getMessage());
     }
