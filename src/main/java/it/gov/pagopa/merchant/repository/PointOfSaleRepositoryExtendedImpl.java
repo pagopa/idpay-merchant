@@ -102,14 +102,5 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         return new Criteria().andOperator(nameCriterias.toArray(new Criteria[0]));
     }
 
-    @Override
-    public Optional<PointOfSale> findByMerchantIdAndObjectId(String merchantId, ObjectId pointOfSaleId) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where(PointOfSale.Fields.merchantId).is(merchantId));
-        query.addCriteria(Criteria.where(PointOfSale.Fields.id).is(pointOfSaleId));
-
-        PointOfSale pointOfSale = mongoTemplate.findOne(query, PointOfSale.class);
-        return Optional.ofNullable(pointOfSale);
-    }
 }
 
