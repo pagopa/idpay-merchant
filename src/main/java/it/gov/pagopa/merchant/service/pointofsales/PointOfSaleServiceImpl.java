@@ -1,18 +1,20 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
 import io.micrometer.common.util.StringUtils;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
+import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.exception.custom.DuplicateException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,6 +22,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,7 +48,34 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
                 .map(this::preparePointOfSaleForSave)
                 .toList();
 
-        pointOfSaleRepository.saveAll(entities);
+        List<PointOfSale> savedPointOfSales = new ArrayList<>();
+
+        try{
+            for(PointOfSale entity : entities){
+                PointOfSale saved = pointOfSaleRepository.save(entity);
+                savedPointOfSales.add(saved);
+            }
+        }
+        catch (Exception exception){
+            log.error("[POINT-OF-SALES][SAVE] Error during saving PointOfSales. Initiating compensation rollback.");
+            compensatingDelete(savedPointOfSales);
+            log.error("[POINT-OF-SALES][SAVE] Compensation rollback completed.");
+            if(exception instanceof DuplicateKeyException){
+                throw new PointOfSaleDuplicateException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
+            }
+            throw new ServiceException(PointOfSaleConstants.CODE_GENERIC_SAVE_ERROR,PointOfSaleConstants.MSG_GENERIC_SAVE_ERROR);
+        }
+    }
+
+    private void compensatingDelete(List<PointOfSale> savedEntities){
+        for(PointOfSale pointOfSale : savedEntities){
+            try{
+                pointOfSaleRepository.deleteById(pointOfSale.getId().toString());
+            }catch (Exception exception){
+                log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}", pointOfSale.getId().toString());
+            }
+        }
+
     }
 
     @Override
@@ -72,22 +102,15 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
      *     If the PointOfSale already exists (determined by the presence of an ID),
      *     it preserves the original creation date.
      *     Also checks if there is any existing PointOfSale with the same contact email
-     *     and throws a {@link DuplicateException if found}
+     *     and throws a {@link PointOfSaleDuplicateException if found}
      * </p>
      *
      * @param pointOfSale the PointOfSale entity to prepare
      * @return the prepared PointOfSale entity for persistance
-     * @throws DuplicateException if a PointOfSale with the same contact email already exists
+     * @throws PointOfSaleDuplicateException if a PointOfSale with the same contact email already exists
      */
     private PointOfSale preparePointOfSaleForSave(PointOfSale pointOfSale){
         ObjectId id = pointOfSale.getId();
-        String contactEmail = pointOfSale.getContactEmail();
-
-        List<PointOfSale> sameEmailList = pointOfSaleRepository.findByContactEmail(contactEmail);
-
-        if(!sameEmailList.isEmpty()){
-            throw new DuplicateException(String.format(PointOfSaleConstants.MSG_ALREADY_REGISTERED,contactEmail));
-        }
 
         boolean isInsert = id != null && StringUtils.isNotEmpty(id.toString());
         if(isInsert){
@@ -108,28 +131,14 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     private void verifyMerchantExists(String merchantId){
         MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId);
         if(merchantDetail == null){
-            throw new MerchantNotFoundException(
-                    MerchantConstants.ExceptionCode.MERCHANT_NOT_ONBOARDED,
-                    String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,merchantId));
+            throw new MerchantNotFoundException(String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,merchantId));
         }
     }
 
     private PointOfSale getPointOfSaleById(String pointOfSaleId){
         return pointOfSaleRepository.findById(pointOfSaleId)
-                .orElseThrow(() -> new ClientExceptionWithBody(
-                        HttpStatus.NOT_FOUND,
-                        PointOfSaleConstants.CODE_NOT_FOUND,
-                        String.format(PointOfSaleConstants.MSG_NOT_FOUND,pointOfSaleId)));
+                .orElseThrow(() -> new PointOfSaleNotFoundException(String.format(PointOfSaleConstants.MSG_NOT_FOUND,pointOfSaleId)));
     }
 
-    @Override
-    public PointOfSale getPointOfSaleByIdAndMerchant(String merchantId, String pointOfSaleId) {
-        return pointOfSaleRepository.findByMerchantIdAndObjectId(merchantId, new ObjectId(pointOfSaleId))
-                .orElseThrow(() -> new ClientExceptionWithBody(
-                        HttpStatus.NOT_FOUND,
-                        PointOfSaleConstants.CODE_NOT_FOUND,
-                        String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
-                ));
-    }
 }
 

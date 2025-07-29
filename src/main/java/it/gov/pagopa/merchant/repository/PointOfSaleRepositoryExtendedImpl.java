@@ -37,11 +37,13 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         criteriaList.add(Criteria.where(PointOfSale.Fields.merchantId).is(merchantId));
 
         if(StringUtils.isNotBlank(type)){
-            criteriaList.add(Criteria.where(PointOfSale.Fields.type).is(type));
+            Pattern typePattern = Pattern.compile(Pattern.quote(type.trim()), Pattern.CASE_INSENSITIVE);
+            criteriaList.add(Criteria.where(PointOfSale.Fields.type).regex(typePattern));
         }
 
         if(StringUtils.isNotBlank(city)){
-            criteriaList.add(Criteria.where(PointOfSale.Fields.city).is(city));
+            Pattern cityPattern = Pattern.compile(Pattern.quote(city.trim()), Pattern.CASE_INSENSITIVE);
+            criteriaList.add(Criteria.where(PointOfSale.Fields.city).regex(cityPattern));
         }
 
         if (StringUtils.isNotBlank(address)) {
@@ -69,12 +71,15 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
         String[] parts = address.split(",");
         String addressPart = parts[0].trim();
-        addressCriterias.add(Criteria.where(PointOfSale.Fields.address).regex(Pattern.quote(addressPart),"i"));
+      
+        Pattern addressPattern = Pattern.compile(Pattern.quote(addressPart), Pattern.CASE_INSENSITIVE);
+        addressCriterias.add(Criteria.where(PointOfSale.Fields.address).regex(addressPattern));
 
         if (parts.length > 1) {
             String streetNumber = parts[1].trim();
             if (StringUtils.isNotBlank(streetNumber)) {
-                addressCriterias.add(Criteria.where(PointOfSale.Fields.streetNumber).regex(Pattern.quote(streetNumber), "i"));
+                Pattern streetPattern = Pattern.compile(Pattern.quote(streetNumber), Pattern.CASE_INSENSITIVE);
+                addressCriterias.add(Criteria.where(PointOfSale.Fields.streetNumber).regex(streetPattern));
             }
         }
 
