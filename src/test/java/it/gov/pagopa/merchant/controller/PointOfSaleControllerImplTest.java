@@ -3,11 +3,9 @@ package it.gov.pagopa.merchant.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
-import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleListDTOFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
@@ -16,9 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -34,9 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @Import({JsonConfig.class, ServiceExceptionConfig.class})
 class PointOfSaleControllerImplTest {
 
-    @MockBean
+    @MockitoBean
     private PointOfSaleService pointOfSaleService;
-    @MockBean
+    @MockitoBean
     private PointOfSaleValidator validator;
 
     @Autowired
@@ -47,10 +45,8 @@ class PointOfSaleControllerImplTest {
     private static final String BASE_URL = "/idpay/merchant/portal";
     private static final String SAVE_POINT_OF_SALES = "/%s/point-of-sales";
     private static final String GET_POINT_OF_SALES = "/%s/point-of-sales";
-    private static final String DELETE_POINT_OF_SALES = "/%s/point-of-sales/%s";
 
     private static final String MERCHANT_ID = "MERCHANT_ID";
-    private static final String POINT_OF_SALE_ID = "POINT_OF_SALE_ID";
 
     @Test
     void savePointOfSalesOK() throws Exception {
@@ -73,8 +69,6 @@ class PointOfSaleControllerImplTest {
 
     @Test
     void getPointOfSalesListOK() throws Exception {
-        MerchantDetailDTO merchantDetail = MerchantDetailDTOFaker.mockInstance(1);
-
         PointOfSaleListDTO pointOfSaleListDTO = PointOfSaleListDTOFaker.mockInstance();
 
         Mockito.when(pointOfSaleService.getPointOfSalesList(any(),any(),any(),any(),any(),any())).thenReturn(pointOfSaleListDTO);

@@ -74,8 +74,8 @@ class ServiceExceptionHandlerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/test")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-                .andExpect(MockMvcResultMatchers.content().json("{\"code\":\"DUMMY_CODE\",\"message\":\"DUMMY_MESSAGE\"}", false));
-
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("DUMMY_CODE"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("DUMMY_MESSAGE"));
 
         ErrorManagerTest.checkStackTraceSuppressedLog(memoryAppender, "A ServiceException occurred handling request GET /test: HttpStatus 500 INTERNAL_SERVER_ERROR - DUMMY_CODE: DUMMY_MESSAGE at it.gov.pagopa.common.web.exception.ServiceExceptionHandlerTest\\$TestController.test\\(ServiceExceptionHandlerTest.java:[0-9]+\\)");
     }
@@ -85,7 +85,8 @@ class ServiceExceptionHandlerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/test/customBody")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isInternalServerError())
-                .andExpect(MockMvcResultMatchers.content().json("{\"stringCode\":\"RESPONSE\",\"longCode\":0}", false));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.stringCode").value("RESPONSE"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.longCode").value("0"));
 
         ErrorManagerTest.checkLog(memoryAppender,
                 "Something went wrong handling request GET /test/customBody: HttpStatus 500 INTERNAL_SERVER_ERROR - DUMMY_CODE: DUMMY_MESSAGE",

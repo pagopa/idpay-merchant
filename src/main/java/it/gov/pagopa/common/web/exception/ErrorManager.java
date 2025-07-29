@@ -27,16 +27,17 @@ public class ErrorManager {
   protected ResponseEntity<ErrorDTO> handleException(RuntimeException error, HttpServletRequest request) {
     logClientException(error, request);
 
-    if(error instanceof ValidationException){
+    if(error instanceof ValidationException exception){
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
               ValidationErrorDTO.builder()
                       .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
                       .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
-                      .details(((ValidationException) error).getErrors())
+                      .details(exception.getErrors())
                       .build()
       );
     }
-    else if(error instanceof ClientExceptionNoBody clientExceptionNoBody){
+
+    if(error instanceof ClientExceptionNoBody clientExceptionNoBody){
       return ResponseEntity.status(clientExceptionNoBody.getHttpStatus()).build();
     }
     else {
@@ -55,6 +56,7 @@ public class ErrorManager {
               .body(errorDTO);
     }
   }
+
   public static void logClientException(RuntimeException error, HttpServletRequest request) {
     Throwable unwrappedException = error.getCause() instanceof ServiceException
             ? error.getCause()

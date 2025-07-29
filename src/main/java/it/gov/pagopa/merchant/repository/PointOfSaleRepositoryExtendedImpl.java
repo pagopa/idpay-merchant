@@ -32,48 +32,16 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
     public Criteria getCriteria(String merchantId, String type, String city, String address, String contactName) {
         Criteria criteria = Criteria.where(PointOfSale.Fields.merchantId).is(merchantId);
 
-        if (StringUtils.isNotBlank(type)) {
-            criteria.and(PointOfSale.Fields.type).is(type);
-        }
+        addSimpleField(criteria, PointOfSale.Fields.type, type);
+        addSimpleField(criteria, PointOfSale.Fields.city, city);
 
-        if (StringUtils.isNotBlank(city)) {
-            criteria.and(PointOfSale.Fields.city).is(city);
-        }
 
         if (StringUtils.isNotBlank(address)) {
-            if (StringUtils.startsWithIgnoreCase(address,"http")) {
-                Pattern websitePattern = Pattern.compile(Pattern.quote(address.trim()), Pattern.CASE_INSENSITIVE);
-                criteria.and(PointOfSale.Fields.website).regex(websitePattern);
-            }
-            else {
-                String[] parts = address.split(",");
-                String addressPart = parts[0].trim();
-                criteria.and(PointOfSale.Fields.address).regex(Pattern.quote(addressPart), "i");
-
-                if (parts.length > 1) {
-                    String streetNumber = parts[1].trim();
-                    if (StringUtils.isNotBlank(streetNumber)) {
-                        criteria.and(PointOfSale.Fields.streetNumber).regex(Pattern.quote(streetNumber), "i");
-                    }
-                }
-            }
+            addAddressCriteria(criteria, address);
         }
 
         if (StringUtils.isNotBlank(contactName)) {
-            String[] nameParts = contactName.trim().split("\\s+");
-            List<Criteria> nameCriterias = new ArrayList<>();
-
-            for (String part : nameParts) {
-                Pattern pattern = Pattern.compile(Pattern.quote(part), Pattern.CASE_INSENSITIVE);
-                nameCriterias.add(new Criteria().orOperator(
-                        Criteria.where(PointOfSale.Fields.contactName).regex(pattern),
-                        Criteria.where(PointOfSale.Fields.contactSurname).regex(pattern)
-                ));
-            }
-
-            if (!nameCriterias.isEmpty()) {
-                criteria.andOperator(nameCriterias.toArray(new Criteria[0]));
-            }
+            addContactNameCriteria(criteria, contactName);
         }
 
         return criteria;
@@ -82,6 +50,48 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
     @Override
     public long getCount(Criteria criteria) {
         return mongoTemplate.count(Query.query(criteria), PointOfSale.class);
+    }
+
+    private void addSimpleField(Criteria criteria, String field, String value){
+        if(StringUtils.isNotBlank(value)){
+            criteria.and(field).is(value);
+        }
+    }
+
+    private void addAddressCriteria(Criteria criteria, String address){
+        if (StringUtils.startsWithIgnoreCase(address,"http")) {
+            Pattern websitePattern = Pattern.compile(Pattern.quote(address.trim()), Pattern.CASE_INSENSITIVE);
+            criteria.and(PointOfSale.Fields.website).regex(websitePattern);
+        }
+        else {
+            String[] parts = address.split(",");
+            String addressPart = parts[0].trim();
+            criteria.and(PointOfSale.Fields.address).regex(Pattern.quote(addressPart), "i");
+
+            if (parts.length > 1) {
+                String streetNumber = parts[1].trim();
+                if (StringUtils.isNotBlank(streetNumber)) {
+                    criteria.and(PointOfSale.Fields.streetNumber).regex(Pattern.quote(streetNumber), "i");
+                }
+            }
+        }
+    }
+
+    private void addContactNameCriteria(Criteria criteria, String contactName){
+        String[] nameParts = contactName.trim().split("\\s+");
+        List<Criteria> nameCriterias = new ArrayList<>();
+
+        for (String part : nameParts) {
+            Pattern pattern = Pattern.compile(Pattern.quote(part), Pattern.CASE_INSENSITIVE);
+            nameCriterias.add(new Criteria().orOperator(
+                    Criteria.where(PointOfSale.Fields.contactName).regex(pattern),
+                    Criteria.where(PointOfSale.Fields.contactSurname).regex(pattern)
+            ));
+        }
+
+        if (!nameCriterias.isEmpty()) {
+            criteria.andOperator(nameCriterias.toArray(new Criteria[0]));
+        }
     }
 
 }

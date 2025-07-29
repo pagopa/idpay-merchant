@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,7 +21,7 @@ import java.util.List;
 class MerchantFileRepositoryExtendedImplTest {
     @Autowired
     MerchantFileRepositoryExtended merchantFileRepositoryExtended;
-    @MockBean
+    @MockitoBean
     MongoTemplate mongoTemplate;
 
     private static final String INITIATIVE_ID = "initiativeId";
