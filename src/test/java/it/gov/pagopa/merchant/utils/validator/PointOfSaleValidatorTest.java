@@ -5,26 +5,27 @@ import it.gov.pagopa.common.web.exception.ValidationException;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
+import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@Import(PointOfSaleValidatorTest.TestConfig.class)
 class PointOfSaleValidatorTest {
 
-    @Autowired
     private PointOfSaleValidator pointOfSaleValidator;
 
+    @BeforeEach
+    void setUp(){
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        pointOfSaleValidator = new PointOfSaleValidator(validator);
+    }
 
     @Test
     void testValidateViolationsPointOfSales_PointOfSaleListEmpty() {
@@ -86,16 +87,4 @@ class PointOfSaleValidatorTest {
     }
 
 
-    @Configuration
-    static class TestConfig{
-        @Bean
-        public Validator validator(){
-            return new org.springframework.validation.beanvalidation.LocalValidatorFactoryBean();
-        }
-
-        @Bean
-        public PointOfSaleValidator pointOfSaleValidator(Validator validator){
-            return new PointOfSaleValidator(validator);
-        }
-    }
 }
