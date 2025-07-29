@@ -85,7 +85,7 @@ public interface PointOfSaleController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))
     })
     @GetMapping("/{merchantId}/point-of-sales/{pointOfSaleId}")
-    ResponseEntity<PointOfSaleDetailDTO> getPointOfSaleDetailById(
+    ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(
             @PathVariable("merchantId") String merchantId,
             @PathVariable("pointOfSaleId") String pointOfSaleId
     );

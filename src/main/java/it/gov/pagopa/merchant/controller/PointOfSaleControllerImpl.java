@@ -80,7 +80,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
   }
 
   @Override
-  public ResponseEntity<PointOfSaleDetailDTO> getPointOfSaleDetailById(String merchantId, String pointOfSaleId) {
+  public ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(String merchantId, String pointOfSaleId) {
 
     log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={} and merchantId={}", pointOfSaleId, merchantId);
 
