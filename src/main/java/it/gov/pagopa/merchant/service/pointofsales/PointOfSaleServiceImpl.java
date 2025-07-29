@@ -1,13 +1,13 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
 import io.micrometer.common.util.StringUtils;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -136,10 +135,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     private PointOfSale getPointOfSaleById(String pointOfSaleId){
         return pointOfSaleRepository.findById(pointOfSaleId)
-                .orElseThrow(() -> new ClientExceptionWithBody(
-                        HttpStatus.NOT_FOUND,
-                        PointOfSaleConstants.CODE_NOT_FOUND,
-                        String.format(PointOfSaleConstants.MSG_NOT_FOUND,pointOfSaleId)));
+                .orElseThrow(() -> new PointOfSaleNotFoundException(String.format(PointOfSaleConstants.MSG_NOT_FOUND,pointOfSaleId)));
     }
 
 }
