@@ -100,14 +100,14 @@ public class PointOfSaleValidator{
 
     private List<ValidationErrorDetail> validateEmailAndWebsite(PointOfSaleDTO pointOfSaleDTO, int index){
         List<ValidationErrorDetail> errors = new ArrayList<>();
-        
-        validateChannelField(pointOfSaleDTO.getContactEmail(), "contactEmail", REGEX_EMAIL,
-                PointOfSaleConstants.CODE_INVALID_EMAIL, PointOfSaleConstants.MSG_INVALID_EMAIL,
-                index, errors);
 
-        validateChannelField(pointOfSaleDTO.getWebsite(), "website", REGEX_LINK,
+        errors.addAll(validateChannelField(pointOfSaleDTO.getContactEmail(), "contactEmail", REGEX_EMAIL,
+                PointOfSaleConstants.CODE_INVALID_EMAIL, PointOfSaleConstants.MSG_INVALID_EMAIL,
+                index));
+
+        errors.addAll(validateChannelField(pointOfSaleDTO.getWebsite(), "website", REGEX_LINK,
                 PointOfSaleConstants.CODE_INVALID_WEBSITE, PointOfSaleConstants.MSG_INVALID_WEBSITE,
-                index, errors);
+                index));
 
         return errors;
     }
@@ -115,29 +115,31 @@ public class PointOfSaleValidator{
     private List<ValidationErrorDetail> validateChannels(PointOfSaleDTO pointOfSaleDTO, int index){
         List<ValidationErrorDetail> errors = new ArrayList<>();
 
-        validateChannelField(pointOfSaleDTO.getChannelEmail(), "channelEmail", REGEX_EMAIL, 
+        errors.addAll(validateChannelField(pointOfSaleDTO.getChannelEmail(), "channelEmail", REGEX_EMAIL,
                 PointOfSaleConstants.CODE_INVALID_EMAIL, PointOfSaleConstants.MSG_INVALID_EMAIL,
-                index, errors);
+                index));
 
-        validateChannelField(pointOfSaleDTO.getChannelWebsite(), "channelWebsite", REGEX_LINK,
+        errors.addAll(validateChannelField(pointOfSaleDTO.getChannelWebsite(), "channelWebsite", REGEX_LINK,
                 PointOfSaleConstants.CODE_INVALID_WEBSITE, PointOfSaleConstants.MSG_INVALID_WEBSITE,
-                index, errors);
+                index));
 
-        validateChannelField(pointOfSaleDTO.getChannelGeolink(), "channelGeolink", REGEX_LINK,
+        errors.addAll(validateChannelField(pointOfSaleDTO.getChannelGeolink(), "channelGeolink", REGEX_LINK,
                 PointOfSaleConstants.CODE_INVALID_WEBSITE, PointOfSaleConstants.MSG_INVALID_WEBSITE,
-                index, errors);
+                index));
 
-        validateChannelField(pointOfSaleDTO.getChannelPhone(), "channelPhone", REGEX_PHONE,
+        errors.addAll(validateChannelField(pointOfSaleDTO.getChannelPhone(), "channelPhone", REGEX_PHONE,
                 PointOfSaleConstants.CODE_INVALID_MOBILE, PointOfSaleConstants.MSG_INVALID_MOBILE,
-                index, errors);
+                index));
 
         return errors;
     }
     
-    private void validateChannelField(String value, String field, String regex, String errorCode, String message, int index, List<ValidationErrorDetail> errors){
+    private List<ValidationErrorDetail> validateChannelField(String value, String field, String regex, String errorCode, String message, int index){
+        List<ValidationErrorDetail> errors = new ArrayList<>();
         if(isInvalidFormat(value, regex)){
             errors.add(buildError(index, field, value, errorCode, message));
         }
+        return errors;
     }
     
     private boolean isInvalidFormat(String value, String regex){
