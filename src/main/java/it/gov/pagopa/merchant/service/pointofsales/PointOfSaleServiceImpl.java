@@ -122,4 +122,14 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
                         String.format(PointOfSaleConstants.MSG_NOT_FOUND,pointOfSaleId)));
     }
 
+    @Override
+    public PointOfSale getPointOfSaleByIdAndMerchant(String merchantId, String pointOfSaleId) {
+        return pointOfSaleRepository.findByMerchantIdAndObjectId(merchantId, new ObjectId(pointOfSaleId))
+                .orElseThrow(() -> new ClientExceptionWithBody(
+                        HttpStatus.NOT_FOUND,
+                        PointOfSaleConstants.CODE_NOT_FOUND,
+                        String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
+                ));
+    }
 }
+

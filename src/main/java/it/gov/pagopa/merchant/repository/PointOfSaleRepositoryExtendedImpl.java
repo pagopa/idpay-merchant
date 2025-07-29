@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.repository;
 
 import it.gov.pagopa.merchant.model.PointOfSale;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Repository
@@ -42,7 +44,6 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
             criteriaList.add(Criteria.where(PointOfSale.Fields.city).is(city));
         }
 
-
         if (StringUtils.isNotBlank(address)) {
             criteriaList.add(buildAddressCriteria(address));
         }
@@ -58,7 +59,6 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
     public long getCount(Criteria criteria) {
         return mongoTemplate.count(Query.query(criteria), PointOfSale.class);
     }
-
 
     private Criteria buildAddressCriteria(String address){
         Pattern inputPattern = Pattern.compile(Pattern.quote(address.trim()), Pattern.CASE_INSENSITIVE);
@@ -97,4 +97,14 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         return new Criteria().andOperator(nameCriterias.toArray(new Criteria[0]));
     }
 
+    @Override
+    public Optional<PointOfSale> findByMerchantIdAndObjectId(String merchantId, ObjectId pointOfSaleId) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where(PointOfSale.Fields.merchantId).is(merchantId));
+        query.addCriteria(Criteria.where(PointOfSale.Fields.id).is(pointOfSaleId));
+
+        PointOfSale pointOfSale = mongoTemplate.findOne(query, PointOfSale.class);
+        return Optional.ofNullable(pointOfSale);
+    }
 }
+
