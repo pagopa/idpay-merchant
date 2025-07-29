@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.service.pointofsales;
 
 import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
+import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
@@ -13,14 +14,15 @@ import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,7 +40,6 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     }
 
     @Override
-    @Transactional
     public void savePointOfSales(String merchantId, List<PointOfSale> pointOfSales){
 
         verifyMerchantExists(merchantId);
@@ -47,11 +48,32 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
                 .map(this::preparePointOfSaleForSave)
                 .toList();
 
+        List<PointOfSale> savedPointOfSales = new ArrayList<>();
+
         try{
-            pointOfSaleRepository.saveAll(entities);
+            for(PointOfSale entity : entities){
+                PointOfSale saved = pointOfSaleRepository.save(entity);
+                savedPointOfSales.add(saved);
+            }
         }
-        catch (Exception e){
-            throw new PointOfSaleDuplicateException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
+        catch (Exception exception){
+            log.error("[POINT-OF-SALES][SAVE] Error during saving PointOfSales. Initiating compensation rollback.");
+            compensatingDelete(savedPointOfSales);
+            log.error("[POINT-OF-SALES][SAVE] Compensation rollback completed.");
+            if(exception instanceof DuplicateKeyException){
+                throw new PointOfSaleDuplicateException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
+            }
+            throw new ServiceException(PointOfSaleConstants.CODE_GENERIC_SAVE_ERROR,PointOfSaleConstants.MSG_GENERIC_SAVE_ERROR);
+        }
+    }
+
+    private void compensatingDelete(List<PointOfSale> savedEntities){
+        for(PointOfSale pointOfSale : savedEntities){
+            try{
+                pointOfSaleRepository.deleteById(pointOfSale.getId().toString());
+            }catch (Exception exception){
+                log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}", pointOfSale.getId().toString());
+            }
         }
     }
 

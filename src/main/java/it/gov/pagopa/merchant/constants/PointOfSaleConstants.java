@@ -5,6 +5,7 @@ public final class PointOfSaleConstants {
     private PointOfSaleConstants(){}
 
     // ===GENERIC CODES===
+    public static final String CODE_GENERIC_SAVE_ERROR = "POINT_OF_SALE_GENERIC_SAVE_ERROR";
     public static final String CODE_FIELD_REQUIRED = "POINT_OF_SALE_FIELD_REQUIRED";
     public static final String CODE_INVALID_FORMAT = "POINT_OF_SALE_INVALID_FORMAT";
     public static final String CODE_INVALID_URL = "POINT_OF_SALE_INVALID_URL";
@@ -16,9 +17,10 @@ public final class PointOfSaleConstants {
 
 
     // ===POINT OF SALE===
+    public static final String MSG_GENERIC_SAVE_ERROR = "Unexpected error occurred while saving point of sales";
     public static final String MSG_LIST_NOT_EMPTY = "Point of sales list cannot be empty.";
     public static final String MSG_NOT_FOUND = "Point of sale with id %s not found.";
-    public static final String MSG_ALREADY_REGISTERED = "Point of sale already registered for contact email";
+    public static final String MSG_ALREADY_REGISTERED = "Point of sale already registered for _id or unique index constraint";
 
     // ===EMAIL===
     public static final String CODE_INVALID_EMAIL = CODE_INVALID_FORMAT;

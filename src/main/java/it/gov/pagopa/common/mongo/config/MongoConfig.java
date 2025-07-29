@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 import org.springframework.data.convert.WritingConverter;
-import org.springframework.data.mongodb.MongoDatabaseFactory;
-import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -67,11 +65,6 @@ public class MongoConfig {
                 new Decimal128BigDecimalConverter()
         ));
 
-    }
-    
-    @Bean
-    public MongoTransactionManager transactionManager(MongoDatabaseFactory mongoDatabaseFactory){
-        return new MongoTransactionManager(mongoDatabaseFactory);
     }
 
     @WritingConverter
