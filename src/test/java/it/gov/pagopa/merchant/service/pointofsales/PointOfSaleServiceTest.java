@@ -100,7 +100,9 @@ class PointOfSaleServiceTest {
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.findById(any())).thenReturn(Optional.empty());
-    assertThrows(PointOfSaleNotFoundException.class, () -> callSave(List.of(pointOfSale)));
+    List<PointOfSale> pointOfSales = new ArrayList<>();
+    pointOfSales.add(pointOfSale);
+    assertThrows(PointOfSaleNotFoundException.class, () -> callSave(pointOfSales));
   }
 
 
