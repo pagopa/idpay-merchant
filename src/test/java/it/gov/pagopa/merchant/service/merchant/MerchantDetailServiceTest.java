@@ -104,7 +104,7 @@ class MerchantDetailServiceTest {
     when(repositoryMock.findById(MERCHANT_ID))
             .thenReturn(Optional.of(merchant));
     MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
-    when(merchantModelToDTOMapperMock.toMerchantDetailDTO(any(),any())).thenReturn(merchantDetailDTO);
+    when(merchantModelToDTOMapperMock.toMerchantDetailDTOWithoutInitiative(any())).thenReturn(merchantDetailDTO);
 
     MerchantDetailDTO result = service.getMerchantDetail(MERCHANT_ID);
 

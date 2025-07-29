@@ -6,6 +6,7 @@ import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +28,11 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
 
   public PointOfSaleControllerImpl(PointOfSaleService pointOfSaleService,
                                    PointOfSaleValidator pointOfSaleValidator,
-                                   PointOfSaleDTOMapper pointOfSaleDTOMapper, PointOfSaleDetailDTOMapper pointOfSaleDetailDTOMapper, MerchantDetailService merchantDetailService) {
+                                   PointOfSaleDTOMapper pointOfSaleDTOMapper,
+                                   MerchantDetailService merchantDetailService) {
     this.pointOfSaleService = pointOfSaleService;
     this.pointOfSaleValidator = pointOfSaleValidator;
     this.pointOfSaleDTOMapper = pointOfSaleDTOMapper;
-    this.pointOfSaleDetailDTOMapper = pointOfSaleDetailDTOMapper;
     this.merchantDetailService = merchantDetailService;
   }
 
@@ -83,25 +84,13 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
 
     log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={} and merchantId={}", pointOfSaleId, merchantId);
 
-    PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleByIdAndMerchant(merchantId, pointOfSaleId);
+    PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleById(pointOfSaleId);
+    MerchantDetailDTO merchantDetail = merchantDetailService.getMerchantDetail(merchantId);
 
-    PointOfSaleListDTO pointOfSAleListDTO = PointOfSaleListDTO.builder()
-            .content(result.getContent())
-            .pageNo(result.getNumber())
-            .pageSize(result.getSize())
-            .totalElements(result.getTotalElements())
-            .totalPages(result.getTotalPages())
+    PointOfSaleDetailDTO responseDTO = PointOfSaleDetailDTO.builder()
+            .pointOfSale(pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale))
+            .merchantDetail(merchantDetail)
             .build();
-
-    return ResponseEntity.ok(pointOfSAleListDTO);
-  }
-
-
-    MerchantDetailDTO merchantDetail = merchantDetailService.getMerchantIdWithoutInitiative(merchantId);
-
-    PointOfSaleDTO pointOfSaleDTO = pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
-
-    PointOfSaleDetailDTO responseDTO = pointOfSaleDetailDTOMapper.pointOfSaleDetailDTO(pointOfSaleDTO, merchantDetail);
 
     return ResponseEntity.ok(responseDTO);
   }

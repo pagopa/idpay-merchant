@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class PointOfSaleDetailDTO {
 
     private PointOfSaleDTO pointOfSale;
-    private MerchantDetailDTO merchant;
+    private MerchantDetailDTO merchantDetail;
 }

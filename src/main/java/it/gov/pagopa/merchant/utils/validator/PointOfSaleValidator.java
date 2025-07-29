@@ -147,10 +147,6 @@ public class PointOfSaleValidator{
     private boolean isInvalidFormat(String value, String regex){
         return StringUtils.isNotBlank(value) && !value.matches(regex);
     }
-    
-    private boolean isInvalidFormat(String value, String regex){
-        return StringUtils.isNotBlank(value) && !value.matches(regex);
-    }
 
     private String resolveCode(ConstraintViolation<?> violation){
         String annotation = violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName();

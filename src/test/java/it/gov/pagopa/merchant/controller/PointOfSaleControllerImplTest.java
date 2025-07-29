@@ -6,6 +6,7 @@ import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
@@ -38,6 +39,8 @@ class PointOfSaleControllerImplTest {
 
     @MockitoBean
     private PointOfSaleService pointOfSaleService;
+    @MockitoBean
+    private MerchantDetailService merchantDetailService;
     @MockitoBean
     private PointOfSaleValidator validator;
     @MockitoBean

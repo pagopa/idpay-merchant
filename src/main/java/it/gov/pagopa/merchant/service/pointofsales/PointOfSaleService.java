@@ -12,5 +12,5 @@ public interface PointOfSaleService {
 
     Page<PointOfSale> getPointOfSalesList(String merchantId, String type, String city, String address, String contactName, Pageable pageable);
 
-    PointOfSale getPointOfSaleByIdAndMerchant(String merchantId, String pointOfSaleId);
+    PointOfSale getPointOfSaleById(String pointOfSaleId);
 }

@@ -19,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -135,7 +134,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         }
     }
 
-    private PointOfSale getPointOfSaleById(String pointOfSaleId){
+    public PointOfSale getPointOfSaleById(String pointOfSaleId){
         return pointOfSaleRepository.findById(pointOfSaleId)
                 .orElseThrow(() -> new PointOfSaleNotFoundException(String.format(PointOfSaleConstants.MSG_NOT_FOUND,pointOfSaleId)));
     }

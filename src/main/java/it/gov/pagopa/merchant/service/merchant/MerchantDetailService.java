@@ -9,5 +9,4 @@ public interface MerchantDetailService {
 
     MerchantDetailDTO getMerchantDetail(String merchantId);
 
-    MerchantDetailDTO getMerchantIdWithoutInitiative(String merchantId);
 }
