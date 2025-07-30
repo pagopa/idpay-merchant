@@ -5,7 +5,6 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDetailDTO;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
@@ -104,11 +103,6 @@ class PointOfSaleControllerImplTest {
         MerchantDetailDTO merchantDetailDTO = MerchantDetailDTO.builder()
                 .vatNumber("12345678901")
                 .iban("IT60X0542811101000000123456")
-                .build();
-
-        PointOfSaleDetailDTO expectedDTO = PointOfSaleDetailDTO.builder()
-                .pointOfSale(pointOfSaleDTO)
-                .merchantDetail(merchantDetailDTO)
                 .build();
 
         when(pointOfSaleService.getPointOfSaleById(Mockito.anyString())).thenReturn(pointOfSale);
