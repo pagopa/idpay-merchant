@@ -130,7 +130,7 @@ class PointOfSaleControllerImplTest {
     }
 
     @Test
-    void getPointOfSaleNotTestKO() throws Exception {
+    void getPointOfSaleTestKO() throws Exception {
         String invalidPosId = "INVALID_POS_ID";
 
         when(pointOfSaleService.getPointOfSaleById(anyString()))
