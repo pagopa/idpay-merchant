@@ -15,6 +15,7 @@ import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.admin.client.Keycloak;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,6 +39,7 @@ class PointOfSaleServiceTest {
   @Mock private PointOfSaleRepository repositoryMock;
   @Mock private final PointOfSaleDTOMapper dtoMapper = new PointOfSaleDTOMapper();
   @Mock private PointOfSaleValidator validator;
+  @Mock private Keycloak keycloak;
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
 
@@ -49,7 +51,9 @@ class PointOfSaleServiceTest {
             merchantServiceMock,
             repositoryMock,
             dtoMapper,
-            validator);
+            validator,
+            keycloak,
+            "test-realm");
   }
 
   @Test
