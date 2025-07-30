@@ -5,12 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.utils.validator.OnlineGroup;
 import it.gov.pagopa.merchant.utils.validator.PhysicalGroup;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -67,7 +64,22 @@ public class PointOfSaleDTO {
     @JsonProperty("contactSurname")
     private String contactSurname;
 
-    @JsonProperty("channels")
-    @Valid
-    private List<ChannelDTO> channels;
+    @NotNull(message = "channelEmail must not be null", groups = PhysicalGroup.class)
+    @JsonProperty("channelEmail")
+    private String channelEmail;
+
+    @NotNull(message = "channelPhone must not be null", groups = PhysicalGroup.class)
+    @JsonProperty("channelPhone")
+    private String channelPhone;
+
+
+    @NotNull(message = "channelGeolink must not be null", groups = PhysicalGroup.class)
+    @JsonProperty("channelGeolink")
+    private String channelGeolink;
+
+
+    @NotNull(message = "channelWebsite must not be null", groups = PhysicalGroup.class)
+    @JsonProperty("channelWebsite")
+    private String channelWebsite;
+
 }

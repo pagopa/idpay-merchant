@@ -6,10 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.util.List;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -34,8 +36,17 @@ public class PointOfSale {
     private String contactEmail;
     private String contactName;
     private String contactSurname;
-    private List<Channel> channels;
+    private String channelEmail;
+    private String channelPhone;
+    private String channelGeolink;
+    private String channelWebsite;
 
     private String merchantId;
+
+    @CreatedDate
+    private Instant creationDate;
+
+    @LastModifiedDate
+    private Instant updateDate;
 
 }
