@@ -27,7 +27,7 @@ public class PointOfSaleDTOMapper {
                 .channelEmail(pointOfSale.getChannelEmail())
                 .channelPhone(pointOfSale.getChannelPhone())
                 .channelGeolink(pointOfSale.getChannelGeolink())
-                .channelWebsite(pointOfSale.getWebsite())
+                .channelWebsite(pointOfSale.getChannelWebsite())
                 .region(pointOfSale.getRegion())
                 .province(pointOfSale.getProvince())
                 .city(pointOfSale.getCity())
@@ -56,10 +56,10 @@ public class PointOfSaleDTOMapper {
             pointOfSale.setProvince(pointOfSaleDTO.getProvince());
             pointOfSale.setCity(pointOfSaleDTO.getCity());
             pointOfSale.setZipCode(pointOfSaleDTO.getZipCode());
-            pointOfSale.setChannelEmail(pointOfSale.getChannelEmail());
-            pointOfSale.setChannelPhone(pointOfSale.getChannelPhone());
-            pointOfSale.setChannelGeolink(pointOfSale.getChannelGeolink());
-            pointOfSale.setChannelWebsite(pointOfSale.getChannelWebsite());
+            pointOfSale.setChannelEmail(pointOfSaleDTO.getChannelEmail());
+            pointOfSale.setChannelPhone(pointOfSaleDTO.getChannelPhone());
+            pointOfSale.setChannelGeolink(pointOfSaleDTO.getChannelGeolink());
+            pointOfSale.setChannelWebsite(pointOfSaleDTO.getChannelWebsite());
             mapAddress(pointOfSaleDTO, pointOfSale);
         }
         else if(PointOfSaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
