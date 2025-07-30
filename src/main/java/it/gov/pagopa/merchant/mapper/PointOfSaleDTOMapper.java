@@ -27,7 +27,7 @@ public class PointOfSaleDTOMapper {
                 .channelEmail(pointOfSale.getChannelEmail())
                 .channelPhone(pointOfSale.getChannelPhone())
                 .channelGeolink(pointOfSale.getChannelGeolink())
-                .channelWebsite(pointOfSale.getWebsite())
+                .channelWebsite(pointOfSale.getChannelWebsite())
                 .region(pointOfSale.getRegion())
                 .province(pointOfSale.getProvince())
                 .city(pointOfSale.getCity())
