@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -91,6 +92,32 @@ class MerchantDetailServiceTest {
             .thenReturn(Optional.empty());
 
     MerchantDetailDTO result = service.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID);
+
+    assertNull(result);
+  }
+
+
+  @Test
+  void getMerchantDetailByMerchantId_found() {
+    Merchant merchant = MerchantFaker.mockInstance(1);
+
+    when(repositoryMock.findById(MERCHANT_ID))
+            .thenReturn(Optional.of(merchant));
+    MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
+    when(merchantModelToDTOMapperMock.toMerchantDetailDTOWithoutInitiative(any())).thenReturn(merchantDetailDTO);
+
+    MerchantDetailDTO result = service.getMerchantDetail(MERCHANT_ID);
+
+    assertNotNull(result);
+  }
+
+  @Test
+  void getMerchantDetailByMerchantId_notFound() {
+
+    when(repositoryMock.findById(MERCHANT_ID))
+            .thenReturn(Optional.empty());
+
+    MerchantDetailDTO result = service.getMerchantDetail(MERCHANT_ID);
 
     assertNull(result);
   }
