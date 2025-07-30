@@ -200,6 +200,13 @@ rest-client:
     serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
     baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}
 
+keycloak:
+  admin:
+    server-url: ""
+    realm: "merchant-operator"
+    client-id: "merchant-operator-app-client"
+    client-secret: ""
+
 management:
   health:
     mongo.enabled: ${HEALTH_MONGO_ENABLED:true}
