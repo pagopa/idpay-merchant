@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
-
 import static it.gov.pagopa.merchant.constants.PointOfSaleConstants.MSG_NOT_FOUND;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -79,7 +78,6 @@ class PointOfSaleControllerImplTest {
                 .andDo(print())
                 .andReturn();
     }
-
 
     @Test
     void getPointOfSalesListOK() throws Exception {
@@ -131,7 +129,6 @@ class PointOfSaleControllerImplTest {
         Mockito.verify(mapper).pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
     }
 
-
     @Test
     void getPointOfSaleNotTestKO() throws Exception {
         String invalidPosId = "INVALID_POS_ID";
@@ -152,8 +149,3 @@ class PointOfSaleControllerImplTest {
         verify(pointOfSaleService).getPointOfSaleById(anyString());
     }
 }
-
-
-
-
-
