@@ -3,8 +3,6 @@ package it.gov.pagopa.merchant.test.fakers;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 
-import java.util.List;
-
 public class PointOfSaleDTOFaker {
 
     public static PointOfSaleDTO mockInstance() {
@@ -24,6 +22,10 @@ public class PointOfSaleDTOFaker {
                 .contactEmail("EMAIL@email.it")
                 .contactName("NAME")
                 .contactSurname("SURNAME")
-                .channels(List.of());
+                .website("https://localhost:8080")
+                .channelEmail("EMAIL@email.it")
+                .channelGeolink("https://localhost:8080")
+                .channelWebsite("https://localhost:8080")
+                .channelPhone("3333333333");
     }
 }
