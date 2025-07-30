@@ -74,6 +74,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
                 log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}", pointOfSale.getId().toString());
             }
         }
+
     }
 
     @Override
@@ -133,9 +134,10 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         }
     }
 
-    private PointOfSale getPointOfSaleById(String pointOfSaleId){
+    public PointOfSale getPointOfSaleById(String pointOfSaleId){
         return pointOfSaleRepository.findById(pointOfSaleId)
                 .orElseThrow(() -> new PointOfSaleNotFoundException(String.format(PointOfSaleConstants.MSG_NOT_FOUND,pointOfSaleId)));
     }
 
 }
+

@@ -47,7 +47,8 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
     @Override
     public MerchantDetailDTO getMerchantDetail(String merchantId) {
         return merchantRepository.findById(merchantId)
-                .map(merchant -> merchantModelToDTOMapper.toMerchantDetailDTO(merchant, null))
+                .map(merchantModelToDTOMapper::toMerchantDetailDTOWithoutInitiative)
                 .orElse(null);
     }
+
 }

@@ -134,8 +134,10 @@ public class PointOfSaleValidator{
         return errors;
     }
     
+  
     private List<ValidationErrorDetail> validateChannelField(String value, String field, String regex, String errorCode, String message, int index){
         List<ValidationErrorDetail> errors = new ArrayList<>();
+
         if(isInvalidFormat(value, regex)){
             errors.add(buildError(index, field, value, errorCode, message));
         }

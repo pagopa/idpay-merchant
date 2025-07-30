@@ -23,7 +23,6 @@ public class ServiceExceptionConfig {
         exceptionMap.put(FileOperationException.class, HttpStatus.INTERNAL_SERVER_ERROR);
         exceptionMap.put(InitiativeInvocationException.class, HttpStatus.INTERNAL_SERVER_ERROR);
 
-        // AlreadyOnboarded
         exceptionMap.put(PointOfSaleDuplicateException.class, HttpStatus.BAD_REQUEST);
 
         // NotFound

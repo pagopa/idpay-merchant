@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MerchantModelToDTOMapper {
+
     public MerchantDetailDTO toMerchantDetailDTO(Merchant merchant, String initiativeId) {
         MerchantDetailDTO merchantDetailDTO = new MerchantDetailDTO();
         merchant.getInitiativeList().stream().filter(i -> i.getInitiativeId().equals(initiativeId)).findFirst().ifPresent(
@@ -31,4 +32,10 @@ public class MerchantModelToDTOMapper {
         return merchantDetailDTO;
     }
 
+    public MerchantDetailDTO toMerchantDetailDTOWithoutInitiative(Merchant merchant) {
+        MerchantDetailDTO merchantDetailDTOWithoutInitiative = new MerchantDetailDTO();
+        merchantDetailDTOWithoutInitiative.setVatNumber(merchant.getVatNumber());
+        merchantDetailDTOWithoutInitiative.setIban(merchant.getIban());
+        return merchantDetailDTOWithoutInitiative;
+    }
 }

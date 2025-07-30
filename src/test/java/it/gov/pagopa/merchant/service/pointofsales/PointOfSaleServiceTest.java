@@ -57,13 +57,11 @@ class PointOfSaleServiceTest {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
-
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
     Mockito.verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
-
   }
 
   @Test
@@ -78,6 +76,7 @@ class PointOfSaleServiceTest {
     Mockito.verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
 
   }
+
 
   @Test
   void savePointOfSalesOK_withId(){
@@ -157,8 +156,8 @@ class PointOfSaleServiceTest {
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(null);
 
     assertThrows(MerchantNotFoundException.class, () -> callSave(pointOfSale));
-
   }
+
 
   private void callSave(List<PointOfSale> dtos){
     service.savePointOfSales(MERCHANT_ID,dtos);

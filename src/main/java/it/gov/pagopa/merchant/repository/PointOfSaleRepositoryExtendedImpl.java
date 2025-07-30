@@ -44,7 +44,6 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
             criteriaList.add(Criteria.where(PointOfSale.Fields.city).regex(cityPattern));
         }
 
-
         if (StringUtils.isNotBlank(address)) {
             criteriaList.add(buildAddressCriteria(address));
         }
@@ -61,7 +60,6 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         return mongoTemplate.count(Query.query(criteria), PointOfSale.class);
     }
 
-
     private Criteria buildAddressCriteria(String address){
         Pattern inputPattern = Pattern.compile(Pattern.quote(address.trim()), Pattern.CASE_INSENSITIVE);
 
@@ -71,6 +69,7 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
         String[] parts = address.split(",");
         String addressPart = parts[0].trim();
+      
         Pattern addressPattern = Pattern.compile(Pattern.quote(addressPart), Pattern.CASE_INSENSITIVE);
         addressCriterias.add(Criteria.where(PointOfSale.Fields.address).regex(addressPattern));
 
@@ -102,3 +101,4 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
     }
 
 }
+
