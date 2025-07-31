@@ -200,6 +200,19 @@ rest-client:
     serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
     baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}
 
+keycloak:
+  admin:
+    server-url: ${KEYCLOAK_ADMIN_SERVER_URL:}
+    realm: ${KEYCLOAK_ADMIN_REALM:merchant-operator}
+    redirect-uri: ${KEYCLOAK_ADMIN_REDIRECT_URI:}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:merchant-operator-app-client}
+    redirect-client-id: ${KEYCLOAK_ADMIN_REDIRECT_CLIENT_ID:frontend}
+    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:}
+    user:
+      actions:
+        email:
+          lifespan: ${KEYCLOAK_ADMIN_USER_ACTIONS_EMAIL_LIFESPAN:43200}
+
 management:
   health:
     mongo.enabled: ${HEALTH_MONGO_ENABLED:true}
