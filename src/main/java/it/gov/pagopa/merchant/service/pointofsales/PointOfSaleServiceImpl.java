@@ -85,6 +85,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       if(exception instanceof DuplicateKeyException){
         throw new PointOfSaleDuplicateException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
       }
+      log.error("[POINT-OF-SALES][SAVE] Exception message: {}", exception.getMessage());
       throw new ServiceException(PointOfSaleConstants.CODE_GENERIC_SAVE_ERROR,PointOfSaleConstants.MSG_GENERIC_SAVE_ERROR);
     }
   }
@@ -173,14 +174,21 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       return;
     }
 
-    UsersResource usersResource = keycloakAdminClient.realm(realm).users();
-    List<UserRepresentation> existingUsers = usersResource.searchByEmail(contactEmail, true);
+    try {
+      UsersResource usersResource = keycloakAdminClient.realm(realm).users();
+      List<UserRepresentation> existingUsers = usersResource.searchByEmail(contactEmail, true);
 
-    if (existingUsers.isEmpty()) {
-      createNewUserAndSendActionsEmail(usersResource, contactEmail, pointOfSale);
-    } else {
-      log.info("[KEYCLOAK] User with email {} already exists. The new Point of Sale with ID {} will be associated with the existing user.",
-          contactEmail, pointOfSale.getId());
+      if (existingUsers.isEmpty()) {
+        createNewUserAndSendActionsEmail(usersResource, contactEmail, pointOfSale);
+      } else {
+        log.info(
+            "[KEYCLOAK] User already exists. The new Point of Sale with ID {} will be associated with the existing user.",
+            pointOfSale.getId());
+      }
+    } catch (Exception e) {
+      log.info(
+          "[KEYCLOAK] The new Point of Sale with ID {} had a problem during its account creation. Continuing.",
+          pointOfSale.getId());
     }
   }
 
@@ -188,27 +196,29 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     UserRepresentation newUser = new UserRepresentation();
     newUser.setEmail(email);
     newUser.setUsername(email);
+    newUser.setFirstName(pointOfSale.getContactName());
+    newUser.setLastName(pointOfSale.getContactSurname());
+
     newUser.setEnabled(true);
     newUser.setEmailVerified(true);
 
-    log.info("[KEYCLOAK] Attempting to create a new Keycloak user for email {} linked to Point of Sale ID {}",
-        email, pointOfSale.getId());
+    log.info("[KEYCLOAK] Attempting to create a new Keycloak user linked to Point of Sale ID {}", pointOfSale.getId());
 
     try (Response response = usersResource.create(newUser)) {
       if (response.getStatus() == Response.Status.CREATED.getStatusCode()) { // Status code 201
         String userId = CreatedResponseUtil.getCreatedId(response);
-        log.info("[KEYCLOAK] User {} created successfully with ID {}. Sending password setup email.", email, userId);
+        log.info("[KEYCLOAK] User created successfully with ID {}. Sending password setup email.", userId);
 
         // The action "UPDATE_PASSWORD" sends an email with a link that will expire after the lifespan to reset the user password
         usersResource.get(userId).executeActionsEmail(keycloakClientId, redirectURI, keycloakUserActionsEmailLifespan, List.of("UPDATE_PASSWORD"));
 
       } else {
         // Handling non-success cases with a log
-        log.error("[KEYCLOAK] Failed to create Keycloak user for email {}. Status: {}, Reason: {}. Response body: {}",
-            email, response.getStatus(), response.getStatusInfo().getReasonPhrase(), response.readEntity(String.class));
+        log.error("[KEYCLOAK] Failed to create Keycloak user. Status: {}, Reason: {}.",
+            response.getStatus(), response.getStatusInfo().getReasonPhrase());
       }
     } catch (Exception e) {
-      log.error("[KEYCLOAK] An exception occurred while creating Keycloak user for email {}", email, e);
+      log.error("[KEYCLOAK] An exception occurred while creating Keycloak user.");
       throw e;
     }
   }
