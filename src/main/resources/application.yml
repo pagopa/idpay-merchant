@@ -204,7 +204,8 @@ keycloak:
   admin:
     server-url: ${KEYCLOAK_ADMIN_SERVER_URL:}
     realm: ${KEYCLOAK_ADMIN_REALM:merchant-operator}
-    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:merchant-operator-app-client}
+    redirect-uri: ${KEYCLOAK_ADMIN_REDIRECT_URI:}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:frontend}
     client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:}
     user:
       actions:

@@ -1,6 +1,5 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
-import com.mongodb.MongoException;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -68,7 +67,9 @@ class PointOfSaleServiceTest {
         repositoryMock,
         keycloak,
         "test-realm",
-        300);
+        300,
+        "https://localhost:4000/example",
+        "test-client-id");
   }
 
   @Test
@@ -87,7 +88,7 @@ class PointOfSaleServiceTest {
     when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
 
     when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
-    doNothing().when(userResourceMock).executeActionsEmail(any(), anyInt());
+    doNothing().when(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), any());
 
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
@@ -114,7 +115,7 @@ class PointOfSaleServiceTest {
     when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
 
     when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
-    doNothing().when(userResourceMock).executeActionsEmail(any(), anyInt());
+    doNothing().when(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), any());
 
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
@@ -141,7 +142,7 @@ class PointOfSaleServiceTest {
     when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
 
     when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
-    doNothing().when(userResourceMock).executeActionsEmail(any(), anyInt());
+    doNothing().when(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), any());
 
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
@@ -261,7 +262,7 @@ class PointOfSaleServiceTest {
     when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
 
     when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
-    doNothing().when(userResourceMock).executeActionsEmail(any(), anyInt());
+    doNothing().when(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), any());
 
     // When
     service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale));
@@ -269,7 +270,7 @@ class PointOfSaleServiceTest {
     // Then
     Mockito.verify(repositoryMock).save(pointOfSale);
     Mockito.verify(usersResourceMock).create(any(UserRepresentation.class));
-    Mockito.verify(userResourceMock).executeActionsEmail(Mockito.eq(List.of("UPDATE_PASSWORD")), anyInt());
+    Mockito.verify(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), Mockito.eq(List.of("UPDATE_PASSWORD")));
   }
 
   @Test
@@ -296,7 +297,7 @@ class PointOfSaleServiceTest {
     // Then
     Mockito.verify(repositoryMock).save(pointOfSale);
     Mockito.verify(usersResourceMock, Mockito.never()).create(any(UserRepresentation.class));
-    Mockito.verify(userResourceMock, Mockito.never()).executeActionsEmail(any(), anyInt());
+    Mockito.verify(userResourceMock, Mockito.never()).executeActionsEmail(anyString(), anyString(), anyInt(), any());
   }
 
   @Test
