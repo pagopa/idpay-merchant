@@ -367,7 +367,8 @@ class PointOfSaleServiceTest {
     when(usersResourceMock.create(any(UserRepresentation.class))).thenThrow(new jakarta.ws.rs.ProcessingException("Keycloak connection failed"));
 
     // When & Then
-    assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale)));
+    List<PointOfSale> pointsOfSaleToSave = List.of(pointOfSale);
+    assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, pointsOfSaleToSave));
 
     // Verify compensation logic was triggered
     Mockito.verify(repositoryMock).deleteById(pointOfSale.getId().toString());
