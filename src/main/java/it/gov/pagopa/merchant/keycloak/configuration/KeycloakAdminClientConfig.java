@@ -2,24 +2,17 @@ package it.gov.pagopa.merchant.keycloak.configuration;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class KeycloakAdminClientConfig {
 
-  @Value("${keycloak.admin.server-url}")
-  private String serverUrl;
+  private final KeycloakAdminProperties keycloakAdminProperties;
 
-  @Value("${keycloak.admin.realm}")
-  private String realm;
-
-  @Value("${keycloak.admin.client-id}")
-  private String clientId;
-
-  @Value("${keycloak.admin.client-secret}")
-  private String clientSecret;
+  public KeycloakAdminClientConfig(KeycloakAdminProperties keycloakAdminProperties) {
+    this.keycloakAdminProperties = keycloakAdminProperties;
+  }
 
   /**
    * Creates and configures a Keycloak Admin Client SDK instance.
@@ -30,11 +23,11 @@ public class KeycloakAdminClientConfig {
   @Bean
   public Keycloak keycloakAdminClient() {
     return KeycloakBuilder.builder()
-        .serverUrl(serverUrl)
-        .realm(realm)
+        .serverUrl(keycloakAdminProperties.getServerUrl())
+        .realm(keycloakAdminProperties.getRealm())
         .grantType("client_credentials")
-        .clientId(clientId)
-        .clientSecret(clientSecret)
+        .clientId(keycloakAdminProperties.getClientId())
+        .clientSecret(keycloakAdminProperties.getClientSecret())
         .build();
   }
 }
