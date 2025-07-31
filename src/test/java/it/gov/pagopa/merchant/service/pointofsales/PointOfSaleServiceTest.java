@@ -67,7 +67,8 @@ class PointOfSaleServiceTest {
         merchantServiceMock,
         repositoryMock,
         keycloak,
-        "test-realm");
+        "test-realm",
+        300);
   }
 
   @Test

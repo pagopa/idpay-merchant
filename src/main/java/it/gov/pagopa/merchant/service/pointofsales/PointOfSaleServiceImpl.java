@@ -39,16 +39,19 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
   private final Keycloak keycloakAdminClient;
   private final String realm;
+  private final Integer keycloakUserActionsEmailLifespan;
 
   public PointOfSaleServiceImpl(
       MerchantService merchantService,
       PointOfSaleRepository pointOfSaleRepository,
       Keycloak keycloakAdminClient,
-      @Value("${keycloak.admin.realm}") String realm) {
+      @Value("${keycloak.admin.realm}") String realm,
+      @Value("${keycloak.admin.user.actions.email.lifespan}") Integer keycloakUserActionsEmailLifespan) {
     this.merchantService = merchantService;
     this.pointOfSaleRepository = pointOfSaleRepository;
     this.keycloakAdminClient = keycloakAdminClient;
     this.realm = realm;
+    this.keycloakUserActionsEmailLifespan = keycloakUserActionsEmailLifespan;
   }
 
   @Override
@@ -191,8 +194,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         log.info("[KEYCLOAK] User {} created successfully with ID {}. Sending password setup email.", email, userId);
 
         // The action "UPDATE_PASSWORD" sends an email with a link that will expire after the lifespan to reset the user password
-        Integer lifespan = 120;
-        usersResource.get(userId).executeActionsEmail(List.of("UPDATE_PASSWORD"), lifespan);
+        usersResource.get(userId).executeActionsEmail(List.of("UPDATE_PASSWORD"), keycloakUserActionsEmailLifespan);
 
       } else {
         // Handling non-success cases with a log
@@ -204,4 +206,3 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     }
   }
 }
-

@@ -202,10 +202,14 @@ rest-client:
 
 keycloak:
   admin:
-    server-url: ""
-    realm: "merchant-operator"
-    client-id: "merchant-operator-app-client"
-    client-secret: ""
+    server-url: ${KEYCLOAK_ADMIN_SERVER_URL:}
+    realm: ${KEYCLOAK_ADMIN_REALM:merchant-operator}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:merchant-operator-app-client}
+    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:}
+    user:
+      actions:
+        email:
+          lifespan: ${KEYCLOAK_ADMIN_USER_ACTIONS_EMAIL_LIFESPAN:43200}
 
 management:
   health:
