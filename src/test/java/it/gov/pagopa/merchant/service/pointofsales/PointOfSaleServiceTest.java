@@ -75,6 +75,20 @@ class PointOfSaleServiceTest {
   void savePointOfSalesOK(){
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
+
+    // Mock Keycloak interactions
+    when(keycloak.realm(anyString())).thenReturn(realmResourceMock);
+    when(realmResourceMock.users()).thenReturn(usersResourceMock);
+    when(usersResourceMock.searchByEmail(pointOfSale.getContactEmail(), true)).thenReturn(new ArrayList<>());
+    when(usersResourceMock.create(any(UserRepresentation.class))).thenReturn(responseMock);
+
+    when(responseMock.getStatus()).thenReturn(Response.Status.CREATED.getStatusCode());
+    when(responseMock.getStatusInfo()).thenReturn(Response.Status.CREATED);
+    when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
+
+    when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
+    doNothing().when(userResourceMock).executeActionsEmail(any(), anyInt());
+
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
@@ -88,6 +102,20 @@ class PointOfSaleServiceTest {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setId(null);
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
+
+    // Mock Keycloak interactions
+    when(keycloak.realm(anyString())).thenReturn(realmResourceMock);
+    when(realmResourceMock.users()).thenReturn(usersResourceMock);
+    when(usersResourceMock.searchByEmail(pointOfSale.getContactEmail(), true)).thenReturn(new ArrayList<>());
+    when(usersResourceMock.create(any(UserRepresentation.class))).thenReturn(responseMock);
+
+    when(responseMock.getStatus()).thenReturn(Response.Status.CREATED.getStatusCode());
+    when(responseMock.getStatusInfo()).thenReturn(Response.Status.CREATED);
+    when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
+
+    when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
+    doNothing().when(userResourceMock).executeActionsEmail(any(), anyInt());
+
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
@@ -96,12 +124,25 @@ class PointOfSaleServiceTest {
 
   }
 
-
   @Test
   void savePointOfSalesOK_withId(){
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setId(new ObjectId());
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
+
+    // Mock Keycloak interactions
+    when(keycloak.realm(anyString())).thenReturn(realmResourceMock);
+    when(realmResourceMock.users()).thenReturn(usersResourceMock);
+    when(usersResourceMock.searchByEmail(pointOfSale.getContactEmail(), true)).thenReturn(new ArrayList<>());
+    when(usersResourceMock.create(any(UserRepresentation.class))).thenReturn(responseMock);
+
+    when(responseMock.getStatus()).thenReturn(Response.Status.CREATED.getStatusCode());
+    when(responseMock.getStatusInfo()).thenReturn(Response.Status.CREATED);
+    when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
+
+    when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
+    doNothing().when(userResourceMock).executeActionsEmail(any(), anyInt());
+
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
@@ -136,8 +177,6 @@ class PointOfSaleServiceTest {
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale1));
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale2));
     when(repositoryMock.save(pointOfSale1)).thenReturn(pointOfSale1);
-    when(repositoryMock.save(pointOfSale2)).thenThrow(new MongoException("DUMMY_EXCEPTION"));
-    Mockito.doThrow(new MongoException("Command error dummy")).when(repositoryMock).deleteById(any());
     assertThrows(ServiceException.class, () -> callSave(pointOfSales));
   }
 
@@ -153,8 +192,6 @@ class PointOfSaleServiceTest {
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale1));
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale2));
     when(repositoryMock.save(pointOfSale1)).thenReturn(pointOfSale1);
-    when(repositoryMock.save(pointOfSale2)).thenThrow(new MongoException("DUMMY_EXCEPTION"));
-    doNothing().when(repositoryMock).deleteById(any());
     assertThrows(ServiceException.class, () -> callSave(pointOfSales));
   }
 
@@ -218,8 +255,11 @@ class PointOfSaleServiceTest {
     when(realmResourceMock.users()).thenReturn(usersResourceMock);
     when(usersResourceMock.searchByEmail(pointOfSale.getContactEmail(), true)).thenReturn(new ArrayList<>());
     when(usersResourceMock.create(any(UserRepresentation.class))).thenReturn(responseMock);
+
     when(responseMock.getStatus()).thenReturn(Response.Status.CREATED.getStatusCode());
+    when(responseMock.getStatusInfo()).thenReturn(Response.Status.CREATED);
     when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
+
     when(usersResourceMock.get(anyString())).thenReturn(userResourceMock);
     doNothing().when(userResourceMock).executeActionsEmail(any(), anyInt());
 
