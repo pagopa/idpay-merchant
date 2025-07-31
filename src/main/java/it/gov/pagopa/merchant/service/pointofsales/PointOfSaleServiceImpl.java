@@ -203,6 +203,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       }
     } catch (Exception e) {
       log.error("[KEYCLOAK] An exception occurred while creating Keycloak user for email {}", email, e);
+      throw e;
     }
   }
 }
