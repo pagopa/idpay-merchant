@@ -69,7 +69,7 @@ class PointOfSaleServiceTest {
         "test-realm",
         300,
         "https://localhost:4000/example",
-        "test-client-id");
+        "test-redirect-client-id");
   }
 
   @Test

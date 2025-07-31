@@ -50,7 +50,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       @Value("${keycloak.admin.realm}") String realm,
       @Value("${keycloak.admin.user.actions.email.lifespan}") Integer keycloakUserActionsEmailLifespan,
       @Value("${keycloak.admin.redirect-uri}") String redirectURI,
-      @Value("${keycloak.admin.client-id}") String keycloakClientId) {
+      @Value("${keycloak.admin.redirect-client-id}") String keycloakClientId) {
     this.merchantService = merchantService;
     this.pointOfSaleRepository = pointOfSaleRepository;
     this.keycloakAdminClient = keycloakAdminClient;
