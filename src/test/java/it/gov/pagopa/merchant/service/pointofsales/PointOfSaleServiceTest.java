@@ -1,6 +1,5 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
-import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
