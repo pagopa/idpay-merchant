@@ -68,7 +68,7 @@ public interface PointOfSaleController {
             summary = "Retrieve point of sale detail",
             security = {@SecurityRequirement(name = "Bearer")},
             tags = {"point-of-sales"},
-            description = "Returns the detail of a point of sale for the given merchant"
+            description = "Returns the detail of a point of sale for this merchant"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful response with point of sale detail",
@@ -85,8 +85,8 @@ public interface PointOfSaleController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))
     })
     @GetMapping("/{merchantId}/point-of-sales/{pointOfSaleId}")
-    ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(
-            @PathVariable("merchantId") String merchantId,
-            @PathVariable("pointOfSaleId") String pointOfSaleId
+    ResponseEntity<PointOfSaleDTO> getPointOfSale(
+            @PathVariable("pointOfSaleId") String pointOfSaleId,
+            @PathVariable("merchantId") String merchantId
     );
 }
