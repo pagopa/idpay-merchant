@@ -75,11 +75,10 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
   }
 
   @Override
-  public ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(String pointOfSaleId) {
-
+  public ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(String pointOfSaleId, String merchantId) {
     log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={}", pointOfSaleId);
 
-    PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleById(pointOfSaleId);
+      PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleByIdAndMerchant(merchantId, pointOfSaleId);
 
     PointOfSaleDetailDTO responseDTO = PointOfSaleDetailDTO.builder()
             .pointOfSale(pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale))
