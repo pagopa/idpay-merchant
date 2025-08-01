@@ -95,7 +95,7 @@ class PointOfSaleServiceTest {
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
-    verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
+    Mockito.verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
   }
 
   @Test
@@ -121,7 +121,7 @@ class PointOfSaleServiceTest {
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
-    verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
+    Mockito.verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
 
   }
 
@@ -149,7 +149,7 @@ class PointOfSaleServiceTest {
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
-    verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
+    Mockito.verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
 
   }
 
