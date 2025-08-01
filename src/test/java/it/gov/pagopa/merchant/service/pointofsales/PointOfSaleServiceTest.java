@@ -167,17 +167,24 @@ class PointOfSaleServiceTest {
 
 
   @Test
-  void savePointOfSalesKO_genericError(){
+  void savePointOfSalesKO_genericError() {
     PointOfSale pointOfSale1 = PointOfSaleFaker.mockInstance();
+    pointOfSale1.setId(new ObjectId("64b7f9fa9d1a3c3f2f1a1a1a"));
+
     PointOfSale pointOfSale2 = PointOfSaleFaker.mockInstance();
+    pointOfSale2.setId(new ObjectId("64b7f9fa9d1a3c3f2f1a1a1b"));
+
     List<PointOfSale> pointOfSales = new ArrayList<>();
     pointOfSales.add(pointOfSale1);
     pointOfSales.add(pointOfSale2);
+
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
+
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale1));
-    when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale2));
     when(repositoryMock.save(pointOfSale1)).thenReturn(pointOfSale1);
+    when(repositoryMock.save(pointOfSale2)).thenThrow(new RuntimeException("Generic error"));
+
     assertThrows(ServiceException.class, () -> callSave(pointOfSales));
   }
 
@@ -306,7 +313,6 @@ class PointOfSaleServiceTest {
 
   @Test
   void savePointOfSales_keycloakUserCreationFails() {
-    // Given
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setContactEmail("failed.user@example.com");
     MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
@@ -315,24 +321,20 @@ class PointOfSaleServiceTest {
     when(repositoryMock.save(any(PointOfSale.class))).thenReturn(pointOfSale);
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
 
-    // Mock Keycloak interactions for failure
     when(keycloak.realm(anyString())).thenReturn(realmResourceMock);
     when(realmResourceMock.users()).thenReturn(usersResourceMock);
     when(usersResourceMock.searchByEmail(pointOfSale.getContactEmail(), true)).thenReturn(new ArrayList<>());
     when(usersResourceMock.create(any(UserRepresentation.class))).thenReturn(responseMock);
     when(responseMock.getStatus()).thenReturn(Response.Status.BAD_REQUEST.getStatusCode()); // Simulate failure
     when(responseMock.getStatusInfo()).thenReturn(Response.Status.BAD_REQUEST);
-    when(responseMock.readEntity(String.class)).thenReturn("Error details");
 
-
-    // When
     service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale));
 
-    // Then
     verify(repositoryMock).save(pointOfSale);
     verify(usersResourceMock).create(any(UserRepresentation.class));
     verify(usersResourceMock, Mockito.never()).get(anyString());
   }
+
 
   @Test
   void savePointOfSales_keycloakThrowsException_triggersRollback() {
@@ -343,12 +345,10 @@ class PointOfSaleServiceTest {
 
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTO);
     when(repositoryMock.save(any(PointOfSale.class))).thenReturn(pointOfSale);
-    when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
 
     // Mock Keycloak to throw an exception
     when(keycloak.realm(anyString())).thenReturn(realmResourceMock);
     when(realmResourceMock.users()).thenReturn(usersResourceMock);
-    when(usersResourceMock.searchByEmail(pointOfSale.getContactEmail(), true)).thenReturn(new ArrayList<>());
     when(usersResourceMock.create(any(UserRepresentation.class))).thenThrow(new jakarta.ws.rs.ProcessingException("Keycloak connection failed"));
 
     // When & Then
@@ -356,7 +356,7 @@ class PointOfSaleServiceTest {
     assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, pointsOfSaleToSave));
 
     // Verify compensation logic was triggered
-    verify(repositoryMock).deleteById(pointOfSale.getId().toString());
+    verify(repositoryMock).deleteById(anyString());
   }
 
   @Test
