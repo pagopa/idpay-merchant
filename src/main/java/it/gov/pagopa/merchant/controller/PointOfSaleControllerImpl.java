@@ -1,12 +1,10 @@
 package it.gov.pagopa.merchant.controller;
 
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
-import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -24,16 +22,13 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
   private final PointOfSaleService pointOfSaleService;
   private final PointOfSaleValidator pointOfSaleValidator;
   private final PointOfSaleDTOMapper pointOfSaleDTOMapper;
-  private final MerchantDetailService merchantDetailService;
 
   public PointOfSaleControllerImpl(PointOfSaleService pointOfSaleService,
                                    PointOfSaleValidator pointOfSaleValidator,
-                                   PointOfSaleDTOMapper pointOfSaleDTOMapper,
-                                   MerchantDetailService merchantDetailService) {
+                                   PointOfSaleDTOMapper pointOfSaleDTOMapper) {
     this.pointOfSaleService = pointOfSaleService;
     this.pointOfSaleValidator = pointOfSaleValidator;
     this.pointOfSaleDTOMapper = pointOfSaleDTOMapper;
-    this.merchantDetailService = merchantDetailService;
   }
 
 
@@ -80,21 +75,16 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
   }
 
   @Override
-  public ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(String merchantId, String pointOfSaleId) {
+  public ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(String pointOfSaleId) {
 
-    log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={} and merchantId={}", pointOfSaleId, merchantId);
+    log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={}", pointOfSaleId);
 
     PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleById(pointOfSaleId);
-    MerchantDetailDTO merchantDetail = merchantDetailService.getMerchantDetail(merchantId);
 
     PointOfSaleDetailDTO responseDTO = PointOfSaleDetailDTO.builder()
             .pointOfSale(pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale))
-            .merchantDetail(merchantDetail)
             .build();
 
     return ResponseEntity.ok(responseDTO);
   }
 }
-
-
-

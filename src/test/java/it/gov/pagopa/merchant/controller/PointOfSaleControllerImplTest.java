@@ -3,7 +3,6 @@ package it.gov.pagopa.merchant.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
@@ -29,6 +28,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
+import java.util.Objects;
+
 import static it.gov.pagopa.merchant.constants.PointOfSaleConstants.MSG_NOT_FOUND;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -100,17 +101,12 @@ class PointOfSaleControllerImplTest {
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
-        MerchantDetailDTO merchantDetailDTO = MerchantDetailDTO.builder()
-                .vatNumber("12345678901")
-                .iban("IT60X0542811101000000123456")
-                .build();
 
         when(pointOfSaleService.getPointOfSaleById(Mockito.anyString())).thenReturn(pointOfSale);
-        when(merchantDetailService.getMerchantDetail(Mockito.anyString())).thenReturn(merchantDetailDTO);
         when(mapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale)).thenReturn(pointOfSaleDTO);
 
         MvcResult result = mockMvc.perform(
-                        MockMvcRequestBuilders.get(BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/POS_ID")
+                        MockMvcRequestBuilders.get(BASE_URL + "/" + "/point-of-sales/POS_ID")
                                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -119,7 +115,6 @@ class PointOfSaleControllerImplTest {
         Assertions.assertNotNull(result);
 
         Mockito.verify(pointOfSaleService).getPointOfSaleById(Mockito.anyString());
-        Mockito.verify(merchantDetailService).getMerchantDetail(Mockito.anyString());
         Mockito.verify(mapper).pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
     }
 
@@ -130,13 +125,13 @@ class PointOfSaleControllerImplTest {
         when(pointOfSaleService.getPointOfSaleById(anyString()))
                 .thenThrow(new PointOfSaleNotFoundException(String.format(MSG_NOT_FOUND, invalidPosId)));
 
-        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/" + invalidPosId)
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + "/point-of-sales/" + invalidPosId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(result -> Assertions.assertTrue(result.getResolvedException() instanceof PointOfSaleNotFoundException))
+                .andExpect(result -> Assertions.assertInstanceOf(PointOfSaleNotFoundException.class, result.getResolvedException()))
                 .andExpect(result -> Assertions.assertEquals(
                         String.format(MSG_NOT_FOUND, invalidPosId),
-                        result.getResolvedException().getMessage()
+                        Objects.requireNonNull(result.getResolvedException()).getMessage()
                 ))
                 .andReturn();
 

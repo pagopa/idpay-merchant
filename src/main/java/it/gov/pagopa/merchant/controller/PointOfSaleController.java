@@ -68,7 +68,7 @@ public interface PointOfSaleController {
             summary = "Retrieve point of sale detail",
             security = {@SecurityRequirement(name = "Bearer")},
             tags = {"point-of-sales"},
-            description = "Returns the detail of a point of sale for the given merchant"
+            description = "Returns the detail of a point of sale"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successful response with point of sale detail",
@@ -77,16 +77,15 @@ public interface PointOfSaleController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Point of sale or merchant not found",
+            @ApiResponse(responseCode = "404", description = "Point of sale not found",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "429", description = "Too many Requests - Rate limit exceeded",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server error",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))
     })
-    @GetMapping("/{merchantId}/point-of-sales/{pointOfSaleId}")
+    @GetMapping("/point-of-sales/{pointOfSaleId}")
     ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(
-            @PathVariable("merchantId") String merchantId,
             @PathVariable("pointOfSaleId") String pointOfSaleId
     );
 }
