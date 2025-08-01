@@ -163,6 +163,15 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         .orElseThrow(() -> new PointOfSaleNotFoundException(String.format(PointOfSaleConstants.MSG_NOT_FOUND,pointOfSaleId)));
   }
 
+  @Override
+  public PointOfSale getPointOfSaleByIdAndMerchantId(String pointOfSaleId,String merchantId) {
+    verifyMerchantExists(merchantId);
+
+    return pointOfSaleRepository.findByIdAndMerchantId(pointOfSaleId, merchantId)
+            .orElseThrow(() -> new PointOfSaleNotFoundException(
+                    String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
+            ));
+  }
 
   private void manageReferentUserOnKeycloak(PointOfSale pointOfSale) {
 
@@ -221,5 +230,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       log.error("[KEYCLOAK] An exception occurred while creating Keycloak user.", e);
       throw e;
     }
+
+
   }
 }
