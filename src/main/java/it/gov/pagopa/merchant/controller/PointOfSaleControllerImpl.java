@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
@@ -17,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-public class PointOfSaleControllerImpl implements PointOfSaleController{
+public class PointOfSaleControllerImpl implements PointOfSaleController {
 
   private final PointOfSaleService pointOfSaleService;
   private final PointOfSaleValidator pointOfSaleValidator;
@@ -33,14 +32,14 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
 
 
   @Override
-  public ResponseEntity<Void> savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSales){
+  public ResponseEntity<Void> savePointOfSales(String merchantId, List<PointOfSaleDTO> pointOfSales) {
     pointOfSaleValidator.validatePointOfSales(pointOfSales);
     pointOfSaleValidator.validateViolationsPointOfSales(pointOfSales);
 
-    log.info("[POINT-OF-SALES][SAVE] Saving {} point(s) of sale for merchantId={}",pointOfSales.size(),merchantId);
+    log.info("[POINT-OF-SALES][SAVE] Saving {} point(s) of sale for merchantId={}", pointOfSales.size(), merchantId);
 
     List<PointOfSale> entities = pointOfSales.stream()
-            .map(pointOfSaleDTO -> pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,merchantId))
+            .map(pointOfSaleDTO -> pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO, merchantId))
             .toList();
 
     pointOfSaleService.savePointOfSales(merchantId, entities);
@@ -51,7 +50,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
   @Override
   public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String merchantId, String type, String city, String address, String contactName, Pageable pageable) {
 
-    log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}",merchantId);
+    log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", merchantId);
 
     Page<PointOfSale> pagePointOfSales = pointOfSaleService.getPointOfSalesList(
             merchantId,
@@ -75,15 +74,13 @@ public class PointOfSaleControllerImpl implements PointOfSaleController{
   }
 
   @Override
-  public ResponseEntity<PointOfSaleDetailDTO> getPointOfSale(String pointOfSaleId, String merchantId) {
-    log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={}", pointOfSaleId);
+  public ResponseEntity<PointOfSaleDTO> getPointOfSale(String pointOfSaleId, String merchantId) {
+    log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={} for merchantId={}", pointOfSaleId, merchantId);
 
-      PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleByIdAndMerchant(merchantId, pointOfSaleId);
+    PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleByIdAndMerchantId(pointOfSaleId, merchantId);
 
-    PointOfSaleDetailDTO responseDTO = PointOfSaleDetailDTO.builder()
-            .pointOfSale(pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale))
-            .build();
+    PointOfSaleDTO dto = pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
 
-    return ResponseEntity.ok(responseDTO);
+    return ResponseEntity.ok(dto);
   }
 }

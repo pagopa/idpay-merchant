@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
@@ -13,6 +14,7 @@ import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import org.bson.types.ObjectId;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,9 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PointOfSaleServiceTest {
@@ -95,7 +95,7 @@ class PointOfSaleServiceTest {
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
-    Mockito.verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
+    verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
   }
 
   @Test
@@ -121,7 +121,7 @@ class PointOfSaleServiceTest {
     when(repositoryMock.save(any())).thenReturn(pointOfSale);
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
-    Mockito.verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
+    verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
 
   }
 
@@ -149,7 +149,7 @@ class PointOfSaleServiceTest {
     when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale));
     service.savePointOfSales(MERCHANT_ID,List.of(pointOfSale));
 
-    Mockito.verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
+    verify(repositoryMock, Mockito.times(1)).save(pointOfSale);
 
   }
 
@@ -168,21 +168,6 @@ class PointOfSaleServiceTest {
 
   @Test
   void savePointOfSalesKO_genericError(){
-    PointOfSale pointOfSale1 = PointOfSaleFaker.mockInstance();
-    PointOfSale pointOfSale2 = PointOfSaleFaker.mockInstance();
-    List<PointOfSale> pointOfSales = new ArrayList<>();
-    pointOfSales.add(pointOfSale1);
-    pointOfSales.add(pointOfSale2);
-    MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
-    when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
-    when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale1));
-    when(repositoryMock.findById(any())).thenReturn(Optional.of(pointOfSale2));
-    when(repositoryMock.save(pointOfSale1)).thenReturn(pointOfSale1);
-    assertThrows(ServiceException.class, () -> callSave(pointOfSales));
-  }
-
-  @Test
-  void savePointOfSalesKO_genericErrorCompensatingOk(){
     PointOfSale pointOfSale1 = PointOfSaleFaker.mockInstance();
     PointOfSale pointOfSale2 = PointOfSaleFaker.mockInstance();
     List<PointOfSale> pointOfSales = new ArrayList<>();
@@ -268,9 +253,9 @@ class PointOfSaleServiceTest {
     service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale));
 
     // Then
-    Mockito.verify(repositoryMock).save(pointOfSale);
-    Mockito.verify(usersResourceMock).create(any(UserRepresentation.class));
-    Mockito.verify(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), Mockito.eq(List.of("UPDATE_PASSWORD")));
+    verify(repositoryMock).save(pointOfSale);
+    verify(usersResourceMock).create(any(UserRepresentation.class));
+    verify(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), Mockito.eq(List.of("UPDATE_PASSWORD")));
   }
 
   @Test
@@ -295,9 +280,9 @@ class PointOfSaleServiceTest {
     service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale));
 
     // Then
-    Mockito.verify(repositoryMock).save(pointOfSale);
-    Mockito.verify(usersResourceMock, Mockito.never()).create(any(UserRepresentation.class));
-    Mockito.verify(userResourceMock, Mockito.never()).executeActionsEmail(anyString(), anyString(), anyInt(), any());
+    verify(repositoryMock).save(pointOfSale);
+    verify(usersResourceMock, Mockito.never()).create(any(UserRepresentation.class));
+    verify(userResourceMock, Mockito.never()).executeActionsEmail(anyString(), anyString(), anyInt(), any());
   }
 
   @Test
@@ -315,8 +300,8 @@ class PointOfSaleServiceTest {
     service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale));
 
     // Then
-    Mockito.verify(repositoryMock).save(pointOfSale);
-    Mockito.verify(keycloak, Mockito.never()).realm(anyString());
+    verify(repositoryMock).save(pointOfSale);
+    verify(keycloak, Mockito.never()).realm(anyString());
   }
 
   @Test
@@ -344,9 +329,9 @@ class PointOfSaleServiceTest {
     service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale));
 
     // Then
-    Mockito.verify(repositoryMock).save(pointOfSale);
-    Mockito.verify(usersResourceMock).create(any(UserRepresentation.class));
-    Mockito.verify(usersResourceMock, Mockito.never()).get(anyString());
+    verify(repositoryMock).save(pointOfSale);
+    verify(usersResourceMock).create(any(UserRepresentation.class));
+    verify(usersResourceMock, Mockito.never()).get(anyString());
   }
 
   @Test
@@ -371,6 +356,46 @@ class PointOfSaleServiceTest {
     assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, pointsOfSaleToSave));
 
     // Verify compensation logic was triggered
-    Mockito.verify(repositoryMock).deleteById(pointOfSale.getId().toString());
+    verify(repositoryMock).deleteById(pointOfSale.getId().toString());
+  }
+
+  @Test
+  void getPointOfSaleByIdAndMerchantIdOK() {
+    String merchantId = "mock-merchant-id";
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    String pointOfSaleId = pointOfSale.getId().toHexString();
+
+    when(merchantServiceMock.getMerchantDetail(merchantId))
+            .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
+    when(repositoryMock.findByIdAndMerchantId(new ObjectId(pointOfSaleId), merchantId))
+            .thenReturn(Optional.of(pointOfSale));
+
+    PointOfSale result = service.getPointOfSaleByIdAndMerchantId(pointOfSaleId, merchantId);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(pointOfSale, result);
+    verify(repositoryMock).findByIdAndMerchantId(new ObjectId(pointOfSaleId), merchantId);
+  }
+
+  @Test
+  void getPointOfSaleByIdAndMerchantId_KO_notFound() {
+    String merchantId = "mock-merchant-id";
+    ObjectId fakeId = new ObjectId();
+    String pointOfSaleId = fakeId.toHexString();
+
+    when(merchantServiceMock.getMerchantDetail(merchantId))
+            .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
+    when(repositoryMock.findByIdAndMerchantId(fakeId, merchantId))
+            .thenReturn(Optional.empty());
+
+    PointOfSaleNotFoundException ex = Assertions.assertThrows(PointOfSaleNotFoundException.class,
+            () -> service.getPointOfSaleByIdAndMerchantId(pointOfSaleId, merchantId));
+
+    Assertions.assertEquals(
+            String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId),
+            ex.getMessage()
+    );
+
+    verify(repositoryMock).findByIdAndMerchantId(fakeId, merchantId);
   }
 }

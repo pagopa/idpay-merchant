@@ -14,5 +14,5 @@ public interface PointOfSaleService {
 
     PointOfSale getPointOfSaleById(String pointOfSaleId);
 
-    PointOfSale getPointOfSaleByIdAndMerchant(String merchantId, String pointOfSaleId);
+    PointOfSale getPointOfSaleByIdAndMerchantId(String pointOfSaleId, String merchantId);
 }

@@ -101,12 +101,12 @@ class PointOfSaleControllerImplTest {
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
-
-        when(pointOfSaleService.getPointOfSaleById(Mockito.anyString())).thenReturn(pointOfSale);
+        when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
+                .thenReturn(pointOfSale);
         when(mapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale)).thenReturn(pointOfSaleDTO);
 
         MvcResult result = mockMvc.perform(
-                        MockMvcRequestBuilders.get(BASE_URL + "/" + "/point-of-sales/POS_ID")
+                        MockMvcRequestBuilders.get(BASE_URL + "/MERCHANT_ID/point-of-sales/POS_ID")
                                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -114,7 +114,7 @@ class PointOfSaleControllerImplTest {
 
         Assertions.assertNotNull(result);
 
-        Mockito.verify(pointOfSaleService).getPointOfSaleById(Mockito.anyString());
+        Mockito.verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
         Mockito.verify(mapper).pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
     }
 
@@ -122,10 +122,10 @@ class PointOfSaleControllerImplTest {
     void getPointOfSaleTestKO() throws Exception {
         String invalidPosId = "INVALID_POS_ID";
 
-        when(pointOfSaleService.getPointOfSaleById(anyString()))
+        when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
                 .thenThrow(new PointOfSaleNotFoundException(String.format(MSG_NOT_FOUND, invalidPosId)));
 
-        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/" + "/point-of-sales/" + invalidPosId)
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/validMerchantId/point-of-sales/" + invalidPosId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> Assertions.assertInstanceOf(PointOfSaleNotFoundException.class, result.getResolvedException()))
@@ -135,6 +135,6 @@ class PointOfSaleControllerImplTest {
                 ))
                 .andReturn();
 
-        verify(pointOfSaleService).getPointOfSaleById(anyString());
+        verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
     }
 }

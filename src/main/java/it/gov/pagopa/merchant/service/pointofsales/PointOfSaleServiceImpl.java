@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
 import io.micrometer.common.util.StringUtils;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
@@ -26,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -165,20 +163,16 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   }
 
   @Override
-  public PointOfSale getPointOfSaleByIdAndMerchant(String merchantId, String pointOfSaleId) {
-    PointOfSale pointOfSale = getPointOfSaleById(pointOfSaleId);
+  public PointOfSale getPointOfSaleByIdAndMerchantId(String pointOfSaleId,String merchantId) {
+    verifyMerchantExists(merchantId);
 
-    if (!merchantId.equals(pointOfSale.getMerchantId())) {
-      throw new ClientExceptionWithBody(
-              HttpStatus.NOT_FOUND,
-              PointOfSaleConstants.CODE_NOT_FOUND,
-              String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
-      );
-    }
+    ObjectId objectId = new ObjectId(pointOfSaleId);
 
-    return pointOfSale;
+    return pointOfSaleRepository.findByIdAndMerchantId(objectId, merchantId)
+            .orElseThrow(() -> new PointOfSaleNotFoundException(
+                    String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
+            ));
   }
-
 
   private void manageReferentUserOnKeycloak(PointOfSale pointOfSale) {
 
