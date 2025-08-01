@@ -179,7 +179,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       List<UserRepresentation> existingUsers = usersResource.searchByEmail(contactEmail, true);
 
       if (existingUsers.isEmpty()) {
-        createNewUserAndSendActionsEmail(usersResource, contactEmail, pointOfSale);
+        createNewUserAndSendActionsEmail(usersResource, pointOfSale);
       } else {
         log.info(
             "[KEYCLOAK] User already exists. The new Point of Sale with ID {} will be associated with the existing user.",
@@ -192,10 +192,10 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     }
   }
 
-  private void createNewUserAndSendActionsEmail(UsersResource usersResource, String email, PointOfSale pointOfSale) {
+  private void createNewUserAndSendActionsEmail(UsersResource usersResource, PointOfSale pointOfSale) {
     UserRepresentation newUser = new UserRepresentation();
-    newUser.setEmail(email);
-    newUser.setUsername(email);
+    newUser.setEmail(pointOfSale.getContactEmail());
+    newUser.setUsername(pointOfSale.getContactEmail());
     newUser.setFirstName(pointOfSale.getContactName());
     newUser.setLastName(pointOfSale.getContactSurname());
 
@@ -218,7 +218,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
             response.getStatus(), response.getStatusInfo().getReasonPhrase());
       }
     } catch (Exception e) {
-      log.error("[KEYCLOAK] An exception occurred while creating Keycloak user.");
+      log.error("[KEYCLOAK] An exception occurred while creating Keycloak user.", e);
       throw e;
     }
   }
