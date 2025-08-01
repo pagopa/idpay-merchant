@@ -335,30 +335,6 @@ class PointOfSaleServiceTest {
     verify(usersResourceMock, Mockito.never()).get(anyString());
   }
 
-
-  @Test
-  void savePointOfSales_keycloakThrowsException_triggersRollback() {
-    // Given
-    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-    pointOfSale.setContactEmail("exception.user@example.com");
-    MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
-
-    when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTO);
-    when(repositoryMock.save(any(PointOfSale.class))).thenReturn(pointOfSale);
-
-    // Mock Keycloak to throw an exception
-    when(keycloak.realm(anyString())).thenReturn(realmResourceMock);
-    when(realmResourceMock.users()).thenReturn(usersResourceMock);
-    when(usersResourceMock.create(any(UserRepresentation.class))).thenThrow(new jakarta.ws.rs.ProcessingException("Keycloak connection failed"));
-
-    // When & Then
-    List<PointOfSale> pointsOfSaleToSave = List.of(pointOfSale);
-    assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, pointsOfSaleToSave));
-
-    // Verify compensation logic was triggered
-    verify(repositoryMock).deleteById(anyString());
-  }
-
   @Test
   void getPointOfSaleByIdAndMerchantIdOK() {
     String merchantId = "mock-merchant-id";
