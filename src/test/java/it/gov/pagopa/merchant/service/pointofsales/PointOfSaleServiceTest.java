@@ -362,19 +362,21 @@ class PointOfSaleServiceTest {
   @Test
   void getPointOfSaleByIdAndMerchantIdOK() {
     String merchantId = "mock-merchant-id";
+    String pointOfSaleId = new ObjectId().toHexString();
+
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-    String pointOfSaleId = pointOfSale.getId().toHexString();
+    pointOfSale.setId(new ObjectId(pointOfSaleId));
 
     when(merchantServiceMock.getMerchantDetail(merchantId))
             .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
-    when(repositoryMock.findByIdAndMerchantId(new ObjectId(pointOfSaleId), merchantId))
+    when(repositoryMock.findByIdAndMerchantId(String.valueOf(new ObjectId(pointOfSaleId)), merchantId))
             .thenReturn(Optional.of(pointOfSale));
 
     PointOfSale result = service.getPointOfSaleByIdAndMerchantId(pointOfSaleId, merchantId);
 
     Assertions.assertNotNull(result);
     Assertions.assertEquals(pointOfSale, result);
-    verify(repositoryMock).findByIdAndMerchantId(new ObjectId(pointOfSaleId), merchantId);
+    verify(repositoryMock).findByIdAndMerchantId(String.valueOf(new ObjectId(pointOfSaleId)), merchantId);
   }
 
   @Test
@@ -385,7 +387,7 @@ class PointOfSaleServiceTest {
 
     when(merchantServiceMock.getMerchantDetail(merchantId))
             .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
-    when(repositoryMock.findByIdAndMerchantId(fakeId, merchantId))
+    when(repositoryMock.findByIdAndMerchantId(String.valueOf(fakeId), merchantId))
             .thenReturn(Optional.empty());
 
     PointOfSaleNotFoundException ex = Assertions.assertThrows(PointOfSaleNotFoundException.class,
@@ -396,6 +398,6 @@ class PointOfSaleServiceTest {
             ex.getMessage()
     );
 
-    verify(repositoryMock).findByIdAndMerchantId(fakeId, merchantId);
+    verify(repositoryMock).findByIdAndMerchantId(String.valueOf(fakeId), merchantId);
   }
 }

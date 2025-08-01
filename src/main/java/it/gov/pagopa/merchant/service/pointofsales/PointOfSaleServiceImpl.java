@@ -166,9 +166,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   public PointOfSale getPointOfSaleByIdAndMerchantId(String pointOfSaleId,String merchantId) {
     verifyMerchantExists(merchantId);
 
-    ObjectId objectId = new ObjectId(pointOfSaleId);
-
-    return pointOfSaleRepository.findByIdAndMerchantId(objectId, merchantId)
+    return pointOfSaleRepository.findByIdAndMerchantId(pointOfSaleId, merchantId)
             .orElseThrow(() -> new PointOfSaleNotFoundException(
                     String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
             ));
