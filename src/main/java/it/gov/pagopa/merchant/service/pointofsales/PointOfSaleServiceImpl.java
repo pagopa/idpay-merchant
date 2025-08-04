@@ -195,9 +195,9 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
             pointOfSale.getId());
       }
     } catch (Exception e) {
-      log.info(
-          "[KEYCLOAK] The new Point of Sale with ID {} had a problem during its account creation. Continuing.",
-          pointOfSale.getId());
+      log.error(
+          "[KEYCLOAK] Error while creating Keycloak user for Point of Sale with ID {}. Exception: {}",
+          pointOfSale.getId(), e.getMessage(), e);
     }
   }
 
