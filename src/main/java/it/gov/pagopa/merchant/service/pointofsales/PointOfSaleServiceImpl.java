@@ -200,19 +200,19 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
             List<UserRepresentation> existingUsers = usersResource.searchByEmail(contactEmail, true);
 
-            if (existingUsers.isEmpty()) {
-                createNewUserAndSendActionsEmail(usersResource, pointOfSale);
-            } else {
-                log.info(
-                        "[KEYCLOAK] User already exists. The new Point of Sale with ID {} will be associated with the existing user.",
-                        pointOfSale.getId());
-            }
-        } catch (Exception e) {
-            log.info(
-                    "[KEYCLOAK] The new Point of Sale with ID {} had a problem during its account creation. Continuing.",
-                    pointOfSale.getId());
-        }
+      if (existingUsers.isEmpty()) {
+        createNewUserAndSendActionsEmail(usersResource, pointOfSale);
+      } else {
+        log.info(
+            "[KEYCLOAK] User already exists. The new Point of Sale with ID {} will be associated with the existing user.",
+            pointOfSale.getId());
+      }
+    } catch (Exception e) {
+      log.error(
+          "[KEYCLOAK] Error while creating Keycloak user for Point of Sale with ID {}. Exception: {}",
+          pointOfSale.getId(), e.getMessage(), e);
     }
+  }
 
     private void createNewUserAndSendActionsEmail(UsersResource usersResource, PointOfSale pointOfSale) {
         UserRepresentation newUser = new UserRepresentation();
