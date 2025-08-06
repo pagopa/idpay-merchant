@@ -13,7 +13,6 @@ import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import jakarta.ws.rs.core.Response;
 
-import java.lang.reflect.Method;
 import java.net.URI;
 
 import org.bson.types.ObjectId;
