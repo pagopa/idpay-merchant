@@ -25,6 +25,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -391,44 +392,197 @@ class PointOfSaleServiceTest {
     }
 
     @Test
-    void testManageReferentUserOnKeycloak_disablesOldUserWhenEmailChanged() {
-        PointOfSale pointOfSale = new PointOfSale();
-        pointOfSale.setId(new ObjectId());
-        pointOfSale.setMerchantId(MERCHANT_ID);
-        pointOfSale.setContactEmail("new.email@example.com");
-        pointOfSale.setContactName("Mario");
-        pointOfSale.setContactSurname("Rossi");
+    void savePointOfSales_compensatingDeleteIsCalledOnSaveError() {
+        String merchantId = "merchant123";
 
-        String oldEmail = "old.email@example.com";
+        PointOfSale pos1 = PointOfSaleFaker.mockInstance();
+        pos1.setId(new ObjectId("6893085d00c110648b595981"));
+        pos1.setMerchantId(merchantId);
+        pos1.setContactEmail("email1@example.com");
+
+        PointOfSale pos2 = PointOfSaleFaker.mockInstance();
+        pos2.setId(new ObjectId("6893085d00c110648b595982"));
+        pos2.setMerchantId(merchantId);
+        pos2.setContactEmail("email2@example.com");
+
+        List<PointOfSale> posList = List.of(pos1, pos2);
+
+        when(merchantServiceMock.getMerchantDetail(merchantId)).thenReturn(new MerchantDetailDTO());
+        when(repositoryMock.findById(pos1.getId().toString())).thenReturn(Optional.of(pos1));
+        when(repositoryMock.findById(pos2.getId().toString())).thenReturn(Optional.of(pos2));
+        when(repositoryMock.save(pos1)).thenReturn(pos1);
+        when(repositoryMock.save(pos2)).thenThrow(new RuntimeException("Simulated DB error"));
+
+        RealmResource realmMock = mock(RealmResource.class);
+        UsersResource usersMock = mock(UsersResource.class);
+
+        when(keycloak.realm(anyString())).thenReturn(realmMock);
+        when(realmMock.users()).thenReturn(usersMock);
+
+        assertThrows(ServiceException.class, () -> {
+            service.savePointOfSales(merchantId, posList);
+        });
+
+        verify(repositoryMock).deleteById(pos1.getId().toString());
+    }
+
+    @Test
+    void savePointOfSales_reenableDisabledUserScenario() {
+        PointOfSale pos = PointOfSaleFaker.mockInstance();
+        pos.setId(new ObjectId("6893085d00c110648b595981"));
+        pos.setMerchantId(MERCHANT_ID);
+        pos.setContactEmail("user@example.com");
+        pos.setContactName("John");
+        pos.setContactSurname("Doe");
+
+
+        when(repositoryMock.findById("6893085d00c110648b595981")).thenReturn(Optional.of(pos));
+        when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(new MerchantDetailDTO());
+        when(repositoryMock.save(any(PointOfSale.class))).thenReturn(pos);
+        when(keycloak.realm("test-realm")).thenReturn(realmResourceMock);
+        when(realmResourceMock.users()).thenReturn(usersResourceMock);
+
+        UserRepresentation disabledUser = new UserRepresentation();
+        disabledUser.setId("user-id-123");
+        disabledUser.setEnabled(false);
+
+        when(usersResourceMock.searchByEmail("user@example.com", true)).thenReturn(List.of(disabledUser));
+
+        when(usersResourceMock.get("user-id-123")).thenReturn(userResourceMock);
+
+        doNothing().when(userResourceMock).update(any());
+        doNothing().when(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), anyList());
+
+        when(userResourceMock.credentials()).thenReturn(List.of());
+
+        service.savePointOfSales(MERCHANT_ID, List.of(pos));
+
+        verify(userResourceMock).update(argThat(user ->
+                user.getFirstName().equals("John") &&
+                        user.getLastName().equals("Doe") &&
+                        Boolean.TRUE.equals(user.isEnabled())
+        ));
+
+        verify(userResourceMock).executeActionsEmail(
+                "test-redirect-client-id",
+                "https://localhost:4000/example",
+                300,
+                List.of("UPDATE_PASSWORD")
+        );
+    }
+
+    @Test
+    void savePointOfSales_updateEnabledUserScenario() {
+        PointOfSale pos = PointOfSaleFaker.mockInstance();
+        pos.setId(new ObjectId("6893085d00c110648b595981"));
+        pos.setMerchantId(MERCHANT_ID);
+        pos.setContactEmail("user@example.com");
+        pos.setContactName("John");
+        pos.setContactSurname("Doe");
+
+        when(repositoryMock.findById(any())).thenReturn(Optional.of(pos));
+        when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(new MerchantDetailDTO());
+        when(repositoryMock.save(any(PointOfSale.class))).thenReturn(pos);
+        when(keycloak.realm("test-realm")).thenReturn(realmResourceMock);
+        when(realmResourceMock.users()).thenReturn(usersResourceMock);
+
+        UserRepresentation enabledUser = new UserRepresentation();
+        enabledUser.setId("user-id-456");
+        enabledUser.setEnabled(true);
+
+        when(usersResourceMock.searchByEmail("user@example.com", true)).thenReturn(List.of(enabledUser));
+        when(usersResourceMock.get("user-id-456")).thenReturn(userResourceMock);
+
+        doNothing().when(userResourceMock).update(any());
+
+        service.savePointOfSales(MERCHANT_ID, List.of(pos));
+
+        verify(userResourceMock).update(argThat(user ->
+                user.getFirstName().equals("John") &&
+                        user.getLastName().equals("Doe") &&
+                        Boolean.TRUE.equals(user.isEnabled())
+        ));
+
+        verify(userResourceMock, never()).executeActionsEmail(anyString(), anyString(), anyInt(), anyList());
+    }
+
+    @Test
+    void savePointOfSales_removePasswordCredentialIsCalled() {
+        PointOfSale pos = PointOfSaleFaker.mockInstance();
+        pos.setId(new ObjectId("6893085d00c110648b595981"));
+        pos.setMerchantId(MERCHANT_ID);
+        pos.setContactEmail("user@example.com");
+        pos.setContactName("John");
+        pos.setContactSurname("Doe");
+
+        UserRepresentation disabledUser = new UserRepresentation();
+        disabledUser.setId("user-id-123");
+        disabledUser.setEnabled(false);
+
+        CredentialRepresentation passwordCredential = new CredentialRepresentation();
+        passwordCredential.setId("credential-id-1");
+        passwordCredential.setType("password");
+
+        when(keycloak.realm("test-realm")).thenReturn(realmResourceMock);
+        when(realmResourceMock.users()).thenReturn(usersResourceMock);
+
+        when(usersResourceMock.searchByEmail("user@example.com", true)).thenReturn(List.of(disabledUser));
+        doReturn(userResourceMock).when(usersResourceMock).get("user-id-123");
+        when(userResourceMock.credentials()).thenReturn(List.of(passwordCredential));
+        doNothing().when(userResourceMock).removeCredential("credential-id-1");
+        doNothing().when(userResourceMock).update(any());
+        doNothing().when(userResourceMock).executeActionsEmail(anyString(), anyString(), anyInt(), anyList());
+
+        when(repositoryMock.findById("6893085d00c110648b595981")).thenReturn(Optional.of(pos));
+        when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(new MerchantDetailDTO());
+        when(repositoryMock.save(any(PointOfSale.class))).thenReturn(pos);
+
+        service.savePointOfSales(MERCHANT_ID, List.of(pos));
+
+        verify(userResourceMock).removeCredential("credential-id-1");
+    }
+
+    @Test
+    void savePointOfSales_disablesOldUserWhenEmailChanged_andOldUserIsEnabled() {
+        PointOfSale newPos = PointOfSaleFaker.mockInstance();
+        newPos.setId(new ObjectId("64ec4a4b34ad2f17f6e63ef9"));
+        newPos.setMerchantId(MERCHANT_ID);
+        newPos.setContactEmail("new.email@example.com");
+        newPos.setContactName("Mario");
+        newPos.setContactSurname("Rossi");
+
+        PointOfSale oldPos = PointOfSaleFaker.mockInstance();
+        oldPos.setId(new ObjectId("64ec4a4b34ad2f17f6e63ef9"));
+        oldPos.setMerchantId(MERCHANT_ID);
+        oldPos.setContactEmail("old.email@example.com");
+        oldPos.setContactName("Giuseppe");
+        oldPos.setContactSurname("Verdi");
+
+        when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(new MerchantDetailDTO());
+        when(repositoryMock.findById("64ec4a4b34ad2f17f6e63ef9")).thenReturn(Optional.of(oldPos));
+        when(repositoryMock.save(any(PointOfSale.class))).thenReturn(newPos);
 
         when(keycloak.realm("test-realm")).thenReturn(realmResourceMock);
         when(realmResourceMock.users()).thenReturn(usersResourceMock);
 
         UserRepresentation oldUser = new UserRepresentation();
         oldUser.setId("user123");
-        oldUser.setEmail(oldEmail);
-        oldUser.setEnabled(true);
+        oldUser.setEmail("old.email@example.com");
+        oldUser.setEnabled(Boolean.TRUE);
 
-        when(usersResourceMock.searchByEmail(oldEmail, true)).thenReturn(List.of(oldUser));
-
+        when(usersResourceMock.searchByEmail("old.email@example.com", true)).thenReturn(List.of(oldUser));
         when(usersResourceMock.get("user123")).thenReturn(userResourceMock);
+
         doAnswer(invocation -> {
-            UserRepresentation user = invocation.getArgument(0);
-            assertFalse(user.isEnabled());
+            UserRepresentation updatedUser = invocation.getArgument(0);
+            assertFalse(updatedUser.isEnabled());
             return null;
         }).when(userResourceMock).update(any(UserRepresentation.class));
 
         when(usersResourceMock.searchByEmail("new.email@example.com", true)).thenReturn(List.of());
 
-        try {
-            Method method = PointOfSaleServiceImpl.class.getDeclaredMethod("manageReferentUserOnKeycloak", PointOfSale.class, String.class);
-            method.setAccessible(true);
-            method.invoke(service, pointOfSale, oldEmail);
-        } catch (Exception e) {
-            fail("Reflection invocation failed: " + e.getMessage());
-        }
+        service.savePointOfSales(MERCHANT_ID, List.of(newPos));
 
-        verify(userResourceMock, times(1)).update(any(UserRepresentation.class));
+        verify(userResourceMock).update(argThat(user -> Boolean.FALSE.equals(user.isEnabled())));
     }
-
 }

@@ -19,6 +19,7 @@ import org.bson.types.ObjectId;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
@@ -43,6 +44,8 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     private final String redirectURI;
     private final String keycloakClientId;
     private final Integer keycloakUserActionsEmailLifespan;
+
+    private static final String REQUIRED_ACTION_UPDATE_PASSWORD = "UPDATE_PASSWORD";
 
     public PointOfSaleServiceImpl(
             MerchantService merchantService,
@@ -177,7 +180,6 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     }
 
     private void manageReferentUserOnKeycloak(PointOfSale pointOfSale, String oldEmail) {
-
         final String contactEmail = pointOfSale.getContactEmail();
 
         if (StringUtils.isEmpty(contactEmail)) {
@@ -189,30 +191,91 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         UsersResource usersResource = keycloakAdminClient.realm(realm).users();
 
         try {
-            if (StringUtils.isNotEmpty(oldEmail) && !oldEmail.equalsIgnoreCase(contactEmail)) {
-                List<UserRepresentation> existingUsers = usersResource.searchByEmail(oldEmail, true);
-                for (UserRepresentation user : existingUsers) {
+            disableOldUser(usersResource, oldEmail, contactEmail);
+            handleNewOrExistingUser(usersResource, pointOfSale, contactEmail);
+        } catch (Exception e) {
+            log.error(
+                    "[KEYCLOAK] Error while creating Keycloak user for Point of Sale with ID {}. Exception: {}",
+                    pointOfSale.getId(), e.getMessage(), e);
+        }
+    }
+
+    private void disableOldUser(UsersResource usersResource, String oldEmail, String newEmail) {
+        if (StringUtils.isNotEmpty(oldEmail) && !oldEmail.equalsIgnoreCase(newEmail)) {
+            List<UserRepresentation> existingUsers = usersResource.searchByEmail(oldEmail, true);
+            for (UserRepresentation user : existingUsers) {
+                if (Boolean.TRUE.equals(user.isEnabled())) {
                     user.setEnabled(false);
                     usersResource.get(user.getId()).update(user);
                     log.info("[KEYCLOAK] Disabled old user with email: {}", oldEmail);
                 }
             }
-
-            List<UserRepresentation> existingUsers = usersResource.searchByEmail(contactEmail, true);
-
-      if (existingUsers.isEmpty()) {
-        createNewUserAndSendActionsEmail(usersResource, pointOfSale);
-      } else {
-        log.info(
-            "[KEYCLOAK] User already exists. The new Point of Sale with ID {} will be associated with the existing user.",
-            pointOfSale.getId());
-      }
-    } catch (Exception e) {
-      log.error(
-          "[KEYCLOAK] Error while creating Keycloak user for Point of Sale with ID {}. Exception: {}",
-          pointOfSale.getId(), e.getMessage(), e);
+        }
     }
-  }
+
+    private void handleNewOrExistingUser(UsersResource usersResource, PointOfSale pointOfSale, String contactEmail) {
+        List<UserRepresentation> existingUsers = usersResource.searchByEmail(contactEmail, true);
+
+        if (existingUsers.isEmpty()) {
+            createNewUserAndSendActionsEmail(usersResource, pointOfSale);
+        } else {
+            boolean reenabled = reenableDisabledUsers(usersResource, pointOfSale, contactEmail, existingUsers);
+
+            if (!reenabled) {
+                updateEnabledUsers(usersResource, pointOfSale, contactEmail, existingUsers);
+                log.info("[KEYCLOAK] User already exists and is enabled. The new Point of Sale with ID {} will be associated with the existing user.",
+                        pointOfSale.getId());
+            }
+        }
+    }
+
+    private boolean reenableDisabledUsers(UsersResource usersResource, PointOfSale pointOfSale, String contactEmail, List<UserRepresentation> users) {
+        boolean reenabled = false;
+
+        for (UserRepresentation user : users) {
+            if (Boolean.FALSE.equals(user.isEnabled())) {
+                user.setEnabled(true);
+                user.setFirstName(pointOfSale.getContactName());
+                user.setLastName(pointOfSale.getContactSurname());
+                usersResource.get(user.getId()).update(user);
+
+                removePasswordCredential(usersResource, user);
+
+                log.info("[KEYCLOAK] Re-enabled existing user with email: {}", contactEmail);
+
+                usersResource.get(user.getId()).executeActionsEmail(
+                        keycloakClientId,
+                        redirectURI,
+                        keycloakUserActionsEmailLifespan,
+                        List.of(REQUIRED_ACTION_UPDATE_PASSWORD)
+                );
+
+                reenabled = true;
+            }
+        }
+
+        return reenabled;
+    }
+
+    private void updateEnabledUsers(UsersResource usersResource, PointOfSale pointOfSale, String contactEmail, List<UserRepresentation> users) {
+        for (UserRepresentation user : users) {
+            user.setFirstName(pointOfSale.getContactName());
+            user.setLastName(pointOfSale.getContactSurname());
+            usersResource.get(user.getId()).update(user);
+            log.info("[KEYCLOAK] Updated contact name/surname for existing enabled user with email: {}", contactEmail);
+        }
+    }
+
+    private void removePasswordCredential(UsersResource usersResource, UserRepresentation user) {
+        List<CredentialRepresentation> credentials = usersResource.get(user.getId()).credentials();
+        for (CredentialRepresentation credential : credentials) {
+            if ("password".equalsIgnoreCase(credential.getType())) {
+                usersResource.get(user.getId()).removeCredential(credential.getId());
+                log.info("[KEYCLOAK] Removed password credential for user {}", user.getUsername());
+                break;
+            }
+        }
+    }
 
     private void createNewUserAndSendActionsEmail(UsersResource usersResource, PointOfSale pointOfSale) {
         UserRepresentation newUser = new UserRepresentation();
@@ -232,7 +295,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
                 log.info("[KEYCLOAK] User created successfully with ID {}. Sending password setup email.", userId);
 
                 // The action "UPDATE_PASSWORD" sends an email with a link that will expire after the lifespan to reset the user password
-                usersResource.get(userId).executeActionsEmail(keycloakClientId, redirectURI, keycloakUserActionsEmailLifespan, List.of("UPDATE_PASSWORD"));
+                usersResource.get(userId).executeActionsEmail(keycloakClientId, redirectURI, keycloakUserActionsEmailLifespan, List.of(REQUIRED_ACTION_UPDATE_PASSWORD));
 
             } else {
                 // Handling non-success cases with a log
