@@ -311,7 +311,9 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     private static String sanitizeForLog(String input) {
         if (input == null) return null;
 
-        return input.replaceAll("[\\r\\n\\t\\f\\u0008]", "_");
+        String sanitized = input.replaceAll("[\\p{Cntrl}\\u2028\\u2029]", "");
+        sanitized = sanitized.replaceAll("[^a-zA-Z0-9@._-]", "_");
+       return sanitized.trim();
     }
 
 
