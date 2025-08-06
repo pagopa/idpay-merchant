@@ -184,7 +184,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
         if (StringUtils.isEmpty(contactEmail)) {
             log.warn("[KEYCLOAK] Point of Sale with ID {} for merchant {} has no contact email. Skipping Keycloak user creation.",
-                    pointOfSale.getId(), pointOfSale.getMerchantId());
+                    pointOfSale.getId(), sanitizeForLog(pointOfSale.getMerchantId()));
             return;
         }
 
@@ -241,7 +241,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
                 removePasswordCredential(usersResource, user);
 
-                log.info("[KEYCLOAK] Re-enabled existing user with email: {}", contactEmail);
+                log.info("[KEYCLOAK] Re-enabled existing user with email: {}", sanitizeForLog(contactEmail));
 
                 usersResource.get(user.getId()).executeActionsEmail(
                         keycloakClientId,
@@ -262,7 +262,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
             user.setFirstName(pointOfSale.getContactName());
             user.setLastName(pointOfSale.getContactSurname());
             usersResource.get(user.getId()).update(user);
-            log.info("[KEYCLOAK] Updated contact name/surname for existing enabled user with email: {}", contactEmail);
+            log.info("[KEYCLOAK] Updated contact name/surname for existing enabled user with email: {}", sanitizeForLog(contactEmail));
         }
     }
 
@@ -306,6 +306,12 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
             log.error("[KEYCLOAK] An exception occurred while creating Keycloak user.", e);
             throw e;
         }
+    }
+
+    private static String sanitizeForLog(String input) {
+        if (input == null) return null;
+
+        return input.replaceAll("[\\r\\n\\t\\f\\u0008]", "_");
     }
 
 
