@@ -22,6 +22,12 @@ jobs:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
 
+    services:
+      mongo:
+        image: mongo:4.2
+        options: >-
+          --bind_ip_all
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.7
