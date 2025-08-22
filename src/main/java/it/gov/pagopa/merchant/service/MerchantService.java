@@ -12,7 +12,7 @@ public interface MerchantService {
     MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId);
     MerchantDetailDTO getMerchantDetail(String merchantId);
     MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable);
-    MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO);
+    MerchantDetailDTO updateIban(String merchantId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO);
     String retrieveMerchantId(String acquirerId, String fiscalCode);
     List<InitiativeDTO> getMerchantInitiativeList(String merchantId);
 

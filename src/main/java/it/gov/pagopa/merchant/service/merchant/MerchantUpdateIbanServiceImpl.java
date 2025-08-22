@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service.merchant;
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
+import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import java.util.Objects;
@@ -17,6 +18,8 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
   private final MerchantRepository merchantRepository;
   private final MerchantDetailService merchantDetailService;
 
+  private final MerchantModelToDTOMapper merchantModelToDTOMapper;
+
   // Regex for IBAN format
   private static final Pattern ITALIAN_IBAN_PATTERN = Pattern.compile("^IT\\d{2}[A-Z]\\d{5}\\d{5}[A-Z0-9]{12}$");
   // Regex for IBAN Holder format: allows letters (including accented), spaces, apostrophes, and hyphens
@@ -24,24 +27,25 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
 
 
   public MerchantUpdateIbanServiceImpl(MerchantRepository merchantRepository,
-      MerchantDetailService merchantDetailService) {
+      MerchantDetailService merchantDetailService, MerchantModelToDTOMapper merchantModelToDTOMapper) {
     this.merchantRepository = merchantRepository;
     this.merchantDetailService = merchantDetailService;
+    this.merchantModelToDTOMapper = merchantModelToDTOMapper;
   }
 
   @Override
-  public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
+  public MerchantDetailDTO updateIban(String merchantId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
     Merchant merchant = merchantRepository.findById(merchantId)
         .orElseThrow(() -> new MerchantNotFoundException(
             String.format("Merchant with id %s not found.", merchantId)
         ));
 
     merchant.getInitiativeList().stream()
-        .filter(i -> i.getInitiativeId().equals(initiativeId) && i.getOrganizationId().equals(organizationId))
+        .filter(i -> i.getInitiativeId().equals(initiativeId))
         .findFirst()
         .orElseThrow(() -> new MerchantNotFoundException(
-            String.format("Merchant with id %s is not associated with initiative %s for organization %s.",
-                merchantId, initiativeId, organizationId)
+            String.format("Merchant with id %s is not associated with initiative %s.",
+                merchantId, initiativeId)
         ));
 
     if (!Objects.isNull(merchantIbanPatchDTO.getIban())) {
@@ -70,6 +74,8 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
 
     merchantRepository.save(merchant);
 
-    return merchantDetailService.getMerchantDetail(organizationId, initiativeId, merchantId);
+    Merchant updatedMerchant = merchantRepository.save(merchant);
+
+    return merchantModelToDTOMapper.toMerchantDetailDTO(updatedMerchant, initiativeId);
   }
 }
