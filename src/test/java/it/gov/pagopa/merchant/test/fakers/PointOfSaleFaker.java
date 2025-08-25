@@ -19,7 +19,6 @@ public class PointOfSaleFaker {
                 .city("CITY")
                 .zipCode("ZIPCODE")
                 .address("ADDRESS")
-                .streetNumber("STREET-NUMBER")
                 .contactEmail("EMAIL")
                 .contactName("NAME")
                 .contactSurname("SURNAME")
