@@ -30,16 +30,23 @@ public class MerchantControllerImpl implements MerchantController {
       String organizationId,
       String initiativeId,
       String organizationUserId) {
+    String sanitizedOrganizationId = sanitizeString(organizationId);
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+
     return ResponseEntity.ok(
-        merchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId,
+        merchantService.uploadMerchantFile(file, sanitizedOrganizationId, sanitizedInitiativeId, organizationUserId,
             "PAGOPA"));
   }
 
   @Override
   public ResponseEntity<MerchantListDTO> getMerchantList(String organizationId, String initiativeId,
       String fiscalCode, Pageable pageable) {
+    String sanitizedOrganizationId = sanitizeString(organizationId);
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+    String sanitizedFiscalCode = sanitizeString(fiscalCode);
+
     return ResponseEntity.ok(
-        merchantService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable));
+        merchantService.getMerchantList(sanitizedOrganizationId, sanitizedInitiativeId, sanitizedFiscalCode, pageable));
   }
 
   @Override
@@ -52,10 +59,13 @@ public class MerchantControllerImpl implements MerchantController {
   @Override
   public ResponseEntity<MerchantDetailDTO> updateIban(String merchantId, String organizationId,
       String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
+    String sanitizedMerchantId = sanitizeString(merchantId);
+    String sanitizedOrganizationId = sanitizeString(organizationId);
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
     log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}",
-        sanitizeString(merchantId), sanitizeString(initiativeId));
-    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(merchantId, organizationId,
-        initiativeId,
+        sanitizedMerchantId, sanitizedInitiativeId);
+    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(sanitizedMerchantId, sanitizedOrganizationId,
+        sanitizedInitiativeId,
         merchantIbanPatchDTO);
     return ResponseEntity.ok(merchantDetailDTO);
   }
