@@ -34,8 +34,8 @@ public class MerchantControllerImpl implements MerchantController {
     String sanitizedInitiativeId = sanitizeString(initiativeId);
 
     return ResponseEntity.ok(
-        merchantService.uploadMerchantFile(file, sanitizedOrganizationId, sanitizedInitiativeId, organizationUserId,
-            "PAGOPA"));
+        merchantService.uploadMerchantFile(file, sanitizedOrganizationId, sanitizedInitiativeId,
+            organizationUserId, "PAGOPA"));
   }
 
   @Override
@@ -46,14 +46,20 @@ public class MerchantControllerImpl implements MerchantController {
     String sanitizedFiscalCode = fiscalCode != null ? sanitizeString(fiscalCode) : null;
 
     return ResponseEntity.ok(
-        merchantService.getMerchantList(sanitizedOrganizationId, sanitizedInitiativeId, sanitizedFiscalCode, pageable));
+        merchantService.getMerchantList(sanitizedOrganizationId, sanitizedInitiativeId,
+            sanitizedFiscalCode, pageable));
   }
 
   @Override
   public ResponseEntity<MerchantDetailDTO> getMerchantDetail(String organizationId,
       String initiativeId, String merchantId) {
+    String sanitizedOrganizationId = sanitizeString(organizationId);
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+    String sanitizedMerchantId = sanitizeString(merchantId);
+
     return ResponseEntity.ok(
-        merchantService.getMerchantDetail(organizationId, initiativeId, merchantId));
+        merchantService.getMerchantDetail(sanitizedOrganizationId, sanitizedInitiativeId,
+            sanitizedMerchantId));
   }
 
   @Override
@@ -65,9 +71,8 @@ public class MerchantControllerImpl implements MerchantController {
 
     log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}",
         sanitizedMerchantId, sanitizedInitiativeId);
-    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(sanitizedMerchantId, sanitizedOrganizationId,
-        sanitizedInitiativeId,
-        merchantIbanPatchDTO);
+    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(sanitizedMerchantId,
+        sanitizedOrganizationId, sanitizedInitiativeId, merchantIbanPatchDTO);
     return ResponseEntity.ok(merchantDetailDTO);
   }
 
@@ -77,10 +82,10 @@ public class MerchantControllerImpl implements MerchantController {
 
     log.info("[GET_MERCHANT_ID] The Merchant with {}, {} requested to retrieve merchantId",
         sanitizedAcquirerId, sanitizedFiscalCode);
-    String merchantId = merchantService.retrieveMerchantId(sanitizedAcquirerId, sanitizedFiscalCode);
+    String merchantId = merchantService.retrieveMerchantId(sanitizedAcquirerId,
+        sanitizedFiscalCode);
     if (merchantId == null) {
-      throw new MerchantNotFoundException(
-          ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE);
+      throw new MerchantNotFoundException(ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE);
     }
     return merchantId;
   }
