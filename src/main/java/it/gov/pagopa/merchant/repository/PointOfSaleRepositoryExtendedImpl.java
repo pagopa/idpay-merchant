@@ -67,19 +67,8 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
         addressCriterias.add(Criteria.where(PointOfSale.Fields.website).regex(inputPattern));
 
-        String[] parts = address.split(",");
-        String addressPart = parts[0].trim();
-      
-        Pattern addressPattern = Pattern.compile(Pattern.quote(addressPart), Pattern.CASE_INSENSITIVE);
+        Pattern addressPattern = Pattern.compile(Pattern.quote(address), Pattern.CASE_INSENSITIVE);
         addressCriterias.add(Criteria.where(PointOfSale.Fields.address).regex(addressPattern));
-
-        if (parts.length > 1) {
-            String streetNumber = parts[1].trim();
-            if (StringUtils.isNotBlank(streetNumber)) {
-                Pattern streetPattern = Pattern.compile(Pattern.quote(streetNumber), Pattern.CASE_INSENSITIVE);
-                addressCriterias.add(Criteria.where(PointOfSale.Fields.streetNumber).regex(streetPattern));
-            }
-        }
 
         return new Criteria().orOperator(addressCriterias.toArray(new Criteria[0]));
     }
