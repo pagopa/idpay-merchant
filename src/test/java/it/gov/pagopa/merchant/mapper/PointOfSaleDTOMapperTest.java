@@ -24,7 +24,7 @@ class PointOfSaleDTOMapperTest {
 
     @Test
     void pointOfSaleEntityToPointOfSaleDTO_EntityIsNull(){
-        PointOfSaleDTO result = pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(null);
+        PointOfSaleDTO result = pointOfSaleDTOMapper.entityToDto(null);
 
         assertNull(result);
     }
@@ -33,7 +33,7 @@ class PointOfSaleDTOMapperTest {
     void pointOfSaleEntityToPointOfSaleDTO_okPointOfSalePhysical(){
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
 
-        PointOfSaleDTO result = pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
+        PointOfSaleDTO result = pointOfSaleDTOMapper.entityToDto(pointOfSale);
 
         assertNotNull(result);
     }
@@ -43,21 +43,21 @@ class PointOfSaleDTOMapperTest {
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
         pointOfSale.setType("ONLINE");
 
-        PointOfSaleDTO result = pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
+        PointOfSaleDTO result = pointOfSaleDTOMapper.entityToDto(pointOfSale);
 
         assertNotNull(result);
     }
 
     @Test
     void pointOfSaleDTOtoPointOfSaleEntity_isNull(){
-        PointOfSale result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(null,null);
+        PointOfSale result = pointOfSaleDTOMapper.dtoToEntity(null,null);
         assertNull(result);
     }
 
     @Test
     void pointOfSaleDTOtoPointOfSaleEntity_isNull1(){
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
-        PointOfSale result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,null);
+        PointOfSale result = pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO,null);
         assertNull(result);
     }
 
@@ -65,28 +65,28 @@ class PointOfSaleDTOMapperTest {
     @Test
     void pointOfSaleDTOtoPointOfSaleEntity_ok(){
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
-        PointOfSale result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
+        PointOfSale result = pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
 
         pointOfSaleDTO.setAddress("Via Giuseppe, 33");
-        result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
+        result = pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
 
         pointOfSaleDTO.setAddress("Via Giuseppe 33");
-        result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
+        result = pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
 
         pointOfSaleDTO.setAddress(null);
-        result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
+        result = pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
 
         pointOfSaleDTO.setAddress("");
-        result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
+        result = pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
 
         pointOfSaleDTO.setType(PointOfSaleTypeEnum.ONLINE);
         pointOfSaleDTO.setId(new ObjectId().toString());
-        result = pointOfSaleDTOMapper.pointOfSaleDTOtoPointOfSaleEntity(pointOfSaleDTO,"merchant-id");
+        result = pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO,"merchant-id");
         assertNotNull(result);
     }
 

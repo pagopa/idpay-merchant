@@ -39,7 +39,7 @@ class MerchantProcessOperationServiceImplTest {
     private static final int PAGE_SIZE = 100;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         merchantProcessOperationService = new MerchantProcessOperationServiceImpl(merchantFileRepository, repositoryMock
                 , auditUtilities,PAGE_SIZE, 1000);
     }

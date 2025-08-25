@@ -28,9 +28,9 @@ class MerchantDetailServiceTest {
 
   @Mock private MerchantRepository repositoryMock;
   @Mock private final MerchantModelToDTOMapper merchantModelToDTOMapperMock = new MerchantModelToDTOMapper();
-  private final String INITIATIVE_ID = "INITIATIVE_ID";
+  private static final String INITIATIVE_ID = "INITIATIVE_ID";
   private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
-  private final String MERCHANT_ID = "MERCHANT_ID";
+  private static final String MERCHANT_ID = "MERCHANT_ID";
 
   MerchantDetailService service;
 

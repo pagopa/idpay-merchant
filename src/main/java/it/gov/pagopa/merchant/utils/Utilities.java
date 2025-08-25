@@ -30,4 +30,8 @@ public final class Utilities {
     public static String toUUID(String str){
         return UUID.nameUUIDFromBytes(str.getBytes(StandardCharsets.UTF_8)).toString();
     }
+
+    public static String sanitizeString(String str){
+        return str.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
+    }
 }

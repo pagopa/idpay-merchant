@@ -68,7 +68,7 @@ public class MongoTestUtilitiesService {
     public static void startMongoCommandListener(String desc) {
         mongoCommands = new ConcurrentLinkedQueue<>();
         mongoCommandsListenerDesc = desc;
-        if(mongoCommandsListenerDesc.length()>0){
+        if(!mongoCommandsListenerDesc.isEmpty()){
             mongoCommandsListenerDesc = ": " + mongoCommandsListenerDesc;
         }
     }

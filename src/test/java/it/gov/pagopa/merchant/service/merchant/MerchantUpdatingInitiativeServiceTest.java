@@ -14,7 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class MerchantUpdatingInitiativeServiceTest {
 
   @Mock private MerchantRepository repositoryMock;
-  private final String INITIATIVE_ID = "INITIATIVE_ID";
+  private static final String INITIATIVE_ID = "INITIATIVE_ID";
   MerchantUpdatingInitiativeService service;
 
   @BeforeEach

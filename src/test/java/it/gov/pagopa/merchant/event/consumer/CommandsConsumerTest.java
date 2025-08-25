@@ -1,18 +1,17 @@
 package it.gov.pagopa.merchant.event.consumer;
 
+import static org.mockito.Mockito.verify;
+
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
 import it.gov.pagopa.merchant.service.MerchantService;
+import java.time.LocalDateTime;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
-import java.util.function.Consumer;
-
-import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class CommandsConsumerTest {
     @Mock
@@ -23,12 +22,12 @@ class CommandsConsumerTest {
 
     private Consumer<QueueCommandOperationDTO> consumerCommands;
 
-    private final static String OPERATION_TYPE = "TESTOPERATIONTYPE";
-    private final static  String ENTITY_ID = "ENTITYID";
-    private final static LocalDateTime OPERATION_TIME = LocalDateTime.now();
+    private static final String OPERATION_TYPE = "TESTOPERATIONTYPE";
+    private static final String ENTITY_ID = "ENTITYID";
+    private static final LocalDateTime OPERATION_TIME = LocalDateTime.now();
 
     @BeforeEach
-    public void setUp(){
+    void setUp(){
         consumerCommands = commandsConsumer.consumerCommands(merchantService);
     }
 

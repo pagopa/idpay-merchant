@@ -21,13 +21,13 @@ class InitiativeConsumerConfigTest {
     private InitiativeConsumerConfig initiativeConsumerConfig;
 
     private Consumer<QueueInitiativeDTO> initiativeConsumer;
-    private final static LocalDateTime OPERATION_TIME = LocalDateTime.now();
-    private final static String INITIATIVEID = "INITIATIVEID";
-    private final static String STATUS = "STATUS";
-    private final static String REWARDTYPE = "REWARDTYPE";
+    private static final LocalDateTime OPERATION_TIME = LocalDateTime.now();
+    private static final String INITIATIVEID = "INITIATIVEID";
+    private static final String STATUS = "STATUS";
+    private static final String REWARDTYPE = "REWARDTYPE";
 
     @BeforeEach
-    public void setUp(){
+    void setUp(){
         initiativeConsumer = initiativeConsumerConfig.initiativeConsumer(merchantService);
     }
 

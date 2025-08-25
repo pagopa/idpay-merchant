@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PointOfSaleDTOMapper {
 
-    public PointOfSaleDTO pointOfSaleEntityToPointOfSaleDTO(PointOfSale pointOfSale){
+    public PointOfSaleDTO entityToDto(PointOfSale pointOfSale){
         if(pointOfSale == null){
             return  null;
         }
@@ -34,7 +34,7 @@ public class PointOfSaleDTOMapper {
                 .build();
     }
 
-    public PointOfSale pointOfSaleDTOtoPointOfSaleEntity(PointOfSaleDTO pointOfSaleDTO, String merchantId){
+    public PointOfSale dtoToEntity(PointOfSaleDTO pointOfSaleDTO, String merchantId){
         if(pointOfSaleDTO == null || merchantId == null){
             return null;
         }
