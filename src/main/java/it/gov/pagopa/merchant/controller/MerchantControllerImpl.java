@@ -62,7 +62,7 @@ public class MerchantControllerImpl implements MerchantController {
 
   public String retrieveMerchantId(String acquirerId, String fiscalCode) {
     log.info("[GET_MERCHANT_ID] The Merchant with {}, {} requested to retrieve merchantId",
-        acquirerId, fiscalCode);
+        sanitizeString(acquirerId), sanitizeString(fiscalCode));
     String merchantId = merchantService.retrieveMerchantId(acquirerId, fiscalCode);
     if (merchantId == null) {
       throw new MerchantNotFoundException(

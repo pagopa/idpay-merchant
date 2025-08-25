@@ -54,7 +54,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String merchantId, String type,
       String city, String address, String contactName, Pageable pageable) {
 
-    log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", merchantId);
+    log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", sanitizeString(merchantId));
 
     Page<PointOfSale> pagePointOfSales = pointOfSaleService.getPointOfSalesList(merchantId, type,
         city, address, contactName, pageable);
@@ -71,7 +71,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   @Override
   public ResponseEntity<PointOfSaleDTO> getPointOfSale(String pointOfSaleId, String merchantId) {
     log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={} for merchantId={}",
-        pointOfSaleId, merchantId);
+        sanitizeString(pointOfSaleId), sanitizeString(merchantId));
 
     PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleByIdAndMerchantId(pointOfSaleId,
         merchantId);
