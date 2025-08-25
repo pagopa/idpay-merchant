@@ -1,2 +1,3 @@
 # see https://help.github.com/en/articles/about-code-owners#example-of-a-codeowners-file
-* @pagopa/idpay-approver-team @dariopelliccioli
+
+* @pagopa/idpay-app-maintainer-team @stedelia
