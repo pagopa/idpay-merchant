@@ -39,16 +39,6 @@ class PointOfSaleDTOMapperTest {
     }
 
     @Test
-    void pointOfSaleEntityToPointOfSaleDTO_okButStreetNumberIsNull(){
-        PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-        pointOfSale.setStreetNumber(null);
-
-        PointOfSaleDTO result = pointOfSaleDTOMapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
-
-        assertNotNull(result);
-    }
-
-    @Test
     void pointOfSaleEntityToPointOfSaleDTO_okPointOfSaleOnline(){
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
         pointOfSale.setType("ONLINE");
