@@ -59,7 +59,7 @@ class ValidationExceptionHandlerTest {
         private String data;
     }
 
-    private final ValidationDTO VALIDATION_DTO = new ValidationDTO("data");
+    private static final ValidationDTO VALIDATION_DTO = new ValidationDTO("data");
 
     @Test
     void handleMethodArgumentNotValidException() throws Exception {

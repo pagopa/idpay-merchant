@@ -68,14 +68,11 @@ class MerchantControllerImplTest {
                 }
         );
 
-        MvcResult result = mockMvc.perform(builder.file(file))
+        mockMvc.perform(builder.file(file))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print())
                 .andReturn();
 
-        //MerchantUpdateDTO resultDTO = objectMapper.readValue(result.getResponse().getContentAsString(), MerchantUpdateDTO.class);
-
-        //Assertions.assertEquals(merchantUpdateDTO, resultDTO);
         Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     }
     @Test

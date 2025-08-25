@@ -84,7 +84,7 @@ class UploadingMerchantServiceTest {
     private static final String APPLICATION_NAME = "applicationName";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         uploadingMerchantService = new UploadingMerchantServiceImpl(merchantFileRepositoryMock, repositoryMock, initiativeRestConnectorMock,
                 merchantFileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper);
         uploadingMerchantServiceImpl = new UploadingMerchantServiceImpl(merchantFileRepositoryMock, repositoryMock, initiativeRestConnectorMock,

@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 class ClientExceptionNoBodyTest {
-    private final static String MESSAGE = "TestMessage";
-    private final static Throwable EXCEPTION = new RuntimeException("TestException");
+    private static final String MESSAGE = "TestMessage";
+    private static final Throwable EXCEPTION = new RuntimeException("TestException");
 
     @Test
     void testConstructorWithHttpStatusMessageAndThrowable() {
