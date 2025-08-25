@@ -26,7 +26,7 @@ class MerchantFileConsumerConfigTest {
     private Consumer<Message<String>> merchantFileConsumer;
 
     @BeforeEach
-    public void setUp(){
+    void setUp(){
         merchantFileConsumer = merchantFileConsumerConfig.merchantFileConsumer(uploadingMerchantService);
     }
 

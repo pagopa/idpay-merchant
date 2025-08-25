@@ -1,5 +1,14 @@
 package it.gov.pagopa.merchant.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
@@ -8,6 +17,7 @@ import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -16,161 +26,220 @@ import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
+import java.util.Collections;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @WebMvcTest(MerchantControllerImpl.class)
 @Import({JsonConfig.class, ServiceExceptionConfig.class, MerchantErrorManagerConfig.class})
 class MerchantControllerImplTest {
-    @MockBean private MerchantService merchantServiceMock;
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+  @MockitoBean
+  private MerchantService merchantServiceMock;
 
-    private static final String INITIATIVE_ID = "INITIATIVE_ID";
-    private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
-    private static final String ACQUIRER_ID = "PAGOPA";
-    private static final String MERCHANT_ID = "MERCHANT_ID";
-    private static final String FISCAL_CODE = "FISCAL_CODE";
+  @Autowired
+  private MockMvc mockMvc;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Test
-    void uploadMerchantFile() throws  Exception {
-        MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
-        merchantUpdateDTO.setStatus("VALIDATED");
-        MockMultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv", "content".getBytes());
-        Mockito.when(merchantServiceMock.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID, "ORGANIZATION_USER_ID", ACQUIRER_ID)).thenReturn(merchantUpdateDTO);
+  private static final String INITIATIVE_ID = "INITIATIVE_ID";
+  private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
+  private static final String ACQUIRER_ID = "PAGOPA";
+  private static final String MERCHANT_ID = "MERCHANT_ID";
+  private static final String FISCAL_CODE = "FISCAL_CODE";
 
-        MockMultipartHttpServletRequestBuilder builder = multipart("/idpay/merchant/organization/{organizationId}/initiative/{initiativeId}/upload",
-                ORGANIZATION_ID, INITIATIVE_ID);
-        builder.header("organization-user-id", "organizationUserId");
-        builder.with(
-                request -> {
-                    request.setMethod("PUT");
-                    return request;
-                }
-        );
+  @Test
+  void uploadMerchantFile() throws Exception {
+    MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
+    merchantUpdateDTO.setStatus("VALIDATED");
+    MockMultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv",
+        "content".getBytes());
+    Mockito.when(merchantServiceMock.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID,
+        "ORGANIZATION_USER_ID", ACQUIRER_ID)).thenReturn(merchantUpdateDTO);
 
-        MvcResult result = mockMvc.perform(builder.file(file))
-                .andExpect(status().is2xxSuccessful())
-                .andDo(print())
-                .andReturn();
+    MockMultipartHttpServletRequestBuilder builder = multipart(
+        "/idpay/merchant/organization/{organizationId}/initiative/{initiativeId}/upload",
+        ORGANIZATION_ID, INITIATIVE_ID);
+    builder.header("organization-user-id", "organizationUserId");
+    builder.with(
+        request -> {
+          request.setMethod("PUT");
+          return request;
+        }
+    );
 
-        //MerchantUpdateDTO resultDTO = objectMapper.readValue(result.getResponse().getContentAsString(), MerchantUpdateDTO.class);
+    mockMvc.perform(builder.file(file))
+        .andExpect(status().is2xxSuccessful())
+        .andDo(print())
+        .andReturn();
 
-        //Assertions.assertEquals(merchantUpdateDTO, resultDTO);
-        Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-    }
-    @Test
-    void getMerchantDetail() throws Exception {
-        MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
-        Mockito.when(merchantServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(dto);
+    Mockito.verify(merchantServiceMock)
+        .uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
+            Mockito.anyString(), Mockito.anyString());
+  }
 
-        MvcResult result = mockMvc.perform(
-                get("/idpay/merchant/{merchantId}/organization/{organizationId}/initiative/{initiativeId}",
-                        MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID)
-        ).andExpect(status().is2xxSuccessful()).andReturn();
+  @Test
+  void getMerchantDetail() throws Exception {
+    MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
+    Mockito.when(merchantServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(),
+        Mockito.anyString())).thenReturn(dto);
 
-        MerchantDetailDTO resultResponse = objectMapper.readValue(
-                result.getResponse().getContentAsString(),
-                MerchantDetailDTO.class);
+    MvcResult result = mockMvc.perform(
+        get("/idpay/merchant/{merchantId}/organization/{organizationId}/initiative/{initiativeId}",
+            MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID)
+    ).andExpect(status().is2xxSuccessful()).andReturn();
 
-        Assertions.assertNotNull(resultResponse);
-        Assertions.assertEquals(dto,resultResponse);
-        Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString(), anyString());
-    }
-    @Test
-    void getMerchantDetail_notFound() throws Exception {
-        Mockito.when(merchantServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
-                .thenThrow(new MerchantNotFoundException(
-                        ExceptionCode.MERCHANT_NOT_ONBOARDED,
-                        String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID)));
+    MerchantDetailDTO resultResponse = objectMapper.readValue(
+        result.getResponse().getContentAsString(),
+        MerchantDetailDTO.class);
 
-        mockMvc.perform(
-                get("/idpay/merchant/{merchantId}/organization/{organizationId}/initiative/{initiativeId}",
-                        MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID)
+    Assertions.assertNotNull(resultResponse);
+    Assertions.assertEquals(dto, resultResponse);
+    Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString(), anyString());
+  }
+
+  @Test
+  void getMerchantDetail_notFound() throws Exception {
+    Mockito.when(merchantServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(),
+            Mockito.anyString()))
+        .thenThrow(new MerchantNotFoundException(
+            ExceptionCode.MERCHANT_NOT_ONBOARDED,
+            String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID)));
+
+    mockMvc.perform(
+            get("/idpay/merchant/{merchantId}/organization/{organizationId}/initiative/{initiativeId}",
+                MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID)
         ).andExpect(status().isNotFound())
-                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof MerchantNotFoundException))
-                .andReturn();
+        .andExpect(res -> Assertions.assertTrue(
+            res.getResolvedException() instanceof MerchantNotFoundException))
+        .andReturn();
 
-        Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(),anyString(), anyString());
-    }
+    Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString(), anyString());
+  }
 
-    @Test
-    void getMerchantList() throws Exception {
-        MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
-                .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();
-        Mockito.when(merchantServiceMock.getMerchantList(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
-                .thenReturn(dto);
+  @Test
+  void getMerchantList() throws Exception {
+    MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
+        .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();
+    Mockito.when(merchantServiceMock.getMerchantList(Mockito.anyString(), Mockito.anyString(),
+            Mockito.anyString(), Mockito.any()))
+        .thenReturn(dto);
 
-        MvcResult result = mockMvc.perform(
-                get("/idpay/merchant/organization/{organizationId}/initiative/{initiativeId}/merchants",
-                        ORGANIZATION_ID, INITIATIVE_ID)
-                        .param("fiscalCode", FISCAL_CODE)
-                        .param("page", String.valueOf(1))
-                        .param("size", String.valueOf(10))
-        ).andExpect(status().is2xxSuccessful()).andReturn();
+    MvcResult result = mockMvc.perform(
+        get("/idpay/merchant/organization/{organizationId}/initiative/{initiativeId}/merchants",
+            ORGANIZATION_ID, INITIATIVE_ID)
+            .param("fiscalCode", FISCAL_CODE)
+            .param("page", String.valueOf(1))
+            .param("size", String.valueOf(10))
+    ).andExpect(status().is2xxSuccessful()).andReturn();
 
-        MerchantListDTO resultResponse = objectMapper.readValue(
-                result.getResponse().getContentAsString(),
-                MerchantListDTO.class);
+    MerchantListDTO resultResponse = objectMapper.readValue(
+        result.getResponse().getContentAsString(),
+        MerchantListDTO.class);
 
-        Assertions.assertNotNull(resultResponse);
-        Assertions.assertEquals(dto,resultResponse);
-        Mockito.verify(merchantServiceMock).getMerchantList(anyString(),anyString(), anyString(), any());
-    }
+    Assertions.assertNotNull(resultResponse);
+    Assertions.assertEquals(dto, resultResponse);
+    Mockito.verify(merchantServiceMock)
+        .getMerchantList(anyString(), anyString(), anyString(), any());
+  }
 
-    @Test
-    void retrieveMerchantIdOK() throws Exception {
-        Merchant merchant = MerchantFaker.mockInstance(1);
+  @Test
+  void getMerchantListWithoutFiscalCode() throws Exception {
+    MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
+        .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();
+    Mockito.when(merchantServiceMock.getMerchantList(Mockito.anyString(), Mockito.anyString(),
+            Mockito.isNull(), Mockito.any()))
+        .thenReturn(dto);
 
-        Mockito.when(merchantServiceMock.retrieveMerchantId(merchant.getAcquirerId(), merchant.getFiscalCode())).thenReturn(merchant.getMerchantId());
+    MvcResult result = mockMvc.perform(
+        get("/idpay/merchant/organization/{organizationId}/initiative/{initiativeId}/merchants",
+            ORGANIZATION_ID, INITIATIVE_ID)
+            .param("page", String.valueOf(1))
+            .param("size", String.valueOf(10))
+    ).andExpect(status().is2xxSuccessful()).andReturn();
 
-        MvcResult result = mockMvc.perform(
-                get("/idpay/merchant/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id",  merchant.getAcquirerId(), merchant.getFiscalCode()))
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
+    MerchantListDTO resultResponse = objectMapper.readValue(
+        result.getResponse().getContentAsString(),
+        MerchantListDTO.class);
 
-        String resultResponse = result.getResponse().getContentAsString();
+    Assertions.assertNotNull(resultResponse);
+    Assertions.assertEquals(dto, resultResponse);
+    Mockito.verify(merchantServiceMock).getMerchantList(anyString(), anyString(), isNull(), any());
+  }
 
-        Assertions.assertNotNull(resultResponse);
-        Assertions.assertEquals(merchant.getMerchantId(), resultResponse);
-        Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(),anyString());
-    }
+  @Test
+  void retrieveMerchantIdOK() throws Exception {
+    Merchant merchant = MerchantFaker.mockInstance(1);
 
-    @Test
-    void retrieveMerchantId_NotFoundException() throws Exception {
-        Mockito.when(merchantServiceMock.retrieveMerchantId("ACQUIRERID", "FISCALCODE")).thenReturn(null);
+    Mockito.when(
+            merchantServiceMock.retrieveMerchantId(merchant.getAcquirerId(), merchant.getFiscalCode()))
+        .thenReturn(merchant.getMerchantId());
 
-        MvcResult result = mockMvc.perform(
-                get("/idpay/merchant/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id", "ACQUIRERID", "FISCALCODE"))
-                .andExpect(status().isNotFound())
-                .andExpect(res -> Assertions.assertTrue(res.getResolvedException() instanceof MerchantNotFoundException))
-                .andReturn();
+    MvcResult result = mockMvc.perform(
+            get("/idpay/merchant/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id",
+                merchant.getAcquirerId(), merchant.getFiscalCode()))
+        .andExpect(status().is2xxSuccessful())
+        .andReturn();
 
-        ErrorDTO errorDTO = objectMapper.readValue(
-            result.getResponse().getContentAsString(),
-                ErrorDTO.class
-        );
+    String resultResponse = result.getResponse().getContentAsString();
 
-        Assertions.assertEquals(ExceptionCode.MERCHANT_NOT_FOUND, errorDTO.getCode());
-        Assertions.assertEquals(ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,errorDTO.getMessage());
-        Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(),anyString());
-    }
+    Assertions.assertNotNull(resultResponse);
+    Assertions.assertEquals(merchant.getMerchantId(), resultResponse);
+    Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(), anyString());
+  }
+
+  @Test
+  void retrieveMerchantId_NotFoundException() throws Exception {
+    Mockito.when(merchantServiceMock.retrieveMerchantId("ACQUIRERID", "FISCALCODE"))
+        .thenReturn(null);
+
+    MvcResult result = mockMvc.perform(
+            get("/idpay/merchant/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id",
+                "ACQUIRERID", "FISCALCODE"))
+        .andExpect(status().isNotFound())
+        .andExpect(res -> Assertions.assertTrue(
+            res.getResolvedException() instanceof MerchantNotFoundException))
+        .andReturn();
+
+    ErrorDTO errorDTO = objectMapper.readValue(
+        result.getResponse().getContentAsString(),
+        ErrorDTO.class
+    );
+
+    Assertions.assertEquals(ExceptionCode.MERCHANT_NOT_FOUND, errorDTO.getCode());
+    Assertions.assertEquals(ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, errorDTO.getMessage());
+    Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(), anyString());
+  }
+
+  @Test
+  void updateIban() throws Exception {
+    MerchantIbanPatchDTO requestDto = new MerchantIbanPatchDTO();
+    requestDto.setIban("IT60X0542811101000000123456");
+
+    MerchantDetailDTO responseDto = MerchantDetailDTOFaker.mockInstance(1);
+    Mockito.when(merchantServiceMock.updateIban(
+        anyString(), anyString(), anyString(), any(MerchantIbanPatchDTO.class))
+    ).thenReturn(responseDto);
+
+    mockMvc.perform(
+            patch(
+                "/idpay/merchant/{merchantId}/organization/{organizationId}/initiative/{initiativeId}",
+                MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto))
+        )
+        .andExpect(status().isOk());
+    Mockito.verify(merchantServiceMock)
+        .updateIban(anyString(), anyString(), anyString(), any(MerchantIbanPatchDTO.class));
+  }
 }

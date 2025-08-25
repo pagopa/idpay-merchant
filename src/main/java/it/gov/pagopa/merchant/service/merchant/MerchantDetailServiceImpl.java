@@ -43,4 +43,12 @@ public class MerchantDetailServiceImpl implements MerchantDetailService {
                 .map(merchant -> merchantModelToDTOMapper.toMerchantDetailDTO(merchant, initiativeId))
                 .orElse(null);
     }
+
+    @Override
+    public MerchantDetailDTO getMerchantDetail(String merchantId) {
+        return merchantRepository.findById(merchantId)
+                .map(merchantModelToDTOMapper::toMerchantDetailDTOWithoutInitiative)
+                .orElse(null);
+    }
+
 }

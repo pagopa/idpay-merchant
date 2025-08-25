@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(AcquirerControllerImpl.class)
 @Import({JsonConfig.class, ServiceExceptionConfig.class, MerchantErrorManagerConfig.class})
 class AcquirerControllerImplTest {
-    @MockBean private MerchantService merchantServiceMock;
+    @MockitoBean private MerchantService merchantServiceMock;
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
@@ -111,14 +111,11 @@ class AcquirerControllerImplTest {
                 }
         );
 
-        MvcResult result = mockMvc.perform(builder.file(file))
+        mockMvc.perform(builder.file(file))
                 .andExpect(status().is2xxSuccessful())
                 .andDo(print())
                 .andReturn();
 
-        //MerchantUpdateDTO resultDTO = objectMapper.readValue(result.getResponse().getContentAsString(), MerchantUpdateDTO.class);
-
-        //Assertions.assertEquals(merchantUpdateDTO, resultDTO);
         Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.isNull(), Mockito.anyString());
     }
 

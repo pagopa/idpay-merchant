@@ -1,6 +1,8 @@
 package it.gov.pagopa.common.web.exception;
 
 import it.gov.pagopa.common.web.dto.ErrorDTO;
+import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,16 @@ public class ErrorManager {
   protected ResponseEntity<ErrorDTO> handleException(RuntimeException error, HttpServletRequest request) {
     logClientException(error, request);
 
+    if(error instanceof ValidationException exception){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+              ValidationErrorDTO.builder()
+                      .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
+                      .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
+                      .details(exception.getErrors())
+                      .build()
+      );
+    }
+
     if(error instanceof ClientExceptionNoBody clientExceptionNoBody){
       return ResponseEntity.status(clientExceptionNoBody.getHttpStatus()).build();
     }
@@ -44,6 +56,7 @@ public class ErrorManager {
               .body(errorDTO);
     }
   }
+
   public static void logClientException(RuntimeException error, HttpServletRequest request) {
     Throwable unwrappedException = error.getCause() instanceof ServiceException
             ? error.getCause()

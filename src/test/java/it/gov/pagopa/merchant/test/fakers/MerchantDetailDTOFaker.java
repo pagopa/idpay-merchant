@@ -26,7 +26,8 @@ public class MerchantDetailDTOFaker {
             .fiscalCode("FISCAL_CODE")
             .vatNumber("VAT_NUMBER_%d".formatted(bias))
             .status("STATUS")
-            .iban("IT00TEST")
+            .iban("IT60X0542811101000000123455")
+            .ibanHolder("Nome Cognome")
             .creationDate(LocalDateTime.of(2023,5,22,10, 0))
             .updateDate(LocalDateTime.of(2023,5,22,10, 0));
   }

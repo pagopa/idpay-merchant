@@ -40,8 +40,21 @@ class MerchantModelToDTOMapperTest {
          assertEquals(merchant.getVatNumber(), result.getVatNumber());
          assertEquals(initiative.getMerchantStatus(), result.getStatus());
          assertEquals(merchant.getIban(), result.getIban());
+         assertEquals(merchant.getIbanHolder(), result.getIbanHolder());
          assertEquals(initiative.getCreationDate(), result.getCreationDate());
          assertEquals(initiative.getUpdateDate(), result.getUpdateDate());
    });
  }
+
+    @Test
+    void toMerchantDetailDTOWithoutInitiativeTest() {
+        Merchant merchant = MerchantFaker.mockInstance(1);
+
+        MerchantDetailDTO result = mapper.toMerchantDetailDTOWithoutInitiative(merchant);
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(merchant.getVatNumber(), result.getVatNumber()),
+                () -> assertEquals(merchant.getIban(), result.getIban())
+        );
+    }
 }

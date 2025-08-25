@@ -19,9 +19,9 @@ class CommandsProducerTest {
     @InjectMocks
     private CommandsProducer commandsProducer;
 
-    private final static String OPERATION_TYPE = "TESTOPERATIONTYPE";
-    private final static String ENTITY_ID = "ENTITYID";
-    private final static LocalDateTime OPERATION_TIME = LocalDateTime.now();
+    private static final String OPERATION_TYPE = "TESTOPERATIONTYPE";
+    private static final String ENTITY_ID = "ENTITYID";
+    private static final LocalDateTime OPERATION_TIME = LocalDateTime.now();
     private static final String COMMANDS_QUEUE_OUT_0 = "commandsQueue-out-0";
 
     @Test
