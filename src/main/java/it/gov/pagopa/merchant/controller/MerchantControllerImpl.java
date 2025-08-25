@@ -43,7 +43,7 @@ public class MerchantControllerImpl implements MerchantController {
       String fiscalCode, Pageable pageable) {
     String sanitizedOrganizationId = sanitizeString(organizationId);
     String sanitizedInitiativeId = sanitizeString(initiativeId);
-    String sanitizedFiscalCode = sanitizeString(fiscalCode);
+    String sanitizedFiscalCode = fiscalCode != null ? sanitizeString(fiscalCode) : null;
 
     return ResponseEntity.ok(
         merchantService.getMerchantList(sanitizedOrganizationId, sanitizedInitiativeId, sanitizedFiscalCode, pageable));
@@ -62,6 +62,7 @@ public class MerchantControllerImpl implements MerchantController {
     String sanitizedMerchantId = sanitizeString(merchantId);
     String sanitizedOrganizationId = sanitizeString(organizationId);
     String sanitizedInitiativeId = sanitizeString(initiativeId);
+
     log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}",
         sanitizedMerchantId, sanitizedInitiativeId);
     MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(sanitizedMerchantId, sanitizedOrganizationId,
@@ -71,9 +72,12 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   public String retrieveMerchantId(String acquirerId, String fiscalCode) {
+    String sanitizedAcquirerId = sanitizeString(acquirerId);
+    String sanitizedFiscalCode = sanitizeString(fiscalCode);
+
     log.info("[GET_MERCHANT_ID] The Merchant with {}, {} requested to retrieve merchantId",
-        sanitizeString(acquirerId), sanitizeString(fiscalCode));
-    String merchantId = merchantService.retrieveMerchantId(acquirerId, fiscalCode);
+        sanitizedAcquirerId, sanitizedFiscalCode);
+    String merchantId = merchantService.retrieveMerchantId(sanitizedAcquirerId, sanitizedFiscalCode);
     if (merchantId == null) {
       throw new MerchantNotFoundException(
           ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE);
