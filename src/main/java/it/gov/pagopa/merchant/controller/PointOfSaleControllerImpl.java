@@ -38,14 +38,15 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     pointOfSaleValidator.validatePointOfSales(pointOfSales);
     pointOfSaleValidator.validateViolationsPointOfSales(pointOfSales);
 
+    String sanitizedMerchantId = sanitizeString(merchantId);
     log.info("[POINT-OF-SALES][SAVE] Saving {} point(s) of sale for merchantId={}",
-        pointOfSales.size(), sanitizeString(merchantId));
+        pointOfSales.size(), sanitizedMerchantId);
 
     List<PointOfSale> entities = pointOfSales.stream()
-        .map(pointOfSaleDTO -> pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO, merchantId))
+        .map(pointOfSaleDTO -> pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO, sanitizedMerchantId))
         .toList();
 
-    pointOfSaleService.savePointOfSales(merchantId, entities);
+    pointOfSaleService.savePointOfSales(sanitizedMerchantId, entities);
 
     return ResponseEntity.noContent().build();
   }
@@ -53,10 +54,10 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   @Override
   public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String merchantId, String type,
       String city, String address, String contactName, Pageable pageable) {
+    String sanitizedMerchantId = sanitizeString(merchantId);
+    log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", sanitizedMerchantId);
 
-    log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", sanitizeString(merchantId));
-
-    Page<PointOfSale> pagePointOfSales = pointOfSaleService.getPointOfSalesList(merchantId, type,
+    Page<PointOfSale> pagePointOfSales = pointOfSaleService.getPointOfSalesList(sanitizedMerchantId, type,
         city, address, contactName, pageable);
 
     Page<PointOfSaleDTO> result = pagePointOfSales.map(pointOfSaleDTOMapper::entityToDto);
@@ -70,11 +71,13 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
 
   @Override
   public ResponseEntity<PointOfSaleDTO> getPointOfSale(String pointOfSaleId, String merchantId) {
+    String sanitizedPointOfSaleId = sanitizeString(pointOfSaleId);
+    String sanitizedMerchantId = sanitizeString(merchantId);
     log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={} for merchantId={}",
-        sanitizeString(pointOfSaleId), sanitizeString(merchantId));
+        sanitizedPointOfSaleId, sanitizedMerchantId);
 
-    PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleByIdAndMerchantId(pointOfSaleId,
-        merchantId);
+    PointOfSale pointOfSale = pointOfSaleService.getPointOfSaleByIdAndMerchantId(sanitizedPointOfSaleId,
+        sanitizedMerchantId);
 
     PointOfSaleDTO dto = pointOfSaleDTOMapper.entityToDto(pointOfSale);
 
