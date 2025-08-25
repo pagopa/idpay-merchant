@@ -7,9 +7,6 @@ import it.gov.pagopa.merchant.model.PointOfSale;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 @Component
 public class PointOfSaleDTOMapper {
 
@@ -32,7 +29,7 @@ public class PointOfSaleDTOMapper {
                 .province(pointOfSale.getProvince())
                 .city(pointOfSale.getCity())
                 .zipCode(pointOfSale.getZipCode())
-                .address(StringUtils.isEmpty(pointOfSale.getStreetNumber()) ? pointOfSale.getAddress() : pointOfSale.getAddress()+", "+pointOfSale.getStreetNumber())
+                .address(pointOfSale.getAddress())
                 .website(pointOfSale.getWebsite())
                 .build();
     }
@@ -60,41 +57,13 @@ public class PointOfSaleDTOMapper {
             pointOfSale.setChannelPhone(pointOfSaleDTO.getChannelPhone());
             pointOfSale.setChannelGeolink(pointOfSaleDTO.getChannelGeolink());
             pointOfSale.setChannelWebsite(pointOfSaleDTO.getChannelWebsite());
-            mapAddress(pointOfSaleDTO, pointOfSale);
+            pointOfSale.setAddress(pointOfSaleDTO.getAddress());
         }
         else if(PointOfSaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
             pointOfSale.setWebsite(pointOfSaleDTO.getWebsite());
         }
 
         return pointOfSale;
-    }
-    
-    private void mapAddress(PointOfSaleDTO dto, PointOfSale entity) {
-        String fullAddress = dto.getAddress();
-
-        if (fullAddress != null && !fullAddress.isBlank()) {
-            String trimmed = fullAddress.trim();
-
-            String address = trimmed;
-            String streetNumber = null;
-
-            if (trimmed.contains(",")) {
-                String[] parts = trimmed.split(",", 2);
-                address = parts[0].trim();
-                streetNumber = parts[1].trim();
-            }
-            else {
-                Pattern pattern = Pattern.compile("^(.*?)\\s+(\\d+\\w*(?:/\\w*)?)$");
-                Matcher matcher = pattern.matcher(trimmed);
-                if (matcher.find()) {
-                    address = matcher.group(1).trim();
-                    streetNumber = matcher.group(2).trim();
-                }
-            }
-
-            entity.setAddress(address);
-            entity.setStreetNumber(streetNumber);
-        }
     }
 
 }

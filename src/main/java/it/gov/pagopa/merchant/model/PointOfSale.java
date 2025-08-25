@@ -31,7 +31,6 @@ public class PointOfSale {
     private String city;
     private String zipCode;
     private String address;
-    private String streetNumber;
     private String website;
     private String contactEmail;
     private String contactName;
