@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 class MerchantListServiceTest {
 
   @Mock private MerchantRepository repositoryMock;
-  private final String FISCAL_CODE = "FISCAL_CODE";
+  private static final String FISCAL_CODE = "FISCAL_CODE";
 
   MerchantListService service;
 
@@ -55,13 +55,13 @@ class MerchantListServiceTest {
             .fiscalCode(merchant2.getFiscalCode())
             .merchantStatus("STATUS")
             .updateStatusDate("").build();
-    MerchantListDTO merchantListDTO_expected = MerchantListDTO.builder().content(List.of(merchantDTO1, merchantDTO2))
+    MerchantListDTO merchantsExpected = MerchantListDTO.builder().content(List.of(merchantDTO1, merchantDTO2))
             .pageSize(15).totalElements(2).totalPages(1).build();
 
     MerchantListDTO result = service.getMerchantList("ORGANIZATION_ID_1", "INITIATIVEID1", FISCAL_CODE, null);
 
     assertEquals(2, result.getContent().size());
-    assertEquals(merchantListDTO_expected, result);
+    assertEquals(merchantsExpected, result);
     TestUtils.checkNotNullFields(result);
   }
 
@@ -69,13 +69,13 @@ class MerchantListServiceTest {
   void getMerchantList_empty() {
     when(repositoryMock.findByFilter(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyList());
 
-    MerchantListDTO merchantListDTO_expected = MerchantListDTO.builder().content(Collections.emptyList())
+    MerchantListDTO merchantsExpected = MerchantListDTO.builder().content(Collections.emptyList())
             .pageSize(15).totalElements(0).totalPages(0).build();
 
     MerchantListDTO result = service.getMerchantList("ORGANIZATION_ID_1","INITIATIVE_ID_1",  FISCAL_CODE, null);
 
     assertEquals(0, result.getContent().size());
-    assertEquals(merchantListDTO_expected, result);
+    assertEquals(merchantsExpected, result);
     TestUtils.checkNotNullFields(result);
   }
 }
