@@ -13,7 +13,8 @@ import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import jakarta.ws.rs.core.Response;
-import lombok.Getter;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.keycloak.admin.client.CreatedResponseUtil;
@@ -27,9 +28,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -76,9 +74,9 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     try {
       for (PointOfSaleUpdateContext entity : entities) {
-        PointOfSale saved = pointOfSaleRepository.save(entity.getPointOfSale());
+        PointOfSale saved = pointOfSaleRepository.save(entity.pointOfSale());
         savedPointOfSales.add(saved);
-        manageReferentUserOnKeycloak(saved, entity.getOldEmail());
+        manageReferentUserOnKeycloak(saved, entity.oldEmail());
       }
     } catch (Exception exception) {
       log.error(
@@ -288,17 +286,8 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     return sanitized.trim();
   }
 
+  private record PointOfSaleUpdateContext(PointOfSale pointOfSale, String oldEmail) {
 
-  @Getter
-  private static class PointOfSaleUpdateContext {
-
-    private final PointOfSale pointOfSale;
-    private final String oldEmail;
-
-    private PointOfSaleUpdateContext(PointOfSale pointOfSale, String oldEmail) {
-      this.pointOfSale = pointOfSale;
-      this.oldEmail = oldEmail;
-    }
   }
 
 }

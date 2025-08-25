@@ -103,7 +103,7 @@ class PointOfSaleControllerImplTest {
 
         when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
                 .thenReturn(pointOfSale);
-        when(mapper.pointOfSaleEntityToPointOfSaleDTO(pointOfSale)).thenReturn(pointOfSaleDTO);
+        when(mapper.entityToDto(pointOfSale)).thenReturn(pointOfSaleDTO);
 
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get(BASE_URL + "/MERCHANT_ID/point-of-sales/POS_ID")
@@ -115,7 +115,7 @@ class PointOfSaleControllerImplTest {
         Assertions.assertNotNull(result);
 
         Mockito.verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
-        Mockito.verify(mapper).pointOfSaleEntityToPointOfSaleDTO(pointOfSale);
+        Mockito.verify(mapper).entityToDto(pointOfSale);
     }
 
     @Test
