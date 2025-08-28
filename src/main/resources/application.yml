@@ -229,5 +229,5 @@ management:
     web:
       exposure.include: info, health
 
-    merchant:
-      default-initiatives: ${MERCHANT_DEFAULT_INITIATIVES:INIT_ABC,INIT_DEF}
+merchant:
+  defaultInitiatives: ${MERCHANT_DEFAULT_INITIATIVES:682c7e2710c797487aa6e2cf,682d8adf10c797487aa6e2d4}
