@@ -89,7 +89,7 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
-  public ResponseEntity<MerchantDetailDTO> createMerchant(
+  public String createMerchant(
           String acquirerId,
           String businessName,
           String fiscalCode) {
@@ -103,6 +103,6 @@ public class MerchantControllerImpl implements MerchantController {
     MerchantDetailDTO responseDTO = new MerchantDetailDTO();
     responseDTO.setBusinessName(merchantId);
 
-    return ResponseEntity.ok(responseDTO);
-  }
+    return merchantId; //TODO resituire il corretto merchantId creato con la funzione Utilities.toUUID([FISCAL_CODE].concat("_").concat([ACQUIRER_ID]))
+    }
 }
