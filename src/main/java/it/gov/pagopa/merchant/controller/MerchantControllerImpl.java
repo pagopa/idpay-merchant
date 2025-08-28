@@ -89,20 +89,17 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
-  public String createMerchant(
-          String acquirerId,
-          String businessName,
-          String fiscalCode) {
-    MerchantDetailDTO detailDTO = MerchantDetailDTO.builder()
-            .businessName(businessName)
-            .fiscalCode(fiscalCode)
-            .build();
+  public String createMerchant(String acquirerId, String businessName, String fiscalCode) {
 
-    String merchantId = merchantService.createMerchantIfNotExists(detailDTO, acquirerId);
+    String sanitizedAcquirerId = sanitizeString(acquirerId);
+    String sanitizedBusinessName = sanitizeString(businessName);
+    String sanitizedFiscalCode = sanitizeString(fiscalCode);
 
-    MerchantDetailDTO responseDTO = new MerchantDetailDTO();
-    responseDTO.setBusinessName(merchantId);
+    log.info("[CREATE_MERCHANT] Request received to create or retrieve merchant with businessName={} and fiscalCode={}",
+            sanitizedBusinessName, sanitizedFiscalCode);
+    String merchantId = merchantService.createMerchantIfNotExists(sanitizedAcquirerId, sanitizedBusinessName, sanitizedFiscalCode);
+    log.info("[CREATE_MERCHANT] Merchant ID returned: {}", merchantId);
 
-    return merchantId; //TODO resituire il corretto merchantId creato con la funzione Utilities.toUUID([FISCAL_CODE].concat("_").concat([ACQUIRER_ID]))
-    }
+    return merchantId;
+  }
 }

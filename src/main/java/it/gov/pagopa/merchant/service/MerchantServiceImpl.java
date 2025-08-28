@@ -4,11 +4,11 @@ import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantDTOToModelMapper;
-import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
+import it.gov.pagopa.merchant.utils.Utilities;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,6 @@ public class MerchantServiceImpl implements MerchantService {
     private final MerchantRepository merchantRepository;
     private final UploadingMerchantService uploadingMerchantService;
     private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
-    //private final MerchantModelToDTOMapper merchantModelToDTOMapper;
     private final MerchantDTOToModelMapper dtoToModelMapper;
     private final List<String> defaultInitiatives;
 
@@ -41,7 +40,7 @@ public class MerchantServiceImpl implements MerchantService {
             MerchantListService merchantListService,
             MerchantProcessOperationService merchantProcessOperationService, MerchantUpdatingInitiativeService merchantUpdatingInitiativeService, MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
             UploadingMerchantService uploadingMerchantService,
-            Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper, MerchantModelToDTOMapper merchantModelToDTOMapper, MerchantDTOToModelMapper dtoToModelMapper,
+            Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper, MerchantDTOToModelMapper dtoToModelMapper,
             @Value("${merchant.default-initiatives:}") String defaultInitiativesCsv) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
@@ -51,7 +50,6 @@ public class MerchantServiceImpl implements MerchantService {
         this.merchantRepository = merchantRepository;
         this.uploadingMerchantService = uploadingMerchantService;
         this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
-        //this.merchantModelToDTOMapper = merchantModelToDTOMapper;
         this.dtoToModelMapper = dtoToModelMapper;
         this.defaultInitiatives = Arrays.stream(defaultInitiativesCsv.split(","))
                 .map(String::trim)
@@ -128,23 +126,23 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
-    public String createMerchantIfNotExists(MerchantDetailDTO detailDTO, String acquirerId) {
-        Optional<Merchant> existing = merchantRepository.findByFiscalCode(detailDTO.getFiscalCode());
-        Merchant merchant;
+    public String createMerchantIfNotExists(String acquirerId, String businessName, String fiscalCode) {
 
+        String merchantId = Utilities.toUUID(fiscalCode.concat("_").concat(acquirerId));
+
+        Optional<Merchant> existing = merchantRepository.findByFiscalCode(fiscalCode);
         if (existing.isPresent()) {
-            merchant = existing.get();
-        } else {
-            merchant = dtoToModelMapper.toMerchant(detailDTO, acquirerId);
-
-            for (String initiativeId : defaultInitiatives) {
-                merchant.getInitiativeList().add(createMerchantInitiative(initiativeId));
-            }
-
-            merchant = merchantRepository.save(merchant);
+            return existing.get().getMerchantId();
         }
 
-        return merchant.getMerchantId();
+        Merchant merchant = dtoToModelMapper.buildMinmalMerchant(merchantId, acquirerId, businessName, fiscalCode);
+
+        for (String initiativeId : defaultInitiatives) {
+            merchant.getInitiativeList().add(createMerchantInitiative(initiativeId));
+        }
+        merchantRepository.save(merchant);
+
+        return merchantId;
     }
 
     private Initiative createMerchantInitiative(String initiativeId) {
@@ -156,5 +154,3 @@ public class MerchantServiceImpl implements MerchantService {
         return initiative;
     }
 }
-
-

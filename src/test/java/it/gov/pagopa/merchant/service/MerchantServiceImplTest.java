@@ -74,7 +74,6 @@ class MerchantServiceImplTest {
                 merchantRepositoryMock,
                 uploadingMerchantServiceMock,
                 initiative2InitiativeDTOMapper,
-                merchantModelToDTOMapper,
                 dtoToModelMapper,
                 defaultInitiativesMock
         );
