@@ -1,19 +1,19 @@
 package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantListDTO;
-import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.*;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/idpay/merchant")
+@Validated
 public interface MerchantController {
     @Operation(summary = "Uploads the merchants file")
     @PutMapping("/organization/{organizationId}/initiative/{initiativeId}/upload")
@@ -44,14 +44,15 @@ public interface MerchantController {
     @Operation(summary = "Patches the iban and/or the holder of a merchant")
     @PatchMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
     ResponseEntity<MerchantDetailDTO> updateIban(
-        @PathVariable("merchantId") String merchantId,
-        @PathVariable("organizationId") String organizationId,
-        @PathVariable("initiativeId") String initiativeId,
-        @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
+            @PathVariable("merchantId") String merchantId,
+            @PathVariable("organizationId") String organizationId,
+            @PathVariable("initiativeId") String initiativeId,
+            @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
     );
 
-    @Operation(summary = "Returns the merchant id")
-    @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
-    @ResponseStatus(code = HttpStatus.OK)
-    String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId, @PathVariable("fiscalCode") String fiscalCode);
+    @PostMapping("/add")
+    ResponseEntity<MerchantDetailDTO> createMerchant(
+            @RequestHeader("acquirerId") @NotNull String acquirerId,
+            @RequestHeader("businessName") @NotNull String businessName,
+            @RequestHeader("fiscalCode") @NotNull String fiscalCode);
 }

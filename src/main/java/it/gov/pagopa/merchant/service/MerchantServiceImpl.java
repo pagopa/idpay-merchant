@@ -3,19 +3,26 @@ package it.gov.pagopa.merchant.service;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
+import it.gov.pagopa.merchant.mapper.MerchantDTOToModelMapper;
+import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
+import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
+
 
     private final MerchantDetailService merchantDetailService;
     private final MerchantListService merchantListService;
@@ -25,13 +32,17 @@ public class MerchantServiceImpl implements MerchantService {
     private final MerchantRepository merchantRepository;
     private final UploadingMerchantService uploadingMerchantService;
     private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
+    //private final MerchantModelToDTOMapper merchantModelToDTOMapper;
+    private final MerchantDTOToModelMapper dtoToModelMapper;
+    private final List<String> defaultInitiatives;
 
     public MerchantServiceImpl(
             MerchantDetailService merchantDetailService,
             MerchantListService merchantListService,
             MerchantProcessOperationService merchantProcessOperationService, MerchantUpdatingInitiativeService merchantUpdatingInitiativeService, MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
             UploadingMerchantService uploadingMerchantService,
-            Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper) {
+            Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper, MerchantModelToDTOMapper merchantModelToDTOMapper, MerchantDTOToModelMapper dtoToModelMapper,
+            @Value("${merchant.default-initiatives:}") String defaultInitiativesCsv) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
         this.merchantProcessOperationService = merchantProcessOperationService;
@@ -40,6 +51,12 @@ public class MerchantServiceImpl implements MerchantService {
         this.merchantRepository = merchantRepository;
         this.uploadingMerchantService = uploadingMerchantService;
         this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
+        //this.merchantModelToDTOMapper = merchantModelToDTOMapper;
+        this.dtoToModelMapper = dtoToModelMapper;
+        this.defaultInitiatives = Arrays.stream(defaultInitiativesCsv.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
     }
 
     @Override
@@ -47,7 +64,7 @@ public class MerchantServiceImpl implements MerchantService {
                                                 String organizationId,
                                                 String initiativeId,
                                                 String organizationUserId,
-                                                String acquirerId){
+                                                String acquirerId) {
         return uploadingMerchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId, acquirerId);
     }
 
@@ -80,14 +97,14 @@ public class MerchantServiceImpl implements MerchantService {
     @Override
     public String retrieveMerchantId(String acquirerId, String fiscalCode) {
         return merchantRepository.retrieveByAcquirerIdAndFiscalCode(acquirerId, fiscalCode)
-            .map(Merchant::getMerchantId)
-            .orElse(null);
+                .map(Merchant::getMerchantId)
+                .orElse(null);
     }
 
     @Override
     public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
         return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId,
-            merchantIbanPatchDTO);
+                merchantIbanPatchDTO);
     }
 
     @Override
@@ -109,4 +126,35 @@ public class MerchantServiceImpl implements MerchantService {
     public void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO) {
         merchantUpdatingInitiativeService.updatingInitiative(queueInitiativeDTO);
     }
+
+    @Override
+    public String createMerchantIfNotExists(MerchantDetailDTO detailDTO, String acquirerId) {
+        Optional<Merchant> existing = merchantRepository.findByFiscalCode(detailDTO.getFiscalCode());
+        Merchant merchant;
+
+        if (existing.isPresent()) {
+            merchant = existing.get();
+        } else {
+            merchant = dtoToModelMapper.toMerchant(detailDTO, acquirerId);
+
+            for (String initiativeId : defaultInitiatives) {
+                merchant.getInitiativeList().add(createMerchantInitiative(initiativeId));
+            }
+
+            merchant = merchantRepository.save(merchant);
+        }
+
+        return merchant.getMerchantId();
+    }
+
+    private Initiative createMerchantInitiative(String initiativeId) {
+        Initiative initiative = new Initiative();
+        initiative.setInitiativeId(initiativeId);
+        initiative.setStatus(MerchantConstants.Status.VALIDATED);
+        initiative.setCreationDate(LocalDateTime.now());
+        initiative.setUpdateDate(LocalDateTime.now());
+        return initiative;
+    }
 }
+
+

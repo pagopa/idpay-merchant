@@ -38,4 +38,21 @@ public class MerchantModelToDTOMapper {
         merchantDetailDTOWithoutInitiative.setIban(merchant.getIban());
         return merchantDetailDTOWithoutInitiative;
     }
+
+    public MerchantDetailDTO toMerchantDetailDTOWithoutInitiativeList(Merchant merchant, String initiativeId) {
+        MerchantDetailDTO dto = new MerchantDetailDTO();
+        dto.setFiscalCode(merchant.getFiscalCode());
+        dto.setBusinessName(merchant.getBusinessName());
+        dto.setInitiativeId(initiativeId);
+        dto.setVatNumber(merchant.getVatNumber());
+        dto.setCertifiedEmail(merchant.getCertifiedEmail());
+        dto.setIban(merchant.getIban());
+        dto.setIbanHolder(merchant.getIbanHolder());
+        dto.setLegalOfficeAddress(merchant.getLegalOfficeAddress());
+        dto.setLegalOfficeMunicipality(merchant.getLegalOfficeMunicipality());
+        dto.setLegalOfficeProvince(merchant.getLegalOfficeProvince());
+        dto.setLegalOfficeZipCode(merchant.getLegalOfficeZipCode());
+        return dto;
+    }
 }
+

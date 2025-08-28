@@ -3,6 +3,8 @@ package it.gov.pagopa.merchant.service;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
+import it.gov.pagopa.merchant.mapper.MerchantDTOToModelMapper;
+import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
@@ -45,6 +47,10 @@ class MerchantServiceImplTest {
     private MerchantRepository merchantRepositoryMock;
     @Mock
     private UploadingMerchantService uploadingMerchantServiceMock;
+    @Mock
+    private MerchantModelToDTOMapper merchantModelToDTOMapper;
+    @Mock
+    private  MerchantDTOToModelMapper dtoToModelMapper;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -57,12 +63,21 @@ class MerchantServiceImplTest {
 
     @BeforeEach
     void setUp(){
+        String defaultInitiativesMock = "";
+
         merchantService = new MerchantServiceImpl(
-            merchantDetailServiceMock,
-            merchantListServiceMock,
-            merchantProcessOperationService, merchantUpdatingInitiativeService, merchantUpdateIbanService, merchantRepositoryMock,
-            uploadingMerchantServiceMock,
-            initiative2InitiativeDTOMapper);
+                merchantDetailServiceMock,
+                merchantListServiceMock,
+                merchantProcessOperationService,
+                merchantUpdatingInitiativeService,
+                merchantUpdateIbanService,
+                merchantRepositoryMock,
+                uploadingMerchantServiceMock,
+                initiative2InitiativeDTOMapper,
+                merchantModelToDTOMapper,
+                dtoToModelMapper,
+                defaultInitiativesMock
+        );
     }
 
     @AfterEach

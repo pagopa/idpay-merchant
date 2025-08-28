@@ -13,10 +13,10 @@ public interface MerchantService {
     MerchantDetailDTO getMerchantDetail(String merchantId);
     MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable);
     MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO);
+    String createMerchantIfNotExists(MerchantDetailDTO detailDTO, String acquirerId);
     String retrieveMerchantId(String acquirerId, String fiscalCode);
     List<InitiativeDTO> getMerchantInitiativeList(String merchantId);
 
     void processOperation(QueueCommandOperationDTO queueCommandOperationDTO);
     void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO);
-
 }

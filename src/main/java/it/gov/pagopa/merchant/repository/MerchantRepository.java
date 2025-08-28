@@ -42,4 +42,6 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>, M
 
     @Query(value = "{'initiativeList.initiativeId' : ?1}")
     List<Merchant> deleteByInitiativeId(String initiativeId);
+
+    Optional<Merchant> findByFiscalCode(String fiscalCode);
 }
