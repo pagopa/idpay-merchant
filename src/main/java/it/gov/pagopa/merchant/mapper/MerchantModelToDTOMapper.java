@@ -39,3 +39,4 @@ public class MerchantModelToDTOMapper {
         return merchantDetailDTOWithoutInitiative;
     }
 }
+

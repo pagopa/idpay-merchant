@@ -1,19 +1,19 @@
 package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantListDTO;
-import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.*;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/idpay/merchant")
+@Validated
 public interface MerchantController {
     @Operation(summary = "Uploads the merchants file")
     @PutMapping("/organization/{organizationId}/initiative/{initiativeId}/upload")
@@ -54,4 +54,13 @@ public interface MerchantController {
     @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
     @ResponseStatus(code = HttpStatus.OK)
     String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId, @PathVariable("fiscalCode") String fiscalCode);
+
+
+    @Operation(summary = "Creates a merchant",
+            description = "Creates a new merchant with the given details and default initiatives.")
+    @PostMapping("/add")
+    String createMerchant(
+            @RequestHeader("acquirerId") @NotNull String acquirerId,
+            @RequestHeader("businessName") @NotNull String businessName,
+            @RequestHeader("fiscalCode") @NotNull String fiscalCode);
 }

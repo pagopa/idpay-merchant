@@ -228,3 +228,6 @@ management:
       exposure.include: "*"
     web:
       exposure.include: info, health
+
+merchant:
+  defaultInitiatives: ${MERCHANT_DEFAULT_INITIATIVES:688a12d87415622f166697a0,688a17d97415622f166697a2}
