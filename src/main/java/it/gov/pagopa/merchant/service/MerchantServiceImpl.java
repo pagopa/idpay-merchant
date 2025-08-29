@@ -1,25 +1,28 @@
 package it.gov.pagopa.merchant.service;
 
+import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
-import it.gov.pagopa.merchant.mapper.MerchantDTOToModelMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
 import it.gov.pagopa.merchant.utils.Utilities;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+@Slf4j
 @Service
 public class MerchantServiceImpl implements MerchantService {
 
@@ -32,16 +35,17 @@ public class MerchantServiceImpl implements MerchantService {
     private final MerchantRepository merchantRepository;
     private final UploadingMerchantService uploadingMerchantService;
     private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
-    private final MerchantDTOToModelMapper dtoToModelMapper;
     private final List<String> defaultInitiatives;
+    private final InitiativeRestConnector initiativeRestConnector;
+
 
     public MerchantServiceImpl(
             MerchantDetailService merchantDetailService,
             MerchantListService merchantListService,
             MerchantProcessOperationService merchantProcessOperationService, MerchantUpdatingInitiativeService merchantUpdatingInitiativeService, MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
             UploadingMerchantService uploadingMerchantService,
-            Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper, MerchantDTOToModelMapper dtoToModelMapper,
-            @Value("${merchant.default-initiatives:}") String defaultInitiativesCsv) {
+            Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
+            @Value("${merchant.default-initiatives:}") String defaultInitiativesCsv, InitiativeRestConnector initiativeRestConnector) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
         this.merchantProcessOperationService = merchantProcessOperationService;
@@ -50,11 +54,11 @@ public class MerchantServiceImpl implements MerchantService {
         this.merchantRepository = merchantRepository;
         this.uploadingMerchantService = uploadingMerchantService;
         this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
-        this.dtoToModelMapper = dtoToModelMapper;
         this.defaultInitiatives = Arrays.stream(defaultInitiativesCsv.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isBlank())
                 .toList();
+        this.initiativeRestConnector = initiativeRestConnector;
     }
 
     @Override
@@ -132,25 +136,58 @@ public class MerchantServiceImpl implements MerchantService {
 
         Optional<Merchant> existing = merchantRepository.findByFiscalCode(fiscalCode);
         if (existing.isPresent()) {
-            return existing.get().getMerchantId();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "A merchant with this fiscalCode already exists");
         }
-
-        Merchant merchant = dtoToModelMapper.buildMinmalMerchant(merchantId, acquirerId, businessName, fiscalCode);
-
+        List<Initiative> initiatives = new ArrayList<>();
         for (String initiativeId : defaultInitiatives) {
-            merchant.getInitiativeList().add(createMerchantInitiative(initiativeId));
+            InitiativeBeneficiaryViewDTO dto = getInitiativeInfo(initiativeId);
+            initiatives.add(createMerchantInitiative(dto));
         }
-        merchantRepository.save(merchant);
 
+        Merchant merchant = Merchant.builder()
+                .merchantId(merchantId)
+                .acquirerId(acquirerId)
+                .businessName(businessName)
+                .fiscalCode(fiscalCode)
+                .vatNumber(fiscalCode)
+                .initiativeList(initiatives)
+                .enabled(true)
+                .build();
+
+        merchantRepository.save(merchant);
         return merchantId;
     }
 
-    private Initiative createMerchantInitiative(String initiativeId) {
-        Initiative initiative = new Initiative();
-        initiative.setInitiativeId(initiativeId);
-        initiative.setStatus(MerchantConstants.Status.VALIDATED);
-        initiative.setCreationDate(LocalDateTime.now());
-        initiative.setUpdateDate(LocalDateTime.now());
-        return initiative;
+    private InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
+        InitiativeBeneficiaryViewDTO initiativeDTO;
+        try {
+            initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
+        } catch (Exception e) {
+            log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
+            throw new InitiativeInvocationException(MerchantConstants.ExceptionMessage.INITIATIVE_CONNECTOR_ERROR);
+        }
+        if (initiativeDTO == null) {
+            log.error("[INITIATIVE REST CONNECTOR] Initiative returned null for id={}", initiativeId);
+            throw new InitiativeInvocationException("Initiative not found for id=" + initiativeId);
+        }
+        return initiativeDTO;
+    }
+
+    private Initiative createMerchantInitiative(InitiativeBeneficiaryViewDTO dto) {
+        return Initiative.builder()
+                .initiativeId(dto.getInitiativeId())
+                .initiativeName(dto.getInitiativeName())
+                .organizationId(dto.getOrganizationId())
+                .organizationName(dto.getOrganizationName())
+                .serviceId(dto.getAdditionalInfo().getServiceId())
+                .startDate(dto.getGeneral().getStartDate())
+                .endDate(dto.getGeneral().getEndDate())
+                .status(dto.getStatus())
+                .merchantStatus("UPLOADED")
+                .creationDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .enabled(true)
+                .build();
     }
 }

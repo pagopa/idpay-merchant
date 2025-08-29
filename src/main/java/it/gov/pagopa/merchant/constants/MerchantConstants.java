@@ -50,6 +50,7 @@ public class MerchantConstants {
         public static final String MERCHANT_SAVING_ERROR = "An error occurred during file saving";
         public static final String INITIATIVE_CONNECTOR_ERROR = "An error occurred in the microservice initiative";
         public static final String VALIDATION_ERROR = "Some fields are invalid. See details for more information.";
+        //public static final String MERCHANT_ALREADY_EXISTS = "A merchant with this fiscalCode already exists";
     }
 
     public static final String INITIATIVE_CLOSED = "CLOSED";

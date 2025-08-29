@@ -95,11 +95,12 @@ public class MerchantControllerImpl implements MerchantController {
     String sanitizedBusinessName = sanitizeString(businessName);
     String sanitizedFiscalCode = sanitizeString(fiscalCode);
 
-    log.info("[CREATE_MERCHANT] Request received to create or retrieve merchant with businessName={} and fiscalCode={}",
+    log.info("[CREATE_MERCHANT] Request received to create merchant with businessName={} and fiscalCode={}",
             sanitizedBusinessName, sanitizedFiscalCode);
-    String merchantId = merchantService.createMerchantIfNotExists(sanitizedAcquirerId, sanitizedBusinessName, sanitizedFiscalCode);
-    log.info("[CREATE_MERCHANT] Merchant ID returned: {}", merchantId);
+    String merchantId = merchantService.createMerchantIfNotExists(
+            sanitizedAcquirerId, sanitizedBusinessName, sanitizedFiscalCode);
 
+    log.info("[CREATE_MERCHANT] Merchant successfully created with merchantId={}", merchantId);
     return merchantId;
   }
 }

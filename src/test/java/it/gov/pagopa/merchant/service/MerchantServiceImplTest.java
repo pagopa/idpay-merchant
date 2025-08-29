@@ -1,10 +1,9 @@
 package it.gov.pagopa.merchant.service;
 
+import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
-import it.gov.pagopa.merchant.mapper.MerchantDTOToModelMapper;
-import it.gov.pagopa.merchant.mapper.MerchantModelToDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
@@ -48,9 +47,7 @@ class MerchantServiceImplTest {
     @Mock
     private UploadingMerchantService uploadingMerchantServiceMock;
     @Mock
-    private MerchantModelToDTOMapper merchantModelToDTOMapper;
-    @Mock
-    private  MerchantDTOToModelMapper dtoToModelMapper;
+   private InitiativeRestConnector initiativeRestConnector;
 
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
     private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
@@ -74,8 +71,8 @@ class MerchantServiceImplTest {
                 merchantRepositoryMock,
                 uploadingMerchantServiceMock,
                 initiative2InitiativeDTOMapper,
-                dtoToModelMapper,
-                defaultInitiativesMock
+                defaultInitiativesMock,
+                initiativeRestConnector
         );
     }
 
