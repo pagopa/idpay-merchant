@@ -6,8 +6,11 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
@@ -241,5 +244,27 @@ class MerchantControllerImplTest {
         .andExpect(status().isOk());
     Mockito.verify(merchantServiceMock)
         .updateIban(anyString(), anyString(), anyString(), any(MerchantIbanPatchDTO.class));
+  }
+
+  @Test
+  void createMerchant_ok() throws Exception {
+    String acquirerId = "ACQ123";
+    String businessName = "Test Business";
+    String fiscalCode = "ABCDEF12G34H567I";
+    String expectedMerchantId = "MERCHANT123";
+
+    Mockito.when(merchantServiceMock.createMerchantIfNotExists(
+                    anyString(), anyString(), anyString()))
+            .thenReturn(expectedMerchantId);
+
+    mockMvc.perform(
+                    post("/idpay/merchant/add")
+                            .header("acquirerId", acquirerId)
+                            .header("businessName", businessName)
+                            .header("fiscalCode", fiscalCode)
+                            .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().string(expectedMerchantId));
   }
 }
