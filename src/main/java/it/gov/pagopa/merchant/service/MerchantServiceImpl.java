@@ -1,10 +1,13 @@
 package it.gov.pagopa.merchant.service;
 
+import feign.FeignException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
+import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyExistsException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -14,10 +17,8 @@ import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -46,7 +47,7 @@ public class MerchantServiceImpl implements MerchantService {
       MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
       UploadingMerchantService uploadingMerchantService,
       Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
-      @Value("${merchant.default-initiatives:}") String defaultInitiativesCsv,
+      @Value("${merchant.default-initiatives:}") List<String> defaultInitiatives,
       InitiativeRestConnector initiativeRestConnector) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
@@ -56,8 +57,7 @@ public class MerchantServiceImpl implements MerchantService {
     this.merchantRepository = merchantRepository;
     this.uploadingMerchantService = uploadingMerchantService;
     this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
-    this.defaultInitiatives = Arrays.stream(defaultInitiativesCsv.split(",")).map(String::trim)
-        .filter(s -> !s.isBlank()).toList();
+    this.defaultInitiatives = defaultInitiatives;
     this.initiativeRestConnector = initiativeRestConnector;
   }
 
@@ -131,8 +131,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     Optional<Merchant> existing = merchantRepository.findByFiscalCode(fiscalCode);
     if (existing.isPresent()) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-          "A merchant with this fiscalCode already exists");
+      throw new MerchantAlreadyExistsException(ExceptionMessage.MERCHANT_ALREADY_EXISTS);
     }
     List<Initiative> initiatives = new ArrayList<>();
     for (String initiativeId : defaultInitiatives) {
@@ -152,15 +151,17 @@ public class MerchantServiceImpl implements MerchantService {
     InitiativeBeneficiaryViewDTO initiativeDTO;
     try {
       initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
-    } catch (Exception e) {
-      log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
+    } catch (FeignException e) {
+      log.error("[INITIATIVE REST CONNECTOR] - Feign exception: {}", e.getMessage());
       throw new InitiativeInvocationException(
           MerchantConstants.ExceptionMessage.INITIATIVE_CONNECTOR_ERROR);
     }
+
     if (initiativeDTO == null) {
       log.error("[INITIATIVE REST CONNECTOR] Initiative returned null for id={}", initiativeId);
       throw new InitiativeInvocationException("Initiative not found for id=" + initiativeId);
     }
+
     return initiativeDTO;
   }
 

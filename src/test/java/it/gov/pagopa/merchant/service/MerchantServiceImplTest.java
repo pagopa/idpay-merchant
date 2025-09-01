@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.service;
 
+import feign.FeignException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
@@ -7,6 +8,7 @@ import it.gov.pagopa.merchant.dto.initiative.AdditionalInfoDTO;
 import it.gov.pagopa.merchant.dto.initiative.GeneralInfoDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
+import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyExistsException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
@@ -26,17 +28,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -76,7 +75,7 @@ class MerchantServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    String defaultInitiativesMock = "INIT1,INIT2";
+    List<String> defaultInitiativesMock = List.of("INIT1", "INIT2");
 
     merchantService = new MerchantServiceImpl(
         merchantDetailServiceMock,
@@ -327,11 +326,9 @@ class MerchantServiceImplTest {
     Mockito.when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenReturn(Optional.of(existing));
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+    MerchantAlreadyExistsException exception = assertThrows(MerchantAlreadyExistsException.class,
         () -> merchantService.createMerchantIfNotExists(acquirerId, businessName, fiscalCode));
-
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exception.getStatusCode());
-    assertTrue(Objects.requireNonNull(exception.getReason()).contains("already exists"));
+    assertTrue(exception.getMessage().contains("already exists"));
 
     Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
     Mockito.verify(merchantRepositoryMock, Mockito.never()).save(Mockito.any(Merchant.class));
@@ -339,8 +336,11 @@ class MerchantServiceImplTest {
 
   @Test
   void getInitiativeInfo_connectorThrowsException() throws Exception {
+    FeignException feignException = Mockito.mock(FeignException.class);
+    when(feignException.getMessage()).thenReturn("REST error");
+
     when(initiativeRestConnector.getInitiativeBeneficiaryView("INIT1"))
-        .thenThrow(new RuntimeException("REST error"));
+        .thenThrow(feignException);
 
     Method method = MerchantServiceImpl.class
         .getDeclaredMethod("getInitiativeInfo", String.class);
@@ -473,5 +473,4 @@ class MerchantServiceImplTest {
     verify(merchantRepositoryMock).save(any(Merchant.class));
     verify(initiativeRestConnector, times(2)).getInitiativeBeneficiaryView(anyString());
   }
-
 }
