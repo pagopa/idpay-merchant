@@ -47,7 +47,7 @@ public class MerchantServiceImpl implements MerchantService {
       MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
       UploadingMerchantService uploadingMerchantService,
       Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
-      @Value("${merchant.default-initiatives:}") List<String> defaultInitiatives,
+      @Value("${merchant.default-initiatives}") List<String> defaultInitiatives,
       InitiativeRestConnector initiativeRestConnector) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
