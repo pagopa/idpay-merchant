@@ -8,15 +8,24 @@ import java.util.List;
 
 public interface MerchantService {
     MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId, String acquirerId);
+
     MerchantDetailDTO getMerchantDetail(String organizationId, String initiativeId, String merchantId);
+
     MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId);
+
     MerchantDetailDTO getMerchantDetail(String merchantId);
+
     MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable);
+
     MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO);
+
     String createMerchantIfNotExists(String acquirerId, String businessName, String fiscalCode);
+
     String retrieveMerchantId(String acquirerId, String fiscalCode);
+
     List<InitiativeDTO> getMerchantInitiativeList(String merchantId);
 
     void processOperation(QueueCommandOperationDTO queueCommandOperationDTO);
+
     void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO);
 }

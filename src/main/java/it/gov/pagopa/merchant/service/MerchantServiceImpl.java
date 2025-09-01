@@ -39,13 +39,7 @@ public class MerchantServiceImpl implements MerchantService {
     private final InitiativeRestConnector initiativeRestConnector;
 
 
-    public MerchantServiceImpl(
-            MerchantDetailService merchantDetailService,
-            MerchantListService merchantListService,
-            MerchantProcessOperationService merchantProcessOperationService, MerchantUpdatingInitiativeService merchantUpdatingInitiativeService, MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
-            UploadingMerchantService uploadingMerchantService,
-            Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
-            @Value("${merchant.default-initiatives:}") String defaultInitiativesCsv, InitiativeRestConnector initiativeRestConnector) {
+    public MerchantServiceImpl(MerchantDetailService merchantDetailService, MerchantListService merchantListService, MerchantProcessOperationService merchantProcessOperationService, MerchantUpdatingInitiativeService merchantUpdatingInitiativeService, MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository, UploadingMerchantService uploadingMerchantService, Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper, @Value("${merchant.default-initiatives:}") String defaultInitiativesCsv, InitiativeRestConnector initiativeRestConnector) {
         this.merchantDetailService = merchantDetailService;
         this.merchantListService = merchantListService;
         this.merchantProcessOperationService = merchantProcessOperationService;
@@ -54,26 +48,17 @@ public class MerchantServiceImpl implements MerchantService {
         this.merchantRepository = merchantRepository;
         this.uploadingMerchantService = uploadingMerchantService;
         this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
-        this.defaultInitiatives = Arrays.stream(defaultInitiativesCsv.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isBlank())
-                .toList();
+        this.defaultInitiatives = Arrays.stream(defaultInitiativesCsv.split(",")).map(String::trim).filter(s -> !s.isBlank()).toList();
         this.initiativeRestConnector = initiativeRestConnector;
     }
 
     @Override
-    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file,
-                                                String organizationId,
-                                                String initiativeId,
-                                                String organizationUserId,
-                                                String acquirerId) {
+    public MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId, String acquirerId) {
         return uploadingMerchantService.uploadMerchantFile(file, organizationId, initiativeId, organizationUserId, acquirerId);
     }
 
     @Override
-    public MerchantDetailDTO getMerchantDetail(String organizationId,
-                                               String initiativeId,
-                                               String merchantId) {
+    public MerchantDetailDTO getMerchantDetail(String organizationId, String initiativeId, String merchantId) {
         return merchantDetailService.getMerchantDetail(organizationId, initiativeId, merchantId);
     }
 
@@ -89,34 +74,25 @@ public class MerchantServiceImpl implements MerchantService {
 
 
     @Override
-    public MerchantListDTO getMerchantList(String organizationId,
-                                           String initiativeId,
-                                           String fiscalCode,
-                                           Pageable pageable) {
+    public MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable) {
         return merchantListService.getMerchantList(organizationId, initiativeId, fiscalCode, pageable);
     }
 
     @Override
     public String retrieveMerchantId(String acquirerId, String fiscalCode) {
-        return merchantRepository.retrieveByAcquirerIdAndFiscalCode(acquirerId, fiscalCode)
-                .map(Merchant::getMerchantId)
-                .orElse(null);
+        return merchantRepository.retrieveByAcquirerIdAndFiscalCode(acquirerId, fiscalCode).map(Merchant::getMerchantId).orElse(null);
     }
 
     @Override
     public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
-        return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId,
-                merchantIbanPatchDTO);
+        return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId, merchantIbanPatchDTO);
     }
 
     @Override
     public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
         Optional<Merchant> merchant = merchantRepository.findById(merchantId);
 
-        return merchant.map(value -> value.getInitiativeList().stream()
-                .filter(i -> MerchantConstants.INITIATIVE_PUBLISHED.equals(i.getStatus()))
-                .map(initiative2InitiativeDTOMapper::apply)
-                .toList()).orElse(Collections.emptyList());
+        return merchant.map(value -> value.getInitiativeList().stream().filter(i -> MerchantConstants.INITIATIVE_PUBLISHED.equals(i.getStatus())).map(initiative2InitiativeDTOMapper::apply).toList()).orElse(Collections.emptyList());
     }
 
     @Override
@@ -136,8 +112,7 @@ public class MerchantServiceImpl implements MerchantService {
 
         Optional<Merchant> existing = merchantRepository.findByFiscalCode(fiscalCode);
         if (existing.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "A merchant with this fiscalCode already exists");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "A merchant with this fiscalCode already exists");
         }
         List<Initiative> initiatives = new ArrayList<>();
         for (String initiativeId : defaultInitiatives) {
@@ -145,15 +120,7 @@ public class MerchantServiceImpl implements MerchantService {
             initiatives.add(createMerchantInitiative(dto));
         }
 
-        Merchant merchant = Merchant.builder()
-                .merchantId(merchantId)
-                .acquirerId(acquirerId)
-                .businessName(businessName)
-                .fiscalCode(fiscalCode)
-                .vatNumber(fiscalCode)
-                .initiativeList(initiatives)
-                .enabled(true)
-                .build();
+        Merchant merchant = Merchant.builder().merchantId(merchantId).acquirerId(acquirerId).businessName(businessName).fiscalCode(fiscalCode).vatNumber(fiscalCode).initiativeList(initiatives).enabled(true).build();
 
         merchantRepository.save(merchant);
         return merchantId;
@@ -175,19 +142,6 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     private Initiative createMerchantInitiative(InitiativeBeneficiaryViewDTO dto) {
-        return Initiative.builder()
-                .initiativeId(dto.getInitiativeId())
-                .initiativeName(dto.getInitiativeName())
-                .organizationId(dto.getOrganizationId())
-                .organizationName(dto.getOrganizationName())
-                .serviceId(dto.getAdditionalInfo().getServiceId())
-                .startDate(dto.getGeneral().getStartDate())
-                .endDate(dto.getGeneral().getEndDate())
-                .status(dto.getStatus())
-                .merchantStatus("UPLOADED")
-                .creationDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .enabled(true)
-                .build();
+        return Initiative.builder().initiativeId(dto.getInitiativeId()).initiativeName(dto.getInitiativeName()).organizationId(dto.getOrganizationId()).organizationName(dto.getOrganizationName()).serviceId(dto.getAdditionalInfo().getServiceId()).startDate(dto.getGeneral().getStartDate()).endDate(dto.getGeneral().getEndDate()).status(dto.getStatus()).merchantStatus("UPLOADED").creationDate(LocalDateTime.now()).updateDate(LocalDateTime.now()).enabled(true).build();
     }
 }
