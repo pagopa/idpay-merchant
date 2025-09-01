@@ -6,8 +6,12 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
@@ -20,13 +24,16 @@ import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyExistsException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
+
 import java.util.Collections;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -241,5 +248,49 @@ class MerchantControllerImplTest {
         .andExpect(status().isOk());
     Mockito.verify(merchantServiceMock)
         .updateIban(anyString(), anyString(), anyString(), any(MerchantIbanPatchDTO.class));
+  }
+
+  @Test
+  void createMerchant_ok() throws Exception {
+    String acquirerId = "ACQ123";
+    String businessName = "Test Business";
+    String fiscalCode = "ABCDEF12G34H567I";
+    String expectedMerchantId = "MERCHANT123";
+
+    Mockito.when(merchantServiceMock.createMerchantIfNotExists(
+            anyString(), anyString(), anyString()))
+        .thenReturn(expectedMerchantId);
+
+    mockMvc.perform(
+            post("/idpay/merchant/add")
+                .header("acquirerId", acquirerId)
+                .header("businessName", businessName)
+                .header("fiscalCode", fiscalCode)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andExpect(content().string(expectedMerchantId));
+  }
+
+  @Test
+  void createMerchant_Ko_Returns500() throws Exception {
+    String acquirerId = "ACQ123";
+    String businessName = "Test Business";
+    String fiscalCode = "ABCDEF12G34H567I";
+
+    Mockito.when(merchantServiceMock.createMerchantIfNotExists(
+            anyString(), anyString(), anyString()))
+        .thenThrow(new MerchantAlreadyExistsException("Merchant already exists"));
+
+    mockMvc.perform(
+            post("/idpay/merchant/add")
+                .header("acquirerId", acquirerId)
+                .header("businessName", businessName)
+                .header("fiscalCode", fiscalCode)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.code").value("MERCHANT_GENERIC_ERROR"))
+        .andExpect(jsonPath("$.message").value("Merchant already exists"));
   }
 }
