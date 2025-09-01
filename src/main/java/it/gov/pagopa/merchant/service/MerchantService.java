@@ -7,25 +7,30 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface MerchantService {
-    MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId, String initiativeId, String organizationUserId, String acquirerId);
 
-    MerchantDetailDTO getMerchantDetail(String organizationId, String initiativeId, String merchantId);
+  MerchantUpdateDTO uploadMerchantFile(MultipartFile file, String organizationId,
+      String initiativeId, String organizationUserId, String acquirerId);
 
-    MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId);
+  MerchantDetailDTO getMerchantDetail(String organizationId, String initiativeId,
+      String merchantId);
 
-    MerchantDetailDTO getMerchantDetail(String merchantId);
+  MerchantDetailDTO getMerchantDetail(String merchantId, String initiativeId);
 
-    MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable);
+  MerchantDetailDTO getMerchantDetail(String merchantId);
 
-    MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO);
+  MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode,
+      Pageable pageable);
 
-    String createMerchantIfNotExists(String acquirerId, String businessName, String fiscalCode);
+  MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId,
+      MerchantIbanPatchDTO merchantIbanPatchDTO);
 
-    String retrieveMerchantId(String acquirerId, String fiscalCode);
+  String createMerchantIfNotExists(String acquirerId, String businessName, String fiscalCode);
 
-    List<InitiativeDTO> getMerchantInitiativeList(String merchantId);
+  String retrieveMerchantId(String acquirerId, String fiscalCode);
 
-    void processOperation(QueueCommandOperationDTO queueCommandOperationDTO);
+  List<InitiativeDTO> getMerchantInitiativeList(String merchantId);
 
-    void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO);
+  void processOperation(QueueCommandOperationDTO queueCommandOperationDTO);
+
+  void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO);
 }

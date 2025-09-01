@@ -15,52 +15,54 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/idpay/merchant")
 @Validated
 public interface MerchantController {
-    @Operation(summary = "Uploads the merchants file")
-    @PutMapping("/organization/{organizationId}/initiative/{initiativeId}/upload")
-    @ResponseStatus(code = HttpStatus.OK)
-    ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
-            @RequestParam("file") MultipartFile file,
-            @PathVariable("organizationId") String organizationId,
-            @PathVariable("initiativeId") String initiativeId,
-            @RequestHeader("organization-user-id") String organizationUserId);
 
-    @Operation(summary = "Returns the merchants list")
-    @GetMapping("/organization/{organizationId}/initiative/{initiativeId}/merchants")
-    ResponseEntity<MerchantListDTO> getMerchantList(
-            @PathVariable("organizationId") String organizationId,
-            @PathVariable("initiativeId") String initiativeId,
-            @RequestParam(required = false) String fiscalCode,
-            @PageableDefault(size = 15) Pageable pageable
-    );
+  @Operation(summary = "Uploads the merchants file")
+  @PutMapping("/organization/{organizationId}/initiative/{initiativeId}/upload")
+  @ResponseStatus(code = HttpStatus.OK)
+  ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
+      @RequestParam("file") MultipartFile file,
+      @PathVariable("organizationId") String organizationId,
+      @PathVariable("initiativeId") String initiativeId,
+      @RequestHeader("organization-user-id") String organizationUserId);
 
-    @Operation(summary = "Returns the merchant detail page on initiative")
-    @GetMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
-    ResponseEntity<MerchantDetailDTO> getMerchantDetail(
-            @PathVariable("organizationId") String organizationId,
-            @PathVariable("initiativeId") String initiativeId,
-            @PathVariable("merchantId") String merchantId
-    );
+  @Operation(summary = "Returns the merchants list")
+  @GetMapping("/organization/{organizationId}/initiative/{initiativeId}/merchants")
+  ResponseEntity<MerchantListDTO> getMerchantList(
+      @PathVariable("organizationId") String organizationId,
+      @PathVariable("initiativeId") String initiativeId,
+      @RequestParam(required = false) String fiscalCode,
+      @PageableDefault(size = 15) Pageable pageable
+  );
 
-    @Operation(summary = "Patches the iban and/or the holder of a merchant")
-    @PatchMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
-    ResponseEntity<MerchantDetailDTO> updateIban(
-            @PathVariable("merchantId") String merchantId,
-            @PathVariable("organizationId") String organizationId,
-            @PathVariable("initiativeId") String initiativeId,
-            @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
-    );
+  @Operation(summary = "Returns the merchant detail page on initiative")
+  @GetMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
+  ResponseEntity<MerchantDetailDTO> getMerchantDetail(
+      @PathVariable("organizationId") String organizationId,
+      @PathVariable("initiativeId") String initiativeId,
+      @PathVariable("merchantId") String merchantId
+  );
 
-    @Operation(summary = "Returns the merchant id")
-    @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
-    @ResponseStatus(code = HttpStatus.OK)
-    String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId, @PathVariable("fiscalCode") String fiscalCode);
+  @Operation(summary = "Patches the iban and/or the holder of a merchant")
+  @PatchMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
+  ResponseEntity<MerchantDetailDTO> updateIban(
+      @PathVariable("merchantId") String merchantId,
+      @PathVariable("organizationId") String organizationId,
+      @PathVariable("initiativeId") String initiativeId,
+      @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
+  );
+
+  @Operation(summary = "Returns the merchant id")
+  @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
+  @ResponseStatus(code = HttpStatus.OK)
+  String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId,
+      @PathVariable("fiscalCode") String fiscalCode);
 
 
-    @Operation(summary = "Creates a merchant",
-            description = "Creates a new merchant with the given details and default initiatives.")
-    @PostMapping("/add")
-    String createMerchant(
-            @RequestHeader("acquirerId") @NotNull String acquirerId,
-            @RequestHeader("businessName") @NotNull String businessName,
-            @RequestHeader("fiscalCode") @NotNull String fiscalCode);
+  @Operation(summary = "Creates a merchant",
+      description = "Creates a new merchant with the given details and default initiatives.")
+  @PostMapping("/add")
+  String createMerchant(
+      @RequestHeader("acquirerId") @NotNull String acquirerId,
+      @RequestHeader("businessName") @NotNull String businessName,
+      @RequestHeader("fiscalCode") @NotNull String fiscalCode);
 }
