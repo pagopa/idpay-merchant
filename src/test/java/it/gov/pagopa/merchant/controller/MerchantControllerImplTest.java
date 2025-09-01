@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
@@ -23,6 +24,7 @@ import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyExistsException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -268,5 +270,27 @@ class MerchantControllerImplTest {
         )
         .andExpect(status().isOk())
         .andExpect(content().string(expectedMerchantId));
+  }
+
+  @Test
+  void createMerchant_Ko_Returns500() throws Exception {
+    String acquirerId = "ACQ123";
+    String businessName = "Test Business";
+    String fiscalCode = "ABCDEF12G34H567I";
+
+    Mockito.when(merchantServiceMock.createMerchantIfNotExists(
+            anyString(), anyString(), anyString()))
+        .thenThrow(new MerchantAlreadyExistsException("Merchant already exists"));
+
+    mockMvc.perform(
+            post("/idpay/merchant/add")
+                .header("acquirerId", acquirerId)
+                .header("businessName", businessName)
+                .header("fiscalCode", fiscalCode)
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.code").value("MERCHANT_GENERIC_ERROR"))
+        .andExpect(jsonPath("$.message").value("Merchant already exists"));
   }
 }
