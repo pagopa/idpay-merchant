@@ -102,4 +102,9 @@ public class MerchantControllerImpl implements MerchantController {
     log.info("[CREATE_MERCHANT] Merchant successfully created with merchantId={}", merchantId);
     return merchantId;
   }
+
+  @Override
+  public ResponseEntity<String> createMerchant(MerchantCreateDTO merchantCreateDTO) {
+    return null;
+  }
 }
