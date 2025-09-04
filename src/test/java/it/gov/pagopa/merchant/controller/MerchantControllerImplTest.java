@@ -20,6 +20,7 @@ import it.gov.pagopa.merchant.configuration.MerchantErrorManagerConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
+import it.gov.pagopa.merchant.dto.MerchantCreateDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
@@ -250,6 +251,7 @@ class MerchantControllerImplTest {
         .updateIban(anyString(), anyString(), anyString(), any(MerchantIbanPatchDTO.class));
   }
 
+
   @Test
   void createMerchant_ok() throws Exception {
     String acquirerId = "ACQ123";
@@ -257,15 +259,18 @@ class MerchantControllerImplTest {
     String fiscalCode = "ABCDEF12G34H567I";
     String expectedMerchantId = "MERCHANT123";
 
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId).build();
+
     Mockito.when(merchantServiceMock.createMerchantIfNotExists(
             anyString(), anyString(), anyString()))
         .thenReturn(expectedMerchantId);
 
     mockMvc.perform(
-            post("/idpay/merchant/add")
-                .header("acquirerId", acquirerId)
-                .header("businessName", businessName)
-                .header("fiscalCode", fiscalCode)
+            post("/idpay/merchant")
+                .content(objectMapper.writeValueAsString(dto))
                 .contentType(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isOk())
@@ -273,24 +278,56 @@ class MerchantControllerImplTest {
   }
 
   @Test
-  void createMerchant_Ko_Returns500() throws Exception {
+  void createMerchant_Ko_MerchantAlreadyExist() throws Exception {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
 
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId).build();
+
     Mockito.when(merchantServiceMock.createMerchantIfNotExists(
             anyString(), anyString(), anyString()))
-        .thenThrow(new MerchantAlreadyExistsException("Merchant already exists"));
+        .thenThrow(new MerchantAlreadyExistsException(ExceptionMessage.MERCHANT_ALREADY_EXISTS));
 
     mockMvc.perform(
-            post("/idpay/merchant/add")
-                .header("acquirerId", acquirerId)
-                .header("businessName", businessName)
-                .header("fiscalCode", fiscalCode)
+            post("/idpay/merchant")
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value(ExceptionCode.MERCHANT_ALREADY_EXIST))
+        .andExpect(jsonPath("$.message").value(ExceptionMessage.MERCHANT_ALREADY_EXISTS));
+  }
+
+  @Test
+  void createMerchant_Ko_GenericException() throws Exception {
+    String acquirerId = "ACQ123";
+    String businessName = "Test Business";
+    String fiscalCode = "ABCDEF12G34H567I";
+
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId).build();
+
+    final String genericException = "Generic Exception";
+
+    Mockito.when(merchantServiceMock.createMerchantIfNotExists(
+            anyString(), anyString(), anyString()))
+        .thenThrow(new RuntimeException(genericException));
+
+    mockMvc.perform(
+            post("/idpay/merchant")
+                .content(objectMapper.writeValueAsString(dto))
                 .contentType(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.code").value("MERCHANT_GENERIC_ERROR"))
-        .andExpect(jsonPath("$.message").value("Merchant already exists"));
+        .andExpect(jsonPath("$.code").value(ExceptionCode.GENERIC_ERROR))
+        .andExpect(jsonPath("$.message").value("A generic error occurred"
+        ));
   }
+
 }

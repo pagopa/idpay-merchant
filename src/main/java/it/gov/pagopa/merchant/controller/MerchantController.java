@@ -57,12 +57,9 @@ public interface MerchantController {
   String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId,
       @PathVariable("fiscalCode") String fiscalCode);
 
-
   @Operation(summary = "Creates a merchant",
       description = "Creates a new merchant with the given details and default initiatives.")
-  @PostMapping("/add")
-  String createMerchant(
-      @RequestHeader("acquirerId") @NotNull String acquirerId,
-      @RequestHeader("businessName") @NotNull String businessName,
-      @RequestHeader("fiscalCode") @NotNull String fiscalCode);
+  @PostMapping
+  ResponseEntity<String> createMerchant(
+      @RequestBody @NotNull MerchantCreateDTO merchantCreateDTO);
 }
