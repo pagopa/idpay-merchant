@@ -3,10 +3,7 @@ package it.gov.pagopa.merchant.controller;
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
-import it.gov.pagopa.merchant.dto.MerchantListDTO;
-import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 
 @Slf4j
 @RestController
@@ -27,9 +25,7 @@ public class MerchantControllerImpl implements MerchantController {
 
   @Override
   public ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(MultipartFile file,
-      String organizationId,
-      String initiativeId,
-      String organizationUserId) {
+      String organizationId, String initiativeId, String organizationUserId) {
     String sanitizedOrganizationId = sanitizeString(organizationId);
     String sanitizedInitiativeId = sanitizeString(initiativeId);
 
@@ -87,6 +83,23 @@ public class MerchantControllerImpl implements MerchantController {
     if (merchantId == null) {
       throw new MerchantNotFoundException(ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE);
     }
+    return merchantId;
+  }
+
+  @Override
+  public String createMerchant(String acquirerId, String businessName, String fiscalCode) {
+
+    String sanitizedAcquirerId = sanitizeString(acquirerId);
+    String sanitizedBusinessName = sanitizeString(businessName);
+    String sanitizedFiscalCode = sanitizeString(fiscalCode);
+
+    log.info(
+        "[CREATE_MERCHANT] Request received to create merchant with businessName={} and fiscalCode={}",
+        sanitizedBusinessName, sanitizedFiscalCode);
+    String merchantId = merchantService.createMerchantIfNotExists(sanitizedAcquirerId,
+        sanitizedBusinessName, sanitizedFiscalCode);
+
+    log.info("[CREATE_MERCHANT] Merchant successfully created with merchantId={}", merchantId);
     return merchantId;
   }
 }

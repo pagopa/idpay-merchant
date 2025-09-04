@@ -12,19 +12,34 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MerchantDetailDTO {
-    private String initiativeId;
-    private String initiativeName;
-    private String businessName; //ragione sociale
-    private String legalOfficeAddress;
-    private String legalOfficeMunicipality; // comune sede legale
-    private String legalOfficeProvince;
-    private String legalOfficeZipCode;
-    private String certifiedEmail;
-    private String fiscalCode;
-    private String vatNumber;
-    private String status;
-    private String iban;
-    private String ibanHolder; // intestatario iban
-    private LocalDateTime creationDate;
-    private LocalDateTime updateDate;
+
+  private String initiativeId;
+
+  private String initiativeName;
+
+  private String businessName; //ragione sociale
+
+  private String legalOfficeAddress;
+
+  private String legalOfficeMunicipality; // comune sede legale
+
+  private String legalOfficeProvince;
+
+  private String legalOfficeZipCode;
+
+  private String certifiedEmail;
+
+  private String fiscalCode;
+
+  private String vatNumber;
+
+  private String status;
+
+  private String iban;
+
+  private String ibanHolder; // intestatario iban
+
+  private LocalDateTime creationDate;
+
+  private LocalDateTime updateDate;
 }
