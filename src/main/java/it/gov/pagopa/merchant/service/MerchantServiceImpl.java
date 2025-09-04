@@ -4,6 +4,7 @@ import feign.FeignException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
+import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
@@ -131,7 +132,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     Optional<Merchant> existing = merchantRepository.findByFiscalCode(fiscalCode);
     if (existing.isPresent()) {
-      throw new MerchantAlreadyExistsException(ExceptionCode.MERCHANT_ALREADY_EXIST);
+      throw new MerchantAlreadyExistsException(ExceptionMessage.MERCHANT_ALREADY_EXISTS);
     }
     List<Initiative> initiatives = new ArrayList<>();
     for (String initiativeId : defaultInitiatives) {
