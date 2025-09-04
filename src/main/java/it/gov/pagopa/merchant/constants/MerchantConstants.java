@@ -50,6 +50,7 @@ public class MerchantConstants {
     public static final String TOO_MANY_REQUESTS = "MERCHANT_TOO_MANY_REQUESTS";
     public static final String GENERIC_ERROR = "MERCHANT_GENERIC_ERROR";
     public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
+    public static final String MERCHANT_ALREADY_EXIST = "MERCHANT_ALREADY_EXIST";
   }
 
   public static final class ExceptionMessage {

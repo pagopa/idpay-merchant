@@ -57,19 +57,6 @@ public interface MerchantController {
   String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId,
       @PathVariable("fiscalCode") String fiscalCode);
 
-  /**
-   * @deprecated This method is deprecated in favor of the new method introduced at line 72.
-   * Use the new method for creating a merchant with the updated parameters.
-   */
-  @Deprecated
-  @Operation(summary = "Creates a merchant",
-      description = "Creates a new merchant with the given details and default initiatives.")
-  @PostMapping("/add")
-  String createMerchant(
-      @RequestHeader("acquirerId") @NotNull String acquirerId,
-      @RequestHeader("businessName") @NotNull String businessName,
-      @RequestHeader("fiscalCode") @NotNull String fiscalCode);
-
   @Operation(summary = "Creates a merchant",
       description = "Creates a new merchant with the given details and default initiatives.")
   @PostMapping

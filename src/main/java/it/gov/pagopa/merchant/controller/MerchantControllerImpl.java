@@ -87,24 +87,18 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
-  public String createMerchant(String acquirerId, String businessName, String fiscalCode) {
+  public ResponseEntity<String> createMerchant(MerchantCreateDTO merchantCreateDTO) {
+    String sanitizedAcquirerId = sanitizeString(merchantCreateDTO.getAcquirerId());
+    String sanitizedBusinessName = sanitizeString(merchantCreateDTO.getBusinessName());
+    String sanitizedFiscalCode = sanitizeString(merchantCreateDTO.getFiscalCode());
 
-    String sanitizedAcquirerId = sanitizeString(acquirerId);
-    String sanitizedBusinessName = sanitizeString(businessName);
-    String sanitizedFiscalCode = sanitizeString(fiscalCode);
-
-    log.info(
+    log.debug(
         "[CREATE_MERCHANT] Request received to create merchant with businessName={} and fiscalCode={}",
         sanitizedBusinessName, sanitizedFiscalCode);
     String merchantId = merchantService.createMerchantIfNotExists(sanitizedAcquirerId,
         sanitizedBusinessName, sanitizedFiscalCode);
 
     log.info("[CREATE_MERCHANT] Merchant successfully created with merchantId={}", merchantId);
-    return merchantId;
-  }
-
-  @Override
-  public ResponseEntity<String> createMerchant(MerchantCreateDTO merchantCreateDTO) {
-    return null;
+    return ResponseEntity.ok(merchantId);
   }
 }

@@ -3,12 +3,12 @@ package it.gov.pagopa.merchant.exception.custom;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.common.web.exception.ServiceExceptionPayload;
 
-import static it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode.GENERIC_ERROR;
+import static it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode.MERCHANT_ALREADY_EXIST;
 
 public class MerchantAlreadyExistsException extends ServiceException {
 
   public MerchantAlreadyExistsException(String message) {
-    this(GENERIC_ERROR, message);
+    this(MERCHANT_ALREADY_EXIST, message);
   }
 
   public MerchantAlreadyExistsException(String code, String message) {
