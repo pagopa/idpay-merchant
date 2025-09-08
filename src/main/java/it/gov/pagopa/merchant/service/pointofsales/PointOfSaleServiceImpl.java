@@ -257,7 +257,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     // Custom attrs
     Map<String, List<String>> attrs = new HashMap<>();
     attrs.put("merchantId", List.of(pointOfSale.getMerchantId()));
-    attrs.put("pointOfSalesId", List.of(pointOfSale.getId().toString()));
+    attrs.put("pointOfSaleId", List.of(pointOfSale.getId().toString()));
     newUser.setAttributes(attrs);
 
     log.info("[KEYCLOAK] Attempting to create a new Keycloak user linked to Point of Sale ID {}",
