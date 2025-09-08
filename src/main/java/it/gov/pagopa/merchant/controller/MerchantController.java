@@ -2,6 +2,8 @@ package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import it.gov.pagopa.merchant.dto.*;
+
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -57,9 +59,11 @@ public interface MerchantController {
   String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId,
       @PathVariable("fiscalCode") String fiscalCode);
 
-  @Operation(summary = "Creates a merchant",
-      description = "Creates a new merchant with the given details and default initiatives.")
-  @PostMapping
+  @Operation(summary = "Creates a new merchant or retrieves the existing one",
+      description = "This endpoint creates a new merchant with the provided details if the merchant does not already exist. " +
+          "If a merchant with the given fiscal code already exists, the endpoint returns the internal ID of the existing merchant. " +
+          "The request body must include the acquirer ID, business name, and fiscal code.")
+  @PutMapping
   ResponseEntity<String> createMerchant(
-      @RequestBody @NotNull MerchantCreateDTO merchantCreateDTO);
+      @RequestBody @NotNull @Valid MerchantCreateDTO merchantCreateDTO);
 }
