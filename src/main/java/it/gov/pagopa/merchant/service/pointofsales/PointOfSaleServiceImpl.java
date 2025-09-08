@@ -14,7 +14,10 @@ import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.keycloak.admin.client.CreatedResponseUtil;
@@ -250,6 +253,12 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     newUser.setEnabled(true);
     newUser.setEmailVerified(true);
+
+    // Custom attrs
+    Map<String, List<String>> attrs = new HashMap<>();
+    attrs.put("merchantId", List.of(pointOfSale.getMerchantId()));
+    attrs.put("pointOfSalesId", List.of(pointOfSale.getId().toString()));
+    newUser.setAttributes(attrs);
 
     log.info("[KEYCLOAK] Attempting to create a new Keycloak user linked to Point of Sale ID {}",
         pointOfSale.getId());
