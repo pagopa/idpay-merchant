@@ -190,7 +190,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     if (StringUtils.isEmpty(contactEmail)) {
       log.warn(
               "[KEYCLOAK] Point of Sale with ID {} for merchant {} has no contact email. Skipping Keycloak user creation.",
-              pointOfSale.getId(), sanitizeForLog(pointOfSale.getMerchantId()));
+              sanitizeForLog(pointOfSale.getId()), sanitizeForLog(pointOfSale.getMerchantId()));
       return;
     }
 
