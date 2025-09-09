@@ -11,7 +11,7 @@ public class PointOfSaleFaker {
 
     public static PointOfSale.PointOfSaleBuilder mockInstanceBuilder() {
         return PointOfSale.builder()
-                .id(new ObjectId())
+                .id("id")
                 .type("PHYSICAL")
                 .merchantId("MERCHANT-ID")
                 .region("REGION")

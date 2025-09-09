@@ -13,13 +13,7 @@ import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import jakarta.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -31,6 +25,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -98,10 +97,10 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   private void compensatingDelete(List<PointOfSale> savedEntities) {
     for (PointOfSale pointOfSale : savedEntities) {
       try {
-        pointOfSaleRepository.deleteById(pointOfSale.getId().toString());
+        pointOfSaleRepository.deleteById(pointOfSale.getId());
       } catch (Exception exception) {
         log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}",
-            pointOfSale.getId().toString());
+            pointOfSale.getId());
       }
     }
 
@@ -140,12 +139,12 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
    *                                       exists
    */
   private PointOfSaleUpdateContext preparePointOfSaleForSave(PointOfSale pointOfSale) {
-    ObjectId id = pointOfSale.getId();
+    String id = pointOfSale.getId();
     String oldEmail = null;
 
-    boolean isInsert = id != null && StringUtils.isNotEmpty(id.toString());
+    boolean isInsert = StringUtils.isNotEmpty(id);
     if (isInsert) {
-      PointOfSale pointOfSaleExisting = getPointOfSaleById(id.toString());
+      PointOfSale pointOfSaleExisting = getPointOfSaleById(id);
       pointOfSale.setCreationDate(pointOfSaleExisting.getCreationDate());
 
       oldEmail = pointOfSaleExisting.getContactEmail();
@@ -258,7 +257,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     Map<String, List<String>> attrs = new HashMap<>();
     attrs.put("merchantId", List.of(pointOfSale.getMerchantId()));
     if(pointOfSale.getId() != null){
-      attrs.put("pointOfSaleId", List.of(pointOfSale.getId().toString()));
+      attrs.put("pointOfSaleId", List.of(pointOfSale.getId()));
     }
     newUser.setAttributes(attrs);
 
