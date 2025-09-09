@@ -100,7 +100,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         pointOfSaleRepository.deleteById(pointOfSale.getId());
       } catch (Exception exception) {
         log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}",
-            pointOfSale.getId());
+                sanitizeForLog(pointOfSale.getId()));
       }
     }
 
