@@ -524,4 +524,95 @@ class MerchantServiceImplTest {
     Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
     Mockito.verify(merchantRepositoryMock).save(Mockito.any(Merchant.class));
   }
+
+  @Test
+  void updateMerchant_updatesFieldsCorrectly() {
+    // Given
+    String existingMerchantId = "EXISTING_MERCHANT_ID";
+    Merchant existingMerchant = Merchant.builder()
+        .merchantId(existingMerchantId)
+        .iban("OLD_IBAN")
+        .businessName("Old Business Name")
+        .ibanHolder("Old Iban Holder")
+        .build();
+
+    MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .iban("NEW_IBAN")
+        .businessName("New Business Name")
+        .ibanHolder("New Iban Holder")
+        .build();
+
+    // Mock the repository to return the existing merchant
+    when(merchantRepositoryMock.findByFiscalCode(updateDTO.getFiscalCode()))
+        .thenReturn(Optional.of(existingMerchant));
+
+    // When
+    merchantService.retrieveOrCreateMerchantIfNotExists(updateDTO);
+
+    // Then
+    assertEquals("NEW_IBAN", existingMerchant.getIban());
+    assertEquals("New Business Name", existingMerchant.getBusinessName());
+    assertEquals("New Iban Holder", existingMerchant.getIbanHolder());
+    verify(merchantRepositoryMock).save(existingMerchant);
+  }
+
+  @Test
+  void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
+    // Given
+    String existingMerchantId = "EXISTING_MERCHANT_ID";
+    Merchant existingMerchant = Merchant.builder()
+        .merchantId(existingMerchantId)
+        .iban("OLD_IBAN")
+        .businessName("Old Business Name")
+        .ibanHolder("Old Iban Holder")
+        .build();
+
+    MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .iban("") // Blank
+        .businessName(null) // Null
+        .ibanHolder("") // Blank
+        .build();
+
+    // Mock the repository to return the existing merchant
+    when(merchantRepositoryMock.findByFiscalCode(updateDTO.getFiscalCode()))
+        .thenReturn(Optional.of(existingMerchant));
+
+    // When
+    merchantService.retrieveOrCreateMerchantIfNotExists(updateDTO);
+
+    // Then
+    assertEquals("OLD_IBAN", existingMerchant.getIban());
+    assertEquals("Old Business Name", existingMerchant.getBusinessName());
+    assertEquals("Old Iban Holder", existingMerchant.getIbanHolder());
+    verify(merchantRepositoryMock).save(existingMerchant);
+  }
+
+  @Test
+  void updateMerchant_updatesOnlyProvidedFields() {
+    // Given
+    String existingMerchantId = "EXISTING_MERCHANT_ID";
+    Merchant existingMerchant = Merchant.builder()
+        .merchantId(existingMerchantId)
+        .iban("OLD_IBAN")
+        .businessName("Old Business Name")
+        .ibanHolder("Old Iban Holder")
+        .build();
+
+    MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .iban("NEW_IBAN") // Only updating IBAN
+        .build();
+
+    // Mock the repository to return the existing merchant
+    when(merchantRepositoryMock.findByFiscalCode(updateDTO.getFiscalCode()))
+        .thenReturn(Optional.of(existingMerchant));
+
+    // When
+    merchantService.retrieveOrCreateMerchantIfNotExists(updateDTO);
+
+    // Then
+    assertEquals("NEW_IBAN", existingMerchant.getIban());
+    assertEquals("Old Business Name", existingMerchant.getBusinessName());
+    assertEquals("Old Iban Holder", existingMerchant.getIbanHolder());
+    verify(merchantRepositoryMock).save(existingMerchant);
+  }
 }

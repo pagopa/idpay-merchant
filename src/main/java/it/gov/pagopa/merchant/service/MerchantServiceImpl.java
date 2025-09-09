@@ -14,6 +14,7 @@ import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -146,9 +147,15 @@ public class MerchantServiceImpl implements MerchantService {
 
   private void updateMerchant(Merchant existingMerchant, MerchantCreateDTO merchantCreateDTO) {
 
-    existingMerchant.setIban(merchantCreateDTO.getIban());
-    existingMerchant.setBusinessName(merchantCreateDTO.getBusinessName());
-    existingMerchant.setIbanHolder(merchantCreateDTO.getIbanHolder());
+    if(StringUtils.isNotBlank(merchantCreateDTO.getIban())){
+      existingMerchant.setIban(merchantCreateDTO.getIban());
+    }
+    if(StringUtils.isNotBlank(merchantCreateDTO.getBusinessName())){
+      existingMerchant.setBusinessName(merchantCreateDTO.getBusinessName());
+    }
+    if(StringUtils.isNotBlank(merchantCreateDTO.getIbanHolder())){
+      existingMerchant.setIbanHolder(merchantCreateDTO.getIbanHolder());
+    }
   }
 
   private String createNewMerchant(MerchantCreateDTO merchantCreateDTO) {
@@ -161,6 +168,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     Merchant merchant = merchantCreateDTOMapper.dtoToEntity(merchantCreateDTO, merchantId);
     merchant.setInitiativeList(initiatives);
+    merchant.setEnabled(true);
     merchantRepository.save(merchant);
     return merchantId;
   }
