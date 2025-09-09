@@ -87,7 +87,7 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
-  public ResponseEntity<String> createMerchant(MerchantCreateDTO merchantCreateDTO) {
+  public ResponseEntity<String> createOrUpdateMerchant(MerchantCreateDTO merchantCreateDTO) {
 
     log.debug(
         "[CREATE_MERCHANT] Request received to create merchant with businessName={} and fiscalCode={}",

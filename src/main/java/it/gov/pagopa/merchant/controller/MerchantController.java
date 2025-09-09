@@ -64,6 +64,6 @@ public interface MerchantController {
           "If a merchant with the given fiscal code already exists, the endpoint returns the internal ID of the existing merchant. " +
           "The request body must include the acquirer ID, business name, and fiscal code.")
   @PutMapping
-  ResponseEntity<String> createMerchant(
+  ResponseEntity<String> createOrUpdateMerchant(
       @RequestBody @NotNull @Valid MerchantCreateDTO merchantCreateDTO);
 }

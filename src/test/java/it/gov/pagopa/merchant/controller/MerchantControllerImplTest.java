@@ -252,7 +252,7 @@ class MerchantControllerImplTest {
 
 
   @Test
-  void createMerchant_ok() throws Exception {
+  void createOrUpdateMerchant_ok() throws Exception {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
@@ -282,7 +282,7 @@ class MerchantControllerImplTest {
   }
 
   @Test
-  void createMerchant_Ko_MerchantAlreadyExist() throws Exception {
+  void createMerchant_Ko_OrUpdate_MerchantAlreadyExist() throws Exception {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
@@ -313,7 +313,7 @@ class MerchantControllerImplTest {
   }
 
   @Test
-  void createMerchant_Ko_GenericException() throws Exception {
+  void createOrUpdateMerchant_Ko_GenericException() throws Exception {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
@@ -341,7 +341,7 @@ class MerchantControllerImplTest {
   }
 
   @Test
-  void createMerchant_Ko_MissingMandatoryParams() throws Exception {
+  void createOrUpdateMerchant_Ko_MissingMandatoryParams() throws Exception {
     String acquirerId = "ACQ123";
     String fiscalCode = "ABCDEF12G34H567I";
     String expectedMerchantId = "MERCHANT123";
