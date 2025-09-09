@@ -24,7 +24,7 @@ public interface MerchantService {
   MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId,
       MerchantIbanPatchDTO merchantIbanPatchDTO);
 
-  String createMerchantIfNotExists(String acquirerId, String businessName, String fiscalCode);
+  String retrieveOrCreateMerchantIfNotExists(MerchantCreateDTO merchantCreateDTO);
 
   String retrieveMerchantId(String acquirerId, String fiscalCode);
 
