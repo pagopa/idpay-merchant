@@ -1,6 +1,5 @@
 package it.gov.pagopa.common.web.exception;
 
-import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -40,10 +39,6 @@ public class ServiceExceptionHandler {
         if (httpStatus == null) {
             log.warn("Unhandled exception: {}", error.getClass().getName());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-        //Map MerchantAlreadyExistException in HttpStatus.CONFLICT code
-        if (error instanceof MerchantAlreadyExistsException){
-            httpStatus = HttpStatus.CONFLICT;
         }
 
         return new ClientExceptionWithBody(httpStatus, error.getCode(), error.getMessage(), error.isPrintStackTrace(), error);

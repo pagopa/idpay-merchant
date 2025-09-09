@@ -441,7 +441,7 @@ class MerchantServiceImplTest {
   }
 
   @Test
-  void createMerchantIfNotExists_success_withSpy() {
+  void createOrRetrieveMerchantIfNotExists_success_withSpy() {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
@@ -489,5 +489,39 @@ class MerchantServiceImplTest {
     assertEquals(expectedMerchantId, result);
     verify(merchantRepositoryMock).save(any(Merchant.class));
     verify(initiativeRestConnector, times(2)).getInitiativeBeneficiaryView(anyString());
+  }
+
+  @Test
+  void retrieveOrCreateMerchantIfNotExists_AlreadyExists() {
+    String acquirerId = "ACQ123";
+    String businessName = "Test Business";
+    String fiscalCode = "ABCDEF12G34H567I";
+    String iban = "IT60X0542811101000000123456";
+    String ibanHolder = "Test Iban Holder";
+    String expectedMerchantId = Utilities.toUUID(fiscalCode + "_" + acquirerId);
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId)
+        .iban(iban)
+        .ibanHolder(ibanHolder)
+        .build();
+
+    Merchant merchant = Merchant.builder()
+        .fiscalCode(fiscalCode)
+        .merchantId(expectedMerchantId)
+        .businessName("businessName")
+        .build();
+
+    Mockito.when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
+        .thenReturn(Optional.of(merchant));
+
+    Mockito.when(merchantRepositoryMock.save(merchant))
+        .thenReturn(merchant);
+    String merchantIDUpdated = merchantService.retrieveOrCreateMerchantIfNotExists(dto);
+
+    assertEquals(expectedMerchantId, merchantIDUpdated);
+    Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
+    Mockito.verify(merchantRepositoryMock).save(Mockito.any(Merchant.class));
   }
 }
