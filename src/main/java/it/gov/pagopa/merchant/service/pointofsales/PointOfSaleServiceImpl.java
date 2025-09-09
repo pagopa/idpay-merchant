@@ -227,7 +227,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       updateEnabledUsers(usersResource, pointOfSale, contactEmail, existingUsers);
       log.info(
               "[KEYCLOAK] User already exists and is enabled. The new Point of Sale with ID {} will be associated with the existing user.",
-              pointOfSale.getId());
+              sanitizeForLog(pointOfSale.getId()));
     }
   }
 
@@ -260,7 +260,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     newUser.setAttributes(attrs);
 
     log.info("[KEYCLOAK] Attempting to create a new Keycloak user linked to Point of Sale ID {}",
-            pointOfSale.getId());
+            sanitizeForLog(pointOfSale.getId()));
 
     try (Response response = usersResource.create(newUser)) {
       if (response.getStatus() == Response.Status.CREATED.getStatusCode()) { // Status code 201
