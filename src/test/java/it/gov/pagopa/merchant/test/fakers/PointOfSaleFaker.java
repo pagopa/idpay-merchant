@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.test.fakers;
 
 import it.gov.pagopa.merchant.model.PointOfSale;
-import org.bson.types.ObjectId;
 
 public class PointOfSaleFaker {
 
