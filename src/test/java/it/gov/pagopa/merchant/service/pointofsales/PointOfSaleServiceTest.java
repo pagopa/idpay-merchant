@@ -12,9 +12,6 @@ import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import jakarta.ws.rs.core.Response;
-
-import java.net.URI;
-
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,15 +32,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.argThat;
 
 @ExtendWith(MockitoExtension.class)
 class PointOfSaleServiceTest {
@@ -140,7 +139,7 @@ class PointOfSaleServiceTest {
   @Test
   void savePointOfSalesOK_withId() {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-    pointOfSale.setId(new ObjectId());
+    pointOfSale.setId("id");
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
 
     // Mock Keycloak interactions
@@ -170,7 +169,7 @@ class PointOfSaleServiceTest {
   @Test
   void savePointOfSalesOK_withIdNotFound() {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-    pointOfSale.setId(new ObjectId());
+    pointOfSale.setId("id");
     MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.findById(any())).thenReturn(Optional.empty());
@@ -183,10 +182,10 @@ class PointOfSaleServiceTest {
   @Test
   void savePointOfSalesKO_genericError() {
     PointOfSale pointOfSale1 = PointOfSaleFaker.mockInstance();
-    pointOfSale1.setId(new ObjectId("64b7f9fa9d1a3c3f2f1a1a1a"));
+    pointOfSale1.setId("64b7f9fa9d1a3c3f2f1a1a1a");
 
     PointOfSale pointOfSale2 = PointOfSaleFaker.mockInstance();
-    pointOfSale2.setId(new ObjectId("64b7f9fa9d1a3c3f2f1a1a1b"));
+    pointOfSale2.setId("64b7f9fa9d1a3c3f2f1a1a1b");
 
     List<PointOfSale> pointOfSales = new ArrayList<>();
     pointOfSales.add(pointOfSale1);
@@ -197,14 +196,14 @@ class PointOfSaleServiceTest {
     when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
     when(repositoryMock.findById("64b7f9fa9d1a3c3f2f1a1a1a")).thenReturn(Optional.of(pointOfSale1));
     when(repositoryMock.findById("64b7f9fa9d1a3c3f2f1a1a1b")).thenReturn(Optional.of(pointOfSale2));
-    when(repositoryMock.save(argThat(p -> p.getId().toString().equals("64b7f9fa9d1a3c3f2f1a1a1a"))))
+    when(repositoryMock.save(argThat(p -> p.getId().equals("64b7f9fa9d1a3c3f2f1a1a1a"))))
         .thenThrow(new RuntimeException("Generic error"));
 
     assertThrows(ServiceException.class, () -> callSave(pointOfSales));
     verify(repositoryMock).save(
-        argThat(p -> p.getId().toString().equals("64b7f9fa9d1a3c3f2f1a1a1a")));
+        argThat(p -> p.getId().equals("64b7f9fa9d1a3c3f2f1a1a1a")));
     verify(repositoryMock, never()).save(
-        argThat(p -> p.getId().toString().equals("64b7f9fa9d1a3c3f2f1a1a1b")));
+        argThat(p -> p.getId().equals("64b7f9fa9d1a3c3f2f1a1a1b")));
   }
 
   @Test
@@ -368,7 +367,7 @@ class PointOfSaleServiceTest {
     String pointOfSaleId = new ObjectId().toHexString();
 
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-    pointOfSale.setId(new ObjectId(pointOfSaleId));
+    pointOfSale.setId(pointOfSaleId);
 
     when(merchantServiceMock.getMerchantDetail(merchantId))
         .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
@@ -409,20 +408,20 @@ class PointOfSaleServiceTest {
   @Test
   void savePointOfSales_compensatingDeleteIsCalledOnSaveError() {
     PointOfSale pos1 = PointOfSaleFaker.mockInstance();
-    pos1.setId(new ObjectId("6893085d00c110648b595981"));
+    pos1.setId("6893085d00c110648b595981");
     pos1.setMerchantId(MERCHANT_ID);
     pos1.setContactEmail("email1@example.com");
 
     PointOfSale pos2 = PointOfSaleFaker.mockInstance();
-    pos2.setId(new ObjectId("6893085d00c110648b595982"));
+    pos2.setId("6893085d00c110648b595982");
     pos2.setMerchantId(MERCHANT_ID);
     pos2.setContactEmail("email2@example.com");
 
     List<PointOfSale> posList = List.of(pos1, pos2);
 
     when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(new MerchantDetailDTO());
-    when(repositoryMock.findById(pos1.getId().toString())).thenReturn(Optional.of(pos1));
-    when(repositoryMock.findById(pos2.getId().toString())).thenReturn(Optional.of(pos2));
+    when(repositoryMock.findById(pos1.getId())).thenReturn(Optional.of(pos1));
+    when(repositoryMock.findById(pos2.getId())).thenReturn(Optional.of(pos2));
     when(repositoryMock.save(pos1)).thenReturn(pos1);
     when(repositoryMock.save(pos2)).thenThrow(new RuntimeException("Simulated DB error"));
 
@@ -432,11 +431,9 @@ class PointOfSaleServiceTest {
     when(keycloak.realm(anyString())).thenReturn(realmMock);
     when(realmMock.users()).thenReturn(usersMock);
 
-    assertThrows(ServiceException.class, () -> {
-      service.savePointOfSales(MERCHANT_ID, posList);
-    });
+    assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, posList));
 
-    verify(repositoryMock).deleteById(pos1.getId().toString());
+    verify(repositoryMock).deleteById(pos1.getId());
   }
 
   @Test
@@ -446,7 +443,7 @@ class PointOfSaleServiceTest {
     when(repositoryMock.save(any(PointOfSale.class)))
         .thenAnswer(invocation -> {
           PointOfSale pos = invocation.getArgument(0);
-          pos.setId(new ObjectId());
+          pos.setId("id");
           return pos;
         })
         .thenThrow(new RuntimeException("Simulated failure"));
@@ -464,9 +461,7 @@ class PointOfSaleServiceTest {
 
     List<PointOfSale> pointOfSaleList = List.of(pos1, pos2);
 
-    ServiceException thrown = assertThrows(ServiceException.class, () -> {
-      service.savePointOfSales(MERCHANT_ID, pointOfSaleList);
-    });
+    ServiceException thrown = assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, pointOfSaleList));
 
     assertNotNull(thrown.getMessage());
 
@@ -476,7 +471,7 @@ class PointOfSaleServiceTest {
   @Test
   void savePointOfSales_updateEnabledUserScenario() {
     PointOfSale pos = PointOfSaleFaker.mockInstance();
-    pos.setId(new ObjectId("6893085d00c110648b595981"));
+    pos.setId("6893085d00c110648b595981");
     pos.setMerchantId(MERCHANT_ID);
     pos.setContactEmail("user@example.com");
     pos.setContactName("ContactName");
@@ -513,14 +508,14 @@ class PointOfSaleServiceTest {
   @Test
   void savePointOfSales_deletesOldUserWhenOldEmailIsDifferentFromNewEmail() {
     PointOfSale newPos = PointOfSaleFaker.mockInstance();
-    newPos.setId(new ObjectId("64ec4a4b34ad2f17f6e63ef9"));
+    newPos.setId("64ec4a4b34ad2f17f6e63ef9");
     newPos.setMerchantId(MERCHANT_ID);
     newPos.setContactEmail("new.email@example.com");
     newPos.setContactName("ContactName");
     newPos.setContactSurname("ContactSurname");
 
     PointOfSale oldPos = PointOfSaleFaker.mockInstance();
-    oldPos.setId(new ObjectId("64ec4a4b34ad2f17f6e63ef9"));
+    oldPos.setId("64ec4a4b34ad2f17f6e63ef9");
     oldPos.setMerchantId(MERCHANT_ID);
     oldPos.setContactEmail("old.email@example.com");
 
@@ -553,12 +548,12 @@ class PointOfSaleServiceTest {
   @Test
   void savePointOfSales_shouldNotDeleteUserWhenEmailIsUnchanged() {
     PointOfSale pos = PointOfSaleFaker.mockInstance();
-    pos.setId(new ObjectId("64ec4a4b34ad2f17f6e63ef9"));
+    pos.setId("64ec4a4b34ad2f17f6e63ef9");
     pos.setMerchantId(MERCHANT_ID);
     pos.setContactEmail("same.email@example.com");
 
     PointOfSale oldPos = PointOfSaleFaker.mockInstance();
-    oldPos.setId(new ObjectId("64ec4a4b34ad2f17f6e63ef9"));
+    oldPos.setId("64ec4a4b34ad2f17f6e63ef9");
     oldPos.setMerchantId(MERCHANT_ID);
     oldPos.setContactEmail("same.email@example.com");
 
