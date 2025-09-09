@@ -3,18 +3,18 @@ package it.gov.pagopa.merchant.service;
 import feign.FeignException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
-import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
-import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyExistsException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
+import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class MerchantServiceImpl implements MerchantService {
   private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
   private final List<String> defaultInitiatives;
   private final InitiativeRestConnector initiativeRestConnector;
-
+  private final MerchantCreateDTOMapper merchantCreateDTOMapper;
 
   public MerchantServiceImpl(MerchantDetailService merchantDetailService,
       MerchantListService merchantListService,
@@ -48,7 +48,8 @@ public class MerchantServiceImpl implements MerchantService {
       UploadingMerchantService uploadingMerchantService,
       Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
       @Value("${merchant.default-initiatives}") List<String> defaultInitiatives,
-      InitiativeRestConnector initiativeRestConnector) {
+      InitiativeRestConnector initiativeRestConnector,
+      MerchantCreateDTOMapper merchantCreateDTOMapper) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
     this.merchantProcessOperationService = merchantProcessOperationService;
@@ -59,6 +60,7 @@ public class MerchantServiceImpl implements MerchantService {
     this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
     this.defaultInitiatives = defaultInitiatives;
     this.initiativeRestConnector = initiativeRestConnector;
+    this.merchantCreateDTOMapper = merchantCreateDTOMapper;
   }
 
   @Override
@@ -124,25 +126,49 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
-  public String createMerchantIfNotExists(String acquirerId, String businessName,
-      String fiscalCode) {
+  public String retrieveOrCreateMerchantIfNotExists(MerchantCreateDTO merchantCreateDTO) {
 
-    String merchantId = Utilities.toUUID(fiscalCode.concat("_").concat(acquirerId));
+    Optional<Merchant> existingMerchantOpt = merchantRepository.findByFiscalCode(merchantCreateDTO.getFiscalCode());
+    if (existingMerchantOpt.isPresent()) {
+      Merchant existingMerchant = existingMerchantOpt.get();
 
-    Optional<Merchant> existing = merchantRepository.findByFiscalCode(fiscalCode);
-    if (existing.isPresent()) {
-      throw new MerchantAlreadyExistsException(ExceptionMessage.MERCHANT_ALREADY_EXISTS);
+      // Update IBAN, IBAN holder and businessName
+      updateMerchant(existingMerchant, merchantCreateDTO);
+
+      // Save updated entity
+      merchantRepository.save(existingMerchant);
+
+      return existingMerchant.getMerchantId();
+
+    }else {
+      return createNewMerchant(merchantCreateDTO);
     }
+  }
+
+  private void updateMerchant(Merchant existingMerchant, MerchantCreateDTO merchantCreateDTO) {
+
+    if(StringUtils.isNotBlank(merchantCreateDTO.getIban())){
+      existingMerchant.setIban(merchantCreateDTO.getIban());
+    }
+    if(StringUtils.isNotBlank(merchantCreateDTO.getBusinessName())){
+      existingMerchant.setBusinessName(merchantCreateDTO.getBusinessName());
+    }
+    if(StringUtils.isNotBlank(merchantCreateDTO.getIbanHolder())){
+      existingMerchant.setIbanHolder(merchantCreateDTO.getIbanHolder());
+    }
+  }
+
+  private String createNewMerchant(MerchantCreateDTO merchantCreateDTO) {
+    String merchantId = Utilities.toUUID(merchantCreateDTO.getFiscalCode().concat("_").concat(merchantCreateDTO.getAcquirerId()));
     List<Initiative> initiatives = new ArrayList<>();
     for (String initiativeId : defaultInitiatives) {
       InitiativeBeneficiaryViewDTO dto = getInitiativeInfo(initiativeId);
       initiatives.add(createMerchantInitiative(dto));
     }
 
-    Merchant merchant = Merchant.builder().merchantId(merchantId).acquirerId(acquirerId)
-        .businessName(businessName).fiscalCode(fiscalCode).vatNumber(fiscalCode)
-        .initiativeList(initiatives).enabled(true).build();
-
+    Merchant merchant = merchantCreateDTOMapper.dtoToEntity(merchantCreateDTO, merchantId);
+    merchant.setInitiativeList(initiatives);
+    merchant.setEnabled(true);
     merchantRepository.save(merchant);
     return merchantId;
   }

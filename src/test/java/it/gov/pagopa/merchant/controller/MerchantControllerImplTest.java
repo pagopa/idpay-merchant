@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -20,11 +20,11 @@ import it.gov.pagopa.merchant.configuration.MerchantErrorManagerConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
+import it.gov.pagopa.merchant.dto.MerchantCreateDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
-import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyExistsException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -250,22 +250,31 @@ class MerchantControllerImplTest {
         .updateIban(anyString(), anyString(), anyString(), any(MerchantIbanPatchDTO.class));
   }
 
+
   @Test
-  void createMerchant_ok() throws Exception {
+  void createOrUpdateMerchant_ok() throws Exception {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String iban = "IT60X0542811101000000123456";
+    String ibanHolder = "Test Iban Holder";
     String expectedMerchantId = "MERCHANT123";
 
-    Mockito.when(merchantServiceMock.createMerchantIfNotExists(
-            anyString(), anyString(), anyString()))
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId)
+        .iban(iban)
+        .ibanHolder(ibanHolder)
+        .build();
+
+    Mockito.when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
+            dto))
         .thenReturn(expectedMerchantId);
 
     mockMvc.perform(
-            post("/idpay/merchant/add")
-                .header("acquirerId", acquirerId)
-                .header("businessName", businessName)
-                .header("fiscalCode", fiscalCode)
+            put("/idpay/merchant")
+                .content(objectMapper.writeValueAsString(dto))
                 .contentType(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isOk())
@@ -273,24 +282,84 @@ class MerchantControllerImplTest {
   }
 
   @Test
-  void createMerchant_Ko_Returns500() throws Exception {
+  void createMerchant_Ko_OrUpdate_MerchantAlreadyExist() throws Exception {
+    String acquirerId = "ACQ123";
+    String businessName = "Test Business";
+    String fiscalCode = "ABCDEF12G34H567I";
+    String expectedMerchantId = "MERCHANT123";
+    String iban = "IT60X0542811101000000123456";
+    String ibanHolder = "Test Iban Holder";
+
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId)
+        .iban(iban)
+        .ibanHolder(ibanHolder)
+        .build();
+
+
+    Mockito.when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
+            dto))
+        .thenReturn(expectedMerchantId);
+
+    mockMvc.perform(
+            put("/idpay/merchant")
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isOk())
+        .andExpect(content().string(expectedMerchantId));
+  }
+
+  @Test
+  void createOrUpdateMerchant_Ko_GenericException() throws Exception {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
 
-    Mockito.when(merchantServiceMock.createMerchantIfNotExists(
-            anyString(), anyString(), anyString()))
-        .thenThrow(new MerchantAlreadyExistsException("Merchant already exists"));
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId).build();
+
+    final String genericException = "Generic Exception";
+
+    Mockito.when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
+            dto))
+        .thenThrow(new RuntimeException(genericException));
 
     mockMvc.perform(
-            post("/idpay/merchant/add")
-                .header("acquirerId", acquirerId)
-                .header("businessName", businessName)
-                .header("fiscalCode", fiscalCode)
+            put("/idpay/merchant")
+                .content(objectMapper.writeValueAsString(dto))
                 .contentType(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.code").value("MERCHANT_GENERIC_ERROR"))
-        .andExpect(jsonPath("$.message").value("Merchant already exists"));
+        .andExpect(jsonPath("$.code").value(ExceptionCode.GENERIC_ERROR))
+        .andExpect(jsonPath("$.message").value("A generic error occurred"
+        ));
   }
+
+  @Test
+  void createOrUpdateMerchant_Ko_MissingMandatoryParams() throws Exception {
+    String acquirerId = "ACQ123";
+    String fiscalCode = "ABCDEF12G34H567I";
+    String expectedMerchantId = "MERCHANT123";
+
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId).build();
+
+    Mockito.when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
+            dto))
+        .thenReturn(expectedMerchantId);
+
+    mockMvc.perform(
+            put("/idpay/merchant")
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isBadRequest());
+  }
+
 }
