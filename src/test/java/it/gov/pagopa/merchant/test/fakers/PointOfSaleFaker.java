@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.test.fakers;
 
 import it.gov.pagopa.merchant.model.PointOfSale;
-import org.bson.types.ObjectId;
 
 public class PointOfSaleFaker {
 
@@ -11,7 +10,7 @@ public class PointOfSaleFaker {
 
     public static PointOfSale.PointOfSaleBuilder mockInstanceBuilder() {
         return PointOfSale.builder()
-                .id(new ObjectId())
+                .id("id")
                 .type("PHYSICAL")
                 .merchantId("MERCHANT-ID")
                 .region("REGION")
