@@ -47,13 +47,13 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   private static final String REQUIRED_ACTION_UPDATE_PASSWORD = "UPDATE_PASSWORD";
 
   public PointOfSaleServiceImpl(
-      MerchantService merchantService,
-      PointOfSaleRepository pointOfSaleRepository,
-      Keycloak keycloakAdminClient,
-      @Value("${keycloak.admin.realm}") String realm,
-      @Value("${keycloak.admin.user.actions.email.lifespan}") Integer keycloakUserActionsEmailLifespan,
-      @Value("${keycloak.admin.redirect-uri}") String redirectURI,
-      @Value("${keycloak.admin.redirect-client-id}") String keycloakClientId) {
+          MerchantService merchantService,
+          PointOfSaleRepository pointOfSaleRepository,
+          Keycloak keycloakAdminClient,
+          @Value("${keycloak.admin.realm}") String realm,
+          @Value("${keycloak.admin.user.actions.email.lifespan}") Integer keycloakUserActionsEmailLifespan,
+          @Value("${keycloak.admin.redirect-uri}") String redirectURI,
+          @Value("${keycloak.admin.redirect-client-id}") String keycloakClientId) {
     this.merchantService = merchantService;
     this.pointOfSaleRepository = pointOfSaleRepository;
     this.keycloakAdminClient = keycloakAdminClient;
@@ -69,8 +69,8 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     verifyMerchantExists(merchantId);
 
     List<PointOfSaleUpdateContext> entities = pointOfSales.stream()
-        .map(this::preparePointOfSaleForSave)
-        .toList();
+            .map(this::preparePointOfSaleForSave)
+            .toList();
 
     List<PointOfSale> savedPointOfSales = new ArrayList<>();
 
@@ -82,7 +82,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       }
     } catch (Exception exception) {
       log.error(
-          "[POINT-OF-SALES][SAVE] Error during saving PointOfSales. Initiating compensation rollback.");
+              "[POINT-OF-SALES][SAVE] Error during saving PointOfSales. Initiating compensation rollback.");
       compensatingDelete(savedPointOfSales);
       log.error("[POINT-OF-SALES][SAVE] Compensation rollback completed.");
       if (exception instanceof DuplicateKeyException) {
@@ -90,7 +90,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       }
       log.error("[POINT-OF-SALES][SAVE] Exception message: {}", exception.getMessage());
       throw new ServiceException(PointOfSaleConstants.CODE_GENERIC_SAVE_ERROR,
-          PointOfSaleConstants.MSG_GENERIC_SAVE_ERROR);
+              PointOfSaleConstants.MSG_GENERIC_SAVE_ERROR);
     }
   }
 
@@ -108,17 +108,17 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
   @Override
   public Page<PointOfSale> getPointOfSalesList(
-      String merchantId,
-      String type,
-      String city,
-      String address,
-      String contactName,
-      Pageable pageable) {
+          String merchantId,
+          String type,
+          String city,
+          String address,
+          String contactName,
+          Pageable pageable) {
 
     verifyMerchantExists(merchantId);
 
     Criteria criteria = pointOfSaleRepository.getCriteria(merchantId, type, city, address,
-        contactName);
+            contactName);
     List<PointOfSale> matched = pointOfSaleRepository.findByFilter(criteria, pageable);
     long total = pointOfSaleRepository.getCount(criteria);
 
@@ -164,14 +164,14 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId);
     if (merchantDetail == null) {
       throw new MerchantNotFoundException(
-          String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, merchantId));
+              String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, merchantId));
     }
   }
 
   public PointOfSale getPointOfSaleById(String pointOfSaleId) {
     return pointOfSaleRepository.findById(pointOfSaleId)
-        .orElseThrow(() -> new PointOfSaleNotFoundException(
-            String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)));
+            .orElseThrow(() -> new PointOfSaleNotFoundException(
+                    String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)));
   }
 
   @Override
@@ -179,9 +179,9 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     verifyMerchantExists(merchantId);
 
     return pointOfSaleRepository.findByIdAndMerchantId(pointOfSaleId, merchantId)
-        .orElseThrow(() -> new PointOfSaleNotFoundException(
-            String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
-        ));
+            .orElseThrow(() -> new PointOfSaleNotFoundException(
+                    String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
+            ));
   }
 
   private void manageReferentUserOnKeycloak(PointOfSale pointOfSale, String oldEmail) {
@@ -189,8 +189,8 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     if (StringUtils.isEmpty(contactEmail)) {
       log.warn(
-          "[KEYCLOAK] Point of Sale with ID {} for merchant {} has no contact email. Skipping Keycloak user creation.",
-          pointOfSale.getId(), sanitizeForLog(pointOfSale.getMerchantId()));
+              "[KEYCLOAK] Point of Sale with ID {} for merchant {} has no contact email. Skipping Keycloak user creation.",
+              pointOfSale.getId(), sanitizeForLog(pointOfSale.getMerchantId()));
       return;
     }
 
@@ -201,8 +201,8 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       handleNewOrExistingUser(usersResource, pointOfSale, contactEmail);
     } catch (Exception e) {
       log.error(
-          "[KEYCLOAK] Error while creating Keycloak user for Point of Sale with ID {}. Exception: {}",
-          pointOfSale.getId(), e.getMessage(), e);
+              "[KEYCLOAK] Error while creating Keycloak user for Point of Sale with ID {}. Exception: {}",
+              pointOfSale.getId(), e.getMessage(), e);
     }
   }
 
@@ -218,7 +218,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   }
 
   private void handleNewOrExistingUser(UsersResource usersResource, PointOfSale pointOfSale,
-      String contactEmail) {
+                                       String contactEmail) {
     List<UserRepresentation> existingUsers = usersResource.searchByEmail(contactEmail, true);
 
     if (existingUsers.isEmpty()) {
@@ -226,24 +226,24 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     } else {
       updateEnabledUsers(usersResource, pointOfSale, contactEmail, existingUsers);
       log.info(
-          "[KEYCLOAK] User already exists and is enabled. The new Point of Sale with ID {} will be associated with the existing user.",
-          pointOfSale.getId());
+              "[KEYCLOAK] User already exists and is enabled. The new Point of Sale with ID {} will be associated with the existing user.",
+              pointOfSale.getId());
     }
   }
 
   private void updateEnabledUsers(UsersResource usersResource, PointOfSale pointOfSale,
-      String contactEmail, List<UserRepresentation> users) {
+                                  String contactEmail, List<UserRepresentation> users) {
     for (UserRepresentation user : users) {
       user.setFirstName(pointOfSale.getContactName());
       user.setLastName(pointOfSale.getContactSurname());
       usersResource.get(user.getId()).update(user);
       log.info("[KEYCLOAK] Updated contact name/surname for existing enabled user with email: {}",
-          sanitizeForLog(contactEmail));
+              sanitizeForLog(contactEmail));
     }
   }
 
   private void createNewUserAndSendActionsEmail(UsersResource usersResource,
-      PointOfSale pointOfSale) {
+                                                PointOfSale pointOfSale) {
     UserRepresentation newUser = new UserRepresentation();
     newUser.setEmail(pointOfSale.getContactEmail());
     newUser.setUsername(pointOfSale.getContactEmail());
@@ -256,29 +256,27 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     // Custom attrs
     Map<String, List<String>> attrs = new HashMap<>();
     attrs.put("merchantId", List.of(pointOfSale.getMerchantId()));
-    if(pointOfSale.getId() != null){
-      attrs.put("pointOfSaleId", List.of(pointOfSale.getId()));
-    }
+    attrs.put("pointOfSaleId", List.of(pointOfSale.getId()));
     newUser.setAttributes(attrs);
 
     log.info("[KEYCLOAK] Attempting to create a new Keycloak user linked to Point of Sale ID {}",
-        pointOfSale.getId());
+            pointOfSale.getId());
 
     try (Response response = usersResource.create(newUser)) {
       if (response.getStatus() == Response.Status.CREATED.getStatusCode()) { // Status code 201
         String userId = CreatedResponseUtil.getCreatedId(response);
         log.info("[KEYCLOAK] User created successfully with ID {}. Sending password setup email.",
-            userId);
+                userId);
 
         // The action "UPDATE_PASSWORD" sends an email with a link that will expire after the lifespan to reset the user password
         usersResource.get(userId)
-            .executeActionsEmail(keycloakClientId, redirectURI, keycloakUserActionsEmailLifespan,
-                List.of(REQUIRED_ACTION_UPDATE_PASSWORD));
+                .executeActionsEmail(keycloakClientId, redirectURI, keycloakUserActionsEmailLifespan,
+                        List.of(REQUIRED_ACTION_UPDATE_PASSWORD));
 
       } else {
         // Handling non-success cases with a log
         log.error("[KEYCLOAK] Failed to create Keycloak user. Status: {}, Reason: {}.",
-            response.getStatus(), response.getStatusInfo().getReasonPhrase());
+                response.getStatus(), response.getStatusInfo().getReasonPhrase());
       }
     } catch (Exception e) {
       log.error("[KEYCLOAK] An exception occurred while creating Keycloak user.", e);
