@@ -601,6 +601,7 @@ class MerchantServiceImplTest {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
     LocalDateTime activationDate = LocalDateTime.now();
+    LocalDateTime activatioDateTimeNew =LocalDateTime.now().plusDays(2);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -611,7 +612,7 @@ class MerchantServiceImplTest {
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
         .iban("NEW_IBAN") // Only updating IBAN
-        .activationDate(LocalDateTime.now())
+        .activationDate(activatioDateTimeNew)
         .build();
 
     // Mock the repository to return the existing merchant
@@ -625,7 +626,7 @@ class MerchantServiceImplTest {
     assertEquals("NEW_IBAN", existingMerchant.getIban());
     assertEquals("Old Business Name", existingMerchant.getBusinessName());
     assertEquals("Old Iban Holder", existingMerchant.getIbanHolder());
-    assertEquals(activationDate, existingMerchant.getActivationDate());
+    assertEquals(activatioDateTimeNew, existingMerchant.getActivationDate());
     verify(merchantRepositoryMock).save(existingMerchant);
   }
 }
