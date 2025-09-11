@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import it.gov.pagopa.merchant.dto.MerchantCreateDTO;
 import it.gov.pagopa.merchant.model.Merchant;
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +36,13 @@ class MerchantCreateDTOMapperTest {
   @Test
   void testDtoToEntity_ValidInput() {
     MerchantCreateDTO dto = new MerchantCreateDTO();
+    LocalDate activationDate = LocalDate.now();
     dto.setFiscalCode("ABC12345678");
     dto.setAcquirerId("Acquirer123");
     dto.setBusinessName("Test Business");
     dto.setIban("IT60X0542811101000000123456");
     dto.setIbanHolder("Holder Name");
+    dto.setActivationDate(activationDate);
 
     Merchant result = merchantCreateDTOMapper.dtoToEntity(dto, "merchantId");
 
@@ -50,6 +53,7 @@ class MerchantCreateDTOMapperTest {
     assertEquals("Test Business", result.getBusinessName());
     assertEquals("IT60X0542811101000000123456", result.getIban());
     assertEquals("Holder Name", result.getIbanHolder());
+    assertEquals(activationDate, result.getActivationDate());
   }
 
   @Test

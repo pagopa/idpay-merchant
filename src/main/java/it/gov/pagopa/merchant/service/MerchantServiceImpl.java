@@ -137,11 +137,13 @@ public class MerchantServiceImpl implements MerchantService {
 
       // Save updated entity
       merchantRepository.save(existingMerchant);
-
+      log.info("[UPDATE_MERCHANT] Merchant with merchantId={} successfully updated", existingMerchant.getMerchantId());
       return existingMerchant.getMerchantId();
 
     }else {
-      return createNewMerchant(merchantCreateDTO);
+      String merchantId = createNewMerchant(merchantCreateDTO);
+      log.info("[CREATE_MERCHANT] Merchant with merchantId={} successfully created", merchantId);
+      return merchantId;
     }
   }
 
@@ -155,6 +157,9 @@ public class MerchantServiceImpl implements MerchantService {
     }
     if(StringUtils.isNotBlank(merchantCreateDTO.getIbanHolder())){
       existingMerchant.setIbanHolder(merchantCreateDTO.getIbanHolder());
+    }
+    if(merchantCreateDTO.getActivationDate()!=null){
+      existingMerchant.setActivationDate(merchantCreateDTO.getActivationDate());
     }
   }
 

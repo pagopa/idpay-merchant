@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,4 +25,6 @@ public class MerchantCreateDTO {
   private String iban;
 
   private String ibanHolder;
+
+  private LocalDate activationDate;
 }
