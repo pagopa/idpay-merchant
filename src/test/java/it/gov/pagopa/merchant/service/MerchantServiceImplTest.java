@@ -529,17 +529,21 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesFieldsCorrectly() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    LocalDate existingActivationDate = LocalDate.now().minusDays(1);
+    LocalDate newActivationDate = LocalDate.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
+        .activationDate(existingActivationDate)
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
         .iban("NEW_IBAN")
         .businessName("New Business Name")
         .ibanHolder("New Iban Holder")
+        .activationDate(newActivationDate)
         .build();
 
     // Mock the repository to return the existing merchant
@@ -553,6 +557,7 @@ class MerchantServiceImplTest {
     assertEquals("NEW_IBAN", existingMerchant.getIban());
     assertEquals("New Business Name", existingMerchant.getBusinessName());
     assertEquals("New Iban Holder", existingMerchant.getIbanHolder());
+    assertEquals(newActivationDate, existingMerchant.getActivationDate());
     verify(merchantRepositoryMock).save(existingMerchant);
   }
 
@@ -560,11 +565,13 @@ class MerchantServiceImplTest {
   void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    LocalDate activationDate = LocalDate.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
+        .activationDate(activationDate)
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
@@ -584,6 +591,7 @@ class MerchantServiceImplTest {
     assertEquals("OLD_IBAN", existingMerchant.getIban());
     assertEquals("Old Business Name", existingMerchant.getBusinessName());
     assertEquals("Old Iban Holder", existingMerchant.getIbanHolder());
+    assertEquals(activationDate, existingMerchant.getActivationDate());
     verify(merchantRepositoryMock).save(existingMerchant);
   }
 
@@ -591,15 +599,18 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesOnlyProvidedFields() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    LocalDate activationDate = LocalDate.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
+        .activationDate(activationDate)
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
         .iban("NEW_IBAN") // Only updating IBAN
+        .activationDate(LocalDate.now())
         .build();
 
     // Mock the repository to return the existing merchant
@@ -613,6 +624,7 @@ class MerchantServiceImplTest {
     assertEquals("NEW_IBAN", existingMerchant.getIban());
     assertEquals("Old Business Name", existingMerchant.getBusinessName());
     assertEquals("Old Iban Holder", existingMerchant.getIbanHolder());
+    assertEquals(activationDate, existingMerchant.getActivationDate());
     verify(merchantRepositoryMock).save(existingMerchant);
   }
 }

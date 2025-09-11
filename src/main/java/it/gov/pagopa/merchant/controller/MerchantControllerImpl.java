@@ -95,7 +95,6 @@ public class MerchantControllerImpl implements MerchantController {
         sanitizeString(merchantCreateDTO.getFiscalCode()));
     String merchantId = merchantService.retrieveOrCreateMerchantIfNotExists(merchantCreateDTO);
 
-    log.info("[CREATE_MERCHANT] Merchant successfully created with merchantId={}", merchantId);
     return ResponseEntity.ok(merchantId);
   }
 }
