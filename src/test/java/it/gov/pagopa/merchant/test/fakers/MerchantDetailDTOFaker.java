@@ -29,6 +29,8 @@ public class MerchantDetailDTOFaker {
             .iban("IT60X0542811101000000123455")
             .ibanHolder("Nome Cognome")
             .creationDate(LocalDateTime.of(2023,5,22,10, 0))
+            .activationDate(LocalDateTime.now())
             .updateDate(LocalDateTime.of(2023,5,22,10, 0));
+
   }
 }
