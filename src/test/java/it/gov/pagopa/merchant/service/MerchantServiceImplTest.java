@@ -21,6 +21,7 @@ import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 import it.gov.pagopa.merchant.utils.Utilities;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -529,8 +530,8 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesFieldsCorrectly() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDate existingActivationDate = LocalDate.now().minusDays(1);
-    LocalDate newActivationDate = LocalDate.now();
+    LocalDateTime existingActivationDate = LocalDateTime.now().minusDays(1);
+    LocalDateTime newActivationDate = LocalDateTime.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -565,7 +566,7 @@ class MerchantServiceImplTest {
   void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDate activationDate = LocalDate.now();
+    LocalDateTime activationDate = LocalDateTime.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -599,7 +600,8 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesOnlyProvidedFields() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDate activationDate = LocalDate.now();
+    LocalDateTime activationDate = LocalDateTime.now();
+    LocalDateTime activatioDateTimeNew =LocalDateTime.now().plusDays(2);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -610,7 +612,7 @@ class MerchantServiceImplTest {
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
         .iban("NEW_IBAN") // Only updating IBAN
-        .activationDate(LocalDate.now())
+        .activationDate(activatioDateTimeNew)
         .build();
 
     // Mock the repository to return the existing merchant
@@ -624,7 +626,7 @@ class MerchantServiceImplTest {
     assertEquals("NEW_IBAN", existingMerchant.getIban());
     assertEquals("Old Business Name", existingMerchant.getBusinessName());
     assertEquals("Old Iban Holder", existingMerchant.getIbanHolder());
-    assertEquals(activationDate, existingMerchant.getActivationDate());
+    assertEquals(activatioDateTimeNew, existingMerchant.getActivationDate());
     verify(merchantRepositoryMock).save(existingMerchant);
   }
 }

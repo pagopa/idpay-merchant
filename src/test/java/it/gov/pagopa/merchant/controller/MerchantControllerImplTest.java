@@ -32,7 +32,7 @@ import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 import org.junit.jupiter.api.Assertions;
@@ -290,7 +290,7 @@ class MerchantControllerImplTest {
     String expectedMerchantId = "MERCHANT123";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
-    LocalDate activationDate = LocalDate.now();
+    LocalDateTime activationDate = LocalDateTime.now();
 
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
