@@ -137,7 +137,7 @@ public class MerchantServiceImpl implements MerchantService {
 
       // Save updated entity
       merchantRepository.save(existingMerchant);
-      log.info("[CREATE_MERCHANT] Merchant with merchantId={} successfully updated", existingMerchant.getMerchantId());
+      log.info("[UPDATE_MERCHANT] Merchant with merchantId={} successfully updated", existingMerchant.getMerchantId());
       return existingMerchant.getMerchantId();
 
     }else {
