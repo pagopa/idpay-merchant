@@ -90,12 +90,11 @@ public class MerchantControllerImpl implements MerchantController {
   public ResponseEntity<String> createOrUpdateMerchant(MerchantCreateDTO merchantCreateDTO) {
 
     log.debug(
-        "[CREATE_MERCHANT] Request received to create merchant with businessName={} and fiscalCode={}",
+        "[CREATE_UPDATE_MERCHANT] Request received to create merchant with businessName={} and fiscalCode={}",
         sanitizeString(merchantCreateDTO.getBusinessName()),
         sanitizeString(merchantCreateDTO.getFiscalCode()));
     String merchantId = merchantService.retrieveOrCreateMerchantIfNotExists(merchantCreateDTO);
 
-    log.info("[CREATE_MERCHANT] Merchant successfully created with merchantId={}", merchantId);
     return ResponseEntity.ok(merchantId);
   }
 }

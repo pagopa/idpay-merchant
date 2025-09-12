@@ -21,6 +21,7 @@ public class MerchantCreateDTOMapper {
         .businessName(dto.getBusinessName())
         .iban(dto.getIban())
         .ibanHolder(dto.getIbanHolder())
+        .activationDate(dto.getActivationDate())
         .build();
   }
 }
