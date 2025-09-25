@@ -1,0 +1,1042 @@
+[
+  {
+    "region": "Lombardia",
+    "province": "Milano",
+    "city": "Milano",
+    "zipCode": "20121",
+    "address": "Via Torino 45",
+    "franchiseName": "TechnoSphere"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Milano",
+    "city": "Bergamo",
+    "zipCode": "24121",
+    "address": "Via XX Settembre 12",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Brescia",
+    "city": "Brescia",
+    "zipCode": "25121",
+    "address": "Corso Zanardelli 88",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Como",
+    "city": "Como",
+    "zipCode": "22100",
+    "address": "Via Volta 23",
+    "franchiseName": "TechExpress"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Varese",
+    "zipCode": "21100",
+    "address": "Viale Europa 67",
+    "franchiseName": "ElectroMax"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Pavia",
+    "city": "Pavia",
+    "zipCode": "27100",
+    "address": "Strada Nuova 34",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "region": "Piemonte",
+    "province": "Torino",
+    "city": "Torino",
+    "zipCode": "10121",
+    "address": "Via Roma 156",
+    "franchiseName": "TechnoVillage"
+  },
+  {
+    "region": "Piemonte",
+    "province": "Torino",
+    "city": "Moncalieri",
+    "zipCode": "10024",
+    "address": "Via Real Collegio 89",
+    "franchiseName": "ElectroPoint"
+  },
+  {
+    "region": "Piemonte",
+    "province": "Cuneo",
+    "city": "Cuneo",
+    "zipCode": "12100",
+    "address": "Corso Nizza 78",
+    "franchiseName": "DigitalPlaza"
+  },
+  {
+    "region": "Piemonte",
+    "province": "Alessandria",
+    "city": "Alessandria",
+    "zipCode": "15121",
+    "address": "Via Dante 45",
+    "franchiseName": "TechZone"
+  },
+  {
+    "region": "Veneto",
+    "province": "Venezia",
+    "city": "Venezia",
+    "zipCode": "30121",
+    "address": "Strada Nova 234",
+    "franchiseName": "ElectroLand"
+  },
+  {
+    "region": "Veneto",
+    "province": "Verona",
+    "city": "Verona",
+    "zipCode": "37121",
+    "address": "Via Mazzini 67",
+    "franchiseName": "TechnoMart"
+  },
+  {
+    "region": "Veneto",
+    "province": "Padova",
+    "city": "Padova",
+    "zipCode": "35121",
+    "address": "Via del Santo 123",
+    "franchiseName": "DigitalCorner"
+  },
+  {
+    "region": "Veneto",
+    "province": "Vicenza",
+    "city": "Vicenza",
+    "zipCode": "36100",
+    "address": "Corso Palladio 89",
+    "franchiseName": "ElectroCity"
+  },
+  {
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Treviso",
+    "zipCode": "31100",
+    "address": "Via Calmaggiore 56",
+    "franchiseName": "TechCentral"
+  },
+  {
+    "region": "Liguria",
+    "province": "Genova",
+    "city": "Genova",
+    "zipCode": "16121",
+    "address": "Via del Campo 78",
+    "franchiseName": "ElectroGalaxy"
+  },
+  {
+    "region": "Liguria",
+    "province": "La Spezia",
+    "city": "La Spezia",
+    "zipCode": "19121",
+    "address": "Via Chiodo 34",
+    "franchiseName": "TechnoPort"
+  },
+  {
+    "region": "Liguria",
+    "province": "Savona",
+    "city": "Savona",
+    "zipCode": "17100",
+    "address": "Via Paleocapa 45",
+    "franchiseName": "DigitalBay"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Bologna",
+    "city": "Bologna",
+    "zipCode": "40121",
+    "address": "Via Indipendenza 123",
+    "franchiseName": "TechnoCenter"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Modena",
+    "zipCode": "41121",
+    "address": "Via Emilia 67",
+    "franchiseName": "ElectroSpeed"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Parma",
+    "city": "Parma",
+    "zipCode": "43121",
+    "address": "Via della Repubblica 89",
+    "franchiseName": "TechExpo"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Reggio Emilia",
+    "city": "Reggio Emilia",
+    "zipCode": "42121",
+    "address": "Via Emilia San Pietro 45",
+    "franchiseName": "DigitalEmilia"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Ferrara",
+    "city": "Ferrara",
+    "zipCode": "44121",
+    "address": "Corso Martiri della Libertà 78",
+    "franchiseName": "ElectroFerro"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Rimini",
+    "city": "Rimini",
+    "zipCode": "47921",
+    "address": "Corso d'Augusto 123",
+    "franchiseName": "TechRiviera"
+  },
+  {
+    "region": "Toscana",
+    "province": "Firenze",
+    "city": "Firenze",
+    "zipCode": "50121",
+    "address": "Via de' Tornabuoni 45",
+    "franchiseName": "TechnoRenaissance"
+  },
+  {
+    "region": "Toscana",
+    "province": "Pisa",
+    "city": "Pisa",
+    "zipCode": "56121",
+    "address": "Corso Italia 89",
+    "franchiseName": "DigitalTower"
+  },
+  {
+    "region": "Toscana",
+    "province": "Siena",
+    "city": "Siena",
+    "zipCode": "53100",
+    "address": "Via di Città 67",
+    "franchiseName": "ElectroTuscan"
+  },
+  {
+    "region": "Toscana",
+    "province": "Livorno",
+    "city": "Livorno",
+    "zipCode": "57123",
+    "address": "Via Grande 123",
+    "franchiseName": "TechMarine"
+  },
+  {
+    "region": "Toscana",
+    "province": "Arezzo",
+    "city": "Arezzo",
+    "zipCode": "52100",
+    "address": "Corso Italia 56",
+    "franchiseName": "DigitalAretino"
+  },
+  {
+    "region": "Toscana",
+    "province": "Grosseto",
+    "city": "Grosseto",
+    "zipCode": "58100",
+    "address": "Via Mazzini 78",
+    "franchiseName": "ElectroMaremma"
+  },
+  {
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Roma",
+    "zipCode": "00184",
+    "address": "Via del Corso 234",
+    "franchiseName": "TechCapital"
+  },
+  {
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Ostia",
+    "zipCode": "00121",
+    "address": "Via del Mare 67",
+    "franchiseName": "ElectroBeach"
+  },
+  {
+    "region": "Lazio",
+    "province": "Latina",
+    "city": "Latina",
+    "zipCode": "04100",
+    "address": "Corso della Repubblica 45",
+    "franchiseName": "DigitalLat"
+  },
+  {
+    "region": "Lazio",
+    "province": "Frosinone",
+    "city": "Frosinone",
+    "zipCode": "03100",
+    "address": "Corso Lazio 89",
+    "franchiseName": "TechnoValley"
+  },
+  {
+    "region": "Lazio",
+    "province": "Viterbo",
+    "city": "Viterbo",
+    "zipCode": "01100",
+    "address": "Corso Italia 123",
+    "franchiseName": "ElectroTuscia"
+  },
+  {
+    "region": "Marche",
+    "province": "Ancona",
+    "city": "Ancona",
+    "zipCode": "60121",
+    "address": "Corso Garibaldi 78",
+    "franchiseName": "TechAdriatico"
+  },
+  {
+    "region": "Marche",
+    "province": "Pesaro e Urbino",
+    "city": "Pesaro",
+    "zipCode": "61121",
+    "address": "Viale della Repubblica 45",
+    "franchiseName": "DigitalCoast"
+  },
+  {
+    "region": "Marche",
+    "province": "Macerata",
+    "city": "Macerata",
+    "zipCode": "62100",
+    "address": "Corso Cavour 67",
+    "franchiseName": "ElectroMarche"
+  },
+  {
+    "region": "Marche",
+    "province": "Ascoli Piceno",
+    "city": "Ascoli Piceno",
+    "zipCode": "63100",
+    "address": "Corso Mazzini 89",
+    "franchiseName": "TechPiceno"
+  },
+  {
+    "region": "Umbria",
+    "province": "Perugia",
+    "city": "Perugia",
+    "zipCode": "06121",
+    "address": "Corso Vannucci 123",
+    "franchiseName": "TechnoUmbria"
+  },
+  {
+    "region": "Umbria",
+    "province": "Terni",
+    "city": "Terni",
+    "zipCode": "05100",
+    "address": "Corso Tacito 56",
+    "franchiseName": "ElectroSteel"
+  },
+  {
+    "region": "Abruzzo",
+    "province": "L'Aquila",
+    "city": "L'Aquila",
+    "zipCode": "67100",
+    "address": "Corso Federico II 78",
+    "franchiseName": "DigitalAquila"
+  },
+  {
+    "region": "Abruzzo",
+    "province": "Pescara",
+    "city": "Pescara",
+    "zipCode": "65121",
+    "address": "Corso Umberto I 45",
+    "franchiseName": "TechMare"
+  },
+  {
+    "region": "Abruzzo",
+    "province": "Chieti",
+    "city": "Chieti",
+    "zipCode": "66100",
+    "address": "Via Arniense 89",
+    "franchiseName": "ElectroAbruzzo"
+  },
+  {
+    "region": "Abruzzo",
+    "province": "Teramo",
+    "city": "Teramo",
+    "zipCode": "64100",
+    "address": "Corso San Giorgio 67",
+    "franchiseName": "TechTeramano"
+  },
+  {
+    "region": "Molise",
+    "province": "Campobasso",
+    "city": "Campobasso",
+    "zipCode": "86100",
+    "address": "Via Ferrari 123",
+    "franchiseName": "DigitalMolise"
+  },
+  {
+    "region": "Molise",
+    "province": "Isernia",
+    "city": "Isernia",
+    "zipCode": "86170",
+    "address": "Corso Marcelli 45",
+    "franchiseName": "ElectroSannio"
+  },
+  {
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Napoli",
+    "zipCode": "80121",
+    "address": "Via Toledo 234",
+    "franchiseName": "ElectroReale"
+  },
+  {
+    "region": "Campania",
+    "province": "Salerno",
+    "city": "Salerno",
+    "zipCode": "84121",
+    "address": "Corso Vittorio Emanuele 78",
+    "franchiseName": "DigitalCostiera"
+  },
+  {
+    "region": "Campania",
+    "province": "Caserta",
+    "city": "Caserta",
+    "zipCode": "81100",
+    "address": "Corso Trieste 89",
+    "franchiseName": "ElectroReale"
+  },
+  {
+    "region": "Campania",
+    "province": "Avellino",
+    "city": "Avellino",
+    "zipCode": "83100",
+    "address": "Corso Vittorio Emanuele 45",
+    "franchiseName": "TechIrpinia"
+  },
+  {
+    "region": "Campania",
+    "province": "Benevento",
+    "city": "Benevento",
+    "zipCode": "82100",
+    "address": "Corso Garibaldi 67",
+    "franchiseName": "ElectroSannita"
+  },
+  {
+    "region": "Puglia",
+    "province": "Bari",
+    "city": "Bari",
+    "zipCode": "70121",
+    "address": "Via Sparano 123",
+    "franchiseName": "TechnoPuglia"
+  },
+  {
+    "region": "Puglia",
+    "province": "Lecce",
+    "city": "Lecce",
+    "zipCode": "73100",
+    "address": "Via Trinchese 89",
+    "franchiseName": "DigitalSalento"
+  },
+  {
+    "region": "Puglia",
+    "province": "Taranto",
+    "city": "Taranto",
+    "zipCode": "74123",
+    "address": "Corso Umberto I 45",
+    "franchiseName": "ElectroIonio"
+  },
+  {
+    "region": "Puglia",
+    "province": "Foggia",
+    "city": "Foggia",
+    "zipCode": "71121",
+    "address": "Corso Vittorio Emanuele 67",
+    "franchiseName": "DigitalBat"
+  },
+  {
+    "region": "Puglia",
+    "province": "Brindisi",
+    "city": "Brindisi",
+    "zipCode": "72100",
+    "address": "Via Appia 78",
+    "franchiseName": "DigitalBat"
+  },
+  {
+    "region": "Puglia",
+    "province": "Barletta-Andria-Trani",
+    "city": "Barletta",
+    "zipCode": "76121",
+    "address": "Corso Vittorio Emanuele 123",
+    "franchiseName": "DigitalBat"
+  },
+  {
+    "region": "Basilicata",
+    "province": "Potenza",
+    "city": "Potenza",
+    "zipCode": "85100",
+    "address": "Via Pretoria 89",
+    "franchiseName": "TechLucania"
+  },
+  {
+    "region": "Basilicata",
+    "province": "Matera",
+    "city": "Matera",
+    "zipCode": "75100",
+    "address": "Via del Corso 45",
+    "franchiseName": "ElectroSassi"
+  },
+  {
+    "region": "Calabria",
+    "province": "Reggio Calabria",
+    "city": "Reggio Calabria",
+    "zipCode": "89121",
+    "address": "Corso Garibaldi 67",
+    "franchiseName": "TechnoStretto"
+  },
+  {
+    "region": "Calabria",
+    "province": "Cosenza",
+    "city": "Cosenza",
+    "zipCode": "87100",
+    "address": "Corso Mazzini 123",
+    "franchiseName": "DigitalBruzi"
+  },
+  {
+    "region": "Calabria",
+    "province": "Catanzaro",
+    "city": "Catanzaro",
+    "zipCode": "88100",
+    "address": "Corso Mazzini 78",
+    "franchiseName": "ElectroCalabria"
+  },
+  {
+    "region": "Calabria",
+    "province": "Crotone",
+    "city": "Crotone",
+    "zipCode": "88900",
+    "address": "Via Vittorio Veneto 89",
+    "franchiseName": "TechCrotone"
+  },
+  {
+    "region": "Calabria",
+    "province": "Vibo Valentia",
+    "city": "Vibo Valentia",
+    "zipCode": "89900",
+    "address": "Corso Vittorio Emanuele III 45",
+    "franchiseName": "ElectroVibo"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Palermo",
+    "zipCode": "90121",
+    "address": "Via Maqueda 234",
+    "franchiseName": "TechnoSicilia"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Catania",
+    "city": "Catania",
+    "zipCode": "95121",
+    "address": "Via Etnea 123",
+    "franchiseName": "ElectroEtna"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Messina",
+    "zipCode": "98122",
+    "address": "Corso Cavour 89",
+    "franchiseName": "DigitalStretto"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Siracusa",
+    "city": "Siracusa",
+    "zipCode": "96100",
+    "address": "Corso Matteotti 67",
+    "franchiseName": "TechnoTrapani"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Ragusa",
+    "city": "Ragusa",
+    "zipCode": "97100",
+    "address": "Corso Italia 45",
+    "franchiseName": "TechnoTrapani"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Trapani",
+    "city": "Trapani",
+    "zipCode": "91100",
+    "address": "Via Garibaldi 78",
+    "franchiseName": "TechnoTrapani"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Agrigento",
+    "city": "Agrigento",
+    "zipCode": "92100",
+    "address": "Via Atenea 123",
+    "franchiseName": "DigitalValle"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Caltanissetta",
+    "city": "Caltanissetta",
+    "zipCode": "93100",
+    "address": "Corso Vittorio Emanuele 89",
+    "franchiseName": "TechnoTrapani"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Enna",
+    "city": "Enna",
+    "zipCode": "94100",
+    "address": "Via Roma 45",
+    "franchiseName": "TechCentro"
+  },
+  {
+    "region": "Sardegna",
+    "province": "Cagliari",
+    "city": "Cagliari",
+    "zipCode": "09121",
+    "address": "Via Manno 67",
+    "franchiseName": "TechnoSardegna"
+  },
+  {
+    "region": "Sardegna",
+    "province": "Sassari",
+    "city": "Sassari",
+    "zipCode": "07100",
+    "address": "Corso Vittorio Emanuele 123",
+    "franchiseName": "ElectroTurritana"
+  },
+  {
+    "region": "Sardegna",
+    "province": "Nuoro",
+    "city": "Nuoro",
+    "zipCode": "08100",
+    "address": "Corso Garibaldi 78",
+    "franchiseName": "DigitalBarbagia"
+  },
+  {
+    "region": "Sardegna",
+    "province": "Oristano",
+    "city": "Oristano",
+    "zipCode": "09170",
+    "address": "Via Tirso 89",
+    "franchiseName": "TechOristano"
+  },
+  {
+    "region": "Valle d'Aosta",
+    "province": "Aosta",
+    "city": "Aosta",
+    "zipCode": "11100",
+    "address": "Via Porta Pretoria 45",
+    "franchiseName": "ElectroAlpine"
+  },
+  {
+    "region": "Trentino-Alto Adige",
+    "province": "Trento",
+    "city": "Trento",
+    "zipCode": "38121",
+    "address": "Via Manci 67",
+    "franchiseName": "TechTrentino"
+  },
+  {
+    "region": "Trentino-Alto Adige",
+    "province": "Bolzano",
+    "city": "Bolzano",
+    "zipCode": "39100",
+    "address": "Via dei Portici 123",
+    "franchiseName": "DigitalTirol"
+  },
+  {
+    "region": "Friuli-Venezia Giulia",
+    "province": "Trieste",
+    "city": "Trieste",
+    "zipCode": "34121",
+    "address": "Corso Italia 89",
+    "franchiseName": "TechnoTrieste"
+  },
+  {
+    "region": "Friuli-Venezia Giulia",
+    "province": "Udine",
+    "city": "Udine",
+    "zipCode": "33100",
+    "address": "Via Mercatovecchio 78",
+    "franchiseName": "ElectroFriuli"
+  },
+  {
+    "region": "Friuli-Venezia Giulia",
+    "province": "Pordenone",
+    "city": "Pordenone",
+    "zipCode": "33170",
+    "address": "Corso Vittorio Emanuele 45",
+    "franchiseName": "DigitalPordenone"
+  },
+  {
+    "region": "Friuli-Venezia Giulia",
+    "province": "Gorizia",
+    "city": "Gorizia",
+    "zipCode": "34170",
+    "address": "Corso Italia 67",
+    "franchiseName": "TechGorizia"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Milano",
+    "city": "Monza",
+    "zipCode": "20900",
+    "address": "Via Carlo Alberto 123",
+    "franchiseName": "ElectroMonza"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Cremona",
+    "city": "Cremona",
+    "zipCode": "26100",
+    "address": "Corso Campi 89",
+    "franchiseName": "TechStradivari"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Mantova",
+    "city": "Mantova",
+    "zipCode": "46100",
+    "address": "Corso Umberto I 78",
+    "franchiseName": "DigitalGonzaga"
+  },
+  {
+    "region": "Piemonte",
+    "province": "Novara",
+    "city": "Novara",
+    "zipCode": "28100",
+    "address": "Corso Cavour 45",
+    "franchiseName": "ElectroNovara"
+  },
+  {
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Asti",
+    "zipCode": "14100",
+    "address": "Corso Alfieri 67",
+    "franchiseName": "DigitalTextile"
+  },
+  {
+    "region": "Piemonte",
+    "province": "Biella",
+    "city": "Biella",
+    "zipCode": "13900",
+    "address": "Via Italia 123",
+    "franchiseName": "DigitalTextile"
+  },
+  {
+    "region": "Piemonte",
+    "province": "Verbano-Cusio-Ossola",
+    "city": "Verbania",
+    "zipCode": "28922",
+    "address": "Corso Zanitello 89",
+    "franchiseName": "ElectroLago"
+  },
+  {
+    "region": "Veneto",
+    "province": "Belluno",
+    "city": "Belluno",
+    "zipCode": "32100",
+    "address": "Via Rialto 78",
+    "franchiseName": "TechDolomiti"
+  },
+  {
+    "region": "Veneto",
+    "province": "Rovigo",
+    "city": "Rovigo",
+    "zipCode": "45100",
+    "address": "Corso del Popolo 45",
+    "franchiseName": "DigitalPolesine"
+  },
+  {
+    "region": "Liguria",
+    "province": "Imperia",
+    "city": "Imperia",
+    "zipCode": "18100",
+    "address": "Via Bonfante 67",
+    "franchiseName": "ElectroRiviera"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Piacenza",
+    "city": "Piacenza",
+    "zipCode": "29121",
+    "address": "Via XX Settembre 123",
+    "franchiseName": "TechPiacenza"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Forlì-Cesena",
+    "city": "Forlì",
+    "zipCode": "47121",
+    "address": "Corso della Repubblica 89",
+    "franchiseName": "DigitalRomagna"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Ravenna",
+    "city": "Ravenna",
+    "zipCode": "48121",
+    "address": "Via Cavour 78",
+    "franchiseName": "ElectroMosaico"
+  },
+  {
+    "region": "Toscana",
+    "province": "Lucca",
+    "city": "Lucca",
+    "zipCode": "55100",
+    "address": "Via Fillungo 45",
+    "franchiseName": "TechLucchese"
+  },
+  {
+    "region": "Toscana",
+    "province": "Pistoia",
+    "city": "Pistoia",
+    "zipCode": "51100",
+    "address": "Via degli Orafi 67",
+    "franchiseName": "DigitalPistoia"
+  },
+  {
+    "region": "Toscana",
+    "province": "Prato",
+    "city": "Prato",
+    "zipCode": "59100",
+    "address": "Via Ricasoli 123",
+    "franchiseName": "ElectroTessile"
+  },
+  {
+    "region": "Toscana",
+    "province": "Massa-Carrara",
+    "city": "Massa",
+    "zipCode": "54100",
+    "address": "Via Dante 89",
+    "franchiseName": "TechMarmo"
+  },
+  {
+    "region": "Lazio",
+    "province": "Rieti",
+    "city": "Rieti",
+    "zipCode": "02100",
+    "address": "Via Roma 78",
+    "franchiseName": "DigitalSabina"
+  },
+  {
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Pozzuoli",
+    "zipCode": "80078",
+    "address": "Via Roma 45",
+    "franchiseName": "ElectroFlegrei"
+  },
+  {
+    "region": "Campania",
+    "province": "Salerno",
+    "city": "Battipaglia",
+    "zipCode": "84091",
+    "address": "Via Serroni 67",
+    "franchiseName": "TechPiana"
+  },
+  {
+    "region": "Puglia",
+    "province": "Bari",
+    "city": "Altamura",
+    "zipCode": "70022",
+    "address": "Corso Federico II 123",
+    "franchiseName": "DigitalMurgia"
+  },
+  {
+    "region": "Puglia",
+    "province": "Lecce",
+    "city": "Gallipoli",
+    "zipCode": "73014",
+    "address": "Corso Roma 89",
+    "franchiseName": "ElectroGallipoli"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Bagheria",
+    "zipCode": "90011",
+    "address": "Corso Umberto I 78",
+    "franchiseName": "TechBagheria"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Catania",
+    "city": "Acireale",
+    "zipCode": "95024",
+    "address": "Corso Savoia 45",
+    "franchiseName": "DigitalAcireale"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Sondrio",
+    "city": "Sondrio",
+    "zipCode": "23100",
+    "address": "Via Mallero 67",
+    "franchiseName": "ElectroValtellina"
+  },
+  {
+    "region": "Lombardia",
+    "province": "Lecco",
+    "city": "Lecco",
+    "zipCode": "23900",
+    "address": "Via Nazario Sauro 123",
+    "franchiseName": "TechLario"
+  },
+  {
+    "region": "Veneto",
+    "province": "Venezia",
+    "city": "Mestre",
+    "zipCode": "30172",
+    "address": "Via Piave 89",
+    "franchiseName": "DigitalTerraferma"
+  },
+  {
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Conegliano",
+    "zipCode": "31015",
+    "address": "Via XX Settembre 78",
+    "franchiseName": "DigitalTerraferma"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Bologna",
+    "city": "Imola",
+    "zipCode": "40026",
+    "address": "Via Emilia 45",
+    "franchiseName": "TechCircuito"
+  },
+  {
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Sassuolo",
+    "zipCode": "41049",
+    "address": "Via Radici in Piano 67",
+    "franchiseName": "DigitalCeramica"
+  },
+  {
+    "region": "Toscana",
+    "province": "Firenze",
+    "city": "Empoli",
+    "zipCode": "50053",
+    "address": "Via Giuseppe del Papa 123",
+    "franchiseName": "ElectroEmpoli"
+  },
+  {
+    "region": "Toscana",
+    "province": "Siena",
+    "city": "Poggibonsi",
+    "zipCode": "53036",
+    "address": "Via Trento 89",
+    "franchiseName": "TechChianti"
+  },
+  {
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Frascati",
+    "zipCode": "00044",
+    "address": "Corso Tullo Morgagni 78",
+    "franchiseName": "DigitalCastelli"
+  },
+  {
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Tivoli",
+    "zipCode": "00019",
+    "address": "Corso del Popolo 45",
+    "franchiseName": "ElectroTivoli"
+  },
+  {
+    "region": "Marche",
+    "province": "Ancona",
+    "city": "Jesi",
+    "zipCode": "60035",
+    "address": "Corso Matteotti 67",
+    "franchiseName": "TechVallesina"
+  },
+  {
+    "region": "Umbria",
+    "province": "Perugia",
+    "city": "Foligno",
+    "zipCode": "06034",
+    "address": "Corso Cavour 123",
+    "franchiseName": "DigitalFoligno"
+  },
+  {
+    "region": "Abruzzo",
+    "province": "Pescara",
+    "city": "Montesilvano",
+    "zipCode": "65015",
+    "address": "Corso Umberto I 89",
+    "franchiseName": "ElectroColle"
+  },
+  {
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Torre del Greco",
+    "zipCode": "80059",
+    "address": "Corso Vittorio Emanuele 78",
+    "franchiseName": "TechCorallo"
+  },
+  {
+    "region": "Campania",
+    "province": "Salerno",
+    "city": "Nocera Inferiore",
+    "zipCode": "84014",
+    "address": "Corso Vittorio Emanuele 45",
+    "franchiseName": "DigitalAgro"
+  },
+  {
+    "region": "Puglia",
+    "province": "Bari",
+    "city": "Molfetta",
+    "zipCode": "70056",
+    "address": "Corso Dante 67",
+    "franchiseName": "ElectroMolfetta"
+  },
+  {
+    "region": "Calabria",
+    "province": "Cosenza",
+    "city": "Rende",
+    "zipCode": "87036",
+    "address": "Via Giovanni XXIII 123",
+    "franchiseName": "TechUnical"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Milazzo",
+    "zipCode": "98057",
+    "address": "Via Cumbo Borgia 89",
+    "franchiseName": "DigitalEolie"
+  },
+  {
+    "region": "Sicilia",
+    "province": "Catania",
+    "city": "Paternò",
+    "zipCode": "95047",
+    "address": "Via Vittorio Emanuele 78",
+    "franchiseName": "ElectroPaternò"
+  },
+  {
+    "region": "Sardegna",
+    "province": "Cagliari",
+    "city": "Quartu Sant'Elena",
+    "zipCode": "09045",
+    "address": "Via Is Mirrionis 45",
+    "franchiseName": "TechQuartu"
+  },
+  {
+    "region": "Sardegna",
+    "province": "Sassari",
+    "city": "Alghero",
+    "zipCode": "07041",
+    "address": "Via Catalogna 67",
+    "franchiseName": "DigitalCoral"
+  }
+]
