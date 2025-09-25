@@ -7,11 +7,13 @@ Uso: python json_to_pdf.py input.json output.pdf
 import pandas as pd
 import json
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import landscape
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import sys
 import os
 
@@ -47,27 +49,31 @@ def create_table_style():
     """
     Crea lo stile per la tabella
     """
+    pdfmetrics.registerFont(TTFont('Titillium-Web-Regular', 'TitilliumWeb-Regular.ttf'))
+    pdfmetrics.registerFont(TTFont('Titillium-Web-Bold', 'TitilliumWeb-Bold.ttf'))
+
     return TableStyle([
         # Header style
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.Color(0, 115/255, 230/255)),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Titillium-Web-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 10),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
 
         # Data rows style
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Titillium-Web-Regular'),
         ('FONTSIZE', (0, 1), (-1, -1), 8),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
 
         # Grid
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
 
         # Alternating row colors
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.Color(242/255, 242/255, 242/255)]),
     ])
 
 
@@ -145,7 +151,7 @@ def json_to_pdf(json_file, pdf_file, orientation='portrait', max_rows_per_page=2
         rightMargin=0.5 * inch,
         leftMargin=0.5 * inch,
         topMargin=0.5 * inch,
-        bottomMargin=0.5 * inch
+        bottomMargin=0.25 * inch
     )
 
     # Elementi da aggiungere al PDF
@@ -196,11 +202,20 @@ def json_to_pdf(json_file, pdf_file, orientation='portrait', max_rows_per_page=2
         if i > 0:
             elements.append(PageBreak())
 
-        page_header = Paragraph(f"Pagina {i + 1} di {len(page_chunks)}", styles['Normal'])
-        elements.append(page_header)
+        page_number_style = ParagraphStyle(
+            'PageHeader',
+            fontName='Titillium-Web-Regular',
+            fontSize=6,
+            textColor=colors.Color(23/255, 50/255, 77/255),
+            alignment=2,  # 0=LEFT, 1=CENTER, 2=RIGHT
+            spaceAfter=1,
+        )
+        page_number = Paragraph(f"Pagina {i + 1} di {len(page_chunks)}", page_number_style)
+
         elements.append(Spacer(1, 20))
         elements.append(table)
         elements.append(Spacer(1, 20))
+        elements.append(page_number)
 
     # Genera il PDF
     try:
@@ -224,7 +239,7 @@ def main():
     csv_file = sys.argv[1]
     pdf_file = sys.argv[2]
     orientation = sys.argv[3] if len(sys.argv) > 3 else 'portrait'
-    max_rows = int(sys.argv[4]) if len(sys.argv) > 4 else 20
+    max_rows = int(sys.argv[4]) if len(sys.argv) > 4 else 25
 
     # Verifica che il file CSV esista
     if not os.path.exists(csv_file):
