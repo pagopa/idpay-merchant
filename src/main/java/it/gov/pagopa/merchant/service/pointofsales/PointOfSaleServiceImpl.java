@@ -68,14 +68,16 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     verifyMerchantExists(merchantId);
 
+
     List<PointOfSaleUpdateContext> entities = pointOfSales.stream()
             .map(this::preparePointOfSaleForSave)
             .toList();
 
     List<PointOfSale> savedPointOfSales = new ArrayList<>();
-
+    String currentEmail = "";
     try {
       for (PointOfSaleUpdateContext entity : entities) {
+        currentEmail = entity.pointOfSale().getContactEmail();
         PointOfSale saved = pointOfSaleRepository.save(entity.pointOfSale());
         savedPointOfSales.add(saved);
         manageReferentUserOnKeycloak(saved, entity.oldEmail());
@@ -86,7 +88,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
       compensatingDelete(savedPointOfSales);
       log.error("[POINT-OF-SALES][SAVE] Compensation rollback completed.");
       if (exception instanceof DuplicateKeyException) {
-        throw new PointOfSaleDuplicateException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
+        throw new PointOfSaleDuplicateException(currentEmail);
       }
       log.error("[POINT-OF-SALES][SAVE] Exception message: {}", exception.getMessage());
       throw new ServiceException(PointOfSaleConstants.CODE_GENERIC_SAVE_ERROR,
@@ -98,12 +100,16 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     for (PointOfSale pointOfSale : savedEntities) {
       try {
         pointOfSaleRepository.deleteById(pointOfSale.getId());
+        UsersResource usersResource = keycloakAdminClient.realm(realm).users();
+        List<UserRepresentation> existingUsers = usersResource.searchByEmail(pointOfSale.getContactEmail(), true);
+        for (UserRepresentation user : existingUsers) {
+          usersResource.get(user.getId()).remove();
+        }
       } catch (Exception exception) {
         log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}",
                 sanitizeForLog(pointOfSale.getId()));
       }
     }
-
   }
 
   @Override
@@ -160,7 +166,8 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
    * @param merchantId the ID of the merchant to check
    * @throws MerchantNotFoundException if the merchant does not exist
    */
-  private void verifyMerchantExists(String merchantId) {
+  private void
+  verifyMerchantExists(String merchantId) {
     MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId);
     if (merchantDetail == null) {
       throw new MerchantNotFoundException(
