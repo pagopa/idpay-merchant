@@ -68,7 +68,6 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     verifyMerchantExists(merchantId);
 
-
     List<PointOfSaleUpdateContext> entities = pointOfSales.stream()
             .map(this::preparePointOfSaleForSave)
             .toList();
@@ -166,8 +165,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
    * @param merchantId the ID of the merchant to check
    * @throws MerchantNotFoundException if the merchant does not exist
    */
-  private void
-  verifyMerchantExists(String merchantId) {
+  private void verifyMerchantExists(String merchantId) {
     MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId);
     if (merchantDetail == null) {
       throw new MerchantNotFoundException(
