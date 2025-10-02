@@ -418,6 +418,14 @@ class PointOfSaleServiceTest {
     pos2.setContactEmail("email2@example.com");
 
     List<PointOfSale> posList = List.of(pos1, pos2);
+    UserRepresentation ur1 = new UserRepresentation();
+    ur1.setId("123459");
+    ur1.setEmail("email1@example.com");
+
+    UserRepresentation ur2 = new UserRepresentation();
+    ur2.setId("123459");
+    ur2.setEmail("email2@example.com");
+    List<UserRepresentation> userRepresentationList = List.of(ur1, ur2);
 
     when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(new MerchantDetailDTO());
     when(repositoryMock.findById(pos1.getId())).thenReturn(Optional.of(pos1));
@@ -430,7 +438,39 @@ class PointOfSaleServiceTest {
 
     when(keycloak.realm(anyString())).thenReturn(realmMock);
     when(realmMock.users()).thenReturn(usersMock);
+    when(usersMock.searchByEmail(anyString(),anyBoolean())).thenReturn(userRepresentationList);
+    assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, posList));
 
+    verify(repositoryMock).deleteById(pos1.getId());
+  }
+
+  @Test
+  void savePointOfSales_compensatingDeleteIsCalledOnSaveErrorNoUserToDelete() {
+    PointOfSale pos1 = PointOfSaleFaker.mockInstance();
+    pos1.setId("6893085d00c110648b595981");
+    pos1.setMerchantId(MERCHANT_ID);
+    pos1.setContactEmail("email1@example.com");
+
+    PointOfSale pos2 = PointOfSaleFaker.mockInstance();
+    pos2.setId("6893085d00c110648b595982");
+    pos2.setMerchantId(MERCHANT_ID);
+    pos2.setContactEmail("email2@example.com");
+
+    List<PointOfSale> posList = List.of(pos1, pos2);
+
+
+    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(new MerchantDetailDTO());
+    when(repositoryMock.findById(pos1.getId())).thenReturn(Optional.of(pos1));
+    when(repositoryMock.findById(pos2.getId())).thenReturn(Optional.of(pos2));
+    when(repositoryMock.save(pos1)).thenReturn(pos1);
+    when(repositoryMock.save(pos2)).thenThrow(new RuntimeException("Simulated DB error"));
+
+    RealmResource realmMock = mock(RealmResource.class);
+    UsersResource usersMock = mock(UsersResource.class);
+
+    when(keycloak.realm(anyString())).thenReturn(realmMock);
+    when(realmMock.users()).thenReturn(usersMock);
+    when(usersMock.searchByEmail(anyString(),anyBoolean())).thenReturn(new ArrayList<>());
     assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, posList));
 
     verify(repositoryMock).deleteById(pos1.getId());
