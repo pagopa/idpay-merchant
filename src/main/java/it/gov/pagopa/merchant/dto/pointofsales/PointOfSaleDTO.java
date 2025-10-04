@@ -79,7 +79,6 @@ public class PointOfSaleDTO {
 
 
     @Deprecated
-    @NotNull(message = "channelWebsite must not be null", groups = PhysicalGroup.class)
     @JsonProperty("channelWebsite")
     private String channelWebsite;
 
