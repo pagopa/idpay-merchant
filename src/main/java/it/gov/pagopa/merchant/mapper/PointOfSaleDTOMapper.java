@@ -23,7 +23,6 @@ public class PointOfSaleDTOMapper {
                 .channelEmail(pointOfSale.getChannelEmail())
                 .channelPhone(pointOfSale.getChannelPhone())
                 .channelGeolink(pointOfSale.getChannelGeolink())
-                .channelWebsite(pointOfSale.getChannelWebsite())
                 .region(pointOfSale.getRegion())
                 .province(pointOfSale.getProvince())
                 .city(pointOfSale.getCity())
@@ -42,6 +41,7 @@ public class PointOfSaleDTOMapper {
                 .type(pointOfSaleDTO.getType().name())
                 .franchiseName(pointOfSaleDTO.getFranchiseName())
                 .contactEmail(pointOfSaleDTO.getContactEmail())
+                .website(pointOfSaleDTO.getWebsite())
                 .contactName(pointOfSaleDTO.getContactName())
                 .contactSurname(pointOfSaleDTO.getContactSurname())
                 .merchantId(merchantId)
@@ -55,11 +55,7 @@ public class PointOfSaleDTOMapper {
             pointOfSale.setChannelEmail(pointOfSaleDTO.getChannelEmail());
             pointOfSale.setChannelPhone(pointOfSaleDTO.getChannelPhone());
             pointOfSale.setChannelGeolink(pointOfSaleDTO.getChannelGeolink());
-            pointOfSale.setChannelWebsite(pointOfSaleDTO.getChannelWebsite());
             pointOfSale.setAddress(pointOfSaleDTO.getAddress());
-        }
-        else if(PointOfSaleTypeEnum.ONLINE.equals(pointOfSaleDTO.getType())){
-            pointOfSale.setWebsite(pointOfSaleDTO.getWebsite());
         }
 
         return pointOfSale;
