@@ -78,6 +78,7 @@ public class PointOfSaleDTO {
     private String channelGeolink;
 
 
+    @Deprecated
     @NotNull(message = "channelWebsite must not be null", groups = PhysicalGroup.class)
     @JsonProperty("channelWebsite")
     private String channelWebsite;

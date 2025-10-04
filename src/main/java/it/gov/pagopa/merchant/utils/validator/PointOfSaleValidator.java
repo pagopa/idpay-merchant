@@ -119,10 +119,6 @@ public class PointOfSaleValidator{
                 PointOfSaleConstants.CODE_INVALID_EMAIL, PointOfSaleConstants.MSG_INVALID_EMAIL,
                 index));
 
-        errors.addAll(validateChannelField(pointOfSaleDTO.getChannelWebsite(), "channelWebsite", REGEX_LINK,
-                PointOfSaleConstants.CODE_INVALID_WEBSITE, PointOfSaleConstants.MSG_INVALID_WEBSITE,
-                index));
-
         errors.addAll(validateChannelField(pointOfSaleDTO.getChannelGeolink(), "channelGeolink", REGEX_LINK,
                 PointOfSaleConstants.CODE_INVALID_WEBSITE, PointOfSaleConstants.MSG_INVALID_WEBSITE,
                 index));
