@@ -49,7 +49,7 @@ public class PointOfSaleDTO {
     private String address;
 
     @NotBlank(message = "website must not be blank", groups = OnlineGroup.class)
-    @JsonProperty("webSite")
+    @JsonProperty("website")
     private String website;
 
     @NotBlank(message = "contactEmail must not be blank", groups = {PhysicalGroup.class, OnlineGroup.class})
