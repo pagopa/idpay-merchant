@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.service;
 
+import com.mongodb.MongoException;
 import feign.FeignException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
@@ -8,9 +9,9 @@ import it.gov.pagopa.merchant.dto.initiative.AdditionalInfoDTO;
 import it.gov.pagopa.merchant.dto.initiative.GeneralInfoDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
-import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyExistsException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
+import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
@@ -20,6 +21,7 @@ import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 import it.gov.pagopa.merchant.utils.Utilities;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +74,7 @@ class MerchantServiceImplTest {
   private static final String MERCHANT_ID = "MERCHANT_ID";
   private static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
   private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper();
+  private final MerchantCreateDTOMapper merchantCreateDTOMapper = new MerchantCreateDTOMapper();
 
   @BeforeEach
   void setUp() {
@@ -87,7 +90,8 @@ class MerchantServiceImplTest {
         uploadingMerchantServiceMock,
         initiative2InitiativeDTOMapper,
         defaultInitiativesMock,
-        initiativeRestConnector
+        initiativeRestConnector,
+        merchantCreateDTOMapper
     );
     merchantServiceSpy = Mockito.spy(merchantService);
   }
@@ -313,22 +317,27 @@ class MerchantServiceImplTest {
   }
 
   @Test
-  void createMerchantIfNotExists_TestKO() {
+  void retrieveOrCreateMerchantIfNotExists_TestKO() {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String iban = "IT60X0542811101000000123456";
+    String ibanHolder = "Test Iban Holder";
 
-    Merchant existing = Merchant.builder()
-        .merchantId("MERCHANT123")
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
         .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId)
+        .iban(iban)
+        .ibanHolder(ibanHolder)
         .build();
 
+    MongoException mongoException = Mockito.mock(MongoException.class);
     Mockito.when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
-        .thenReturn(Optional.of(existing));
+        .thenThrow(mongoException);
 
-    MerchantAlreadyExistsException exception = assertThrows(MerchantAlreadyExistsException.class,
-        () -> merchantService.createMerchantIfNotExists(acquirerId, businessName, fiscalCode));
-    assertTrue(exception.getMessage().contains("already exists"));
+    assertThrows(MongoException.class,
+        () -> merchantService.retrieveOrCreateMerchantIfNotExists(dto));
 
     Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
     Mockito.verify(merchantRepositoryMock, Mockito.never()).save(Mockito.any(Merchant.class));
@@ -433,11 +442,20 @@ class MerchantServiceImplTest {
   }
 
   @Test
-  void createMerchantIfNotExists_success_withSpy() {
+  void createOrRetrieveMerchantIfNotExists_success_withSpy() {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String iban = "IT60X0542811101000000123456";
+    String ibanHolder = "Test Iban Holder";
     String expectedMerchantId = Utilities.toUUID(fiscalCode + "_" + acquirerId);
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId)
+        .iban(iban)
+        .ibanHolder(ibanHolder)
+        .build();
 
     when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenReturn(Optional.empty());
@@ -448,29 +466,167 @@ class MerchantServiceImplTest {
         .thenAnswer(invocation -> {
           String initiativeId = invocation.getArgument(0);
 
-          InitiativeBeneficiaryViewDTO dto = new InitiativeBeneficiaryViewDTO();
-          dto.setInitiativeId(initiativeId);
-          dto.setInitiativeName("Test Initiative");
-          dto.setOrganizationId("ORG1");
-          dto.setOrganizationName("Organization 1");
+          InitiativeBeneficiaryViewDTO dtoIBV = new InitiativeBeneficiaryViewDTO();
+          dtoIBV.setInitiativeId(initiativeId);
+          dtoIBV.setInitiativeName("Test Initiative");
+          dtoIBV.setOrganizationId("ORG1");
+          dtoIBV.setOrganizationName("Organization 1");
 
           AdditionalInfoDTO additionalInfo = new AdditionalInfoDTO();
           additionalInfo.setServiceId("SERVICE1");
-          dto.setAdditionalInfo(additionalInfo);
+          dtoIBV.setAdditionalInfo(additionalInfo);
 
           GeneralInfoDTO general = new GeneralInfoDTO();
           general.setStartDate(LocalDate.now().minusDays(1));
           general.setEndDate(LocalDate.now().plusDays(1));
-          dto.setGeneral(general);
+          dtoIBV.setGeneral(general);
 
-          dto.setStatus("ACTIVE");
-          return dto;
+          dtoIBV.setStatus("ACTIVE");
+          return dtoIBV;
         });
 
-    String result = spyService.createMerchantIfNotExists(acquirerId, businessName, fiscalCode);
+    String result = spyService.retrieveOrCreateMerchantIfNotExists(dto);
 
     assertEquals(expectedMerchantId, result);
     verify(merchantRepositoryMock).save(any(Merchant.class));
     verify(initiativeRestConnector, times(2)).getInitiativeBeneficiaryView(anyString());
+  }
+
+  @Test
+  void retrieveOrCreateMerchantIfNotExists_AlreadyExists() {
+    String acquirerId = "ACQ123";
+    String businessName = "Test Business";
+    String fiscalCode = "ABCDEF12G34H567I";
+    String iban = "IT60X0542811101000000123456";
+    String ibanHolder = "Test Iban Holder";
+    String expectedMerchantId = Utilities.toUUID(fiscalCode + "_" + acquirerId);
+    MerchantCreateDTO dto = MerchantCreateDTO.builder()
+        .businessName(businessName)
+        .fiscalCode(fiscalCode)
+        .acquirerId(acquirerId)
+        .iban(iban)
+        .ibanHolder(ibanHolder)
+        .build();
+
+    Merchant merchant = Merchant.builder()
+        .fiscalCode(fiscalCode)
+        .merchantId(expectedMerchantId)
+        .businessName("businessName")
+        .build();
+
+    Mockito.when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
+        .thenReturn(Optional.of(merchant));
+
+    Mockito.when(merchantRepositoryMock.save(merchant))
+        .thenReturn(merchant);
+    String merchantIDUpdated = merchantService.retrieveOrCreateMerchantIfNotExists(dto);
+
+    assertEquals(expectedMerchantId, merchantIDUpdated);
+    Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
+    Mockito.verify(merchantRepositoryMock).save(Mockito.any(Merchant.class));
+  }
+
+  @Test
+  void updateMerchant_updatesFieldsCorrectly() {
+    // Given
+    String existingMerchantId = "EXISTING_MERCHANT_ID";
+    LocalDateTime existingActivationDate = LocalDateTime.now().minusDays(1);
+    LocalDateTime newActivationDate = LocalDateTime.now();
+    Merchant existingMerchant = Merchant.builder()
+        .merchantId(existingMerchantId)
+        .iban("OLD_IBAN")
+        .businessName("Old Business Name")
+        .ibanHolder("Old Iban Holder")
+        .activationDate(existingActivationDate)
+        .build();
+
+    MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .iban("NEW_IBAN")
+        .businessName("New Business Name")
+        .ibanHolder("New Iban Holder")
+        .activationDate(newActivationDate)
+        .build();
+
+    // Mock the repository to return the existing merchant
+    when(merchantRepositoryMock.findByFiscalCode(updateDTO.getFiscalCode()))
+        .thenReturn(Optional.of(existingMerchant));
+
+    // When
+    merchantService.retrieveOrCreateMerchantIfNotExists(updateDTO);
+
+    // Then
+    assertEquals("NEW_IBAN", existingMerchant.getIban());
+    assertEquals("New Business Name", existingMerchant.getBusinessName());
+    assertEquals("New Iban Holder", existingMerchant.getIbanHolder());
+    assertEquals(newActivationDate, existingMerchant.getActivationDate());
+    verify(merchantRepositoryMock).save(existingMerchant);
+  }
+
+  @Test
+  void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
+    // Given
+    String existingMerchantId = "EXISTING_MERCHANT_ID";
+    LocalDateTime activationDate = LocalDateTime.now();
+    Merchant existingMerchant = Merchant.builder()
+        .merchantId(existingMerchantId)
+        .iban("OLD_IBAN")
+        .businessName("Old Business Name")
+        .ibanHolder("Old Iban Holder")
+        .activationDate(activationDate)
+        .build();
+
+    MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .iban("") // Blank
+        .businessName(null) // Null
+        .ibanHolder("") // Blank
+        .build();
+
+    // Mock the repository to return the existing merchant
+    when(merchantRepositoryMock.findByFiscalCode(updateDTO.getFiscalCode()))
+        .thenReturn(Optional.of(existingMerchant));
+
+    // When
+    merchantService.retrieveOrCreateMerchantIfNotExists(updateDTO);
+
+    // Then
+    assertEquals("OLD_IBAN", existingMerchant.getIban());
+    assertEquals("Old Business Name", existingMerchant.getBusinessName());
+    assertEquals("Old Iban Holder", existingMerchant.getIbanHolder());
+    assertEquals(activationDate, existingMerchant.getActivationDate());
+    verify(merchantRepositoryMock).save(existingMerchant);
+  }
+
+  @Test
+  void updateMerchant_updatesOnlyProvidedFields() {
+    // Given
+    String existingMerchantId = "EXISTING_MERCHANT_ID";
+    LocalDateTime activationDate = LocalDateTime.now();
+    LocalDateTime activatioDateTimeNew =LocalDateTime.now().plusDays(2);
+    Merchant existingMerchant = Merchant.builder()
+        .merchantId(existingMerchantId)
+        .iban("OLD_IBAN")
+        .businessName("Old Business Name")
+        .ibanHolder("Old Iban Holder")
+        .activationDate(activationDate)
+        .build();
+
+    MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .iban("NEW_IBAN") // Only updating IBAN
+        .activationDate(activatioDateTimeNew)
+        .build();
+
+    // Mock the repository to return the existing merchant
+    when(merchantRepositoryMock.findByFiscalCode(updateDTO.getFiscalCode()))
+        .thenReturn(Optional.of(existingMerchant));
+
+    // When
+    merchantService.retrieveOrCreateMerchantIfNotExists(updateDTO);
+
+    // Then
+    assertEquals("NEW_IBAN", existingMerchant.getIban());
+    assertEquals("Old Business Name", existingMerchant.getBusinessName());
+    assertEquals("Old Iban Holder", existingMerchant.getIbanHolder());
+    assertEquals(activatioDateTimeNew, existingMerchant.getActivationDate());
+    verify(merchantRepositoryMock).save(existingMerchant);
   }
 }

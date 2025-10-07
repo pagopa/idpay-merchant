@@ -24,6 +24,8 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>,
           "fiscalCode : 1, " +
           "vatNumber : 1, " +
           "iban : 1, " +
+          "ibanHolder : 1, " +
+          "activationDate : 1, " +
           "'initiativeList.initiativeId' : 1, " +
           "'initiativeList.initiativeName' : 1, " +
           "'initiativeList.merchantStatus' : 1, " +

@@ -43,6 +43,7 @@ class MerchantModelToDTOMapperTest {
          assertEquals(merchant.getIbanHolder(), result.getIbanHolder());
          assertEquals(initiative.getCreationDate(), result.getCreationDate());
          assertEquals(initiative.getUpdateDate(), result.getUpdateDate());
+         assertEquals(merchant.getActivationDate(), result.getActivationDate());
    });
  }
 

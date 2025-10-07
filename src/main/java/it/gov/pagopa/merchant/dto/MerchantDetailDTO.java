@@ -42,4 +42,6 @@ public class MerchantDetailDTO {
   private LocalDateTime creationDate;
 
   private LocalDateTime updateDate;
+
+  private LocalDateTime activationDate;
 }

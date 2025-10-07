@@ -27,6 +27,7 @@ public class MerchantModelToDTOMapper {
               merchantDetailDTO.setIbanHolder(merchant.getIbanHolder());
               merchantDetailDTO.setCreationDate(initiative.getCreationDate());
               merchantDetailDTO.setUpdateDate(initiative.getUpdateDate());
+              merchantDetailDTO.setActivationDate(merchant.getActivationDate());
             }
         );
 

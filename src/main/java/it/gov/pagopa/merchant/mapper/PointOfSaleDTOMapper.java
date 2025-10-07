@@ -4,7 +4,6 @@ import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.model.PointOfSale;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,7 +14,7 @@ public class PointOfSaleDTOMapper {
             return  null;
         }
         return PointOfSaleDTO.builder()
-                .id(pointOfSale.getId().toString())
+                .id(pointOfSale.getId())
                 .type(PointOfSaleTypeEnum.fromValue(pointOfSale.getType()))
                 .franchiseName(pointOfSale.getFranchiseName())
                 .contactEmail(pointOfSale.getContactEmail())
@@ -39,7 +38,7 @@ public class PointOfSaleDTOMapper {
             return null;
         }
         PointOfSale pointOfSale = PointOfSale.builder()
-                .id(StringUtils.isEmpty(pointOfSaleDTO.getId()) ? null : new ObjectId(pointOfSaleDTO.getId()))
+                .id(StringUtils.isEmpty(pointOfSaleDTO.getId()) ? null : pointOfSaleDTO.getId())
                 .type(pointOfSaleDTO.getType().name())
                 .franchiseName(pointOfSaleDTO.getFranchiseName())
                 .contactEmail(pointOfSaleDTO.getContactEmail())

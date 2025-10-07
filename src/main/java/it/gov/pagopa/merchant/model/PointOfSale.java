@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -22,7 +21,7 @@ import java.time.Instant;
 public class PointOfSale {
 
     @MongoId
-    private ObjectId id;
+    private String id;
 
     private String type;
     private String franchiseName;
