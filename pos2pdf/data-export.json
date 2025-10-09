@@ -1,1042 +1,3502 @@
 [
   {
-    "region": "Lombardia",
-    "province": "Milano",
-    "city": "Milano",
-    "zipCode": "20121",
-    "address": "Via Torino 45",
-    "franchiseName": "TechnoSphere"
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
   },
   {
-    "region": "Lombardia",
-    "province": "Milano",
-    "city": "Bergamo",
-    "zipCode": "24121",
-    "address": "Via XX Settembre 12",
-    "franchiseName": "ElectroHub"
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
   },
   {
-    "region": "Lombardia",
-    "province": "Brescia",
-    "city": "Brescia",
-    "zipCode": "25121",
-    "address": "Corso Zanardelli 88",
-    "franchiseName": "DigitalWorld"
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
   },
   {
-    "region": "Lombardia",
-    "province": "Como",
-    "city": "Como",
-    "zipCode": "22100",
-    "address": "Via Volta 23",
-    "franchiseName": "TechExpress"
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
   },
   {
-    "region": "Lombardia",
-    "province": "Varese",
-    "city": "Varese",
-    "zipCode": "21100",
-    "address": "Viale Europa 67",
-    "franchiseName": "ElectroMax"
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
   },
   {
-    "region": "Lombardia",
-    "province": "Pavia",
-    "city": "Pavia",
-    "zipCode": "27100",
-    "address": "Strada Nuova 34",
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://example.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://dclvf.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Stewart, Foster and Reed",
+    "website": "https://8mgo3.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Grant, Mueller and Hansen",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "ONLINE",
+    "franchiseName": "Mitchell - Hahn",
+    "website": "https://shoponline.com"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e045",
+    "zipCode": "58572",
+    "address": "Via Torino 185",
     "franchiseName": "GadgetStore"
   },
   {
-    "region": "Piemonte",
-    "province": "Torino",
-    "city": "Torino",
-    "zipCode": "10121",
-    "address": "Via Roma 156",
-    "franchiseName": "TechnoVillage"
-  },
-  {
-    "region": "Piemonte",
-    "province": "Torino",
-    "city": "Moncalieri",
-    "zipCode": "10024",
-    "address": "Via Real Collegio 89",
-    "franchiseName": "ElectroPoint"
-  },
-  {
-    "region": "Piemonte",
-    "province": "Cuneo",
-    "city": "Cuneo",
-    "zipCode": "12100",
-    "address": "Corso Nizza 78",
-    "franchiseName": "DigitalPlaza"
-  },
-  {
-    "region": "Piemonte",
-    "province": "Alessandria",
-    "city": "Alessandria",
-    "zipCode": "15121",
-    "address": "Via Dante 45",
-    "franchiseName": "TechZone"
-  },
-  {
-    "region": "Veneto",
-    "province": "Venezia",
-    "city": "Venezia",
-    "zipCode": "30121",
-    "address": "Strada Nova 234",
-    "franchiseName": "ElectroLand"
-  },
-  {
-    "region": "Veneto",
-    "province": "Verona",
-    "city": "Verona",
-    "zipCode": "37121",
-    "address": "Via Mazzini 67",
-    "franchiseName": "TechnoMart"
-  },
-  {
-    "region": "Veneto",
-    "province": "Padova",
-    "city": "Padova",
-    "zipCode": "35121",
-    "address": "Via del Santo 123",
-    "franchiseName": "DigitalCorner"
-  },
-  {
-    "region": "Veneto",
-    "province": "Vicenza",
-    "city": "Vicenza",
-    "zipCode": "36100",
-    "address": "Corso Palladio 89",
-    "franchiseName": "ElectroCity"
-  },
-  {
-    "region": "Veneto",
-    "province": "Treviso",
-    "city": "Treviso",
-    "zipCode": "31100",
-    "address": "Via Calmaggiore 56",
-    "franchiseName": "TechCentral"
-  },
-  {
-    "region": "Liguria",
-    "province": "Genova",
-    "city": "Genova",
-    "zipCode": "16121",
-    "address": "Via del Campo 78",
-    "franchiseName": "ElectroGalaxy"
-  },
-  {
-    "region": "Liguria",
-    "province": "La Spezia",
-    "city": "La Spezia",
-    "zipCode": "19121",
-    "address": "Via Chiodo 34",
-    "franchiseName": "TechnoPort"
-  },
-  {
-    "region": "Liguria",
-    "province": "Savona",
-    "city": "Savona",
-    "zipCode": "17100",
-    "address": "Via Paleocapa 45",
-    "franchiseName": "DigitalBay"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Bologna",
-    "city": "Bologna",
-    "zipCode": "40121",
-    "address": "Via Indipendenza 123",
-    "franchiseName": "TechnoCenter"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Modena",
-    "city": "Modena",
-    "zipCode": "41121",
-    "address": "Via Emilia 67",
-    "franchiseName": "ElectroSpeed"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Parma",
-    "city": "Parma",
-    "zipCode": "43121",
-    "address": "Via della Repubblica 89",
-    "franchiseName": "TechExpo"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Reggio Emilia",
-    "city": "Reggio Emilia",
-    "zipCode": "42121",
-    "address": "Via Emilia San Pietro 45",
-    "franchiseName": "DigitalEmilia"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Ferrara",
-    "city": "Ferrara",
-    "zipCode": "44121",
-    "address": "Corso Martiri della Libertà 78",
-    "franchiseName": "ElectroFerro"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Rimini",
-    "city": "Rimini",
-    "zipCode": "47921",
-    "address": "Corso d'Augusto 123",
-    "franchiseName": "TechRiviera"
-  },
-  {
-    "region": "Toscana",
-    "province": "Firenze",
-    "city": "Firenze",
-    "zipCode": "50121",
-    "address": "Via de' Tornabuoni 45",
-    "franchiseName": "TechnoRenaissance"
-  },
-  {
-    "region": "Toscana",
-    "province": "Pisa",
-    "city": "Pisa",
-    "zipCode": "56121",
-    "address": "Corso Italia 89",
-    "franchiseName": "DigitalTower"
-  },
-  {
-    "region": "Toscana",
-    "province": "Siena",
-    "city": "Siena",
-    "zipCode": "53100",
-    "address": "Via di Città 67",
-    "franchiseName": "ElectroTuscan"
-  },
-  {
-    "region": "Toscana",
-    "province": "Livorno",
-    "city": "Livorno",
-    "zipCode": "57123",
-    "address": "Via Grande 123",
-    "franchiseName": "TechMarine"
-  },
-  {
-    "region": "Toscana",
-    "province": "Arezzo",
-    "city": "Arezzo",
-    "zipCode": "52100",
-    "address": "Corso Italia 56",
-    "franchiseName": "DigitalAretino"
-  },
-  {
-    "region": "Toscana",
-    "province": "Grosseto",
-    "city": "Grosseto",
-    "zipCode": "58100",
-    "address": "Via Mazzini 78",
-    "franchiseName": "ElectroMaremma"
-  },
-  {
-    "region": "Lazio",
-    "province": "Roma",
-    "city": "Roma",
-    "zipCode": "00184",
-    "address": "Via del Corso 234",
-    "franchiseName": "TechCapital"
-  },
-  {
-    "region": "Lazio",
-    "province": "Roma",
-    "city": "Ostia",
-    "zipCode": "00121",
-    "address": "Via del Mare 67",
-    "franchiseName": "ElectroBeach"
-  },
-  {
-    "region": "Lazio",
-    "province": "Latina",
-    "city": "Latina",
-    "zipCode": "04100",
-    "address": "Corso della Repubblica 45",
-    "franchiseName": "DigitalLat"
-  },
-  {
-    "region": "Lazio",
-    "province": "Frosinone",
-    "city": "Frosinone",
-    "zipCode": "03100",
-    "address": "Corso Lazio 89",
-    "franchiseName": "TechnoValley"
-  },
-  {
-    "region": "Lazio",
-    "province": "Viterbo",
-    "city": "Viterbo",
-    "zipCode": "01100",
-    "address": "Corso Italia 123",
-    "franchiseName": "ElectroTuscia"
-  },
-  {
-    "region": "Marche",
-    "province": "Ancona",
-    "city": "Ancona",
-    "zipCode": "60121",
-    "address": "Corso Garibaldi 78",
-    "franchiseName": "TechAdriatico"
-  },
-  {
-    "region": "Marche",
-    "province": "Pesaro e Urbino",
-    "city": "Pesaro",
-    "zipCode": "61121",
-    "address": "Viale della Repubblica 45",
-    "franchiseName": "DigitalCoast"
-  },
-  {
-    "region": "Marche",
-    "province": "Macerata",
-    "city": "Macerata",
-    "zipCode": "62100",
-    "address": "Corso Cavour 67",
-    "franchiseName": "ElectroMarche"
-  },
-  {
-    "region": "Marche",
-    "province": "Ascoli Piceno",
-    "city": "Ascoli Piceno",
-    "zipCode": "63100",
-    "address": "Corso Mazzini 89",
-    "franchiseName": "TechPiceno"
-  },
-  {
-    "region": "Umbria",
-    "province": "Perugia",
-    "city": "Perugia",
-    "zipCode": "06121",
-    "address": "Corso Vannucci 123",
-    "franchiseName": "TechnoUmbria"
-  },
-  {
-    "region": "Umbria",
-    "province": "Terni",
-    "city": "Terni",
-    "zipCode": "05100",
-    "address": "Corso Tacito 56",
-    "franchiseName": "ElectroSteel"
-  },
-  {
-    "region": "Abruzzo",
-    "province": "L'Aquila",
-    "city": "L'Aquila",
-    "zipCode": "67100",
-    "address": "Corso Federico II 78",
-    "franchiseName": "DigitalAquila"
-  },
-  {
-    "region": "Abruzzo",
-    "province": "Pescara",
-    "city": "Pescara",
-    "zipCode": "65121",
-    "address": "Corso Umberto I 45",
-    "franchiseName": "TechMare"
-  },
-  {
-    "region": "Abruzzo",
-    "province": "Chieti",
-    "city": "Chieti",
-    "zipCode": "66100",
-    "address": "Via Arniense 89",
-    "franchiseName": "ElectroAbruzzo"
-  },
-  {
-    "region": "Abruzzo",
-    "province": "Teramo",
-    "city": "Teramo",
-    "zipCode": "64100",
-    "address": "Corso San Giorgio 67",
-    "franchiseName": "TechTeramano"
-  },
-  {
-    "region": "Molise",
-    "province": "Campobasso",
-    "city": "Campobasso",
-    "zipCode": "86100",
-    "address": "Via Ferrari 123",
-    "franchiseName": "DigitalMolise"
-  },
-  {
-    "region": "Molise",
-    "province": "Isernia",
-    "city": "Isernia",
-    "zipCode": "86170",
-    "address": "Corso Marcelli 45",
-    "franchiseName": "ElectroSannio"
-  },
-  {
-    "region": "Campania",
-    "province": "Napoli",
-    "city": "Napoli",
-    "zipCode": "80121",
-    "address": "Via Toledo 234",
-    "franchiseName": "ElectroReale"
-  },
-  {
-    "region": "Campania",
-    "province": "Salerno",
-    "city": "Salerno",
-    "zipCode": "84121",
-    "address": "Corso Vittorio Emanuele 78",
-    "franchiseName": "DigitalCostiera"
-  },
-  {
-    "region": "Campania",
-    "province": "Caserta",
-    "city": "Caserta",
-    "zipCode": "81100",
-    "address": "Corso Trieste 89",
-    "franchiseName": "ElectroReale"
-  },
-  {
-    "region": "Campania",
-    "province": "Avellino",
-    "city": "Avellino",
-    "zipCode": "83100",
-    "address": "Corso Vittorio Emanuele 45",
-    "franchiseName": "TechIrpinia"
-  },
-  {
-    "region": "Campania",
-    "province": "Benevento",
-    "city": "Benevento",
-    "zipCode": "82100",
-    "address": "Corso Garibaldi 67",
-    "franchiseName": "ElectroSannita"
-  },
-  {
-    "region": "Puglia",
-    "province": "Bari",
-    "city": "Bari",
-    "zipCode": "70121",
-    "address": "Via Sparano 123",
-    "franchiseName": "TechnoPuglia"
-  },
-  {
-    "region": "Puglia",
-    "province": "Lecce",
-    "city": "Lecce",
-    "zipCode": "73100",
-    "address": "Via Trinchese 89",
-    "franchiseName": "DigitalSalento"
-  },
-  {
-    "region": "Puglia",
-    "province": "Taranto",
-    "city": "Taranto",
-    "zipCode": "74123",
-    "address": "Corso Umberto I 45",
-    "franchiseName": "ElectroIonio"
-  },
-  {
-    "region": "Puglia",
-    "province": "Foggia",
-    "city": "Foggia",
-    "zipCode": "71121",
-    "address": "Corso Vittorio Emanuele 67",
-    "franchiseName": "DigitalBat"
-  },
-  {
-    "region": "Puglia",
-    "province": "Brindisi",
-    "city": "Brindisi",
-    "zipCode": "72100",
-    "address": "Via Appia 78",
-    "franchiseName": "DigitalBat"
-  },
-  {
-    "region": "Puglia",
-    "province": "Barletta-Andria-Trani",
-    "city": "Barletta",
-    "zipCode": "76121",
-    "address": "Corso Vittorio Emanuele 123",
-    "franchiseName": "DigitalBat"
-  },
-  {
-    "region": "Basilicata",
-    "province": "Potenza",
-    "city": "Potenza",
-    "zipCode": "85100",
-    "address": "Via Pretoria 89",
-    "franchiseName": "TechLucania"
-  },
-  {
-    "region": "Basilicata",
-    "province": "Matera",
-    "city": "Matera",
-    "zipCode": "75100",
-    "address": "Via del Corso 45",
-    "franchiseName": "ElectroSassi"
-  },
-  {
-    "region": "Calabria",
-    "province": "Reggio Calabria",
-    "city": "Reggio Calabria",
-    "zipCode": "89121",
-    "address": "Corso Garibaldi 67",
-    "franchiseName": "TechnoStretto"
-  },
-  {
-    "region": "Calabria",
-    "province": "Cosenza",
-    "city": "Cosenza",
-    "zipCode": "87100",
-    "address": "Corso Mazzini 123",
-    "franchiseName": "DigitalBruzi"
-  },
-  {
-    "region": "Calabria",
-    "province": "Catanzaro",
-    "city": "Catanzaro",
-    "zipCode": "88100",
-    "address": "Corso Mazzini 78",
-    "franchiseName": "ElectroCalabria"
-  },
-  {
-    "region": "Calabria",
-    "province": "Crotone",
-    "city": "Crotone",
-    "zipCode": "88900",
-    "address": "Via Vittorio Veneto 89",
-    "franchiseName": "TechCrotone"
-  },
-  {
-    "region": "Calabria",
-    "province": "Vibo Valentia",
-    "city": "Vibo Valentia",
-    "zipCode": "89900",
-    "address": "Corso Vittorio Emanuele III 45",
-    "franchiseName": "ElectroVibo"
-  },
-  {
-    "region": "Sicilia",
-    "province": "Palermo",
-    "city": "Palermo",
-    "zipCode": "90121",
-    "address": "Via Maqueda 234",
-    "franchiseName": "TechnoSicilia"
-  },
-  {
-    "region": "Sicilia",
-    "province": "Catania",
-    "city": "Catania",
-    "zipCode": "95121",
-    "address": "Via Etnea 123",
-    "franchiseName": "ElectroEtna"
-  },
-  {
-    "region": "Sicilia",
-    "province": "Messina",
-    "city": "Messina",
-    "zipCode": "98122",
-    "address": "Corso Cavour 89",
-    "franchiseName": "DigitalStretto"
-  },
-  {
-    "region": "Sicilia",
-    "province": "Siracusa",
-    "city": "Siracusa",
-    "zipCode": "96100",
-    "address": "Corso Matteotti 67",
-    "franchiseName": "TechnoTrapani"
-  },
-  {
-    "region": "Sicilia",
-    "province": "Ragusa",
-    "city": "Ragusa",
-    "zipCode": "97100",
-    "address": "Corso Italia 45",
-    "franchiseName": "TechnoTrapani"
-  },
-  {
+    "type": "PHYSICAL",
     "region": "Sicilia",
     "province": "Trapani",
-    "city": "Trapani",
-    "zipCode": "91100",
-    "address": "Via Garibaldi 78",
-    "franchiseName": "TechnoTrapani"
+    "city": "Citt\u00e019",
+    "zipCode": "68610",
+    "address": "Via Roma 92",
+    "franchiseName": "DigitalWorld"
   },
   {
-    "region": "Sicilia",
-    "province": "Agrigento",
-    "city": "Agrigento",
-    "zipCode": "92100",
-    "address": "Via Atenea 123",
-    "franchiseName": "DigitalValle"
-  },
-  {
-    "region": "Sicilia",
-    "province": "Caltanissetta",
-    "city": "Caltanissetta",
-    "zipCode": "93100",
-    "address": "Corso Vittorio Emanuele 89",
-    "franchiseName": "TechnoTrapani"
-  },
-  {
-    "region": "Sicilia",
-    "province": "Enna",
-    "city": "Enna",
-    "zipCode": "94100",
-    "address": "Via Roma 45",
-    "franchiseName": "TechCentro"
-  },
-  {
-    "region": "Sardegna",
-    "province": "Cagliari",
-    "city": "Cagliari",
-    "zipCode": "09121",
-    "address": "Via Manno 67",
-    "franchiseName": "TechnoSardegna"
-  },
-  {
-    "region": "Sardegna",
-    "province": "Sassari",
-    "city": "Sassari",
-    "zipCode": "07100",
-    "address": "Corso Vittorio Emanuele 123",
-    "franchiseName": "ElectroTurritana"
-  },
-  {
-    "region": "Sardegna",
-    "province": "Nuoro",
-    "city": "Nuoro",
-    "zipCode": "08100",
-    "address": "Corso Garibaldi 78",
-    "franchiseName": "DigitalBarbagia"
-  },
-  {
-    "region": "Sardegna",
-    "province": "Oristano",
-    "city": "Oristano",
-    "zipCode": "09170",
-    "address": "Via Tirso 89",
-    "franchiseName": "TechOristano"
-  },
-  {
-    "region": "Valle d'Aosta",
-    "province": "Aosta",
-    "city": "Aosta",
-    "zipCode": "11100",
-    "address": "Via Porta Pretoria 45",
-    "franchiseName": "ElectroAlpine"
-  },
-  {
-    "region": "Trentino-Alto Adige",
-    "province": "Trento",
-    "city": "Trento",
-    "zipCode": "38121",
-    "address": "Via Manci 67",
-    "franchiseName": "TechTrentino"
-  },
-  {
-    "region": "Trentino-Alto Adige",
-    "province": "Bolzano",
-    "city": "Bolzano",
-    "zipCode": "39100",
-    "address": "Via dei Portici 123",
-    "franchiseName": "DigitalTirol"
-  },
-  {
-    "region": "Friuli-Venezia Giulia",
-    "province": "Trieste",
-    "city": "Trieste",
-    "zipCode": "34121",
-    "address": "Corso Italia 89",
-    "franchiseName": "TechnoTrieste"
-  },
-  {
-    "region": "Friuli-Venezia Giulia",
-    "province": "Udine",
-    "city": "Udine",
-    "zipCode": "33100",
-    "address": "Via Mercatovecchio 78",
-    "franchiseName": "ElectroFriuli"
-  },
-  {
-    "region": "Friuli-Venezia Giulia",
-    "province": "Pordenone",
-    "city": "Pordenone",
-    "zipCode": "33170",
-    "address": "Corso Vittorio Emanuele 45",
-    "franchiseName": "DigitalPordenone"
-  },
-  {
-    "region": "Friuli-Venezia Giulia",
-    "province": "Gorizia",
-    "city": "Gorizia",
-    "zipCode": "34170",
-    "address": "Corso Italia 67",
-    "franchiseName": "TechGorizia"
-  },
-  {
-    "region": "Lombardia",
-    "province": "Milano",
-    "city": "Monza",
-    "zipCode": "20900",
-    "address": "Via Carlo Alberto 123",
-    "franchiseName": "ElectroMonza"
-  },
-  {
-    "region": "Lombardia",
-    "province": "Cremona",
-    "city": "Cremona",
-    "zipCode": "26100",
-    "address": "Corso Campi 89",
-    "franchiseName": "TechStradivari"
-  },
-  {
-    "region": "Lombardia",
-    "province": "Mantova",
-    "city": "Mantova",
-    "zipCode": "46100",
-    "address": "Corso Umberto I 78",
-    "franchiseName": "DigitalGonzaga"
-  },
-  {
+    "type": "PHYSICAL",
     "region": "Piemonte",
-    "province": "Novara",
-    "city": "Novara",
-    "zipCode": "28100",
-    "address": "Corso Cavour 45",
-    "franchiseName": "ElectroNovara"
+    "province": "Cuneo",
+    "city": "Citt\u00e038",
+    "zipCode": "41969",
+    "address": "Via Firenze 186",
+    "franchiseName": "DigitalWorld"
   },
   {
-    "region": "Piemonte",
-    "province": "Asti",
-    "city": "Asti",
-    "zipCode": "14100",
-    "address": "Corso Alfieri 67",
-    "franchiseName": "DigitalTextile"
-  },
-  {
-    "region": "Piemonte",
-    "province": "Biella",
-    "city": "Biella",
-    "zipCode": "13900",
-    "address": "Via Italia 123",
-    "franchiseName": "DigitalTextile"
-  },
-  {
-    "region": "Piemonte",
-    "province": "Verbano-Cusio-Ossola",
-    "city": "Verbania",
-    "zipCode": "28922",
-    "address": "Corso Zanitello 89",
-    "franchiseName": "ElectroLago"
-  },
-  {
-    "region": "Veneto",
-    "province": "Belluno",
-    "city": "Belluno",
-    "zipCode": "32100",
-    "address": "Via Rialto 78",
-    "franchiseName": "TechDolomiti"
-  },
-  {
-    "region": "Veneto",
-    "province": "Rovigo",
-    "city": "Rovigo",
-    "zipCode": "45100",
-    "address": "Corso del Popolo 45",
-    "franchiseName": "DigitalPolesine"
-  },
-  {
-    "region": "Liguria",
-    "province": "Imperia",
-    "city": "Imperia",
-    "zipCode": "18100",
-    "address": "Via Bonfante 67",
-    "franchiseName": "ElectroRiviera"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Piacenza",
-    "city": "Piacenza",
-    "zipCode": "29121",
-    "address": "Via XX Settembre 123",
-    "franchiseName": "TechPiacenza"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Forlì-Cesena",
-    "city": "Forlì",
-    "zipCode": "47121",
-    "address": "Corso della Repubblica 89",
-    "franchiseName": "DigitalRomagna"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Ravenna",
-    "city": "Ravenna",
-    "zipCode": "48121",
-    "address": "Via Cavour 78",
-    "franchiseName": "ElectroMosaico"
-  },
-  {
-    "region": "Toscana",
-    "province": "Lucca",
-    "city": "Lucca",
-    "zipCode": "55100",
-    "address": "Via Fillungo 45",
-    "franchiseName": "TechLucchese"
-  },
-  {
-    "region": "Toscana",
-    "province": "Pistoia",
-    "city": "Pistoia",
-    "zipCode": "51100",
-    "address": "Via degli Orafi 67",
-    "franchiseName": "DigitalPistoia"
-  },
-  {
-    "region": "Toscana",
-    "province": "Prato",
-    "city": "Prato",
-    "zipCode": "59100",
-    "address": "Via Ricasoli 123",
-    "franchiseName": "ElectroTessile"
-  },
-  {
-    "region": "Toscana",
-    "province": "Massa-Carrara",
-    "city": "Massa",
-    "zipCode": "54100",
-    "address": "Via Dante 89",
-    "franchiseName": "TechMarmo"
-  },
-  {
-    "region": "Lazio",
-    "province": "Rieti",
-    "city": "Rieti",
-    "zipCode": "02100",
-    "address": "Via Roma 78",
-    "franchiseName": "DigitalSabina"
-  },
-  {
-    "region": "Campania",
-    "province": "Napoli",
-    "city": "Pozzuoli",
-    "zipCode": "80078",
-    "address": "Via Roma 45",
-    "franchiseName": "ElectroFlegrei"
-  },
-  {
-    "region": "Campania",
-    "province": "Salerno",
-    "city": "Battipaglia",
-    "zipCode": "84091",
-    "address": "Via Serroni 67",
-    "franchiseName": "TechPiana"
-  },
-  {
+    "type": "PHYSICAL",
     "region": "Puglia",
-    "province": "Bari",
-    "city": "Altamura",
-    "zipCode": "70022",
-    "address": "Corso Federico II 123",
-    "franchiseName": "DigitalMurgia"
+    "province": "Foggia",
+    "city": "Citt\u00e047",
+    "zipCode": "58423",
+    "address": "Via Napoli 42",
+    "franchiseName": "GadgetStore"
   },
   {
+    "type": "PHYSICAL",
     "region": "Puglia",
     "province": "Lecce",
-    "city": "Gallipoli",
-    "zipCode": "73014",
-    "address": "Corso Roma 89",
-    "franchiseName": "ElectroGallipoli"
+    "city": "Citt\u00e033",
+    "zipCode": "47488",
+    "address": "Via Roma 14",
+    "franchiseName": "TechPoint"
   },
   {
-    "region": "Sicilia",
-    "province": "Palermo",
-    "city": "Bagheria",
-    "zipCode": "90011",
-    "address": "Corso Umberto I 78",
-    "franchiseName": "TechBagheria"
-  },
-  {
-    "region": "Sicilia",
-    "province": "Catania",
-    "city": "Acireale",
-    "zipCode": "95024",
-    "address": "Corso Savoia 45",
-    "franchiseName": "DigitalAcireale"
-  },
-  {
-    "region": "Lombardia",
-    "province": "Sondrio",
-    "city": "Sondrio",
-    "zipCode": "23100",
-    "address": "Via Mallero 67",
-    "franchiseName": "ElectroValtellina"
-  },
-  {
-    "region": "Lombardia",
-    "province": "Lecco",
-    "city": "Lecco",
-    "zipCode": "23900",
-    "address": "Via Nazario Sauro 123",
-    "franchiseName": "TechLario"
-  },
-  {
-    "region": "Veneto",
-    "province": "Venezia",
-    "city": "Mestre",
-    "zipCode": "30172",
-    "address": "Via Piave 89",
-    "franchiseName": "DigitalTerraferma"
-  },
-  {
-    "region": "Veneto",
-    "province": "Treviso",
-    "city": "Conegliano",
-    "zipCode": "31015",
-    "address": "Via XX Settembre 78",
-    "franchiseName": "DigitalTerraferma"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Bologna",
-    "city": "Imola",
-    "zipCode": "40026",
-    "address": "Via Emilia 45",
-    "franchiseName": "TechCircuito"
-  },
-  {
-    "region": "Emilia-Romagna",
-    "province": "Modena",
-    "city": "Sassuolo",
-    "zipCode": "41049",
-    "address": "Via Radici in Piano 67",
-    "franchiseName": "DigitalCeramica"
-  },
-  {
+    "type": "PHYSICAL",
     "region": "Toscana",
-    "province": "Firenze",
-    "city": "Empoli",
-    "zipCode": "50053",
-    "address": "Via Giuseppe del Papa 123",
-    "franchiseName": "ElectroEmpoli"
+    "province": "Lucca",
+    "city": "Citt\u00e056",
+    "zipCode": "42212",
+    "address": "Via Roma 90",
+    "franchiseName": "GadgetStore"
   },
   {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Frosinone",
+    "city": "Citt\u00e021",
+    "zipCode": "93889",
+    "address": "Via Milano 17",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Rieti",
+    "city": "Citt\u00e031",
+    "zipCode": "99168",
+    "address": "Via Napoli 97",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Parma",
+    "city": "Citt\u00e089",
+    "zipCode": "20047",
+    "address": "Via Roma 150",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Taranto",
+    "city": "Citt\u00e011",
+    "zipCode": "33461",
+    "address": "Via Milano 180",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
     "region": "Toscana",
     "province": "Siena",
-    "city": "Poggibonsi",
-    "zipCode": "53036",
-    "address": "Via Trento 89",
-    "franchiseName": "TechChianti"
+    "city": "Citt\u00e050",
+    "zipCode": "79358",
+    "address": "Via Milano 185",
+    "franchiseName": "TechPoint"
   },
   {
-    "region": "Lazio",
-    "province": "Roma",
-    "city": "Frascati",
-    "zipCode": "00044",
-    "address": "Corso Tullo Morgagni 78",
-    "franchiseName": "DigitalCastelli"
-  },
-  {
-    "region": "Lazio",
-    "province": "Roma",
-    "city": "Tivoli",
-    "zipCode": "00019",
-    "address": "Corso del Popolo 45",
-    "franchiseName": "ElectroTivoli"
-  },
-  {
-    "region": "Marche",
-    "province": "Ancona",
-    "city": "Jesi",
-    "zipCode": "60035",
-    "address": "Corso Matteotti 67",
-    "franchiseName": "TechVallesina"
-  },
-  {
-    "region": "Umbria",
-    "province": "Perugia",
-    "city": "Foligno",
-    "zipCode": "06034",
-    "address": "Corso Cavour 123",
-    "franchiseName": "DigitalFoligno"
-  },
-  {
-    "region": "Abruzzo",
-    "province": "Pescara",
-    "city": "Montesilvano",
-    "zipCode": "65015",
-    "address": "Corso Umberto I 89",
-    "franchiseName": "ElectroColle"
-  },
-  {
+    "type": "PHYSICAL",
     "region": "Campania",
     "province": "Napoli",
-    "city": "Torre del Greco",
-    "zipCode": "80059",
-    "address": "Corso Vittorio Emanuele 78",
-    "franchiseName": "TechCorallo"
+    "city": "Citt\u00e010",
+    "zipCode": "82565",
+    "address": "Via Roma 59",
+    "franchiseName": "GadgetStore"
   },
   {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Foggia",
+    "city": "Citt\u00e045",
+    "zipCode": "68999",
+    "address": "Via Torino 82",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Latina",
+    "city": "Citt\u00e035",
+    "zipCode": "87822",
+    "address": "Via Torino 27",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Torino",
+    "city": "Citt\u00e058",
+    "zipCode": "31116",
+    "address": "Via Napoli 91",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e02",
+    "zipCode": "87263",
+    "address": "Via Firenze 71",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e09",
+    "zipCode": "69442",
+    "address": "Via Firenze 19",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Milano",
+    "city": "Citt\u00e077",
+    "zipCode": "59360",
+    "address": "Via Firenze 164",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Citt\u00e099",
+    "zipCode": "10381",
+    "address": "Via Firenze 26",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Cuneo",
+    "city": "Citt\u00e095",
+    "zipCode": "72840",
+    "address": "Via Milano 133",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Citt\u00e041",
+    "zipCode": "19095",
+    "address": "Via Milano 57",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
     "region": "Campania",
     "province": "Salerno",
-    "city": "Nocera Inferiore",
-    "zipCode": "84014",
-    "address": "Corso Vittorio Emanuele 45",
-    "franchiseName": "DigitalAgro"
+    "city": "Citt\u00e041",
+    "zipCode": "98617",
+    "address": "Via Napoli 96",
+    "franchiseName": "GadgetStore"
   },
   {
-    "region": "Puglia",
-    "province": "Bari",
-    "city": "Molfetta",
-    "zipCode": "70056",
-    "address": "Corso Dante 67",
-    "franchiseName": "ElectroMolfetta"
-  },
-  {
-    "region": "Calabria",
-    "province": "Cosenza",
-    "city": "Rende",
-    "zipCode": "87036",
-    "address": "Via Giovanni XXIII 123",
-    "franchiseName": "TechUnical"
-  },
-  {
+    "type": "PHYSICAL",
     "region": "Sicilia",
     "province": "Messina",
-    "city": "Milazzo",
-    "zipCode": "98057",
-    "address": "Via Cumbo Borgia 89",
-    "franchiseName": "DigitalEolie"
+    "city": "Citt\u00e094",
+    "zipCode": "63007",
+    "address": "Via Napoli 30",
+    "franchiseName": "TechPoint"
   },
   {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Frosinone",
+    "city": "Citt\u00e04",
+    "zipCode": "62285",
+    "address": "Via Torino 58",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e048",
+    "zipCode": "22475",
+    "address": "Via Milano 130",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Frosinone",
+    "city": "Citt\u00e04",
+    "zipCode": "73574",
+    "address": "Via Roma 38",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Citt\u00e046",
+    "zipCode": "41948",
+    "address": "Via Torino 143",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Citt\u00e085",
+    "zipCode": "26426",
+    "address": "Via Napoli 98",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e028",
+    "zipCode": "67442",
+    "address": "Via Torino 35",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Citt\u00e011",
+    "zipCode": "73779",
+    "address": "Via Milano 45",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Citt\u00e066",
+    "zipCode": "68942",
+    "address": "Via Torino 198",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e083",
+    "zipCode": "19992",
+    "address": "Via Torino 116",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Pisa",
+    "city": "Citt\u00e057",
+    "zipCode": "92989",
+    "address": "Via Milano 52",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e091",
+    "zipCode": "58707",
+    "address": "Via Firenze 164",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Rieti",
+    "city": "Citt\u00e022",
+    "zipCode": "74762",
+    "address": "Via Firenze 76",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Bologna",
+    "city": "Citt\u00e011",
+    "zipCode": "48640",
+    "address": "Via Firenze 106",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Citt\u00e069",
+    "zipCode": "76703",
+    "address": "Via Napoli 115",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e033",
+    "zipCode": "96059",
+    "address": "Via Torino 64",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Venezia",
+    "city": "Citt\u00e077",
+    "zipCode": "20664",
+    "address": "Via Milano 10",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Cuneo",
+    "city": "Citt\u00e031",
+    "zipCode": "65703",
+    "address": "Via Napoli 167",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Latina",
+    "city": "Citt\u00e068",
+    "zipCode": "60008",
+    "address": "Via Napoli 128",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Verona",
+    "city": "Citt\u00e094",
+    "zipCode": "77855",
+    "address": "Via Napoli 117",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e086",
+    "zipCode": "47805",
+    "address": "Via Torino 158",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Parma",
+    "city": "Citt\u00e017",
+    "zipCode": "15429",
+    "address": "Via Torino 90",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Firenze",
+    "city": "Citt\u00e097",
+    "zipCode": "90843",
+    "address": "Via Torino 127",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Bari",
+    "city": "Citt\u00e084",
+    "zipCode": "73041",
+    "address": "Via Roma 49",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Vicenza",
+    "city": "Citt\u00e07",
+    "zipCode": "95813",
+    "address": "Via Napoli 57",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Citt\u00e02",
+    "zipCode": "12029",
+    "address": "Via Firenze 91",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Citt\u00e010",
+    "zipCode": "87078",
+    "address": "Via Torino 120",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Citt\u00e028",
+    "zipCode": "14777",
+    "address": "Via Napoli 77",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Rieti",
+    "city": "Citt\u00e051",
+    "zipCode": "41276",
+    "address": "Via Napoli 93",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
     "region": "Sicilia",
     "province": "Catania",
-    "city": "Paternò",
-    "zipCode": "95047",
-    "address": "Via Vittorio Emanuele 78",
-    "franchiseName": "ElectroPaternò"
+    "city": "Citt\u00e072",
+    "zipCode": "99165",
+    "address": "Via Napoli 122",
+    "franchiseName": "DigitalWorld"
   },
   {
-    "region": "Sardegna",
-    "province": "Cagliari",
-    "city": "Quartu Sant'Elena",
-    "zipCode": "09045",
-    "address": "Via Is Mirrionis 45",
-    "franchiseName": "TechQuartu"
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Livorno",
+    "city": "Citt\u00e022",
+    "zipCode": "47274",
+    "address": "Via Firenze 18",
+    "franchiseName": "TechPoint"
   },
   {
-    "region": "Sardegna",
-    "province": "Sassari",
-    "city": "Alghero",
-    "zipCode": "07041",
-    "address": "Via Catalogna 67",
-    "franchiseName": "DigitalCoral"
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Rieti",
+    "city": "Citt\u00e088",
+    "zipCode": "94557",
+    "address": "Via Torino 136",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Verona",
+    "city": "Citt\u00e036",
+    "zipCode": "60906",
+    "address": "Via Roma 102",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Milano",
+    "city": "Citt\u00e056",
+    "zipCode": "17988",
+    "address": "Via Firenze 48",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Brindisi",
+    "city": "Citt\u00e085",
+    "zipCode": "11022",
+    "address": "Via Torino 11",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Citt\u00e080",
+    "zipCode": "80024",
+    "address": "Via Roma 96",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Novara",
+    "city": "Citt\u00e064",
+    "zipCode": "42732",
+    "address": "Via Milano 47",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Cuneo",
+    "city": "Citt\u00e045",
+    "zipCode": "87488",
+    "address": "Via Firenze 5",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Alessandria",
+    "city": "Citt\u00e059",
+    "zipCode": "79126",
+    "address": "Via Roma 15",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Frosinone",
+    "city": "Citt\u00e065",
+    "zipCode": "25573",
+    "address": "Via Napoli 132",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Milano",
+    "city": "Citt\u00e036",
+    "zipCode": "54135",
+    "address": "Via Firenze 200",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Firenze",
+    "city": "Citt\u00e030",
+    "zipCode": "65707",
+    "address": "Via Roma 174",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Catania",
+    "city": "Citt\u00e032",
+    "zipCode": "36870",
+    "address": "Via Roma 77",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Citt\u00e035",
+    "zipCode": "36405",
+    "address": "Via Firenze 200",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Lecce",
+    "city": "Citt\u00e035",
+    "zipCode": "68122",
+    "address": "Via Firenze 184",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Rieti",
+    "city": "Citt\u00e018",
+    "zipCode": "32619",
+    "address": "Via Firenze 94",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Alessandria",
+    "city": "Citt\u00e011",
+    "zipCode": "99913",
+    "address": "Via Roma 163",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Siracusa",
+    "city": "Citt\u00e054",
+    "zipCode": "97198",
+    "address": "Via Napoli 156",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e042",
+    "zipCode": "87037",
+    "address": "Via Napoli 51",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Salerno",
+    "city": "Citt\u00e085",
+    "zipCode": "59083",
+    "address": "Via Napoli 151",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e090",
+    "zipCode": "12739",
+    "address": "Via Roma 6",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Citt\u00e051",
+    "zipCode": "58519",
+    "address": "Via Roma 13",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Citt\u00e04",
+    "zipCode": "45341",
+    "address": "Via Torino 175",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Pisa",
+    "city": "Citt\u00e097",
+    "zipCode": "93064",
+    "address": "Via Roma 141",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Citt\u00e020",
+    "zipCode": "22913",
+    "address": "Via Napoli 183",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Trapani",
+    "city": "Citt\u00e040",
+    "zipCode": "74845",
+    "address": "Via Milano 146",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Novara",
+    "city": "Citt\u00e032",
+    "zipCode": "98729",
+    "address": "Via Torino 5",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e035",
+    "zipCode": "17132",
+    "address": "Via Torino 10",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Vicenza",
+    "city": "Citt\u00e034",
+    "zipCode": "62368",
+    "address": "Via Milano 119",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Benevento",
+    "city": "Citt\u00e018",
+    "zipCode": "70223",
+    "address": "Via Napoli 30",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e086",
+    "zipCode": "75910",
+    "address": "Via Roma 70",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Siena",
+    "city": "Citt\u00e073",
+    "zipCode": "53024",
+    "address": "Via Napoli 174",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Citt\u00e026",
+    "zipCode": "50836",
+    "address": "Via Torino 87",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e076",
+    "zipCode": "17620",
+    "address": "Via Firenze 150",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e017",
+    "zipCode": "81757",
+    "address": "Via Roma 178",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Avellino",
+    "city": "Citt\u00e042",
+    "zipCode": "45317",
+    "address": "Via Torino 16",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e049",
+    "zipCode": "45469",
+    "address": "Via Roma 96",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Citt\u00e065",
+    "zipCode": "60510",
+    "address": "Via Milano 157",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Lucca",
+    "city": "Citt\u00e037",
+    "zipCode": "26142",
+    "address": "Via Roma 138",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Livorno",
+    "city": "Citt\u00e034",
+    "zipCode": "92143",
+    "address": "Via Roma 73",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Lucca",
+    "city": "Citt\u00e058",
+    "zipCode": "74935",
+    "address": "Via Milano 54",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Brescia",
+    "city": "Citt\u00e097",
+    "zipCode": "97923",
+    "address": "Via Napoli 103",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Citt\u00e040",
+    "zipCode": "36770",
+    "address": "Via Napoli 92",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Salerno",
+    "city": "Citt\u00e026",
+    "zipCode": "81345",
+    "address": "Via Milano 126",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Vicenza",
+    "city": "Citt\u00e03",
+    "zipCode": "95020",
+    "address": "Via Roma 24",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Viterbo",
+    "city": "Citt\u00e051",
+    "zipCode": "71995",
+    "address": "Via Milano 13",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Salerno",
+    "city": "Citt\u00e05",
+    "zipCode": "26182",
+    "address": "Via Firenze 107",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Venezia",
+    "city": "Citt\u00e068",
+    "zipCode": "10168",
+    "address": "Via Milano 153",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Vicenza",
+    "city": "Citt\u00e034",
+    "zipCode": "54686",
+    "address": "Via Napoli 191",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Brescia",
+    "city": "Citt\u00e082",
+    "zipCode": "91947",
+    "address": "Via Milano 101",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Como",
+    "city": "Citt\u00e022",
+    "zipCode": "25421",
+    "address": "Via Napoli 62",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e0100",
+    "zipCode": "14839",
+    "address": "Via Firenze 179",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Livorno",
+    "city": "Citt\u00e013",
+    "zipCode": "84865",
+    "address": "Via Firenze 111",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Como",
+    "city": "Citt\u00e040",
+    "zipCode": "43642",
+    "address": "Via Roma 87",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Siracusa",
+    "city": "Citt\u00e05",
+    "zipCode": "58789",
+    "address": "Via Milano 96",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e040",
+    "zipCode": "52347",
+    "address": "Via Milano 81",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Rieti",
+    "city": "Citt\u00e020",
+    "zipCode": "96986",
+    "address": "Via Firenze 148",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e052",
+    "zipCode": "22471",
+    "address": "Via Firenze 19",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Avellino",
+    "city": "Citt\u00e029",
+    "zipCode": "67572",
+    "address": "Via Roma 190",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Citt\u00e030",
+    "zipCode": "54644",
+    "address": "Via Firenze 196",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Bergamo",
+    "city": "Citt\u00e031",
+    "zipCode": "18362",
+    "address": "Via Torino 127",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Catania",
+    "city": "Citt\u00e041",
+    "zipCode": "88168",
+    "address": "Via Torino 50",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Benevento",
+    "city": "Citt\u00e097",
+    "zipCode": "81204",
+    "address": "Via Milano 110",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Ravenna",
+    "city": "Citt\u00e089",
+    "zipCode": "29426",
+    "address": "Via Milano 130",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Rieti",
+    "city": "Citt\u00e08",
+    "zipCode": "79735",
+    "address": "Via Napoli 136",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Citt\u00e079",
+    "zipCode": "83996",
+    "address": "Via Firenze 58",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Caserta",
+    "city": "Citt\u00e037",
+    "zipCode": "84871",
+    "address": "Via Firenze 177",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Brindisi",
+    "city": "Citt\u00e051",
+    "zipCode": "78129",
+    "address": "Via Roma 103",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Catania",
+    "city": "Citt\u00e029",
+    "zipCode": "31127",
+    "address": "Via Firenze 180",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Viterbo",
+    "city": "Citt\u00e073",
+    "zipCode": "75797",
+    "address": "Via Firenze 83",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Frosinone",
+    "city": "Citt\u00e075",
+    "zipCode": "78548",
+    "address": "Via Firenze 149",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Vicenza",
+    "city": "Citt\u00e047",
+    "zipCode": "20842",
+    "address": "Via Milano 164",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Alessandria",
+    "city": "Citt\u00e015",
+    "zipCode": "81526",
+    "address": "Via Napoli 125",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Benevento",
+    "city": "Citt\u00e068",
+    "zipCode": "11122",
+    "address": "Via Torino 55",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Bari",
+    "city": "Citt\u00e073",
+    "zipCode": "52218",
+    "address": "Via Torino 141",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Cuneo",
+    "city": "Citt\u00e031",
+    "zipCode": "39218",
+    "address": "Via Milano 64",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Rimini",
+    "city": "Citt\u00e061",
+    "zipCode": "30491",
+    "address": "Via Roma 115",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e088",
+    "zipCode": "48955",
+    "address": "Via Firenze 168",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Citt\u00e031",
+    "zipCode": "35191",
+    "address": "Via Firenze 153",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Citt\u00e074",
+    "zipCode": "96758",
+    "address": "Via Roma 124",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Latina",
+    "city": "Citt\u00e021",
+    "zipCode": "79371",
+    "address": "Via Roma 125",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Rimini",
+    "city": "Citt\u00e03",
+    "zipCode": "41354",
+    "address": "Via Napoli 31",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Vicenza",
+    "city": "Citt\u00e094",
+    "zipCode": "13517",
+    "address": "Via Roma 20",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e064",
+    "zipCode": "27753",
+    "address": "Via Firenze 84",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Brindisi",
+    "city": "Citt\u00e051",
+    "zipCode": "14413",
+    "address": "Via Roma 90",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Lucca",
+    "city": "Citt\u00e011",
+    "zipCode": "38429",
+    "address": "Via Milano 193",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e046",
+    "zipCode": "43285",
+    "address": "Via Milano 23",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Citt\u00e045",
+    "zipCode": "65007",
+    "address": "Via Roma 39",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Caserta",
+    "city": "Citt\u00e035",
+    "zipCode": "79048",
+    "address": "Via Milano 177",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Livorno",
+    "city": "Citt\u00e032",
+    "zipCode": "58630",
+    "address": "Via Napoli 128",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e065",
+    "zipCode": "47714",
+    "address": "Via Firenze 13",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Novara",
+    "city": "Citt\u00e067",
+    "zipCode": "96001",
+    "address": "Via Milano 79",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Siena",
+    "city": "Citt\u00e074",
+    "zipCode": "15121",
+    "address": "Via Roma 35",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Citt\u00e08",
+    "zipCode": "65575",
+    "address": "Via Milano 185",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Parma",
+    "city": "Citt\u00e031",
+    "zipCode": "25558",
+    "address": "Via Firenze 65",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Bologna",
+    "city": "Citt\u00e072",
+    "zipCode": "44868",
+    "address": "Via Roma 173",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Taranto",
+    "city": "Citt\u00e046",
+    "zipCode": "22616",
+    "address": "Via Napoli 198",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Lucca",
+    "city": "Citt\u00e045",
+    "zipCode": "17490",
+    "address": "Via Firenze 138",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Como",
+    "city": "Citt\u00e097",
+    "zipCode": "25858",
+    "address": "Via Milano 169",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Brescia",
+    "city": "Citt\u00e042",
+    "zipCode": "44394",
+    "address": "Via Firenze 149",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Parma",
+    "city": "Citt\u00e04",
+    "zipCode": "72144",
+    "address": "Via Firenze 181",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Como",
+    "city": "Citt\u00e094",
+    "zipCode": "65024",
+    "address": "Via Napoli 183",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Citt\u00e022",
+    "zipCode": "83036",
+    "address": "Via Firenze 92",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Ravenna",
+    "city": "Citt\u00e018",
+    "zipCode": "26507",
+    "address": "Via Milano 92",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Cuneo",
+    "city": "Citt\u00e098",
+    "zipCode": "40733",
+    "address": "Via Roma 71",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Citt\u00e017",
+    "zipCode": "43862",
+    "address": "Via Milano 110",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Brindisi",
+    "city": "Citt\u00e065",
+    "zipCode": "51295",
+    "address": "Via Firenze 196",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Benevento",
+    "city": "Citt\u00e056",
+    "zipCode": "33921",
+    "address": "Via Firenze 118",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Pisa",
+    "city": "Citt\u00e037",
+    "zipCode": "17132",
+    "address": "Via Roma 124",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e023",
+    "zipCode": "19348",
+    "address": "Via Torino 192",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Citt\u00e092",
+    "zipCode": "24468",
+    "address": "Via Napoli 88",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Citt\u00e02",
+    "zipCode": "21197",
+    "address": "Via Torino 178",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Padova",
+    "city": "Citt\u00e0100",
+    "zipCode": "44843",
+    "address": "Via Firenze 118",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e072",
+    "zipCode": "82764",
+    "address": "Via Torino 50",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Bergamo",
+    "city": "Citt\u00e06",
+    "zipCode": "71865",
+    "address": "Via Firenze 78",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Torino",
+    "city": "Citt\u00e093",
+    "zipCode": "49512",
+    "address": "Via Milano 82",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e013",
+    "zipCode": "60864",
+    "address": "Via Milano 182",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Latina",
+    "city": "Citt\u00e078",
+    "zipCode": "30568",
+    "address": "Via Firenze 51",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Torino",
+    "city": "Citt\u00e012",
+    "zipCode": "65680",
+    "address": "Via Firenze 114",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e099",
+    "zipCode": "20256",
+    "address": "Via Napoli 41",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e044",
+    "zipCode": "95571",
+    "address": "Via Firenze 198",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Parma",
+    "city": "Citt\u00e043",
+    "zipCode": "58078",
+    "address": "Via Milano 177",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Venezia",
+    "city": "Citt\u00e05",
+    "zipCode": "36432",
+    "address": "Via Milano 189",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e057",
+    "zipCode": "24527",
+    "address": "Via Milano 154",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Bologna",
+    "city": "Citt\u00e055",
+    "zipCode": "86209",
+    "address": "Via Torino 176",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Verona",
+    "city": "Citt\u00e07",
+    "zipCode": "72879",
+    "address": "Via Firenze 88",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e015",
+    "zipCode": "63441",
+    "address": "Via Napoli 176",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Bologna",
+    "city": "Citt\u00e052",
+    "zipCode": "68469",
+    "address": "Via Firenze 182",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Verona",
+    "city": "Citt\u00e029",
+    "zipCode": "85182",
+    "address": "Via Torino 83",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Lucca",
+    "city": "Citt\u00e076",
+    "zipCode": "28184",
+    "address": "Via Firenze 51",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Livorno",
+    "city": "Citt\u00e044",
+    "zipCode": "63434",
+    "address": "Via Firenze 92",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Taranto",
+    "city": "Citt\u00e075",
+    "zipCode": "10869",
+    "address": "Via Roma 61",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e083",
+    "zipCode": "21970",
+    "address": "Via Napoli 172",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Bergamo",
+    "city": "Citt\u00e04",
+    "zipCode": "24775",
+    "address": "Via Napoli 24",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Pisa",
+    "city": "Citt\u00e023",
+    "zipCode": "37271",
+    "address": "Via Napoli 185",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Lecce",
+    "city": "Citt\u00e091",
+    "zipCode": "57955",
+    "address": "Via Milano 86",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Padova",
+    "city": "Citt\u00e073",
+    "zipCode": "69583",
+    "address": "Via Firenze 18",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Citt\u00e04",
+    "zipCode": "24055",
+    "address": "Via Napoli 71",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Citt\u00e031",
+    "zipCode": "23100",
+    "address": "Via Roma 168",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Avellino",
+    "city": "Citt\u00e02",
+    "zipCode": "65288",
+    "address": "Via Milano 186",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Novara",
+    "city": "Citt\u00e092",
+    "zipCode": "69251",
+    "address": "Via Torino 4",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Modena",
+    "city": "Citt\u00e031",
+    "zipCode": "96572",
+    "address": "Via Torino 72",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Trapani",
+    "city": "Citt\u00e072",
+    "zipCode": "17792",
+    "address": "Via Firenze 42",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Alessandria",
+    "city": "Citt\u00e011",
+    "zipCode": "19135",
+    "address": "Via Torino 88",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Taranto",
+    "city": "Citt\u00e033",
+    "zipCode": "93163",
+    "address": "Via Firenze 194",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Padova",
+    "city": "Citt\u00e025",
+    "zipCode": "78501",
+    "address": "Via Torino 112",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Bari",
+    "city": "Citt\u00e011",
+    "zipCode": "49575",
+    "address": "Via Napoli 17",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Ravenna",
+    "city": "Citt\u00e024",
+    "zipCode": "12726",
+    "address": "Via Napoli 55",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Milano",
+    "city": "Citt\u00e026",
+    "zipCode": "41578",
+    "address": "Via Firenze 133",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Siena",
+    "city": "Citt\u00e063",
+    "zipCode": "55396",
+    "address": "Via Firenze 118",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Firenze",
+    "city": "Citt\u00e021",
+    "zipCode": "15116",
+    "address": "Via Napoli 150",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Torino",
+    "city": "Citt\u00e072",
+    "zipCode": "30546",
+    "address": "Via Torino 165",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Padova",
+    "city": "Citt\u00e022",
+    "zipCode": "78126",
+    "address": "Via Roma 32",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Verona",
+    "city": "Citt\u00e025",
+    "zipCode": "79171",
+    "address": "Via Roma 199",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Taranto",
+    "city": "Citt\u00e018",
+    "zipCode": "89015",
+    "address": "Via Milano 146",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Bergamo",
+    "city": "Citt\u00e043",
+    "zipCode": "14105",
+    "address": "Via Napoli 57",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Firenze",
+    "city": "Citt\u00e068",
+    "zipCode": "10582",
+    "address": "Via Napoli 183",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Citt\u00e054",
+    "zipCode": "78837",
+    "address": "Via Roma 69",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Varese",
+    "city": "Citt\u00e075",
+    "zipCode": "54693",
+    "address": "Via Roma 79",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Latina",
+    "city": "Citt\u00e024",
+    "zipCode": "27657",
+    "address": "Via Firenze 14",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Torino",
+    "city": "Citt\u00e07",
+    "zipCode": "84507",
+    "address": "Via Roma 159",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Taranto",
+    "city": "Citt\u00e083",
+    "zipCode": "28825",
+    "address": "Via Firenze 42",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Treviso",
+    "city": "Citt\u00e010",
+    "zipCode": "19990",
+    "address": "Via Roma 117",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Bergamo",
+    "city": "Citt\u00e071",
+    "zipCode": "19465",
+    "address": "Via Napoli 68",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Taranto",
+    "city": "Citt\u00e090",
+    "zipCode": "57665",
+    "address": "Via Milano 160",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Asti",
+    "city": "Citt\u00e028",
+    "zipCode": "76527",
+    "address": "Via Roma 63",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Bergamo",
+    "city": "Citt\u00e050",
+    "zipCode": "16637",
+    "address": "Via Roma 120",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Parma",
+    "city": "Citt\u00e079",
+    "zipCode": "10416",
+    "address": "Via Torino 71",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Salerno",
+    "city": "Citt\u00e046",
+    "zipCode": "28386",
+    "address": "Via Torino 119",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Benevento",
+    "city": "Citt\u00e019",
+    "zipCode": "16058",
+    "address": "Via Napoli 81",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Latina",
+    "city": "Citt\u00e081",
+    "zipCode": "31899",
+    "address": "Via Firenze 119",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Novara",
+    "city": "Citt\u00e091",
+    "zipCode": "22952",
+    "address": "Via Roma 45",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Caserta",
+    "city": "Citt\u00e070",
+    "zipCode": "27414",
+    "address": "Via Firenze 155",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Novara",
+    "city": "Citt\u00e011",
+    "zipCode": "17405",
+    "address": "Via Napoli 50",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Padova",
+    "city": "Citt\u00e081",
+    "zipCode": "33248",
+    "address": "Via Napoli 162",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lazio",
+    "province": "Roma",
+    "city": "Citt\u00e030",
+    "zipCode": "15779",
+    "address": "Via Firenze 94",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Bergamo",
+    "city": "Citt\u00e024",
+    "zipCode": "65225",
+    "address": "Via Roma 73",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Parma",
+    "city": "Citt\u00e094",
+    "zipCode": "21294",
+    "address": "Via Firenze 33",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Lecce",
+    "city": "Citt\u00e080",
+    "zipCode": "15979",
+    "address": "Via Firenze 152",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Siena",
+    "city": "Citt\u00e044",
+    "zipCode": "98482",
+    "address": "Via Torino 58",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e032",
+    "zipCode": "46721",
+    "address": "Via Roma 194",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Bergamo",
+    "city": "Citt\u00e055",
+    "zipCode": "16489",
+    "address": "Via Napoli 176",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Brindisi",
+    "city": "Citt\u00e019",
+    "zipCode": "82888",
+    "address": "Via Napoli 89",
+    "franchiseName": "DigitalWorld"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Alessandria",
+    "city": "Citt\u00e068",
+    "zipCode": "47010",
+    "address": "Via Firenze 28",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Lecce",
+    "city": "Citt\u00e045",
+    "zipCode": "81539",
+    "address": "Via Napoli 106",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Veneto",
+    "province": "Verona",
+    "city": "Citt\u00e075",
+    "zipCode": "75614",
+    "address": "Via Roma 33",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Siracusa",
+    "city": "Citt\u00e010",
+    "zipCode": "96837",
+    "address": "Via Roma 116",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Emilia-Romagna",
+    "province": "Ravenna",
+    "city": "Citt\u00e056",
+    "zipCode": "27780",
+    "address": "Via Roma 184",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Palermo",
+    "city": "Citt\u00e037",
+    "zipCode": "72070",
+    "address": "Via Torino 96",
+    "franchiseName": "GadgetStore"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Siracusa",
+    "city": "Citt\u00e02",
+    "zipCode": "53667",
+    "address": "Via Torino 65",
+    "franchiseName": "TechPoint"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Como",
+    "city": "Citt\u00e049",
+    "zipCode": "69864",
+    "address": "Via Firenze 108",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Toscana",
+    "province": "Pisa",
+    "city": "Citt\u00e060",
+    "zipCode": "70257",
+    "address": "Via Torino 51",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Campania",
+    "province": "Napoli",
+    "city": "Citt\u00e024",
+    "zipCode": "88714",
+    "address": "Via Torino 48",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Puglia",
+    "province": "Foggia",
+    "city": "Citt\u00e010",
+    "zipCode": "99070",
+    "address": "Via Torino 101",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Lombardia",
+    "province": "Milano",
+    "city": "Citt\u00e05",
+    "zipCode": "61086",
+    "address": "Via Napoli 98",
+    "franchiseName": "MegaElectro"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Sicilia",
+    "province": "Messina",
+    "city": "Citt\u00e078",
+    "zipCode": "31319",
+    "address": "Via Torino 136",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Novara",
+    "city": "Citt\u00e079",
+    "zipCode": "73946",
+    "address": "Via Milano 109",
+    "franchiseName": "ElectroHub"
+  },
+  {
+    "type": "PHYSICAL",
+    "region": "Piemonte",
+    "province": "Torino",
+    "city": "Citt\u00e047",
+    "zipCode": "22608",
+    "address": "Via Firenze 128",
+    "franchiseName": "GadgetStore"
   }
 ]
