@@ -67,6 +67,15 @@ public class MerchantConstants {
     public static final String VALIDATION_ERROR = "Some fields are invalid. See details for more information.";
   }
 
+  public static final String CODE_MERCHANT_WITHDRAWAL_ERROR = "MERCHANT_WITHDRAWAL_ERROR";
+  public static final String CODE_CONTRACT_WITHDRAWAL_TOO_LATE = "CONTRACT_WITHDRAWAL_TOO_LATE";
+  public static final String CODE_TRANSACTIONS_PRESENT = "TRANSACTIONS_PRESENT";
+
+  public static final String MSG_CONTRACT_WITHDRAWAL_TOO_LATE =
+      "Withdrawal is not permitted: more than 15 days have passed since the activation date.";
+  public static final String MSG_TRANSACTIONS_PRESENT =
+      "Unable to withdraw merchant: there are transactions associated with the points of sale.";
+
   public static final String INITIATIVE_CLOSED = "CLOSED";
   public static final String INITIATIVE_PUBLISHED = "PUBLISHED";
 

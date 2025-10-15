@@ -33,4 +33,6 @@ public interface MerchantService {
   void processOperation(QueueCommandOperationDTO queueCommandOperationDTO);
 
   void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO);
+
+  void deactivateMerchant(String merchantId);
 }
