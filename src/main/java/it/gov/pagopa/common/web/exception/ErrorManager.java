@@ -39,7 +39,7 @@ public class ErrorManager {
     }
 
     if(error instanceof MerchantValidationException exception){
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
           MerchantValidationErrorDTO.builder()
               .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
               .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
