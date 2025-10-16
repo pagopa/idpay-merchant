@@ -1,10 +1,8 @@
 package it.gov.pagopa.merchant.utils.validator;
 
 import it.gov.pagopa.common.web.dto.MerchantValidationErrorDetail;
-import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.common.web.exception.MerchantValidationException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
-import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleTransactionCheckService;
@@ -13,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,7 +24,7 @@ public class MerchantValidator {
     this.pointOfSaleTransactionCheckService = pointOfSaleTransactionCheckService;
   }
 
-  public void validateMerchantWithdrawal(Merchant merchant, List<PointOfSale> points) {
+  public void validateMerchantWithdrawal(Merchant merchant, List<PointOfSale> points, String initiativeId) {
     List<MerchantValidationErrorDetail> errors = new ArrayList<>();
 
     if (merchant.getActivationDate() != null) {
@@ -46,10 +43,8 @@ public class MerchantValidator {
         .map(PointOfSale::getId)
         .toList();
 
-    Initiative bonusInitiative = findMerchantInitiative(merchant);
-
     boolean hasInProgress = pointOfSaleTransactionCheckService
-        .hasInProgressTransactions(merchant.getMerchantId(), bonusInitiative.getInitiativeId(), posIds);
+        .hasInProgressTransactions(merchant.getMerchantId(), initiativeId, posIds);
 
     if (hasInProgress) {
       errors.add(MerchantValidationErrorDetail.builder()
@@ -59,7 +54,7 @@ public class MerchantValidator {
     }
 
     boolean hasProcessed = pointOfSaleTransactionCheckService
-          .hasProcessedTransactions(merchant.getMerchantId(), bonusInitiative.getInitiativeId(), posIds);
+          .hasProcessedTransactions(merchant.getMerchantId(), initiativeId, posIds);
 
     if (hasProcessed) {
         errors.add(MerchantValidationErrorDetail.builder()
@@ -72,17 +67,5 @@ public class MerchantValidator {
     if (!errors.isEmpty()) {
       throw new MerchantValidationException(errors);
     }
-  }
-
-  private Initiative findMerchantInitiative(Merchant merchant) {
-    return merchant.getInitiativeList().stream()
-        .filter(initiative -> initiative.isEnabled()
-            && "Bonus Elettrodomestici".equalsIgnoreCase(initiative.getInitiativeName()))
-        .findFirst()
-        .orElseThrow(() -> new ClientExceptionWithBody(
-            HttpStatus.BAD_REQUEST,
-            MerchantConstants.CODE_MERCHANT_WITHDRAWAL_ERROR,
-            String.format("Initiative not found for merchant %s", merchant.getMerchantId())
-        ));
   }
 }

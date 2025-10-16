@@ -34,5 +34,5 @@ public interface MerchantService {
 
   void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO);
 
-  void deactivateMerchant(String merchantId);
+  String deactivateMerchant(String merchantId, String initiativeId, boolean dryRun);
 }

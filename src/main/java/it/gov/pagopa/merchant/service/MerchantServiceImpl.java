@@ -143,19 +143,33 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
-  public void deactivateMerchant(String merchantId) {
-    Merchant merchant = merchantRepository.findById(merchantId).orElseThrow(() -> new MerchantNotFoundException(
-        String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, merchantId)));
+  public String deactivateMerchant(String merchantId, String initiativeId, boolean dryRun) {
+    Merchant merchant = merchantRepository
+        .retrieveByMerchantIdAndInitiativeId(merchantId, initiativeId)
+        .orElseThrow(() -> new MerchantNotFoundException(
+            String.format("Merchant %s not found for initiative %s", merchantId, initiativeId)));
 
     List<PointOfSale> pointsOfSale = pointOfSaleRepository.findByMerchantId(merchantId);
 
-    merchantValidator.validateMerchantWithdrawal(merchant, pointsOfSale);
+    merchantValidator.validateMerchantWithdrawal(merchant, pointsOfSale, initiativeId);
+
+    if (dryRun) {
+      log.info("[MERCHANT-WITHDRAWAL] Dry-run mode: merchant {} for initiative {} passed all validations", merchantId, initiativeId);
+      return String.format("Merchant %s can be safely deactivated for initiative %s and associated points of sale can be deleted.", merchantId, initiativeId);
+    }
+
     deleteKeycloakUsers(pointsOfSale);
     pointOfSaleRepository.deleteByMerchantId(merchantId);
     merchant.setEnabled(false);
     merchantRepository.save(merchant);
 
-    log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} and removed points of sale", merchantId);
+    log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} for initiative {} and removed points of sale", merchantId, initiativeId);
+
+    return String.format(
+        "Merchant %s has been deactivated for initiative %s. " +
+            "Associated points of sale have been successfully deleted.",
+        merchantId, initiativeId
+    );
   }
 
   @Override

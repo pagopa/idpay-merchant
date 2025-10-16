@@ -67,6 +67,9 @@ public interface MerchantController {
   ResponseEntity<String> createOrUpdateMerchant(
       @RequestBody @NotNull @Valid MerchantCreateDTO merchantCreateDTO);
 
-  @DeleteMapping("/{merchantId}/deactivate")
-  ResponseEntity<Void> deactivateMerchant(@PathVariable String merchantId);
+  @DeleteMapping("/{merchantId}/{initiativeId}")
+  ResponseEntity<String> deactivateMerchant(
+      @PathVariable String merchantId,
+      @PathVariable String initiativeId,
+      @RequestParam(name = "dryRun", defaultValue = "false") boolean dryRun);
 }
