@@ -12,10 +12,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class MerchantValidator {
 
   private final PointOfSaleTransactionCheckService pointOfSaleTransactionCheckService;
@@ -31,6 +33,8 @@ public class MerchantValidator {
     if (merchant.getActivationDate() != null) {
       long days = Duration.between(merchant.getActivationDate(), LocalDateTime.now()).toDays();
       if (days >= 15) {
+        log.info("[MERCHANT-WITHDRAWAL] Merchant {} cannot withdraw: {} days have passed since activation",
+            merchant.getMerchantId(), days);
         errors.add(MerchantValidationErrorDetail.builder()
             .code(MerchantConstants.CODE_CONTRACT_WITHDRAWAL_TOO_LATE)
             .message(MerchantConstants.MSG_CONTRACT_WITHDRAWAL_TOO_LATE)
