@@ -23,6 +23,7 @@ public class ServiceExceptionConfig {
         exceptionMap.put(FileOperationException.class, HttpStatus.INTERNAL_SERVER_ERROR);
         exceptionMap.put(InitiativeInvocationException.class, HttpStatus.INTERNAL_SERVER_ERROR);
         exceptionMap.put(PaymentInvocationException.class, HttpStatus.INTERNAL_SERVER_ERROR);
+        exceptionMap.put(TransactionInvocationException.class, HttpStatus.INTERNAL_SERVER_ERROR);
 
         exceptionMap.put(PointOfSaleDuplicateException.class, HttpStatus.BAD_REQUEST);
 

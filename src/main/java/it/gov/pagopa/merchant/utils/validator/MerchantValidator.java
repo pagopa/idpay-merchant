@@ -49,21 +49,20 @@ public class MerchantValidator {
 
     if (hasInProgress) {
       errors.add(MerchantValidationErrorDetail.builder()
-          .code(MerchantConstants.CODE_TRANSACTIONS_PRESENT)
-          .message(MerchantConstants.MSG_TRANSACTIONS_PRESENT)
+          .code(MerchantConstants.CODE_TRANSACTIONS_IN_PROGRESS_PRESENT)
+          .message(MerchantConstants.MSG_TRANSACTIONS_IN_PROGRESS_PRESENT)
           .build());
-    } else {
-      boolean hasProcessed = Boolean.TRUE.equals(pointOfSaleTransactionCheckService
-          .hasProcessedTransactions(merchant.getMerchantId(), bonusInitiative.getInitiativeId(),
-              posIds)
-          .block(Duration.ofSeconds(5)));
+    }
 
-      if (hasProcessed) {
+    boolean hasProcessed = pointOfSaleTransactionCheckService
+          .hasProcessedTransactions(merchant.getMerchantId(), bonusInitiative.getInitiativeId(), posIds);
+
+    if (hasProcessed) {
         errors.add(MerchantValidationErrorDetail.builder()
-            .code(MerchantConstants.CODE_TRANSACTIONS_PRESENT)
-            .message(MerchantConstants.MSG_TRANSACTIONS_PRESENT)
+            .code(MerchantConstants.CODE_TRANSACTIONS_PROCESSED_PRESENT)
+            .message(MerchantConstants.MSG_TRANSACTIONS_PROCESSED_PRESENT)
             .build());
-      }
+
     }
 
     if (!errors.isEmpty()) {
