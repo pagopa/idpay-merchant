@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -154,7 +155,7 @@ public class MerchantServiceImpl implements MerchantService {
     merchantValidator.validateMerchantWithdrawal(merchant, pointsOfSale, initiativeId);
 
     if (dryRun) {
-      log.info("[MERCHANT-WITHDRAWAL] Dry-run mode: merchant {} for initiative {} passed all validations", merchantId, initiativeId);
+      log.info("[MERCHANT-WITHDRAWAL] Dry-run mode: merchant {} for initiative {} passed all validations", sanitizeString(merchantId), sanitizeString(initiativeId));
       return new MerchantWithdrawalResponse(
           String.format("Merchant %s can be safely deactivated for initiative %s and associated points of sale can be deleted.",
               merchantId, initiativeId)
@@ -166,7 +167,7 @@ public class MerchantServiceImpl implements MerchantService {
     merchant.setEnabled(false);
     merchantRepository.save(merchant);
 
-    log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} for initiative {} and removed points of sale", merchantId, initiativeId);
+    log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} for initiative {} and removed points of sale", sanitizeString(merchantId), sanitizeString(initiativeId));
 
     return new MerchantWithdrawalResponse(
         String.format("Merchant %s has been deactivated for initiative %s. Associated points of sale have been successfully deleted.",
