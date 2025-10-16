@@ -1,0 +1,46 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/initiatives/INITIATIVE_ID/point-of-sales/POS_ID/transactions"
+  },
+  "response": {
+    "status": "200",
+    "jsonBody": {
+      "content": [
+        {
+          "trxCode": "TRX01",
+          "id": "TX1",
+          "fiscalCode": "ABCDEF12G34H567I",
+          "effectiveAmountCents": 10000,
+          "rewardAmountCents": 500,
+          "trxDate": "2025-10-16T12:00:00",
+          "status": "CAPTURED",
+          "splitPayment": false,
+          "channel": "POS",
+          "qrcodePngUrl": "http://example.com/qrcode1.png",
+          "qrcodeTxtUrl": "http://example.com/qrcode1.txt"
+        },
+        {
+          "trxCode": "TRX02",
+          "id": "TX2",
+          "fiscalCode": "ABCDEF12G34H567I",
+          "effectiveAmountCents": 5000,
+          "rewardAmountCents": 250,
+          "trxDate": "2025-10-16T12:05:00",
+          "status": "AUTHORIZED",
+          "splitPayment": true,
+          "channel": "POS",
+          "qrcodePngUrl": "http://example.com/qrcode2.png",
+          "qrcodeTxtUrl": "http://example.com/qrcode2.txt"
+        }
+      ],
+      "pageNo": 0,
+      "pageSize": 2,
+      "totalElements": 2,
+      "totalPages": 1
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/initiatives/INITIATIVE_ID/point-of-sales/POS_ID/transactions/processed"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "content": [
+        {
+          "id": "TX1",
+          "fiscalCode": "ABCDEF12G34H567I",
+          "effectiveAmountCents": 10000,
+          "authorizedAmountCents": 9500,
+          "rewardAmountCents": 500,
+          "trxDate": "2025-10-16T12:00:00",
+          "updateDate": "2025-10-16T12:01:00",
+          "status": "CANCELLED",
+          "channel": "POS",
+          "additionalProperties": {
+            "prop1": "value1"
+          },
+          "invoiceFile": {
+            "fileName": "invoice1.pdf",
+            "fileUrl": "http://example.com/invoice1.pdf"
+          }
+        },
+        {
+          "id": "TX2",
+          "fiscalCode": "ABCDEF12G34H567I",
+          "effectiveAmountCents": 5000,
+          "authorizedAmountCents": 5000,
+          "rewardAmountCents": 250,
+          "trxDate": "2025-10-16T12:05:00",
+          "updateDate": "2025-10-16T12:06:00",
+          "status": "REFUNDED",
+          "channel": "POS",
+          "additionalProperties": {
+            "prop2": "value2"
+          },
+          "invoiceFile": {
+            "fileName": "invoice2.pdf",
+            "fileUrl": "http://example.com/invoice2.pdf"
+          }
+        }
+      ],
+      "pageNo": 0,
+      "pageSize": 2,
+      "totalElements": 2,
+      "totalPages": 1
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

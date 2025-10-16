@@ -80,6 +80,19 @@ class ErrorManagerTest {
     checkStackTraceSuppressedLog(memoryAppender, "Something went wrong handling request GET /test");
   }
 
+  @Test
+  void handleExceptionMerchantValidationException() throws Exception {
+    MerchantValidationException merchantValidationException = new MerchantValidationException(List.of());
+    Mockito.doThrow(merchantValidationException)
+        .when(testControllerSpy).testEndpoint();
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/test")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
+
+    checkStackTraceSuppressedLog(memoryAppender, "Something went wrong handling request GET /test");
+  }
+
 
   @Test
   void handleExceptionClientExceptionNoBody() throws Exception {

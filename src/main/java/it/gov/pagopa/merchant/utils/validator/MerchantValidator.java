@@ -24,13 +24,20 @@ public class MerchantValidator {
     this.pointOfSaleTransactionCheckService = pointOfSaleTransactionCheckService;
   }
 
-  public void validateMerchantWithdrawal(Merchant merchant, List<PointOfSale> points, String initiativeId) {
+  public void validateMerchantWithdrawal(Merchant merchant, List<PointOfSale> points,
+      String initiativeId) {
     List<MerchantValidationErrorDetail> errors = new ArrayList<>();
 
-    if (merchant.getActivationDate() != null) {
+    if (merchant.getActivationDate() == null) {
+      errors.add(MerchantValidationErrorDetail.builder()
+          .code(MerchantConstants.CODE_ACTIVATION_DATE_MISSING)
+          .message(MerchantConstants.MSG_ACTIVATION_DATE_MISSING)
+          .build());
+    } else {
       long days = Duration.between(merchant.getActivationDate(), LocalDateTime.now()).toDays();
       if (days >= 15) {
-        log.info("[MERCHANT-WITHDRAWAL] Merchant {} cannot withdraw: {} days have passed since activation",
+        log.info(
+            "[MERCHANT-WITHDRAWAL] Merchant {} cannot withdraw: {} days have passed since activation",
             merchant.getMerchantId(), days);
         errors.add(MerchantValidationErrorDetail.builder()
             .code(MerchantConstants.CODE_CONTRACT_WITHDRAWAL_TOO_LATE)
@@ -54,13 +61,13 @@ public class MerchantValidator {
     }
 
     boolean hasProcessed = pointOfSaleTransactionCheckService
-          .hasProcessedTransactions(merchant.getMerchantId(), initiativeId, posIds);
+        .hasProcessedTransactions(merchant.getMerchantId(), initiativeId, posIds);
 
     if (hasProcessed) {
-        errors.add(MerchantValidationErrorDetail.builder()
-            .code(MerchantConstants.CODE_TRANSACTIONS_PROCESSED_PRESENT)
-            .message(MerchantConstants.MSG_TRANSACTIONS_PROCESSED_PRESENT)
-            .build());
+      errors.add(MerchantValidationErrorDetail.builder()
+          .code(MerchantConstants.CODE_TRANSACTIONS_PROCESSED_PRESENT)
+          .message(MerchantConstants.MSG_TRANSACTIONS_PROCESSED_PRESENT)
+          .build());
 
     }
 

@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,6 +26,7 @@ import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
+import it.gov.pagopa.merchant.dto.MerchantWithdrawalResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -363,6 +365,46 @@ class MerchantControllerImplTest {
                 .contentType(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void deactivateMerchant_ok() throws Exception {
+    MerchantWithdrawalResponse mockResponse = MerchantWithdrawalResponse.builder()
+        .message("Merchant successfully deactivated")
+        .build();
+
+    Mockito.when(merchantServiceMock.deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, false))
+        .thenReturn(mockResponse);
+
+    MvcResult result = mockMvc.perform(
+            delete("/idpay/merchant/{merchantId}/initiatives/{initiativeId}", MERCHANT_ID, INITIATIVE_ID)
+                .param("dryRun", "false")
+        ).andExpect(status().isOk())
+        .andReturn();
+
+    MerchantWithdrawalResponse response = objectMapper.readValue(
+        result.getResponse().getContentAsString(), MerchantWithdrawalResponse.class);
+
+    Assertions.assertNotNull(response);
+    Assertions.assertEquals("Merchant successfully deactivated", response.getMessage());
+
+    Mockito.verify(merchantServiceMock).deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, false);
+  }
+
+  @Test
+  void deactivateMerchant_notFound() throws Exception {
+    Mockito.when(merchantServiceMock.deactivateMerchant(anyString(), anyString(), any(Boolean.class)))
+        .thenThrow(new MerchantNotFoundException(
+            ExceptionCode.MERCHANT_NOT_ONBOARDED,
+            "Merchant not found"));
+
+    mockMvc.perform(
+            delete("/idpay/merchant/{merchantId}/initiatives/{initiativeId}", "UNKNOWN", INITIATIVE_ID)
+        ).andExpect(status().isNotFound())
+        .andExpect(res -> Assertions.assertInstanceOf(MerchantNotFoundException.class,
+            res.getResolvedException()));
+
+    Mockito.verify(merchantServiceMock).deactivateMerchant("UNKNOWN", INITIATIVE_ID, false);
   }
 
 }
