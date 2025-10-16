@@ -143,7 +143,7 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
-  public String deactivateMerchant(String merchantId, String initiativeId, boolean dryRun) {
+  public MerchantWithdrawalResponse deactivateMerchant(String merchantId, String initiativeId, boolean dryRun) {
     Merchant merchant = merchantRepository
         .retrieveByMerchantIdAndInitiativeId(merchantId, initiativeId)
         .orElseThrow(() -> new MerchantNotFoundException(
@@ -155,7 +155,10 @@ public class MerchantServiceImpl implements MerchantService {
 
     if (dryRun) {
       log.info("[MERCHANT-WITHDRAWAL] Dry-run mode: merchant {} for initiative {} passed all validations", merchantId, initiativeId);
-      return String.format("Merchant %s can be safely deactivated for initiative %s and associated points of sale can be deleted.", merchantId, initiativeId);
+      return new MerchantWithdrawalResponse(
+          String.format("Merchant %s can be safely deactivated for initiative %s and associated points of sale can be deleted.",
+              merchantId, initiativeId)
+      );
     }
 
     deleteKeycloakUsers(pointsOfSale);
@@ -165,10 +168,9 @@ public class MerchantServiceImpl implements MerchantService {
 
     log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} for initiative {} and removed points of sale", merchantId, initiativeId);
 
-    return String.format(
-        "Merchant %s has been deactivated for initiative %s. " +
-            "Associated points of sale have been successfully deleted.",
-        merchantId, initiativeId
+    return new MerchantWithdrawalResponse(
+        String.format("Merchant %s has been deactivated for initiative %s. Associated points of sale have been successfully deleted.",
+            merchantId, initiativeId)
     );
   }
 
