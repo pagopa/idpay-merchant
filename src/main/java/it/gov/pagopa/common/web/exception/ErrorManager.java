@@ -1,6 +1,7 @@
 package it.gov.pagopa.common.web.exception;
 
 import it.gov.pagopa.common.web.dto.ErrorDTO;
+import it.gov.pagopa.common.web.dto.MerchantValidationErrorDTO;
 import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,6 +35,16 @@ public class ErrorManager {
                       .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
                       .details(exception.getErrors())
                       .build()
+      );
+    }
+
+    if(error instanceof MerchantValidationException exception){
+      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+          MerchantValidationErrorDTO.builder()
+              .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
+              .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
+              .details(exception.getErrors())
+              .build()
       );
     }
 

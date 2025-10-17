@@ -66,4 +66,10 @@ public interface MerchantController {
   @PutMapping
   ResponseEntity<String> createOrUpdateMerchant(
       @RequestBody @NotNull @Valid MerchantCreateDTO merchantCreateDTO);
+
+  @DeleteMapping("/{merchantId}/initiatives/{initiativeId}")
+  ResponseEntity<MerchantWithdrawalResponse> deactivateMerchant(
+      @PathVariable String merchantId,
+      @PathVariable String initiativeId,
+      @RequestParam(name = "dryRun", defaultValue = "false") boolean dryRun);
 }

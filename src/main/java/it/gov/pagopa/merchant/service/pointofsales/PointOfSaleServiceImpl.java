@@ -26,10 +26,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -132,32 +129,36 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
   /**
    * Prepares the PointOfSale entity for insert or update
-   * <p>
-   * If the PointOfSale already exists (determined by the presence of an ID), it preserves the
+   *
+   * <p>If the PointOfSale already exists (determined by the presence of an ID), it preserves the
    * original creation date. Also checks if there is any existing PointOfSale with the same contact
    * email and throws a {@link PointOfSaleDuplicateException if found}
-   * </p>
    *
    * @param pointOfSale the PointOfSale entity to prepare
    * @return the prepared PointOfSale entity for persistence
    * @throws PointOfSaleDuplicateException if a PointOfSale with the same contact email already
-   *                                       exists
+   *     exists
    */
   private PointOfSaleUpdateContext preparePointOfSaleForSave(PointOfSale pointOfSale) {
     String id = pointOfSale.getId();
     String oldEmail = null;
 
-    boolean isInsert = StringUtils.isNotEmpty(id);
-    if (isInsert) {
+    boolean isUpdate = StringUtils.isNotEmpty(id);
+    if (isUpdate) {
       PointOfSale pointOfSaleExisting = getPointOfSaleById(id);
       pointOfSale.setCreationDate(pointOfSaleExisting.getCreationDate());
 
       oldEmail = pointOfSaleExisting.getContactEmail();
+    } else {
+      Optional<PointOfSale> byContactEmail =
+          pointOfSaleRepository.findByContactEmail(pointOfSale.getContactEmail());
+      if (byContactEmail.isPresent()) {
+        throw new PointOfSaleDuplicateException(pointOfSale.getContactEmail());
+      }
     }
 
     return new PointOfSaleUpdateContext(pointOfSale, oldEmail);
   }
-
 
   /**
    * Verifies if the merchant exists in the system.

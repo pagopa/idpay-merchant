@@ -616,4 +616,21 @@ class PointOfSaleServiceTest {
     verify(userResourceMock, never()).remove();
     verify(userResourceMock, never()).logout();
   }
+
+  @Test
+  void savePointOfSales_duplicatedMail() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId(null); // simulo inserimento, non update
+    MerchantDetailDTO merchantDetailDTOFaker = MerchantDetailDTOFaker.mockInstance(1);
+
+    when(merchantServiceMock.getMerchantDetail(anyString())).thenReturn(merchantDetailDTOFaker);
+    when(repositoryMock.findByContactEmail(pointOfSale.getContactEmail()))
+        .thenReturn(Optional.of(pointOfSale));
+
+    List<PointOfSale> pointOfSaleList = List.of(pointOfSale);
+
+    assertThrows(
+        PointOfSaleDuplicateException.class,
+        () -> service.savePointOfSales(MERCHANT_ID, pointOfSaleList));
+  }
 }
