@@ -55,12 +55,12 @@ class PaymentConnectorTest {
 
     FeignException exception = FeignException.errorStatus("test", response);
 
-    when(restClientMock.getPointOfSaleTransactions(
+    when(restClientMock.getMerchantTransactions(
         MERCHANT_ID, INITIATIVE_ID,
         null, null, PageRequest.of(0, 1)))
         .thenThrow(exception);
 
-    Runnable call = () -> paymentConnector.getPointOfSaleTransactions(
+    Runnable call = () -> paymentConnector.getMerchantTransactions(
         MERCHANT_ID, INITIATIVE_ID,
         null, null, PageRequest.of(0, 1)
     );

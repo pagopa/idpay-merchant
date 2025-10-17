@@ -4,7 +4,7 @@ import it.gov.pagopa.common.web.dto.MerchantValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.MerchantValidationException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Merchant;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleTransactionCheckService;
+import it.gov.pagopa.merchant.service.merchant.MerchantTransactionCheckService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MerchantValidator {
 
-  private final PointOfSaleTransactionCheckService pointOfSaleTransactionCheckService;
+  private final MerchantTransactionCheckService pointOfSaleTransactionCheckService;
 
   public MerchantValidator(
-      PointOfSaleTransactionCheckService pointOfSaleTransactionCheckService) {
+      MerchantTransactionCheckService pointOfSaleTransactionCheckService) {
     this.pointOfSaleTransactionCheckService = pointOfSaleTransactionCheckService;
   }
 

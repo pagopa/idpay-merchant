@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import it.gov.pagopa.common.web.exception.MerchantValidationException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Merchant;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleTransactionCheckService;
+import it.gov.pagopa.merchant.service.merchant.MerchantTransactionCheckService;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class MerchantValidatorTest {
 
   @Mock
-  private PointOfSaleTransactionCheckService pointOfSaleTransactionCheckService;
+  private MerchantTransactionCheckService pointOfSaleTransactionCheckService;
 
   private MerchantValidator validator;
 
