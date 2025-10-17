@@ -627,8 +627,10 @@ class PointOfSaleServiceTest {
     when(repositoryMock.findByContactEmail(pointOfSale.getContactEmail()))
         .thenReturn(Optional.of(pointOfSale));
 
+    List<PointOfSale> pointOfSaleList = List.of(pointOfSale);
+
     assertThrows(
         PointOfSaleDuplicateException.class,
-        () -> service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale)));
+        () -> service.savePointOfSales(MERCHANT_ID, pointOfSaleList));
   }
 }
