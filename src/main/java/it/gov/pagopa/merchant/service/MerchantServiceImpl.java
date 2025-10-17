@@ -152,7 +152,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     List<PointOfSale> pointsOfSale = pointOfSaleRepository.findByMerchantId(merchantId);
 
-    merchantValidator.validateMerchantWithdrawal(merchant, pointsOfSale, initiativeId);
+    merchantValidator.validateMerchantWithdrawal(merchant, initiativeId);
 
     if (dryRun) {
       log.info("[MERCHANT-WITHDRAWAL] Dry-run mode: merchant {} for initiative {} passed all validations", sanitizeString(merchantId), sanitizeString(initiativeId));

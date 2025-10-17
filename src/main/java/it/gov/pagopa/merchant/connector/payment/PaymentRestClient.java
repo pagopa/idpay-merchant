@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.connector.payment;
 
-import it.gov.pagopa.merchant.connector.payment.dto.PointOfSaleTransactionsListDTO;
+import it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionsListDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -16,15 +16,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public interface PaymentRestClient {
 
     @GetMapping(
-        value = "/idpay/initiatives/{initiativeId}/point-of-sales/{pointOfSaleId}/transactions",
+        value = "/idpay/merchant/portal/initiatives/{initiativeId}/transactions",
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    PointOfSaleTransactionsListDTO getPointOfSaleTransactions(
+    MerchantTransactionsListDTO getPointOfSaleTransactions(
         @RequestHeader("x-merchant-id") String merchantId,
         @PathVariable("initiativeId") String initiativeId,
-        @PathVariable("pointOfSaleId") String pointOfSaleId,
         @RequestParam(required = false) String fiscalCode,
         @RequestParam(required = false) String status,
-        @RequestParam(required = false) String productGtin,
         Pageable pageable);
 }

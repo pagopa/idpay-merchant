@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.connector.payment.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -16,10 +15,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PointOfSaleTransactionDTO {
-
+public class MerchantTransactionDTO {
   private String trxCode;
-  @JsonProperty("id")
   private String trxId;
   private String fiscalCode;
   @NotNull

@@ -4,7 +4,6 @@ import it.gov.pagopa.common.web.dto.MerchantValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.MerchantValidationException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Merchant;
-import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleTransactionCheckService;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -24,8 +23,7 @@ public class MerchantValidator {
     this.pointOfSaleTransactionCheckService = pointOfSaleTransactionCheckService;
   }
 
-  public void validateMerchantWithdrawal(Merchant merchant, List<PointOfSale> points,
-      String initiativeId) {
+  public void validateMerchantWithdrawal(Merchant merchant, String initiativeId) {
     List<MerchantValidationErrorDetail> errors = new ArrayList<>();
 
     if (merchant.getActivationDate() == null) {
@@ -46,12 +44,8 @@ public class MerchantValidator {
       }
     }
 
-    List<String> posIds = points.stream()
-        .map(PointOfSale::getId)
-        .toList();
-
     boolean hasInProgress = pointOfSaleTransactionCheckService
-        .hasInProgressTransactions(merchant.getMerchantId(), initiativeId, posIds);
+        .hasInProgressTransactions(merchant.getMerchantId(), initiativeId);
 
     if (hasInProgress) {
       errors.add(MerchantValidationErrorDetail.builder()
@@ -61,7 +55,7 @@ public class MerchantValidator {
     }
 
     boolean hasProcessed = pointOfSaleTransactionCheckService
-        .hasProcessedTransactions(merchant.getMerchantId(), initiativeId, posIds);
+        .hasProcessedTransactions(merchant.getMerchantId(), initiativeId);
 
     if (hasProcessed) {
       errors.add(MerchantValidationErrorDetail.builder()

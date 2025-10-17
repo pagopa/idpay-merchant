@@ -27,7 +27,6 @@ class TransactionConnectorTest {
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
-  private static final String POINT_OF_SALE_ID = "POS_ID";
 
   @BeforeEach
   void setUp() {
@@ -57,13 +56,13 @@ class TransactionConnectorTest {
     FeignException exception = FeignException.errorStatus("test", response);
 
     when(restClientMock.getPointOfSaleTransactions(
-        MERCHANT_ID, INITIATIVE_ID, POINT_OF_SALE_ID,
-        null, null, null, PageRequest.of(0, 1)))
+        MERCHANT_ID, INITIATIVE_ID,
+        null, null, PageRequest.of(0, 1)))
         .thenThrow(exception);
 
     Runnable call = () -> transactionConnector.getPointOfSaleTransactions(
-        MERCHANT_ID, INITIATIVE_ID, POINT_OF_SALE_ID,
-        null, null, null, PageRequest.of(0, 1)
+        MERCHANT_ID, INITIATIVE_ID,
+        null, null, PageRequest.of(0, 1)
     );
 
     assertThrows(TransactionInvocationException.class, call::run);

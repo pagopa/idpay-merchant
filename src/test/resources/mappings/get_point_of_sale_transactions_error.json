@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/idpay/initiatives/INITIATIVE_ID_ERROR/point-of-sales/POS_ID/transactions"
+    "urlPathPattern": "/idpay/merchant/portal/initiatives/INITIATIVE_ID_ERROR/transactions"
   },
   "response": {
     "status": 500

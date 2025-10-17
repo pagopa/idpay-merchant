@@ -1,11 +1,11 @@
 package it.gov.pagopa.merchant.connector.transaction;
 
 
-import it.gov.pagopa.merchant.connector.transaction.dto.PointOfSaleTransactionsListDTO;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import org.springframework.data.domain.Pageable;
 
 public interface TransactionConnector {
 
-  PointOfSaleTransactionsListDTO getPointOfSaleTransactions(String merchantId, String initiativeId, String pointOfSaleId,
-      String fiscalCode, String status, String productGtin, Pageable pageable);
+  MerchantTransactionsListDTO getPointOfSaleTransactions(String merchantId, String initiativeId,
+      String fiscalCode, String status, Pageable pageable);
 }

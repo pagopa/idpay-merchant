@@ -669,7 +669,7 @@ class MerchantServiceImplTest {
 
     assertNotNull(response);
     assertTrue(response.getMessage().contains("can be safely deactivated"));
-    verify(merchantValidatorMock).validateMerchantWithdrawal(merchant, posList, INITIATIVE_ID);
+    verify(merchantValidatorMock).validateMerchantWithdrawal(merchant, INITIATIVE_ID);
     verify(pointOfSaleRepositoryMock, never()).deleteByMerchantId(any());
     verify(merchantRepositoryMock, never()).save(any());
   }
@@ -722,7 +722,7 @@ class MerchantServiceImplTest {
     verify(merchantRepositoryMock).save(merchant);
     verify(pointOfSaleRepositoryMock).findByMerchantId(MERCHANT_ID);
     verify(pointOfSaleRepositoryMock).deleteByMerchantId(MERCHANT_ID);
-    verify(merchantValidatorMock).validateMerchantWithdrawal(merchant, posList, INITIATIVE_ID);
+    verify(merchantValidatorMock).validateMerchantWithdrawal(merchant, INITIATIVE_ID);
     verify(usersResourceMock).searchByEmail("user1@test.com", true);
     verify(usersResourceMock).searchByEmail("user2@test.com", true);
     verify(userResource1).logout();

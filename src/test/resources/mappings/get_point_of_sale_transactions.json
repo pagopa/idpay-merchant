@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/idpay/initiatives/INITIATIVE_ID/point-of-sales/POS_ID/transactions"
+    "urlPathPattern": "/idpay/merchant/portal/initiatives/INITIATIVE_ID/transactions"
   },
   "response": {
     "status": "200",
@@ -9,7 +9,7 @@
       "content": [
         {
           "trxCode": "TRX01",
-          "id": "TX1",
+          "trxId": "TX1",
           "fiscalCode": "ABCDEF12G34H567I",
           "effectiveAmountCents": 10000,
           "rewardAmountCents": 500,
@@ -22,7 +22,7 @@
         },
         {
           "trxCode": "TRX02",
-          "id": "TX2",
+          "trxId": "TX2",
           "fiscalCode": "ABCDEF12G34H567I",
           "effectiveAmountCents": 5000,
           "rewardAmountCents": 250,

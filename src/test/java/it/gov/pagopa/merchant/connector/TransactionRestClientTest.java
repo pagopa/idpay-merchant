@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import it.gov.pagopa.merchant.configuration.RestConnectorConfig;
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnectorImpl;
-import it.gov.pagopa.merchant.connector.transaction.dto.PointOfSaleTransactionsListDTO;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import it.gov.pagopa.merchant.exception.custom.TransactionInvocationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +41,6 @@ class TransactionRestClientTest {
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
-  private static final String POINT_OF_SALE_ID = "POS_ID";
 
   @Autowired
   private TransactionConnector restConnector;
@@ -49,11 +48,9 @@ class TransactionRestClientTest {
   @Test
   void getPointOfSaleTransactions() {
     Pageable pageable = PageRequest.of(0, 10);
-    PointOfSaleTransactionsListDTO actual = restConnector.getPointOfSaleTransactions(
+    MerchantTransactionsListDTO actual = restConnector.getPointOfSaleTransactions(
         MERCHANT_ID,
         INITIATIVE_ID,
-        POINT_OF_SALE_ID,
-        null,
         null,
         null,
         pageable
@@ -70,8 +67,6 @@ class TransactionRestClientTest {
       restConnector.getPointOfSaleTransactions(
           MERCHANT_ID,
           "INITIATIVE_ID_ERROR",
-          POINT_OF_SALE_ID,
-          null,
           null,
           null,
           pageable

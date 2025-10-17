@@ -12,9 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PointOfSaleTransactionsListDTO {
-
-  private List<PointOfSaleTransactionDTO> content;
+public class MerchantTransactionsListDTO {
+  private List<MerchantTransactionDTO> content;
   private int pageNo;
   private int pageSize;
   private int totalElements;
