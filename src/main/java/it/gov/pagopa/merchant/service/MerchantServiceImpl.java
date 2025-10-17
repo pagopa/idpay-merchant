@@ -6,19 +6,27 @@ import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
+import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
 import it.gov.pagopa.merchant.utils.Utilities;
+import it.gov.pagopa.merchant.utils.validator.MerchantValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -39,6 +47,10 @@ public class MerchantServiceImpl implements MerchantService {
   private final List<String> defaultInitiatives;
   private final InitiativeRestConnector initiativeRestConnector;
   private final MerchantCreateDTOMapper merchantCreateDTOMapper;
+  private final PointOfSaleRepository pointOfSaleRepository;
+  private final MerchantValidator merchantValidator;
+  private final Keycloak keycloakAdminClient;
+  private final String realm;
 
   public MerchantServiceImpl(MerchantDetailService merchantDetailService,
       MerchantListService merchantListService,
@@ -49,7 +61,9 @@ public class MerchantServiceImpl implements MerchantService {
       Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
       @Value("${merchant.default-initiatives}") List<String> defaultInitiatives,
       InitiativeRestConnector initiativeRestConnector,
-      MerchantCreateDTOMapper merchantCreateDTOMapper) {
+      MerchantCreateDTOMapper merchantCreateDTOMapper, PointOfSaleRepository pointOfSaleRepository,
+      MerchantValidator merchantValidator, Keycloak keycloakAdminClient,
+      @Value("${keycloak.admin.realm}") String realm) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
     this.merchantProcessOperationService = merchantProcessOperationService;
@@ -61,6 +75,10 @@ public class MerchantServiceImpl implements MerchantService {
     this.defaultInitiatives = defaultInitiatives;
     this.initiativeRestConnector = initiativeRestConnector;
     this.merchantCreateDTOMapper = merchantCreateDTOMapper;
+    this.pointOfSaleRepository = pointOfSaleRepository;
+    this.merchantValidator = merchantValidator;
+    this.keycloakAdminClient = keycloakAdminClient;
+    this.realm = realm;
   }
 
   @Override
@@ -126,6 +144,38 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
+  public MerchantWithdrawalResponse deactivateMerchant(String merchantId, String initiativeId, boolean dryRun) {
+    Merchant merchant = merchantRepository
+        .retrieveByMerchantIdAndInitiativeId(merchantId, initiativeId)
+        .orElseThrow(() -> new MerchantNotFoundException(
+            String.format("Merchant %s not found for initiative %s", merchantId, initiativeId)));
+
+    List<PointOfSale> pointsOfSale = pointOfSaleRepository.findByMerchantId(merchantId);
+
+    merchantValidator.validateMerchantWithdrawal(merchant, initiativeId);
+
+    if (dryRun) {
+      log.info("[MERCHANT-WITHDRAWAL] Dry-run mode: merchant {} for initiative {} passed all validations", sanitizeString(merchantId), sanitizeString(initiativeId));
+      return new MerchantWithdrawalResponse(
+          String.format("Merchant %s can be safely deactivated for initiative %s and associated points of sale can be deleted.",
+              merchantId, initiativeId)
+      );
+    }
+
+    deleteKeycloakUsers(pointsOfSale);
+    pointOfSaleRepository.deleteByMerchantId(merchantId);
+    merchant.setEnabled(false);
+    merchantRepository.save(merchant);
+
+    log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} for initiative {} and removed points of sale", sanitizeString(merchantId), sanitizeString(initiativeId));
+
+    return new MerchantWithdrawalResponse(
+        String.format("Merchant %s has been deactivated for initiative %s. Associated points of sale have been successfully deleted.",
+            merchantId, initiativeId)
+    );
+  }
+
+  @Override
   public String retrieveOrCreateMerchantIfNotExists(MerchantCreateDTO merchantCreateDTO) {
 
     Optional<Merchant> existingMerchantOpt = merchantRepository.findByFiscalCode(merchantCreateDTO.getFiscalCode());
@@ -144,6 +194,26 @@ public class MerchantServiceImpl implements MerchantService {
       String merchantId = createNewMerchant(merchantCreateDTO);
       log.info("[CREATE_MERCHANT] Merchant with merchantId={} successfully created", merchantId);
       return merchantId;
+    }
+  }
+
+  private void deleteKeycloakUsers(List<PointOfSale> pointsOfSale) {
+    UsersResource usersResource = keycloakAdminClient.realm(realm).users();
+
+    for (PointOfSale pos : pointsOfSale) {
+      String email = pos.getContactEmail();
+      if (email == null || email.isEmpty()) continue;
+
+      List<UserRepresentation> users = usersResource.searchByEmail(email, true);
+      for (UserRepresentation user : users) {
+        try {
+          usersResource.get(user.getId()).logout();
+          usersResource.get(user.getId()).remove();
+          log.info("[KEYCLOAK] Deleted user for email {}", email);
+        } catch (Exception ex) {
+          log.error("[KEYCLOAK] Failed to delete user for email {}: {}", email, ex.getMessage(), ex);
+        }
+      }
     }
   }
 
