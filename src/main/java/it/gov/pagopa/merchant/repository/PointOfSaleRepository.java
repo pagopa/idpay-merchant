@@ -15,7 +15,6 @@ public interface PointOfSaleRepository extends MongoRepository<PointOfSale, Stri
     List<PointOfSale> findByMerchantId(String merchantId);
     void deleteByMerchantId(String merchantId);
 
-
     @Query(value = "{ contactEmail : ?0 }")
     Optional<PointOfSale> findByContactEmail(String contactEmail);
 }
