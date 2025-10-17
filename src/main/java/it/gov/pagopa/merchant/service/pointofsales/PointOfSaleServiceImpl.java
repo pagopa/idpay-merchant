@@ -26,10 +26,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -144,18 +141,23 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
    *                                       exists
    */
   private PointOfSaleUpdateContext preparePointOfSaleForSave(PointOfSale pointOfSale) {
-    String id = pointOfSale.getId();
-    String oldEmail = null;
+      String id = pointOfSale.getId();
+      String oldEmail = null;
 
-    boolean isInsert = StringUtils.isNotEmpty(id);
-    if (isInsert) {
-      PointOfSale pointOfSaleExisting = getPointOfSaleById(id);
-      pointOfSale.setCreationDate(pointOfSaleExisting.getCreationDate());
+      boolean isUpdate = StringUtils.isNotEmpty(id);
+      if (isUpdate) {
+          PointOfSale pointOfSaleExisting = getPointOfSaleById(id);
+          pointOfSale.setCreationDate(pointOfSaleExisting.getCreationDate());
 
-      oldEmail = pointOfSaleExisting.getContactEmail();
-    }
+          oldEmail = pointOfSaleExisting.getContactEmail();
+      } else {
+          Optional<PointOfSale> byContactEmail = pointOfSaleRepository.findByContactEmail(pointOfSale.getContactEmail());
+          if (byContactEmail.isPresent()) {
+              throw new PointOfSaleDuplicateException(pointOfSale.getContactEmail());
+          }
+      }
 
-    return new PointOfSaleUpdateContext(pointOfSale, oldEmail);
+      return new PointOfSaleUpdateContext(pointOfSale, oldEmail);
   }
 
 
