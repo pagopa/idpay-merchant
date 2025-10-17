@@ -1,4 +1,4 @@
-package it.gov.pagopa.merchant.service.pointofsales;
+package it.gov.pagopa.merchant.service.merchant;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
-class PointOfSaleTransactionCheckServiceTest {
+class MerchantTransactionCheckServiceTest {
 
   @Mock
   private PaymentConnector paymentConnector;
@@ -27,20 +27,20 @@ class PointOfSaleTransactionCheckServiceTest {
   @Mock
   private TransactionConnector transactionConnector;
 
-  PointOfSaleTransactionCheckService service;
+  MerchantTransactionCheckService service;
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
 
   @BeforeEach
   void setUp() {
-    service = new PointOfSaleTransactionCheckServiceImpl(paymentConnector, transactionConnector);
+    service = new MerchantTransactionCheckServiceImpl(paymentConnector, transactionConnector);
   }
 
 
   @Test
   void hasInProgressTransactions_nullResult_returnsFalse() {
-    when(paymentConnector.getPointOfSaleTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
+    when(paymentConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
         any(), any(), any(PageRequest.class)))
         .thenReturn(null);
 
@@ -52,7 +52,7 @@ class PointOfSaleTransactionCheckServiceTest {
     MerchantTransactionsListDTO dto = new MerchantTransactionsListDTO();
     dto.setContent(null);
 
-    when(paymentConnector.getPointOfSaleTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
+    when(paymentConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
         any(), any(), any(PageRequest.class)))
         .thenReturn(dto);
 
@@ -65,7 +65,7 @@ class PointOfSaleTransactionCheckServiceTest {
     MerchantTransactionsListDTO dto = new MerchantTransactionsListDTO();
     dto.setContent(List.of(trx));
 
-    when(paymentConnector.getPointOfSaleTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
+    when(paymentConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
         any(), any(), any(PageRequest.class)))
         .thenReturn(dto);
 
@@ -78,7 +78,7 @@ class PointOfSaleTransactionCheckServiceTest {
     it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO dto = new it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO();
     dto.setContent(List.of(trx));
 
-    when(transactionConnector.getPointOfSaleTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
+    when(transactionConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
         any(), any(), any(PageRequest.class)))
         .thenReturn(dto);
 
@@ -87,7 +87,7 @@ class PointOfSaleTransactionCheckServiceTest {
 
   @Test
   void hasProcessedTransactions_nullResult_returnsFalse() {
-    when(transactionConnector.getPointOfSaleTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
+    when(transactionConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
         any(), any(), any(PageRequest.class)))
         .thenReturn(null);
 
@@ -99,7 +99,7 @@ class PointOfSaleTransactionCheckServiceTest {
     it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO dto = new it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO();
     dto.setContent(null);
 
-    when(transactionConnector.getPointOfSaleTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
+    when(transactionConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
         any(), any(), any(PageRequest.class)))
         .thenReturn(dto);
 

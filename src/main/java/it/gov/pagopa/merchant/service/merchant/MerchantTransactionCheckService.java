@@ -1,8 +1,8 @@
-package it.gov.pagopa.merchant.service.pointofsales;
+package it.gov.pagopa.merchant.service.merchant;
 
 
 
-public interface PointOfSaleTransactionCheckService {
+public interface MerchantTransactionCheckService {
 
   boolean hasInProgressTransactions(String merchantId, String initiativeId);
   boolean hasProcessedTransactions(String merchantId, String initiativeId);

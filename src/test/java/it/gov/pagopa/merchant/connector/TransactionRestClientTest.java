@@ -48,7 +48,7 @@ class TransactionRestClientTest {
   @Test
   void getPointOfSaleTransactions() {
     Pageable pageable = PageRequest.of(0, 10);
-    MerchantTransactionsListDTO actual = restConnector.getPointOfSaleTransactions(
+    MerchantTransactionsListDTO actual = restConnector.getMerchantTransactions(
         MERCHANT_ID,
         INITIATIVE_ID,
         null,
@@ -64,7 +64,7 @@ class TransactionRestClientTest {
     Pageable pageable = PageRequest.of(0, 10);
 
     assertThrows(TransactionInvocationException.class, () -> {
-      restConnector.getPointOfSaleTransactions(
+      restConnector.getMerchantTransactions(
           MERCHANT_ID,
           "INITIATIVE_ID_ERROR",
           null,

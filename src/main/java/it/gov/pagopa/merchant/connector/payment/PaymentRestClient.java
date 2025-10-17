@@ -19,7 +19,7 @@ public interface PaymentRestClient {
         value = "/idpay/merchant/portal/initiatives/{initiativeId}/transactions",
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    MerchantTransactionsListDTO getPointOfSaleTransactions(
+    MerchantTransactionsListDTO getMerchantTransactions(
         @RequestHeader("x-merchant-id") String merchantId,
         @PathVariable("initiativeId") String initiativeId,
         @RequestParam(required = false) String fiscalCode,

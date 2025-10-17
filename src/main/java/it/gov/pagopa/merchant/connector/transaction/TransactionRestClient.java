@@ -18,7 +18,7 @@ public interface TransactionRestClient {
   @GetMapping(value = "/idpay/merchant/portal/initiatives/{initiativeId}/transactions/processed",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  MerchantTransactionsListDTO getPointOfSaleTransactions(
+  MerchantTransactionsListDTO getMerchantTransactions(
       @RequestHeader("x-merchant-id") String merchantId,
       @PathVariable String initiativeId,
       @RequestParam(required = false) String fiscalCode,

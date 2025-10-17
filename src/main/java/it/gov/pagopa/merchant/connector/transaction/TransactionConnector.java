@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface TransactionConnector {
 
-  MerchantTransactionsListDTO getPointOfSaleTransactions(String merchantId, String initiativeId,
+  MerchantTransactionsListDTO getMerchantTransactions(String merchantId, String initiativeId,
       String fiscalCode, String status, Pageable pageable);
 }

@@ -18,12 +18,12 @@ public class TransactionConnectorImpl implements TransactionConnector {
 
 
   @Override
-  public MerchantTransactionsListDTO getPointOfSaleTransactions(String merchantId,
+  public MerchantTransactionsListDTO getMerchantTransactions(String merchantId,
       String initiativeId, String fiscalCode,
       String status, Pageable pageable) {
 
     try {
-      return restClient.getPointOfSaleTransactions(merchantId,
+      return restClient.getMerchantTransactions(merchantId,
           initiativeId, fiscalCode, status, pageable);
     } catch (FeignException e) {
       throw new TransactionInvocationException(
