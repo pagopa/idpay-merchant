@@ -97,4 +97,13 @@ public class MerchantControllerImpl implements MerchantController {
 
     return ResponseEntity.ok(merchantId);
   }
+
+  @Override
+  public ResponseEntity<MerchantWithdrawalResponse> deactivateMerchant(String merchantId, String initiativeId, boolean dryRun) {
+    log.info("[DEACTIVATE_MERCHANT] Request received to deactivate merchant {} for initiative {}",
+        sanitizeString(merchantId), sanitizeString(initiativeId));
+    MerchantWithdrawalResponse response = merchantService.deactivateMerchant(merchantId, initiativeId, dryRun);
+
+    return ResponseEntity.ok(response);
+  }
 }

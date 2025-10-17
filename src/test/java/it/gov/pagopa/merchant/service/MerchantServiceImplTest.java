@@ -14,19 +14,27 @@ import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
+import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
+import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
 import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 import it.gov.pagopa.merchant.utils.Utilities;
+import it.gov.pagopa.merchant.utils.validator.MerchantValidator;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -63,11 +71,18 @@ class MerchantServiceImplTest {
   private UploadingMerchantService uploadingMerchantServiceMock;
   @Mock
   private InitiativeRestConnector initiativeRestConnector;
+  @Mock
+  private PointOfSaleRepository pointOfSaleRepositoryMock;
+  @Mock
+  private MerchantValidator merchantValidatorMock;
+  @Mock
+  private Keycloak keycloakAdminClientMock;
 
   private MerchantServiceImpl merchantService;
 
   private MerchantServiceImpl merchantServiceSpy;
 
+  private static final String REALM = "test-realm";
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
   private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
   private static final String ACQUIRER_ID = "PAGOPA";
@@ -91,7 +106,11 @@ class MerchantServiceImplTest {
         initiative2InitiativeDTOMapper,
         defaultInitiativesMock,
         initiativeRestConnector,
-        merchantCreateDTOMapper
+        merchantCreateDTOMapper,
+        pointOfSaleRepositoryMock,
+        merchantValidatorMock,
+        keycloakAdminClientMock,
+        REALM
     );
     merchantServiceSpy = Mockito.spy(merchantService);
   }
@@ -105,7 +124,10 @@ class MerchantServiceImplTest {
         merchantProcessOperationService,
         merchantUpdatingInitiativeService,
         uploadingMerchantServiceMock,
-        merchantUpdateIbanService);
+        merchantUpdateIbanService,
+        pointOfSaleRepositoryMock,
+        merchantValidatorMock,
+        keycloakAdminClientMock);
   }
 
   @Test
@@ -629,4 +651,95 @@ class MerchantServiceImplTest {
     assertEquals(activatioDateTimeNew, existingMerchant.getActivationDate());
     verify(merchantRepositoryMock).save(existingMerchant);
   }
+
+  @Test
+  void deactivateMerchant_dryRun_shouldReturnMessageWithoutDisablingMerchant() {
+    Merchant merchant = Merchant.builder()
+        .merchantId(MERCHANT_ID)
+        .enabled(true)
+        .build();
+    List<PointOfSale> posList = List.of();
+
+    when(merchantRepositoryMock.retrieveByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
+        .thenReturn(Optional.of(merchant));
+    when(pointOfSaleRepositoryMock.findByMerchantId(MERCHANT_ID))
+        .thenReturn(posList);
+
+    MerchantWithdrawalResponse response = merchantService.deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, true);
+
+    assertNotNull(response);
+    assertTrue(response.getMessage().contains("can be safely deactivated"));
+    verify(merchantValidatorMock).validateMerchantWithdrawal(merchant, INITIATIVE_ID);
+    verify(pointOfSaleRepositoryMock, never()).deleteByMerchantId(any());
+    verify(merchantRepositoryMock, never()).save(any());
+  }
+
+  @Test
+  void deactivateMerchant_actualRun_shouldDisableMerchantAndDeletePointsOfSale() {
+    Merchant merchant = Merchant.builder()
+        .merchantId(MERCHANT_ID)
+        .enabled(true)
+        .build();
+    List<PointOfSale> posList = List.of(
+        PointOfSale.builder().id("POS1").contactEmail("user1@test.com").build(),
+        PointOfSale.builder().id("POS2").contactEmail("user2@test.com").build()
+    );
+
+    when(merchantRepositoryMock.retrieveByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
+        .thenReturn(Optional.of(merchant));
+    when(pointOfSaleRepositoryMock.findByMerchantId(MERCHANT_ID))
+        .thenReturn(posList);
+
+    RealmResource realmResourceMock = mock(RealmResource.class);
+    UsersResource usersResourceMock = mock(UsersResource.class);
+    when(keycloakAdminClientMock.realm(REALM)).thenReturn(realmResourceMock);
+    when(realmResourceMock.users()).thenReturn(usersResourceMock);
+
+    UserRepresentation user1 = new UserRepresentation();
+    user1.setId("user1Id");
+    UserRepresentation user2 = new UserRepresentation();
+    user2.setId("user2Id");
+
+    when(usersResourceMock.searchByEmail("user1@test.com", true)).thenReturn(List.of(user1));
+    when(usersResourceMock.searchByEmail("user2@test.com", true)).thenReturn(List.of(user2));
+
+    UserResource userResource1 = mock(UserResource.class);
+    UserResource userResource2 = mock(UserResource.class);
+    when(usersResourceMock.get("user1Id")).thenReturn(userResource1);
+    when(usersResourceMock.get("user2Id")).thenReturn(userResource2);
+    doNothing().when(userResource1).logout();
+    doNothing().when(userResource1).remove();
+    doNothing().when(userResource2).logout();
+    doNothing().when(userResource2).remove();
+
+    MerchantWithdrawalResponse response = merchantService.deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, false);
+
+    assertNotNull(response);
+    assertTrue(response.getMessage().contains("has been deactivated"));
+    assertFalse(merchant.isEnabled());
+
+    verify(merchantRepositoryMock).retrieveByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID);
+    verify(merchantRepositoryMock).save(merchant);
+    verify(pointOfSaleRepositoryMock).findByMerchantId(MERCHANT_ID);
+    verify(pointOfSaleRepositoryMock).deleteByMerchantId(MERCHANT_ID);
+    verify(merchantValidatorMock).validateMerchantWithdrawal(merchant, INITIATIVE_ID);
+    verify(usersResourceMock).searchByEmail("user1@test.com", true);
+    verify(usersResourceMock).searchByEmail("user2@test.com", true);
+    verify(userResource1).logout();
+    verify(userResource1).remove();
+    verify(userResource2).logout();
+    verify(userResource2).remove();
+  }
+
+  @Test
+  void deactivateMerchant_merchantNotFound_shouldThrowException() {
+    when(merchantRepositoryMock.retrieveByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
+        .thenReturn(Optional.empty());
+
+    MerchantNotFoundException exception = assertThrows(MerchantNotFoundException.class,
+        () -> merchantService.deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, true));
+
+    assertTrue(exception.getMessage().contains(MERCHANT_ID));
+  }
+
 }
