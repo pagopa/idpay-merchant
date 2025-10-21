@@ -1,9 +1,12 @@
 package it.gov.pagopa.merchant.repository;
 
+import java.util.Set;
+import org.springframework.data.mongodb.core.query.Collation;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -17,6 +20,10 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
     private final MongoTemplate mongoTemplate;
 
+    private static final Set<String> CASE_INSENSITIVE_FIELDS = Set.of(
+        "contactName", "contactEmail", "website", "franchiseName"
+    );
+
     public PointOfSaleRepositoryExtendedImpl(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
@@ -25,6 +32,11 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
     @Override
     public List<PointOfSale> findByFilter(Criteria criteria, Pageable pageable) {
         Query query = Query.query(criteria).with(pageable);
+
+        if (pageable.getSort().stream().anyMatch(o -> CASE_INSENSITIVE_FIELDS.contains(o.getProperty()))) {
+            query.collation(Collation.of("en").strength(Collation.ComparisonLevel.secondary()));
+        }
+
         return mongoTemplate.find(query, PointOfSale.class);
     }
 
