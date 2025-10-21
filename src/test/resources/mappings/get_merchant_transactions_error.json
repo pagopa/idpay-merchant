@@ -1,0 +1,9 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/idpay/merchant/portal/initiatives/INITIATIVE_ID_ERROR/transactions"
+  },
+  "response": {
+    "status": 500
+  }
+}

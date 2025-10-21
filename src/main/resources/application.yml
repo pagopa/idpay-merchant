@@ -199,6 +199,10 @@ rest-client:
   initiative:
     serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
     baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}
+  payment:
+    baseUrl: ${IDPAY_PAYMENT_BASE_URL:http://idpay-payment}
+  transactions:
+    baseUrl: ${IDPAY_TRANSACTIONS_BASE_URL:http://idpay-transactions}
 
 keycloak:
   admin:
