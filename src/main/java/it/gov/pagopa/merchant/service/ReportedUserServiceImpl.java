@@ -8,6 +8,7 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.ReportedUser;
 import it.gov.pagopa.merchant.repository.ReportedUserRepository;
 import it.gov.pagopa.merchant.repository.ReportedUserRepositoryExtended;
+import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import jakarta.annotation.Nullable;
@@ -21,6 +22,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -42,10 +45,11 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
         if (!isInitiativeJoinedByMerchant(dto.getMerchantId(), dto.getInitiativeId())) {
             log.warn("[REPORTED_USER_CREATE] - Initiative {} not joined by merchant {}", dto.getInitiativeId(), dto.getMerchantId());
-            throw new IllegalArgumentException("InitiativeId non aderita dal merchant");
+            throw new NotFoundException("InitiativeId not found for this merchant");
         }
 
         ReportedUser entity = mapper.toEntity(dto);
+        entity.setCreatedAt(LocalDateTime.now());
         entity = repository.save(entity);
         log.info("[REPORTED_USER_CREATE] - Created reported user with id={}", entity.getReportedUserId());
         return mapper.toDto(entity);
