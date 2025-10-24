@@ -22,4 +22,6 @@ public class ServiceException extends RuntimeException {
         this.printStackTrace = printStackTrace;
         this.payload = payload;
     }
+
+
 }
