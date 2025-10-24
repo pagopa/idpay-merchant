@@ -10,6 +10,7 @@ import it.gov.pagopa.merchant.repository.ReportedUserRepository;
 import it.gov.pagopa.merchant.repository.ReportedUserRepositoryExtended;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
+import jakarta.annotation.Nullable;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -52,17 +53,20 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ReportedUserResponseDTO> search(ReportedUserRequestDTO filter, Pageable pageable) {
+    public Page<ReportedUserResponseDTO> search(ReportedUserRequestDTO filter, @Nullable Pageable pageable) {
         log.info("[REPORTED_USER_SEARCH] - Start search merchantId={}, initiativeId={}, userId={}, sort={}",
                 filter.getMerchantId(), filter.getInitiativeId(), filter.getUserId(),
                 pageable != null ? pageable.getSort() : null);
 
         Criteria c = repositoryExt.getCriteria(filter.getMerchantId(), filter.getInitiativeId(), filter.getUserId());
-        var list = repositoryExt.findByFilter(c, pageable);
+
+        Pageable effectivePageable = (pageable != null) ? pageable : Pageable.unpaged();
+
+        var list = repositoryExt.findByFilter(c, effectivePageable);
         long total = repositoryExt.getCount(c);
 
         Page<ReportedUserResponseDTO> page = new PageImpl<>(
-                list.stream().map(mapper::toDto).toList(), pageable, total
+                list.stream().map(mapper::toDto).toList(), effectivePageable, total
         );
 
         log.info("[REPORTED_USER_SEARCH] - Found {} reported users (page {} of size {})",
