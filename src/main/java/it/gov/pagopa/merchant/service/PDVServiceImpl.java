@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.service;
 
+import it.gov.pagopa.merchant.connector.decrypt.DecryptRestConnector;
 import it.gov.pagopa.merchant.connector.encrypt.EncryptRestConnector;
 import it.gov.pagopa.merchant.dto.CFDTO;
 import it.gov.pagopa.merchant.exception.custom.PDVInvocationException;
@@ -11,8 +12,10 @@ import java.util.function.Supplier;
 public class PDVServiceImpl implements PDVService {
 
     private final EncryptRestConnector encryptRestConnector;
+    private final DecryptRestConnector decryptRestConnector;
 
-    public PDVServiceImpl(EncryptRestConnector encryptRestConnector) {
+    public PDVServiceImpl(DecryptRestConnector decryptRestConnector, EncryptRestConnector encryptRestConnector) {
+        this.decryptRestConnector = decryptRestConnector;
         this.encryptRestConnector = encryptRestConnector;
     }
 
@@ -20,6 +23,12 @@ public class PDVServiceImpl implements PDVService {
     public String encryptCF(String fiscalCode) {
         return wrapPDVCall(() -> encryptRestConnector.upsertToken(new CFDTO(fiscalCode)).getToken(),
                 "An error occurred during encryption");
+    }
+
+    @Override
+    public String decryptCF(String userId) {
+        return wrapPDVCall(() -> decryptRestConnector.getPiiByToken(userId).getPii(),
+                "An error occurred during decryption");
     }
 
 
