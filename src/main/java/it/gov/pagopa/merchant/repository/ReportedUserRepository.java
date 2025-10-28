@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface ReportedUserRepository
         extends MongoRepository<ReportedUser, String>, ReportedUserRepositoryExtended {
 
+    boolean existsByUserId(String userId);
 }

@@ -1,32 +1,28 @@
 package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.constants.ReportedUserExceptions;
 import it.gov.pagopa.merchant.dto.ReportedUserRequestDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserResponseDTO;
 import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.mapper.ReportedUserMapper;
-import it.gov.pagopa.merchant.model.Initiative;
-import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.ReportedUser;
 import it.gov.pagopa.merchant.repository.ReportedUserRepository;
 import it.gov.pagopa.merchant.repository.ReportedUserRepositoryExtended;
-import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import jakarta.annotation.Nullable;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -46,47 +42,57 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     @Override
     public ReportedUserResponseDTO create(ReportedUserRequestDTO dto) {
 
-        // log per mettere in chiaro input dto
+        log.info("[REPORTED_USER_CREATE] - Start create merchantId={}, fiscalCode={}",
+                dto.getMerchantId(), dto.getUserFiscalCode());
+
         String userId = pdvService.encryptCF(dto.getUserFiscalCode());
-        // log mostrare userId ottenuto
-        // se userId == null || empty lancia exception personalizzata
 
+        log.info("[REPORTED_USER_CREATE] - Get userId by fiscalCode userId={}", userId);
 
-
-
-        RewardTransaction trx = transactionConnector.findAll(null,
-                userId,
-                LocalDateTime.of(0, 1, 1, 0, 0),
-                LocalDateTime.of(2030, 1, 1, 0, 0),
-                null,
-                PageRequest.of(0, 10));
-        // da gestire 404 e 500 trycatch
-        // log per dati trx
-
-        // check su dto.merchantId == trx.merchantId
-        // check su initiative?
-        // nel caso i check non andassero a buon fine lanciare exception custom
-
-        // creare result custom come su asset register ProductFileResult.ok/ko(con tutte le personalizazioni del caso
-
-
-        /*
-        log.info("[REPORTED_USER_CREATE] - Start create merchantId={}, initiativeId={}, userId={}",
-                dto.getMerchantId(), dto.getInitiativeId(), dto.getUserFiscalCode());
-
-        if (!isInitiativeJoinedByMerchant(dto.getMerchantId(), dto.getInitiativeId())) {
-            log.warn("[REPORTED_USER_CREATE] - Initiative {} not joined by merchant {}", dto.getInitiativeId(), dto.getMerchantId());
-            throw new NotFoundException("InitiativeId not found for this merchant");
+        if (userId == null || userId.isEmpty()) {
+            return ReportedUserResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
         }
-*/
-        ReportedUser entity = mapper.toEntity(dto);
-        entity.setCreatedAt(LocalDateTime.now());
-        entity.setInitiativeId(trx.getInitiatives().getFirst());
-        entity.setMerchantId(dto.getMerchantId());
-        entity = repository.save(entity);
-        log.info("[REPORTED_USER_CREATE] - Created reported user with id={}", entity.getReportedUserId());
-        return mapper.toDto(entity);
+
+        boolean alreadyReported = repository.existsByUserId(userId);
+        if (alreadyReported) {
+            log.info("[REPORTED_USER_CREATE] - User with userId={} already reported", userId);
+            return ReportedUserResponseDTO.ko(ReportedUserExceptions.ALREADY_REPORTED);
+        }
+
+        try {
+            RewardTransaction trx = transactionConnector.findAll(null,
+                    userId,
+                    LocalDateTime.of(2020, 1, 1, 0, 0),
+                    LocalDateTime.of(2030, 1, 1, 0, 0),
+                    null,
+                    PageRequest.of(0, 10));
+
+            if (trx == null || trx.getInitiatives().isEmpty()) {
+                return ReportedUserResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
+            }
+
+            log.info("[REPORTED_USER_CREATE] - Get data by transaction: Initiative = {}", trx.getInitiatives().getFirst());
+
+            if (!Objects.equals(dto.getMerchantId(), trx.getMerchantId())) {
+                return ReportedUserResponseDTO.ko(ReportedUserExceptions.DIFFERENT_MERCHANT_ID);
+            }
+
+            ReportedUser entity = mapper.toEntity(dto);
+            entity.setCreatedAt(LocalDateTime.now());
+            entity.setInitiativeId(trx.getInitiatives().getFirst());
+            entity.setMerchantId(dto.getMerchantId());
+            entity = repository.save(entity);
+
+            log.info("[REPORTED_USER_CREATE] - Created reported user with id={}", entity.getReportedUserId());
+            return mapper.toDto(entity);
+
+        } catch (Exception e) {
+            log.error("[REPORTED_USER_CREATE] - External service error: {}", e.getMessage(), e);
+            return ReportedUserResponseDTO.ko(ReportedUserExceptions.SERVICE_UNAVAILABLE);
+        }
     }
+
+
 
     @Override
     @Transactional(readOnly = true)
@@ -124,18 +130,5 @@ public class ReportedUserServiceImpl implements ReportedUserService {
         long deleted = repository.deleteByUserId(userId);
         log.info("[REPORTED_USER_DELETE] - Deleted {} reported users for userId={}", deleted, userId);
         return deleted;
-    }
-
-    private boolean isInitiativeJoinedByMerchant(String merchantId, String initiativeId) {
-        log.info("[REPORTED_USER_CHECK_JOIN] - Checking if merchantId={} joined initiativeId={}", merchantId, initiativeId);
-        var q = new Query(
-                Criteria
-                        .where(Merchant.Fields.merchantId).is(merchantId)
-                        .and(Merchant.Fields.initiativeList + "." + Initiative.Fields.initiativeId).is(initiativeId)
-        );
-        q.fields().include(Merchant.Fields.merchantId);
-        boolean exists = mongoTemplate.exists(q, Merchant.class);
-        log.info("[REPORTED_USER_CHECK_JOIN] - MerchantId={} joined initiativeId={} -> {}", merchantId, initiativeId, exists);
-        return exists;
     }
 }
