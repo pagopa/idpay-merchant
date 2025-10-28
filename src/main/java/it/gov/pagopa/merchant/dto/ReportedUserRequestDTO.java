@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ReportedUserRequestDTO {
     @NotBlank String merchantId;
-    @NotBlank String initiativeId;
-    @NotBlank
-    String userId;
+    @NotBlank String userFiscalCode;
 }
 

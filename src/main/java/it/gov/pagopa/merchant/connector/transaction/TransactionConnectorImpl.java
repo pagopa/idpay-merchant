@@ -3,9 +3,12 @@ package it.gov.pagopa.merchant.connector.transaction;
 import feign.FeignException;
 
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
+import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.exception.custom.TransactionInvocationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class TransactionConnectorImpl implements TransactionConnector {
@@ -28,6 +31,26 @@ public class TransactionConnectorImpl implements TransactionConnector {
     } catch (FeignException e) {
       throw new TransactionInvocationException(
           "An error occurred in the microservice merchant", true, e);
+    }
+  }
+  @Override
+  public RewardTransaction findAll(String idTrxIssuer,
+                                   String userId,
+                                   LocalDateTime trxDateStart,
+                                   LocalDateTime trxDateEnd,
+                                   Long amountCents,
+                                   Pageable pageable) {
+
+    try {
+      return restClient.findAll(idTrxIssuer,
+              userId,
+              trxDateStart,
+              trxDateEnd,
+              amountCents,
+              pageable);
+    } catch (FeignException e) {
+      throw new TransactionInvocationException(
+              "An error occurred in the microservice transaction", true, e);
     }
   }
 }

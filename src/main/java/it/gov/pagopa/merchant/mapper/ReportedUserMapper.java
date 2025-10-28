@@ -14,8 +14,7 @@ public class ReportedUserMapper {
         LocalDateTime now = LocalDateTime.now();
         return ReportedUser.builder()
                 .merchantId(dto.getMerchantId())
-                .initiativeId(dto.getInitiativeId())
-                .userId(dto.getUserId())
+                .userId(dto.getUserFiscalCode())
                 .createdAt(now)
                 .build();
     }
@@ -24,7 +23,6 @@ public class ReportedUserMapper {
         return ReportedUserResponseDTO.builder()
                 .reportedUserId(entity.getReportedUserId())
                 .merchantId(entity.getMerchantId())
-                .initiativeId(entity.getInitiativeId())
                 .userId(entity.getUserId())
                 .createdAt(entity.getCreatedAt())
                 .build();

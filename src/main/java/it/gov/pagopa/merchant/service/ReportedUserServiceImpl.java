@@ -1,7 +1,9 @@
 package it.gov.pagopa.merchant.service;
 
+import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
 import it.gov.pagopa.merchant.dto.ReportedUserRequestDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserResponseDTO;
+import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.mapper.ReportedUserMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,23 +36,53 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     private static final Logger log = LoggerFactory.getLogger(ReportedUserServiceImpl.class);
 
     private final ReportedUserRepository repository;
+    private final PDVService pdvService;
     @Qualifier("reportedUserRepositoryExtendedImpl")
     private final ReportedUserRepositoryExtended repositoryExt;
     private final ReportedUserMapper mapper;
     private final MongoTemplate mongoTemplate;
+    private final TransactionConnector transactionConnector;
 
     @Override
     public ReportedUserResponseDTO create(ReportedUserRequestDTO dto) {
+
+        // log per mettere in chiaro input dto
+        String userId = pdvService.encryptCF(dto.getUserFiscalCode());
+        // log mostrare userId ottenuto
+        // se userId == null || empty lancia exception personalizzata
+
+
+
+
+        RewardTransaction trx = transactionConnector.findAll(null,
+                userId,
+                LocalDateTime.of(0, 1, 1, 0, 0),
+                LocalDateTime.of(2030, 1, 1, 0, 0),
+                null,
+                PageRequest.of(0, 10));
+        // da gestire 404 e 500 trycatch
+        // log per dati trx
+
+        // check su dto.merchantId == trx.merchantId
+        // check su initiative?
+        // nel caso i check non andassero a buon fine lanciare exception custom
+
+        // creare result custom come su asset register ProductFileResult.ok/ko(con tutte le personalizazioni del caso
+
+
+        /*
         log.info("[REPORTED_USER_CREATE] - Start create merchantId={}, initiativeId={}, userId={}",
-                dto.getMerchantId(), dto.getInitiativeId(), dto.getUserId());
+                dto.getMerchantId(), dto.getInitiativeId(), dto.getUserFiscalCode());
 
         if (!isInitiativeJoinedByMerchant(dto.getMerchantId(), dto.getInitiativeId())) {
             log.warn("[REPORTED_USER_CREATE] - Initiative {} not joined by merchant {}", dto.getInitiativeId(), dto.getMerchantId());
             throw new NotFoundException("InitiativeId not found for this merchant");
         }
-
+*/
         ReportedUser entity = mapper.toEntity(dto);
         entity.setCreatedAt(LocalDateTime.now());
+        entity.setInitiativeId(trx.getInitiatives().getFirst());
+        entity.setMerchantId(dto.getMerchantId());
         entity = repository.save(entity);
         log.info("[REPORTED_USER_CREATE] - Created reported user with id={}", entity.getReportedUserId());
         return mapper.toDto(entity);
@@ -58,11 +91,16 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     @Override
     @Transactional(readOnly = true)
     public Page<ReportedUserResponseDTO> search(ReportedUserRequestDTO filter, @Nullable Pageable pageable) {
+
+
+        /*
         log.info("[REPORTED_USER_SEARCH] - Start search merchantId={}, initiativeId={}, userId={}, sort={}",
-                filter.getMerchantId(), filter.getInitiativeId(), filter.getUserId(),
+                filter.getMerchantId(), filter.getInitiativeId(), filter.getUserFiscalCode(),
                 pageable != null ? pageable.getSort() : null);
 
-        Criteria c = repositoryExt.getCriteria(filter.getMerchantId(), filter.getInitiativeId(), filter.getUserId());
+        Criteria c = repositoryExt.getCriteria(filter.getMerchantId(), filter.getInitiativeId(), filter.getUserFiscalCode());
+
+
 
         Pageable effectivePageable = (pageable != null) ? pageable : Pageable.unpaged();
 
@@ -75,7 +113,9 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
         log.info("[REPORTED_USER_SEARCH] - Found {} reported users (page {} of size {})",
                 page.getTotalElements(), page.getNumber(), page.getSize());
-        return page;
+
+         */
+        return null;
     }
 
     @Override

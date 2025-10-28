@@ -20,18 +20,22 @@ public class ReportedUserController {
 
     private static final Logger log = LoggerFactory.getLogger(ReportedUserController.class);
 
-    private final ReportedUserService service;
+    private final ReportedUserService reportedUserService;
 
     @PostMapping
     public ReportedUserResponseDTO create(@Valid @RequestBody ReportedUserRequestDTO dto) {
-        log.info("[REPORTED_USER_CREATE] - Received create request merchantId={}, initiativeId={}, userId={}",
-                dto.getMerchantId(), dto.getInitiativeId(), dto.getUserId());
-        ReportedUserResponseDTO response = service.create(dto);
+        log.info("[REPORTED_USER_CREATE] - Received create request merchantId={}, userFiscalCode={}",
+                dto.getMerchantId(), dto.getUserFiscalCode());
+        ReportedUserResponseDTO response = reportedUserService.create(dto);
+
+        /*
         log.info("[REPORTED_USER_CREATE] - Created reported user for userId={} in initiativeId={} (merchantId={})",
-                dto.getUserId(), dto.getInitiativeId(), dto.getMerchantId());
+                dto.getUserFiscalCode(), dto.getInitiativeId(), dto.getMerchantId());
+         */
         return response;
     }
 
+    /*
     @GetMapping
     public Page<ReportedUserResponseDTO> search(
             @RequestParam(required = false) String merchantId,
@@ -42,7 +46,7 @@ public class ReportedUserController {
         log.info("[REPORTED_USER_SEARCH] - Received search request merchantId={}, initiativeId={}, userId={}, sort={}",
                 merchantId, initiativeId, userId, pageable != null ? pageable.getSort() : null);
         Page<ReportedUserResponseDTO> result =
-                service.search(new ReportedUserRequestDTO(merchantId, initiativeId, userId), pageable);
+                reportedUserService.search(new ReportedUserRequestDTO(merchantId, initiativeId, userId), pageable);
         log.info("[REPORTED_USER_SEARCH] - Returning {} reported users (page {} of size {})",
                 result.getTotalElements(), result.getNumber(), result.getSize());
         return result;
@@ -51,8 +55,10 @@ public class ReportedUserController {
     @DeleteMapping("/by-user/{userId}")
     public long deleteByUser(@PathVariable String userId) {
         log.info("[REPORTED_USER_DELETE] - Received delete request for userId={}", userId);
-        long deleted = service.deleteByUserId(userId);
+        long deleted = reportedUserService.deleteByUserId(userId);
         log.info("[REPORTED_USER_DELETE] - Deleted {} reported users for userId={}", deleted, userId);
         return deleted;
     }
+
+     */
 }
