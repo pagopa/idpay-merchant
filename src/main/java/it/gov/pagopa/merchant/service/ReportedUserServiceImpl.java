@@ -78,6 +78,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             }
 
             ReportedUser entity = mapper.toEntity(dto);
+            entity.setUserId(userId);
             entity.setCreatedAt(LocalDateTime.now());
             entity.setInitiativeId(trx.getInitiatives().getFirst());
             entity.setMerchantId(dto.getMerchantId());
