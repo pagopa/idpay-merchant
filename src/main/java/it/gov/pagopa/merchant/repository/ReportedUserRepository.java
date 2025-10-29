@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.repository;
 
 import it.gov.pagopa.merchant.model.ReportedUser;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
