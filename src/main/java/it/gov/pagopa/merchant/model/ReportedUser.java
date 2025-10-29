@@ -22,6 +22,7 @@ public class ReportedUser {
     private String merchantId;
     private String initiativeId;
     private String userId;
-    private String motivation;
+    private String transactionId;
+    private LocalDateTime transactionDate;
     private LocalDateTime createdAt;
 }

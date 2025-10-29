@@ -75,6 +75,8 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             }
 
             ReportedUser entity = mapper.fromRequestDtoToEntity(dto);
+            entity.setTransactionId(trx.getId());
+            entity.setTransactionDate(trx.getTrxDate());
             entity.setUserId(userId);
             entity.setCreatedAt(LocalDateTime.now());
             entity.setInitiativeId(trx.getInitiatives().getFirst());
@@ -115,36 +117,28 @@ public class ReportedUserServiceImpl implements ReportedUserService {
         List<ReportedUser>  entities =  repository.findByUserId(userId);
         return mapper.toDtoList(entities, dto.getUserFiscalCode());
 
-        /*
-        log.info("[REPORTED_USER_SEARCH] - Start search merchantId={}, initiativeId={}, userId={}, sort={}",
-                filter.getMerchantId(), filter.getInitiativeId(), filter.getUserFiscalCode(),
-                pageable != null ? pageable.getSort() : null);
-
-        Criteria c = repositoryExt.getCriteria(filter.getMerchantId(), filter.getInitiativeId(), filter.getUserFiscalCode());
-
-
-
-        Pageable effectivePageable = (pageable != null) ? pageable : Pageable.unpaged();
-
-        var list = repositoryExt.findByFilter(c, effectivePageable);
-        long total = repositoryExt.getCount(c);
-
-        Page<ReportedUserResponseDTO> page = new PageImpl<>(
-                list.stream().map(mapper::toDto).toList(), effectivePageable, total
-        );
-
-        log.info("[REPORTED_USER_SEARCH] - Found {} reported users (page {} of size {})",
-                page.getTotalElements(), page.getNumber(), page.getSize());
-
-         */
-
     }
 
     @Override
-    public long deleteByUserId(String userId) {
-        log.info("[REPORTED_USER_DELETE] - Start delete for userId={}", userId);
-        long deleted = repository.deleteByUserId(userId);
-        log.info("[REPORTED_USER_DELETE] - Deleted {} reported users for userId={}", deleted, userId);
-        return deleted;
+    public ReportedUserCreateResponseDTO deleteByUserId(ReportedUserRequestDTO dto) {
+
+        log.info("[REPORTED_USER_DELETE] - Start delete from fiscalCode={}, ", dto.getUserFiscalCode());
+
+        String userId = pdvService.encryptCF(dto.getUserFiscalCode());
+
+        if (userId == null || userId.isEmpty()) {
+            return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
+        }
+
+        log.info("[REPORTED_USER_DELETE] - Get userId by fiscalCode userId={}", userId);
+
+        if (repository.existsByUserId(userId)) {
+            repository.deleteById(userId);
+            log.info("[REPORTED_USER_DELETE] - Deleted this reported userId={}", userId);
+            return ReportedUserCreateResponseDTO.ok();
+        } else {
+            log.info("[REPORTED_USER_DELETE] - This userId={} doesn't exists", userId);
+            return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
+        }
     }
 }

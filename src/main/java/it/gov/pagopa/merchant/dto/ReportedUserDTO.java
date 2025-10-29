@@ -14,4 +14,6 @@ import java.time.LocalDateTime;
 public class ReportedUserDTO {
     private String fiscalCode;
     private LocalDateTime reportedDate;
+    private String transactionId;
+    private LocalDateTime transactionDate;
 }

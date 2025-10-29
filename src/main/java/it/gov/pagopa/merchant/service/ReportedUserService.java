@@ -8,5 +8,5 @@ import java.util.List;
 public interface ReportedUserService {
     ReportedUserCreateResponseDTO createReportedUser(ReportedUserRequestDTO dto);
     List<ReportedUserDTO> searchReportedUser(ReportedUserRequestDTO filter);
-    long deleteByUserId(String userId);
+    ReportedUserCreateResponseDTO deleteByUserId(ReportedUserRequestDTO dto);
 }
