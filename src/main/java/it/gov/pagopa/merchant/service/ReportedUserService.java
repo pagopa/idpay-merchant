@@ -1,12 +1,12 @@
 package it.gov.pagopa.merchant.service;
 
+import it.gov.pagopa.merchant.dto.ReportedUserDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserRequestDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserResponseDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
+import java.util.List;
 
 public interface ReportedUserService {
-    ReportedUserResponseDTO create(ReportedUserRequestDTO dto);
-    Page<ReportedUserResponseDTO> search(ReportedUserRequestDTO filter, Pageable pageable);
+    ReportedUserCreateResponseDTO createReportedUser(ReportedUserRequestDTO dto);
+    List<ReportedUserDTO> searchReportedUser(ReportedUserRequestDTO filter);
     long deleteByUserId(String userId);
 }

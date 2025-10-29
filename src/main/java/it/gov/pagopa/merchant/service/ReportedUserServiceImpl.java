@@ -2,26 +2,23 @@ package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
 import it.gov.pagopa.merchant.constants.ReportedUserExceptions;
+import it.gov.pagopa.merchant.dto.ReportedUserDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserRequestDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserResponseDTO;
+import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
 import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.mapper.ReportedUserMapper;
 import it.gov.pagopa.merchant.model.ReportedUser;
 import it.gov.pagopa.merchant.repository.ReportedUserRepository;
-import it.gov.pagopa.merchant.repository.ReportedUserRepositoryExtended;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
-import jakarta.annotation.Nullable;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -33,30 +30,27 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
     private final ReportedUserRepository repository;
     private final PDVService pdvService;
-    @Qualifier("reportedUserRepositoryExtendedImpl")
-    private final ReportedUserRepositoryExtended repositoryExt;
     private final ReportedUserMapper mapper;
-    private final MongoTemplate mongoTemplate;
     private final TransactionConnector transactionConnector;
 
     @Override
-    public ReportedUserResponseDTO create(ReportedUserRequestDTO dto) {
+    public ReportedUserCreateResponseDTO createReportedUser(ReportedUserRequestDTO dto) {
 
-        log.info("[REPORTED_USER_CREATE] - Start create merchantId={}, fiscalCode={}",
-                dto.getMerchantId(), dto.getUserFiscalCode());
+        log.info("[REPORTED_USER_CREATE] - Start create merchantId={}, fiscalCode={}, initiativeId={}",
+                dto.getMerchantId(), dto.getUserFiscalCode(), dto.getInitiativeId());
 
         String userId = pdvService.encryptCF(dto.getUserFiscalCode());
 
-        log.info("[REPORTED_USER_CREATE] - Get userId by fiscalCode userId={}", userId);
-
         if (userId == null || userId.isEmpty()) {
-            return ReportedUserResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
+            return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
         }
+
+        log.info("[REPORTED_USER_CREATE] - Get userId by fiscalCode userId={}", userId);
 
         boolean alreadyReported = repository.existsByUserId(userId);
         if (alreadyReported) {
             log.info("[REPORTED_USER_CREATE] - User with userId={} already reported", userId);
-            return ReportedUserResponseDTO.ko(ReportedUserExceptions.ALREADY_REPORTED);
+            return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ALREADY_REPORTED);
         }
 
         try {
@@ -68,16 +62,19 @@ public class ReportedUserServiceImpl implements ReportedUserService {
                     PageRequest.of(0, 10));
 
             if (trx == null || trx.getInitiatives().isEmpty()) {
-                return ReportedUserResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
+                return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
             }
 
             log.info("[REPORTED_USER_CREATE] - Get data by transaction: Initiative = {}", trx.getInitiatives().getFirst());
 
             if (!Objects.equals(dto.getMerchantId(), trx.getMerchantId())) {
-                return ReportedUserResponseDTO.ko(ReportedUserExceptions.DIFFERENT_MERCHANT_ID);
+                return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.DIFFERENT_MERCHANT_ID);
+            }
+            if (!Objects.equals(dto.getInitiativeId(), trx.getInitiatives().getFirst())) {
+                return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.DIFFERENT_INITIATIVE_ID);
             }
 
-            ReportedUser entity = mapper.toEntity(dto);
+            ReportedUser entity = mapper.fromRequestDtoToEntity(dto);
             entity.setUserId(userId);
             entity.setCreatedAt(LocalDateTime.now());
             entity.setInitiativeId(trx.getInitiatives().getFirst());
@@ -85,11 +82,11 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             entity = repository.save(entity);
 
             log.info("[REPORTED_USER_CREATE] - Created reported user with id={}", entity.getReportedUserId());
-            return mapper.toDto(entity);
+            return ReportedUserCreateResponseDTO.ok();
 
         } catch (Exception e) {
             log.error("[REPORTED_USER_CREATE] - External service error: {}", e.getMessage(), e);
-            return ReportedUserResponseDTO.ko(ReportedUserExceptions.SERVICE_UNAVAILABLE);
+            return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.SERVICE_UNAVAILABLE);
         }
     }
 
@@ -97,8 +94,26 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ReportedUserResponseDTO> search(ReportedUserRequestDTO filter, @Nullable Pageable pageable) {
+    public List<ReportedUserDTO> searchReportedUser(ReportedUserRequestDTO dto) {
 
+        log.info("[REPORTED_USER_FIND] - Start finding user merchantId={}, fiscalCode={}, initiativeId={}",
+                dto.getMerchantId(), dto.getUserFiscalCode(), dto.getInitiativeId());
+
+        String userId = pdvService.encryptCF(dto.getUserFiscalCode());
+
+        if (userId == null || userId.isEmpty()) {
+
+            return new ArrayList<>();
+        }
+
+        log.info("[REPORTED_USER_FIND] - Get userId by fiscalCode userId={}", userId);
+
+        boolean alreadyReported = repository.existsByUserId(userId);
+        if (!alreadyReported) {
+            return new ArrayList<>();
+        }
+        List<ReportedUser>  entities =  repository.findByUserId(userId);
+        return mapper.toDtoList(entities, dto.getUserFiscalCode());
 
         /*
         log.info("[REPORTED_USER_SEARCH] - Start search merchantId={}, initiativeId={}, userId={}, sort={}",
@@ -122,7 +137,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
                 page.getTotalElements(), page.getNumber(), page.getSize());
 
          */
-        return null;
+
     }
 
     @Override

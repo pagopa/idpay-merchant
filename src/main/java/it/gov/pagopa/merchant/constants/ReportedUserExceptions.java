@@ -10,5 +10,6 @@ public class ReportedUserExceptions {
     public static final String SERVICE_UNAVAILABLE = "Service unavailable";
     public static final String DIFFERENT_MERCHANT_ID = "Different Merchant Id";
     public static final String ALREADY_REPORTED = "Already reported";
+    public static final String  DIFFERENT_INITIATIVE_ID = "Different Initiative Id";
 
 }

@@ -1,18 +1,17 @@
 package it.gov.pagopa.merchant.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReportedUserRequestDTO {
-    @NotBlank String merchantId;
-    @NotBlank String userFiscalCode;
-    @NotBlank String initiativeId;
+public class ReportedUserDTO {
+    private String fiscalCode;
+    private LocalDateTime reportedDate;
 }
-
