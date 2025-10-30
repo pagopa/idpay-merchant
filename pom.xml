@@ -29,10 +29,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>io.github.openfeign</groupId>
-                <artifactId>feign-okhttp</artifactId>
-            </dependency>
             <!-- Azure BOM -->
             <dependency>
                 <groupId>com.azure.spring</groupId>
