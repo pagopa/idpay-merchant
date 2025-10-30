@@ -90,16 +90,13 @@ class ReportedUserControllerTest {
         JsonNode actual   = objectMapper.readTree(result.getResponse().getContentAsString());
         assertEquals(expected, actual);
 
-        // ✅ Adeguo il test all'ordine del costruttore usato dal controller:
-        // new ReportedUserRequestDTO(merchantId, initiativeId, userFiscalCode)
-        // ↳ initiativeId nel DTO riceve 'fc'
-        // ↳ userFiscalCode nel DTO riceve 'initiativeId'
+
         ArgumentCaptor<ReportedUserRequestDTO> captor = ArgumentCaptor.forClass(ReportedUserRequestDTO.class);
         verify(reportedUserService).searchReportedUser(captor.capture());
         ReportedUserRequestDTO passed = captor.getValue();
         assertEquals(merchantId,  passed.getMerchantId());
-        assertEquals(fc,          passed.getInitiativeId());   // ← atteso: fiscal code
-        assertEquals(initiativeId, passed.getUserFiscalCode()); // ← atteso: initiative
+        assertEquals(fc,          passed.getInitiativeId());
+        assertEquals(initiativeId, passed.getUserFiscalCode());
     }
 
     @Test
