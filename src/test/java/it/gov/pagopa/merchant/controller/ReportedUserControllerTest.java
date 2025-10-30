@@ -20,11 +20,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class ReportedUserControllerTest {
@@ -101,24 +102,25 @@ class ReportedUserControllerTest {
 
     @Test
     void delete_shouldCallServiceAndReturnBody() throws Exception {
-        ReportedUserRequestDTO req =
-                new ReportedUserRequestDTO("MERCH-1", "INIT-1", "RSSMRA80A01H501U");
+
+        String req = "RSSMRA80A01H501U";
         ReportedUserCreateResponseDTO serviceRes = ReportedUserCreateResponseDTO.ok();
 
-        when(reportedUserService.deleteByUserId(any(ReportedUserRequestDTO.class)))
-                .thenReturn(serviceRes);
+        given(reportedUserService.deleteByUserId(req)).willReturn(serviceRes);
 
-        MvcResult result = mockMvc.perform(delete("/idpay/merchant/reportedUser")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+
+        MvcResult result = mockMvc.perform(
+                        delete("/idpay/merchant/reportedUser")
+                                .param("userFiscalCode", req)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(200, result.getResponse().getStatus());
-
-        JsonNode expected = objectMapper.readTree(objectMapper.writeValueAsString(serviceRes));
+        JsonNode expected = objectMapper.valueToTree(serviceRes);
         JsonNode actual   = objectMapper.readTree(result.getResponse().getContentAsString());
-        assertEquals(expected, actual);
+        assertEquals(expected, actual, "Response body JSON should match");
 
-        verify(reportedUserService).deleteByUserId(refEq(req));
+        verify(reportedUserService).deleteByUserId(req);
     }
 }

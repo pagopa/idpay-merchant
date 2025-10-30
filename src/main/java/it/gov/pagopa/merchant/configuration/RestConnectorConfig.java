@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableFeignClients(clients = {
+        EncryptRest.class,
     InitiativeRestClient.class,
     PaymentRestClient.class,
-    TransactionRestClient.class,
-        EncryptRest.class
+    TransactionRestClient.class
 })
 public class RestConnectorConfig {
 

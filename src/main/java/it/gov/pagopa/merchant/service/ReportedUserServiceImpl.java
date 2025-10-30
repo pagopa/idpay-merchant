@@ -120,11 +120,11 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     }
 
     @Override
-    public ReportedUserCreateResponseDTO deleteByUserId(ReportedUserRequestDTO dto) {
+    public ReportedUserCreateResponseDTO deleteByUserId(String userFiscalCode) {
 
-        log.info("[REPORTED_USER_DELETE] - Start delete from fiscalCode={}, ", dto.getUserFiscalCode());
+        log.info("[REPORTED_USER_DELETE] - Start delete from fiscalCode={}, ", userFiscalCode);
 
-        String userId = pdvService.encryptCF(dto.getUserFiscalCode());
+        String userId = pdvService.encryptCF(userFiscalCode);
 
         if (userId == null || userId.isEmpty()) {
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);

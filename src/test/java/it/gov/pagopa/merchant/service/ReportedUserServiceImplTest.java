@@ -261,9 +261,9 @@ class ReportedUserServiceImplTest {
 
     @Test
     void deleteByUserId_whenUserIdNull_returnsKoUserIdNotFound() {
-        ReportedUserRequestDTO req = baseRequest();
+        String req = "RSSMRA80A01H501U";
 
-        when(pdvService.encryptCF(req.getUserFiscalCode())).thenReturn(null);
+        when(pdvService.encryptCF(req)).thenReturn(null);
 
         ReportedUserCreateResponseDTO res = service.deleteByUserId(req);
 
@@ -273,9 +273,9 @@ class ReportedUserServiceImplTest {
 
     @Test
     void deleteByUserId_whenExists_deletesAndOk() {
-        ReportedUserRequestDTO req = baseRequest();
+        String req = "RSSMRA80A01H501U";
 
-        when(pdvService.encryptCF(req.getUserFiscalCode())).thenReturn("encUser");
+        when(pdvService.encryptCF(req)).thenReturn("encUser");
         when(repository.existsByUserId("encUser")).thenReturn(true);
 
         ReportedUserCreateResponseDTO res = service.deleteByUserId(req);
@@ -286,9 +286,9 @@ class ReportedUserServiceImplTest {
 
     @Test
     void deleteByUserId_whenNotExists_returnsKoEntityNotFound() {
-        ReportedUserRequestDTO req = baseRequest();
+        String req = "RSSMRA80A01H501U";
 
-        when(pdvService.encryptCF(req.getUserFiscalCode())).thenReturn("encUser");
+        when(pdvService.encryptCF(req)).thenReturn("encUser");
         when(repository.existsByUserId("encUser")).thenReturn(false);
 
         ReportedUserCreateResponseDTO res = service.deleteByUserId(req);

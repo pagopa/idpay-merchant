@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.gov.pagopa.merchant.dto.ReportedUserDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserRequestDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequestMapping("/idpay/merchant")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Reported Users", description = "Gestione segnalazioni utenti per iniziativa/merchant")
 public class ReportedUserController {
 
     private static final Logger log = LoggerFactory.getLogger(ReportedUserController.class);
@@ -40,9 +42,9 @@ public class ReportedUserController {
     }
 
     @DeleteMapping("/reportedUser")
-    public ReportedUserCreateResponseDTO deleteByUser(@RequestBody ReportedUserRequestDTO dto) {
+    public ReportedUserCreateResponseDTO deleteByUser(@RequestParam(required = false) String userFiscalCode) {
 
-        return reportedUserService.deleteByUserId(dto);
+        return reportedUserService.deleteByUserId(userFiscalCode);
 
     }
 

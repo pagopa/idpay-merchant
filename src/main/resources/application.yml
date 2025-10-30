@@ -206,12 +206,7 @@ rest-client:
   encryptpdv:
     baseUrl: ${PDV_ENCRYPT_BASE_URL:}
     cf: ${PDV_ENCRYPT_SERVICE_CODE:pdv-ms-tokenizer-encrypt}
-  decryptpdv:
-    baseUrl: ${PDV_DECRYPT_BASE_URL:}
-    cf: ${PDV_DECRYPT_SERVICE_CODE:pdv-ms-tokenizer}
-
 api.key.encrypt: ${PDV_ENCRYPT_API_KEY:}
-api.key.decrypt: ${PDV_DECRYPT_API_KEY:}
 
 keycloak:
   admin:
