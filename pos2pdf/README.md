@@ -30,7 +30,14 @@ Tool per generare un report PDF formattato a partire da un file JSON con un form
 ```
 
 ## Query di estrazione dati:
+La query va eseguita sulla collection `point_of_sales` del database MongoDB.
+
 ```
+Sezione Project:
+    {"type": 1, "region": 1, "province": 1, "city": 1, "zipCode": 1, "address": 1, "franchiseName": 1, "_id": 0}
+```
+Nel caso dovessero essere estratti solo i punti vendita di tipo fisico, utilizzare la seguente query:
+```
+Sezione query:
     {"type": "PHYSICAL"}
-    {"region": 1, "province": 1, "city": 1, "zipCode": 1, "address": 1, "franchiseName": 1, "_id": 0}
 ```
