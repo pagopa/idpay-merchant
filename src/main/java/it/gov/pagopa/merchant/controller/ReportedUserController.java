@@ -41,8 +41,8 @@ public class ReportedUserController {
 
     }
 
-    @DeleteMapping("/reportedUser")
-    public ReportedUserCreateResponseDTO deleteByUser(@RequestParam(required = false) String userFiscalCode) {
+    @DeleteMapping("/reportedUser/{userFiscalCode}")
+    public ReportedUserCreateResponseDTO deleteByUser(@PathVariable String userFiscalCode) {
 
         return reportedUserService.deleteByUserId(userFiscalCode);
 
