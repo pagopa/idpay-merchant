@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @FeignClient(
     name = "transactions",
@@ -34,7 +35,7 @@ public interface TransactionRestClient {
   @GetMapping(value = "/idpay/transactions",
           produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  RewardTransaction findAll(
+  List<RewardTransaction> findAll(
           @RequestParam(value = "idTrxIssuer", required = false) String idTrxIssuer,
           @RequestParam(value = "userId", required = false) String userId,
           @RequestParam(value = "trxDateStart", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime trxDateStart,

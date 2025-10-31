@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.mapper;
 
 import it.gov.pagopa.merchant.dto.ReportedUserDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserRequestDTO;
 import it.gov.pagopa.merchant.model.ReportedUser;
 import org.junit.jupiter.api.Test;
 
@@ -14,29 +13,6 @@ class ReportedUserMapperTest {
 
     private final ReportedUserMapper mapper = new ReportedUserMapper();
 
-    @Test
-    void fromRequestDtoToEntity_shouldMapFieldsAndSetCreatedAtNow() {
-
-        ReportedUserRequestDTO req = ReportedUserRequestDTO.builder()
-                .merchantId("MERCHANT_123")
-                .userFiscalCode("RSSMRA80A01H501U")
-                .build();
-
-        LocalDateTime before = LocalDateTime.now();
-
-        ReportedUser entity = mapper.fromRequestDtoToEntity(req);
-
-        LocalDateTime after = LocalDateTime.now();
-
-        assertNotNull(entity, "L'entity non deve essere null");
-        assertEquals("MERCHANT_123", entity.getMerchantId());
-        assertEquals("RSSMRA80A01H501U", entity.getUserId());
-        assertNotNull(entity.getCreatedAt(), "createdAt deve essere valorizzato");
-        assertFalse(entity.getCreatedAt().isBefore(before),
-                "createdAt non deve essere prima dell'istante iniziale");
-        assertFalse(entity.getCreatedAt().isAfter(after),
-                "createdAt non deve essere dopo l'istante finale");
-    }
 
     @Test
     void toDto_shouldMapEntityFields() {

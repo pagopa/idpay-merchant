@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TransactionConnectorImpl implements TransactionConnector {
@@ -34,12 +35,12 @@ public class TransactionConnectorImpl implements TransactionConnector {
     }
   }
   @Override
-  public RewardTransaction findAll(String idTrxIssuer,
-                                   String userId,
-                                   LocalDateTime trxDateStart,
-                                   LocalDateTime trxDateEnd,
-                                   Long amountCents,
-                                   Pageable pageable) {
+  public List<RewardTransaction> findAll(String idTrxIssuer,
+                                         String userId,
+                                         LocalDateTime trxDateStart,
+                                         LocalDateTime trxDateEnd,
+                                         Long amountCents,
+                                         Pageable pageable) {
 
     try {
       return restClient.findAll(idTrxIssuer,

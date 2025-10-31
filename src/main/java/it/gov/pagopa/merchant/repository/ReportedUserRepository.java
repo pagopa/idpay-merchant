@@ -12,5 +12,23 @@ public interface ReportedUserRepository
         extends MongoRepository<ReportedUser, String>, ReportedUserRepositoryExtended {
 
     boolean existsByUserId(String userId);
-    List<ReportedUser> findByUserId(String userId);
+
+    boolean existsByUserIdAndInitiativeIdAndMerchantId(
+            String userId,
+            String initiativeId,
+            String merchantId
+    );
+
+
+    List<ReportedUser> findByUserIdAndInitiativeIdAndMerchantId(
+            String userId,
+            String initiativeId,
+            String merchantId
+    );
+
+    long deleteByUserIdAndInitiativeIdAndMerchantId(
+            String userId,
+            String initiativeId,
+            String merchantId
+    );
 }

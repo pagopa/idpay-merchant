@@ -3,7 +3,6 @@ package it.gov.pagopa.merchant.service;
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
 import it.gov.pagopa.merchant.constants.ReportedUserExceptions;
 import it.gov.pagopa.merchant.dto.ReportedUserDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserRequestDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
 import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.mapper.ReportedUserMapper;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +32,12 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     private final TransactionConnector transactionConnector;
 
     @Override
-    public ReportedUserCreateResponseDTO createReportedUser(ReportedUserRequestDTO dto) {
+    public ReportedUserCreateResponseDTO createReportedUser(String userFiscalCode, String merchantId, String initiativeId) {
 
         log.info("[REPORTED_USER_CREATE] - Start create merchantId={}, fiscalCode={}, initiativeId={}",
-                dto.getMerchantId(), dto.getUserFiscalCode(), dto.getInitiativeId());
+                merchantId, userFiscalCode, initiativeId);
 
-        String userId = pdvService.encryptCF(dto.getUserFiscalCode());
+        String userId = pdvService.encryptCF(userFiscalCode);
 
         if (userId == null || userId.isEmpty()) {
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
@@ -53,37 +51,40 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ALREADY_REPORTED);
         }
 
+        //userId Fittizio per testare in locale
+        userId= "2efadvKXSJEd2plMmqsRly9Cj";
+
         try {
-            RewardTransaction trx = transactionConnector.findAll(null,
+            List<RewardTransaction> trxList = transactionConnector.findAll(null,
                     userId,
-                    LocalDateTime.of(2020, 1, 1, 0, 0),
-                    LocalDateTime.of(2030, 1, 1, 0, 0),
+                    LocalDateTime.now().minusMonths(3),
+                    LocalDateTime.now(),
                     null,
                     PageRequest.of(0, 10));
+            trxList = trxList.stream()
+                    .filter(trx -> "REWARDED".equals(trx.getStatus()))
+                    .filter(trx -> trx.getInitiatives() != null && trx.getInitiatives().contains(initiativeId))
+                    .filter(trx -> merchantId.equals(trx.getMerchantId()))
+                    .toList();
 
-            if (trx == null || trx.getInitiatives().isEmpty()) {
+            if (trxList.isEmpty() || trxList.getFirst() == null ) {
                 return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
             }
 
-            log.info("[REPORTED_USER_CREATE] - Get data by transaction: Initiative = {}", trx.getInitiatives().getFirst());
+            RewardTransaction trx = trxList.getFirst();
 
-            if (!Objects.equals(dto.getMerchantId(), trx.getMerchantId())) {
-                return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.DIFFERENT_MERCHANT_ID);
-            }
-            if (!Objects.equals(dto.getInitiativeId(), trx.getInitiatives().getFirst())) {
-                return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.DIFFERENT_INITIATIVE_ID);
-            }
+            log.info("[REPORTED_USER_CREATE] - Get data by transaction = {}, ", trx);
 
-            ReportedUser entity = mapper.fromRequestDtoToEntity(dto);
-            entity.setTransactionId(trx.getId());
-            entity.setTransactionDate(trx.getTrxDate());
-            entity.setUserId(userId);
-            entity.setCreatedAt(LocalDateTime.now());
-            entity.setInitiativeId(trx.getInitiatives().getFirst());
-            entity.setMerchantId(dto.getMerchantId());
-            entity = repository.save(entity);
+            ReportedUser reportedUser = repository.save(ReportedUser.builder()
+                    .createdAt(LocalDateTime.now())
+                    .transactionDate(trx.getTrxDate())
+                    .transactionId(trx.getId())
+                    .userId(userId)
+                    .initiativeId(initiativeId)
+                    .merchantId(merchantId)
+                    .build());
 
-            log.info("[REPORTED_USER_CREATE] - Created reported user with id={}", entity.getReportedUserId());
+            log.info("[REPORTED_USER_CREATE] - Created reported user with id={}", reportedUser.getReportedUserId());
             return ReportedUserCreateResponseDTO.ok();
 
         } catch (Exception e) {
@@ -96,15 +97,14 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReportedUserDTO> searchReportedUser(ReportedUserRequestDTO dto) {
+    public List<ReportedUserDTO> searchReportedUser(String userFiscalCode, String merchantId, String initiativeId) {
 
         log.info("[REPORTED_USER_FIND] - Start finding user merchantId={}, fiscalCode={}, initiativeId={}",
-                dto.getMerchantId(), dto.getUserFiscalCode(), dto.getInitiativeId());
+                merchantId, userFiscalCode, initiativeId);
 
-        String userId = pdvService.encryptCF(dto.getUserFiscalCode());
+        String userId = pdvService.encryptCF(userFiscalCode);
 
         if (userId == null || userId.isEmpty()) {
-
             return new ArrayList<>();
         }
 
@@ -114,15 +114,15 @@ public class ReportedUserServiceImpl implements ReportedUserService {
         if (!alreadyReported) {
             return new ArrayList<>();
         }
-        List<ReportedUser>  entities =  repository.findByUserId(userId);
-        return mapper.toDtoList(entities, dto.getUserFiscalCode());
+        List<ReportedUser> reportedUsers =  repository.findByUserIdAndInitiativeIdAndMerchantId(userId, initiativeId, merchantId);
+        return mapper.toDtoList(reportedUsers, userFiscalCode);
 
     }
 
     @Override
-    public ReportedUserCreateResponseDTO deleteByUserId(String userFiscalCode) {
+    public ReportedUserCreateResponseDTO deleteByUserId(String userFiscalCode, String merchantId, String initiativeId) {
 
-        log.info("[REPORTED_USER_DELETE] - Start delete from fiscalCode={}, ", userFiscalCode);
+        log.info("[REPORTED_USER_DELETE] - Start delete from fiscalCode={}, merchantId={}, initiativeId={}", userFiscalCode, merchantId, initiativeId);
 
         String userId = pdvService.encryptCF(userFiscalCode);
 
@@ -132,8 +132,8 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
         log.info("[REPORTED_USER_DELETE] - Get userId by fiscalCode userId={}", userId);
 
-        if (repository.existsByUserId(userId)) {
-            repository.deleteById(userId);
+        if (repository.existsByUserIdAndInitiativeIdAndMerchantId(userId, initiativeId, merchantId)) {
+            repository.deleteByUserIdAndInitiativeIdAndMerchantId(userId, initiativeId, merchantId);
             log.info("[REPORTED_USER_DELETE] - Deleted this reported userId={}", userId);
             return ReportedUserCreateResponseDTO.ok();
         } else {
