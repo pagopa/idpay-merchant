@@ -25,12 +25,12 @@ public class ReportedUserController {
 
     private final ReportedUserService reportedUserService;
 
-    @PostMapping("/reportedUser")
+    @PostMapping("/reported-user")
     public ReportedUserCreateResponseDTO create(@Valid @RequestBody ReportedUserRequestDTO dto) {
         return reportedUserService.createReportedUser(dto);
     }
 
-    @GetMapping("/reportedUser")
+    @GetMapping("/reported-user")
     public List<ReportedUserDTO> search(
             @RequestParam(required = false) String merchantId,
             @RequestParam(required = false) String initiativeId,
@@ -41,7 +41,7 @@ public class ReportedUserController {
 
     }
 
-    @DeleteMapping("/reportedUser/{userFiscalCode}")
+    @DeleteMapping("/reported-user/{userFiscalCode}")
     public ReportedUserCreateResponseDTO deleteByUser(@PathVariable String userFiscalCode) {
 
         return reportedUserService.deleteByUserId(userFiscalCode);
