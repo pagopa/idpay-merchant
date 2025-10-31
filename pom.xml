@@ -29,7 +29,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <!-- Azure BOM -->
             <dependency>
                 <groupId>com.azure.spring</groupId>
@@ -95,6 +94,10 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-okhttp</artifactId>
         </dependency>
 
         <!-- Azure -->
