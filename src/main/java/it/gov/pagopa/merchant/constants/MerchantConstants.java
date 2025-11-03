@@ -1,5 +1,7 @@
 package it.gov.pagopa.merchant.constants;
 
+import java.util.Set;
+
 public class MerchantConstants {
 
   private MerchantConstants() {
@@ -37,6 +39,16 @@ public class MerchantConstants {
       public static final String INVALID_FILE_EMAIL_WRONG = "merchant.invalid.file.email.wrong";
 
     }
+  }
+
+  public static final class TransactionStatus {
+    private TransactionStatus() {}
+
+    public static final String INVOICED = "INVOICED";
+    public static final String REWARDED = "REWARDED";
+    public static final String REFUNDED = "REFUNDED";
+
+    public static final Set<String> ALLOWED_TRANSACTION_STATUSES = Set.of(INVOICED, REWARDED, REFUNDED);
   }
 
   public static final class ExceptionCode {

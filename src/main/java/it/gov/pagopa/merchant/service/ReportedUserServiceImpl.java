@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.gov.pagopa.merchant.constants.MerchantConstants.TransactionStatus.ALLOWED_TRANSACTION_STATUSES;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -51,8 +53,6 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ALREADY_REPORTED);
         }
 
-        //userId Fittizio per testare in locale
-        userId= "2efadvKXSJEd2plMmqsRly9Cj";
 
         try {
             List<RewardTransaction> trxList = transactionConnector.findAll(null,
@@ -62,7 +62,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
                     null,
                     PageRequest.of(0, 10));
             trxList = trxList.stream()
-                    .filter(trx -> "REWARDED".equals(trx.getStatus()))
+                    .filter(trx -> ALLOWED_TRANSACTION_STATUSES.contains(trx.getStatus()))
                     .filter(trx -> trx.getInitiatives() != null && trx.getInitiatives().contains(initiativeId))
                     .filter(trx -> merchantId.equals(trx.getMerchantId()))
                     .toList();
