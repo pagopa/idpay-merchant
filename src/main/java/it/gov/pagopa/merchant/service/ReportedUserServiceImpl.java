@@ -33,11 +33,20 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     private final ReportedUserMapper mapper;
     private final TransactionConnector transactionConnector;
 
+    private static String safe(String v) {
+        if (v == null) return "null";
+        return v.replaceAll("[\\r\\n\\t\\x00-\\x1F\\x7F]", "_");
+    }
+
     @Override
     public ReportedUserCreateResponseDTO createReportedUser(String userFiscalCode, String merchantId, String initiativeId) {
 
+        String logUserFiscalCode = safe(userFiscalCode);
+        String logMerchantId = safe(merchantId);
+        String logInitiativeId = safe(initiativeId);
+
         log.info("[REPORTED_USER_CREATE] - Start create merchantId={}, fiscalCode={}, initiativeId={}",
-                merchantId, userFiscalCode, initiativeId);
+                logMerchantId, logUserFiscalCode, logInitiativeId);
 
         String userId = pdvService.encryptCF(userFiscalCode);
 
@@ -57,7 +66,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
         try {
             List<RewardTransaction> trxList = transactionConnector.findAll(null,
                     userId,
-                    LocalDateTime.now().minusMonths(3),
+                    LocalDateTime.now().minusYears(1),
                     LocalDateTime.now(),
                     null,
                     PageRequest.of(0, 10));
@@ -99,8 +108,12 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     @Transactional(readOnly = true)
     public List<ReportedUserDTO> searchReportedUser(String userFiscalCode, String merchantId, String initiativeId) {
 
+        String logUserFiscalCode = safe(userFiscalCode);
+        String logMerchantId = safe(merchantId);
+        String logInitiativeId = safe(initiativeId);
+
         log.info("[REPORTED_USER_FIND] - Start finding user merchantId={}, fiscalCode={}, initiativeId={}",
-                merchantId, userFiscalCode, initiativeId);
+                logMerchantId, logUserFiscalCode, logInitiativeId);
 
         String userId = pdvService.encryptCF(userFiscalCode);
 
@@ -122,7 +135,12 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     @Override
     public ReportedUserCreateResponseDTO deleteByUserId(String userFiscalCode, String merchantId, String initiativeId) {
 
-        log.info("[REPORTED_USER_DELETE] - Start delete from fiscalCode={}, merchantId={}, initiativeId={}", userFiscalCode, merchantId, initiativeId);
+        String logUserFiscalCode = safe(userFiscalCode);
+        String logMerchantId = safe(merchantId);
+        String logInitiativeId = safe(initiativeId);
+
+        log.info("[REPORTED_USER_DELETE] - Start delete from fiscalCode={}, merchantId={}, initiativeId={}",
+                logUserFiscalCode, logMerchantId, logInitiativeId);
 
         String userId = pdvService.encryptCF(userFiscalCode);
 
