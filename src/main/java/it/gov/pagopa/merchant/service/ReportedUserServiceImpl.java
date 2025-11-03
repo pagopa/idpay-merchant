@@ -33,20 +33,11 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     private final ReportedUserMapper mapper;
     private final TransactionConnector transactionConnector;
 
-    private static String safe(String v) {
-        if (v == null) return "null";
-        return v.replaceAll("[\\r\\n\\t\\x00-\\x1F\\x7F]", "_");
-    }
 
     @Override
     public ReportedUserCreateResponseDTO createReportedUser(String userFiscalCode, String merchantId, String initiativeId) {
 
-        String logUserFiscalCode = safe(userFiscalCode);
-        String logMerchantId = safe(merchantId);
-        String logInitiativeId = safe(initiativeId);
-
-        log.info("[REPORTED_USER_CREATE] - Start create merchantId={}, fiscalCode={}, initiativeId={}",
-                logMerchantId, logUserFiscalCode, logInitiativeId);
+        log.info("[REPORTED_USER_CREATE] - Start create");
 
         String userId = pdvService.encryptCF(userFiscalCode);
 
@@ -54,11 +45,11 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
         }
 
-        log.info("[REPORTED_USER_CREATE] - Get userId by fiscalCode userId={}", userId);
+        log.info("[REPORTED_USER_CREATE] - Get userId by fiscalCode");
 
         boolean alreadyReported = repository.existsByUserId(userId);
         if (alreadyReported) {
-            log.info("[REPORTED_USER_CREATE] - User with userId={} already reported", userId);
+            log.info("[REPORTED_USER_CREATE] - User already reported");
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ALREADY_REPORTED);
         }
 
@@ -108,12 +99,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     @Transactional(readOnly = true)
     public List<ReportedUserDTO> searchReportedUser(String userFiscalCode, String merchantId, String initiativeId) {
 
-        String logUserFiscalCode = safe(userFiscalCode);
-        String logMerchantId = safe(merchantId);
-        String logInitiativeId = safe(initiativeId);
-
-        log.info("[REPORTED_USER_FIND] - Start finding user merchantId={}, fiscalCode={}, initiativeId={}",
-                logMerchantId, logUserFiscalCode, logInitiativeId);
+        log.info("[REPORTED_USER_FIND] - Start finding user");
 
         String userId = pdvService.encryptCF(userFiscalCode);
 
@@ -121,7 +107,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             return new ArrayList<>();
         }
 
-        log.info("[REPORTED_USER_FIND] - Get userId by fiscalCode userId={}", userId);
+        log.info("[REPORTED_USER_FIND] - Get userId by fiscalCode");
 
         boolean alreadyReported = repository.existsByUserId(userId);
         if (!alreadyReported) {
@@ -135,12 +121,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     @Override
     public ReportedUserCreateResponseDTO deleteByUserId(String userFiscalCode, String merchantId, String initiativeId) {
 
-        String logUserFiscalCode = safe(userFiscalCode);
-        String logMerchantId = safe(merchantId);
-        String logInitiativeId = safe(initiativeId);
-
-        log.info("[REPORTED_USER_DELETE] - Start delete from fiscalCode={}, merchantId={}, initiativeId={}",
-                logUserFiscalCode, logMerchantId, logInitiativeId);
+        log.info("[REPORTED_USER_DELETE] - Start delete");
 
         String userId = pdvService.encryptCF(userFiscalCode);
 
@@ -148,14 +129,14 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
         }
 
-        log.info("[REPORTED_USER_DELETE] - Get userId by fiscalCode userId={}", userId);
+        log.info("[REPORTED_USER_DELETE] - Get userId by fiscalCode");
 
         if (repository.existsByUserIdAndInitiativeIdAndMerchantId(userId, initiativeId, merchantId)) {
             repository.deleteByUserIdAndInitiativeIdAndMerchantId(userId, initiativeId, merchantId);
-            log.info("[REPORTED_USER_DELETE] - Deleted this reported userId={}", userId);
+            log.info("[REPORTED_USER_DELETE] - Deleted reported");
             return ReportedUserCreateResponseDTO.ok();
         } else {
-            log.info("[REPORTED_USER_DELETE] - This userId={} doesn't exists", userId);
+            log.info("[REPORTED_USER_DELETE] - User doesn't exists");
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
         }
     }
