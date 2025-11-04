@@ -4,10 +4,13 @@ import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
+import it.gov.pagopa.merchant.dto.ReportedUserDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
+import it.gov.pagopa.merchant.service.ReportedUserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @Slf4j
@@ -15,9 +18,11 @@ import java.util.List;
 public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerchantController {
 
     private final MerchantService merchantService;
+    private final ReportedUserService reportedUserService;
 
-    public MerchantPortalMerchantControllerImpl(MerchantService merchantService) {
+    public MerchantPortalMerchantControllerImpl(MerchantService merchantService, ReportedUserService reportedUserService) {
         this.merchantService = merchantService;
+        this.reportedUserService = reportedUserService;
     }
 
     @Override
@@ -36,5 +41,31 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
             );
         }
         return merchantDetail;
+    }
+
+    @Override
+    public ReportedUserCreateResponseDTO create(String userFiscalCode,
+                                                String merchantId,
+                                                String initiativeId) {
+        return reportedUserService.createReportedUser(userFiscalCode, merchantId, initiativeId);
+    }
+
+    @Override
+    public List<ReportedUserDTO> getReportedUser(
+            String userFiscalCode,
+            String merchantId,
+            String initiativeId
+    ) {
+        return reportedUserService.searchReportedUser(userFiscalCode, merchantId, initiativeId);
+
+    }
+
+    @Override
+    public ReportedUserCreateResponseDTO deleteByUser(String userFiscalCode,
+                                                      String merchantId,
+                                                      String initiativeId) {
+
+        return reportedUserService.deleteByUserId(userFiscalCode, merchantId, initiativeId);
+
     }
 }
