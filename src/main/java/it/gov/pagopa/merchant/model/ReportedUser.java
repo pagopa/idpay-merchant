@@ -23,6 +23,6 @@ public class ReportedUser {
     private String initiativeId;
     private String userId;
     private String transactionId;
-    private LocalDateTime transactionDate;
+    private LocalDateTime trxChargeDate;
     private LocalDateTime createdAt;
 }

@@ -79,7 +79,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
             ReportedUser reportedUser = repository.save(ReportedUser.builder()
                     .createdAt(LocalDateTime.now())
-                    .transactionDate(trx.getTrxDate())
+                    .trxChargeDate(trx.getTrxChargeDate())
                     .transactionId(trx.getId())
                     .userId(userId)
                     .initiativeId(initiativeId)
@@ -145,6 +145,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
     private String sanitizeFiscalCode(String value) {
         if (value == null) return null;
-        return value.replaceAll("^\"|\"$", "");
+        return value.replace("\"", "");
     }
+
 }

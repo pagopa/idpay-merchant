@@ -114,7 +114,6 @@ class ReportedUserServiceImplTest {
                 eq(PageRequest.of(0, 10))
         )).thenReturn(List.of(trx));
 
-        // Non serve un id generato: ritorno semplicemente l'oggetto passato
         when(repository.save(any(ReportedUser.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
@@ -127,7 +126,7 @@ class ReportedUserServiceImplTest {
         assertThat(saved.getMerchantId()).isEqualTo(MERCHANT_ID);
         assertThat(saved.getInitiativeId()).isEqualTo(INITIATIVE_ID);
         assertThat(saved.getTransactionId()).isEqualTo("trx-001");
-        assertThat(saved.getTransactionDate()).isNotNull();
+        assertThat(saved.getTrxChargeDate()).isNotNull();
         assertThat(saved.getCreatedAt()).isNotNull();
     }
 
@@ -142,8 +141,6 @@ class ReportedUserServiceImplTest {
         assertThat(res).isNotNull();
         verify(repository, never()).save(any());
     }
-
-    // ---------------- searchReportedUser ----------------
 
     @Test
     void searchReportedUser_empty_whenUserIdNullOrEmpty() {
@@ -176,7 +173,7 @@ class ReportedUserServiceImplTest {
                 .initiativeId(INITIATIVE_ID)
                 .merchantId(MERCHANT_ID)
                 .transactionId("trx-1")
-                .transactionDate(LocalDateTime.now().minusDays(1))
+                .trxChargeDate(LocalDateTime.now().minusDays(1))
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -190,8 +187,6 @@ class ReportedUserServiceImplTest {
 
         assertThat(res).hasSize(1).containsExactly(dto);
     }
-
-    // ---------------- deleteByUserId ----------------
 
     @Test
     void deleteByUserId_ko_whenUserIdNullOrEmpty() {

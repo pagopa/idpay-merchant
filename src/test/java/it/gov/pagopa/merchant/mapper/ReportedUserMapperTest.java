@@ -21,7 +21,7 @@ class ReportedUserMapperTest {
 
         ReportedUser entity = ReportedUser.builder()
                 .transactionId("TRX-001")
-                .transactionDate(trxDate)
+                .trxChargeDate(trxDate)
                 .createdAt(createdAt)
                 .build();
 
@@ -29,7 +29,7 @@ class ReportedUserMapperTest {
 
         assertNotNull(dto);
         assertEquals("TRX-001", dto.getTransactionId());
-        assertEquals(trxDate, dto.getTransactionDate());
+        assertEquals(trxDate, dto.getTrxChargeDate());
         assertEquals(createdAt, dto.getReportedDate());
     }
 
@@ -37,13 +37,13 @@ class ReportedUserMapperTest {
     void toDtoList_shouldMapListAndSetFiscalCode() {
         ReportedUser e1 = ReportedUser.builder()
                 .transactionId("T1")
-                .transactionDate(LocalDateTime.of(2024, 1, 1, 12, 0))
+                .trxChargeDate(LocalDateTime.of(2024, 1, 1, 12, 0))
                 .createdAt(LocalDateTime.of(2024, 1, 2, 8, 0))
                 .build();
 
         ReportedUser e2 = ReportedUser.builder()
                 .transactionId("T2")
-                .transactionDate(LocalDateTime.of(2024, 2, 1, 12, 0))
+                .trxChargeDate(LocalDateTime.of(2024, 2, 1, 12, 0))
                 .createdAt(LocalDateTime.of(2024, 2, 2, 8, 0))
                 .build();
 
@@ -54,15 +54,15 @@ class ReportedUserMapperTest {
         assertNotNull(result);
         assertEquals(2, result.size());
 
-        ReportedUserDTO d1 = result.get(0);
+        ReportedUserDTO d1 = result.getFirst();
         assertEquals("T1", d1.getTransactionId());
-        assertEquals(e1.getTransactionDate(), d1.getTransactionDate());
+        assertEquals(e1.getTrxChargeDate(), d1.getTrxChargeDate());
         assertEquals(e1.getCreatedAt(), d1.getReportedDate());
         assertEquals(fiscalCode, d1.getFiscalCode());
 
         ReportedUserDTO d2 = result.get(1);
         assertEquals("T2", d2.getTransactionId());
-        assertEquals(e2.getTransactionDate(), d2.getTransactionDate());
+        assertEquals(e2.getTrxChargeDate(), d2.getTrxChargeDate());
         assertEquals(e2.getCreatedAt(), d2.getReportedDate());
         assertEquals(fiscalCode, d2.getFiscalCode());
     }

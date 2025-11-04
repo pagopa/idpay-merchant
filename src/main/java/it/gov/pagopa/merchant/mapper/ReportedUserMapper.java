@@ -14,7 +14,7 @@ public class ReportedUserMapper {
     public ReportedUserDTO toDto(ReportedUser entity) {
         return ReportedUserDTO.builder()
                 .transactionId(entity.getTransactionId())
-                .transactionDate(entity.getTransactionDate())
+                .trxChargeDate(entity.getTrxChargeDate())
                 .reportedDate(entity.getCreatedAt())
                 .build();
     }
