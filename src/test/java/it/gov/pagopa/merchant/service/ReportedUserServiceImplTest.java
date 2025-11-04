@@ -102,7 +102,7 @@ class ReportedUserServiceImplTest {
         when(trx.getStatus()).thenReturn(allowed);
         when(trx.getInitiatives()).thenReturn(List.of("other", INITIATIVE_ID));
         when(trx.getMerchantId()).thenReturn(MERCHANT_ID);
-        when(trx.getTrxDate()).thenReturn(LocalDateTime.now().minusDays(3));
+        when(trx.getTrxChargeDate()).thenReturn(LocalDateTime.now().minusDays(3));
         when(trx.getId()).thenReturn("trx-001");
 
         when(transactionConnector.findAll(
