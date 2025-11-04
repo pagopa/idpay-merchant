@@ -23,8 +23,5 @@ public class ReportedUserCreateResponseDTO {
         return new ReportedUserCreateResponseDTO("KO", errorKey);
     }
 
-    public boolean isOk() {
-        return "OK".equalsIgnoreCase(this.status);
-    }
 }
 

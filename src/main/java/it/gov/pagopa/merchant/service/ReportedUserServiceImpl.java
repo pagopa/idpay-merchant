@@ -39,7 +39,9 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
         log.info("[REPORTED_USER_CREATE] - Start create");
 
-        String userId = pdvService.encryptCF(userFiscalCode);
+        String cleanedFiscalCode = sanitizeFiscalCode(userFiscalCode);
+
+        String userId = pdvService.encryptCF(cleanedFiscalCode);
 
         if (userId == null || userId.isEmpty()) {
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
@@ -139,5 +141,10 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             log.info("[REPORTED_USER_DELETE] - User doesn't exists");
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
         }
+    }
+
+    private String sanitizeFiscalCode(String value) {
+        if (value == null) return null;
+        return value.replaceAll("^\"|\"$", "");
     }
 }
