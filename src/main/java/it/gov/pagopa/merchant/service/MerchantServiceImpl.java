@@ -202,7 +202,9 @@ public class MerchantServiceImpl implements MerchantService {
 
     for (PointOfSale pos : pointsOfSale) {
       String email = pos.getContactEmail();
-      if (email == null || email.isEmpty()) continue;
+      if (email == null || email.isEmpty()) {
+        continue;
+      }
 
       List<UserRepresentation> users = usersResource.searchByEmail(email, true);
       for (UserRepresentation user : users) {
