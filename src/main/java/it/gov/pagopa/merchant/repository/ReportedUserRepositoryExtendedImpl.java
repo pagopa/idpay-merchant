@@ -28,8 +28,12 @@ public class ReportedUserRepositoryExtendedImpl implements ReportedUserRepositor
     public List<ReportedUser> findByFilter(Criteria criteria, Pageable pageable) {
         log.info("[REPORTED_USER_FIND] - Start findByFilter criteriaPresent={}, pageable={}", criteria != null, pageable);
         Query q = new Query();
-        if (criteria != null) q.addCriteria(criteria);
-        if (pageable != null) q.with(Utilities.getPageable(pageable));
+        if (criteria != null) {
+            q.addCriteria(criteria);
+        }
+        if (pageable != null){
+            q.with(Utilities.getPageable(pageable));
+        }
 
         List<ReportedUser> result = mongoTemplate.find(q, ReportedUser.class);
         log.info("[REPORTED_USER_FIND] - Found {} reported users (criteriaPresent={}, pageable={})",
@@ -43,9 +47,15 @@ public class ReportedUserRepositoryExtendedImpl implements ReportedUserRepositor
                 merchantId, initiativeId, userId);
 
         List<Criteria> ands = new ArrayList<>();
-        if (merchantId != null)   ands.add(Criteria.where(ReportedUser.Fields.merchantId).is(merchantId));
-        if (initiativeId != null) ands.add(Criteria.where(ReportedUser.Fields.initiativeId).is(initiativeId));
-        if (userId != null)       ands.add(Criteria.where(ReportedUser.Fields.userId).is(userId));
+        if (merchantId != null)   {
+            ands.add(Criteria.where(ReportedUser.Fields.merchantId).is(merchantId));
+        }
+        if (initiativeId != null) {
+            ands.add(Criteria.where(ReportedUser.Fields.initiativeId).is(initiativeId));
+        }
+        if (userId != null) {
+            ands.add(Criteria.where(ReportedUser.Fields.userId).is(userId));
+        }
         Criteria criteria = ands.isEmpty() ? new Criteria() : new Criteria().andOperator(ands.toArray(new Criteria[0]));
 
         log.info("[REPORTED_USER_CRITERIA] - Built criteria with {} conditions", ands.size());
@@ -56,7 +66,9 @@ public class ReportedUserRepositoryExtendedImpl implements ReportedUserRepositor
     public long getCount(Criteria criteria) {
         log.info("[REPORTED_USER_COUNT] - Start count with criteriaPresent={}", criteria != null);
         Query q = new Query();
-        if (criteria != null) q.addCriteria(criteria);
+        if (criteria != null) {
+            q.addCriteria(criteria);
+        }
 
         long count = mongoTemplate.count(q, ReportedUser.class);
         log.info("[REPORTED_USER_COUNT] - Found {} reported users matching criteria", count);

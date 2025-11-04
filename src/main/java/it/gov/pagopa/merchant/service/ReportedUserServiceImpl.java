@@ -144,7 +144,9 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     }
 
     private String sanitizeFiscalCode(String value) {
-        if (value == null) return null;
+        if (value == null) {
+            return null;
+        }
         return value.replace("\"", "");
     }
 
