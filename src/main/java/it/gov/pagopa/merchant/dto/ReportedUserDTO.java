@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ReportedUserDTO {
+    private String fiscalCode;
     private LocalDateTime reportedDate;
     private String transactionId;
     private LocalDateTime trxChargeDate;
