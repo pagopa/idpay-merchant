@@ -28,9 +28,9 @@ public interface MerchantPortalMerchantController {
 
     @Operation(summary = "Create a new reported user")
     @PostMapping("/reported-user/{userId}")
-    ReportedUserCreateResponseDTO create(@RequestHeader ("x-merchant-id")String merchantId,
-                                         @RequestHeader ("initiative-id")String initiativeId,
-                                         @PathVariable String userId);
+    ReportedUserCreateResponseDTO createReportedUser(@RequestHeader ("x-merchant-id")String merchantId,
+                                                     @RequestHeader ("initiative-id")String initiativeId,
+                                                     @PathVariable String userId);
 
     @Operation(summary = "Returns the reported user")
     @GetMapping("/reported-user/{userId}")
@@ -41,7 +41,7 @@ public interface MerchantPortalMerchantController {
 
     @Operation(summary = "Delete the reported user")
     @DeleteMapping("/reported-user/{userId}")
-    ReportedUserCreateResponseDTO deleteByUser(@RequestHeader ("x-merchant-id")String merchantId,
-                                               @RequestHeader ("initiative-id")String initiativeId,
-                                               @PathVariable String userId);
+    ReportedUserCreateResponseDTO deleteReportedUser(@RequestHeader ("x-merchant-id")String merchantId,
+                                                     @RequestHeader ("initiative-id")String initiativeId,
+                                                     @PathVariable String userId);
 }
