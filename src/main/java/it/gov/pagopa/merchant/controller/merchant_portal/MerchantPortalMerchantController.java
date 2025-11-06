@@ -5,7 +5,6 @@ import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserDTO;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,21 +27,21 @@ public interface MerchantPortalMerchantController {
     );
 
     @Operation(summary = "Create a new reported user")
-    @PostMapping("/reported-user")
-    ReportedUserCreateResponseDTO create(@Valid @RequestBody String userFiscalCode,
-                                                @RequestHeader ("x-merchant-id") String merchantId,
-                                                @RequestHeader ("initiative-id")String initiativeId);
+    @PostMapping("/reported-user/{userId}")
+    ReportedUserCreateResponseDTO create(@RequestHeader ("x-merchant-id")String merchantId,
+                                         @RequestHeader ("initiative-id")String initiativeId,
+                                         @PathVariable String userId);
 
     @Operation(summary = "Returns the reported user")
-    @GetMapping("/reported-user")
+    @GetMapping("/reported-user/{userId}")
     List<ReportedUserDTO> getReportedUser(
-            @RequestParam (required = true) String userFiscalCode,
-            @RequestHeader ("x-merchant-id") String merchantId,
-            @RequestHeader ("initiative-id")String initiativeId);
+            @RequestHeader ("x-merchant-id")String merchantId,
+            @RequestHeader ("initiative-id")String initiativeId,
+            @PathVariable String userId);
 
     @Operation(summary = "Delete the reported user")
-    @DeleteMapping("/reported-user/{userFiscalCode}")
-    ReportedUserCreateResponseDTO deleteByUser(@PathVariable String userFiscalCode,
-                                                      @RequestHeader ("x-merchant-id") String merchantId,
-                                                      @RequestHeader ("initiative-id")String initiativeId);
+    @DeleteMapping("/reported-user/{userId}")
+    ReportedUserCreateResponseDTO deleteByUser(@RequestHeader ("x-merchant-id")String merchantId,
+                                               @RequestHeader ("initiative-id")String initiativeId,
+                                               @PathVariable String userId);
 }
