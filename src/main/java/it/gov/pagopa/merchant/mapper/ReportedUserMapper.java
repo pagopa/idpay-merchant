@@ -6,10 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+
 @Component
 public class ReportedUserMapper {
-
-
 
     public ReportedUserDTO toDto(ReportedUser entity) {
         return ReportedUserDTO.builder()
@@ -28,4 +27,5 @@ public class ReportedUserMapper {
                 } )
                 .toList();
     }
+
 }
