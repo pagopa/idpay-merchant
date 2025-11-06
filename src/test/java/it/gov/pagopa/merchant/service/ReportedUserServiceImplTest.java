@@ -31,6 +31,7 @@ class ReportedUserServiceImplTest {
     @Mock private ReportedUserRepository repository;
     @Mock private ReportedUserMapper mapper;
     @Mock private TransactionConnector transactionConnector;
+    @Mock private PDVService pdvService;
 
     @InjectMocks
     private ReportedUserServiceImpl service;
@@ -171,14 +172,24 @@ class ReportedUserServiceImplTest {
         when(repository.findByUserIdAndInitiativeIdAndMerchantId(ENCRYPTED_USER_ID, INITIATIVE_ID, MERCHANT_ID))
                 .thenReturn(List.of(ru));
 
-        ReportedUserDTO dto = new ReportedUserDTO();
+        String fiscalCode = "RSSMRA80A01H501U";
+        when(pdvService.decryptCF(ENCRYPTED_USER_ID)).thenReturn(fiscalCode);
 
-        when(mapper.toDto(ru)).thenReturn(dto);
+        ReportedUserDTO dto = new ReportedUserDTO();
+        dto.setFiscalCode(fiscalCode);
+        when(mapper.toDtoList(List.of(ru), fiscalCode)).thenReturn(List.of(dto));
 
         List<ReportedUserDTO> res = service.searchReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).hasSize(1).containsExactly(dto);
+
+        verify(repository).existsByUserId(ENCRYPTED_USER_ID);
+        verify(pdvService).decryptCF(ENCRYPTED_USER_ID);
+        verify(repository).findByUserIdAndInitiativeIdAndMerchantId(ENCRYPTED_USER_ID, INITIATIVE_ID, MERCHANT_ID);
+        verify(mapper).toDtoList(List.of(ru), fiscalCode);
+        verifyNoMoreInteractions(repository, pdvService, mapper);
     }
+
 
     @Test
     void deleteByUserId_ko_whenUserIdNullOrEmpty() {
