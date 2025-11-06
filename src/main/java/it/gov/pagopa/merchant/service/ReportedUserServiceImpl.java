@@ -31,6 +31,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     private final ReportedUserRepository repository;
     private final ReportedUserMapper mapper;
     private final TransactionConnector transactionConnector;
+    private final PDVService pdvService;
 
 
     @Override
@@ -103,8 +104,10 @@ public class ReportedUserServiceImpl implements ReportedUserService {
         if (!alreadyReported) {
             return new ArrayList<>();
         }
+
+        String fiscalCode = pdvService.decryptCF(userId);
         List<ReportedUser> reportedUsers =  repository.findByUserIdAndInitiativeIdAndMerchantId(userId, initiativeId, merchantId);
-        return reportedUsers.stream().map(mapper::toDto).toList();
+        return mapper.toDtoList(reportedUsers, fiscalCode);
 
     }
 
