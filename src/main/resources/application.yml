@@ -203,6 +203,15 @@ rest-client:
     baseUrl: ${IDPAY_PAYMENT_BASE_URL:http://idpay-payment}
   transactions:
     baseUrl: ${IDPAY_TRANSACTIONS_BASE_URL:http://idpay-transactions}
+  encryptpdv:
+    baseUrl: ${PDV_ENCRYPT_BASE_URL:}
+    cf: ${PDV_ENCRYPT_SERVICE_CODE:pdv-ms-tokenizer-encrypt}
+  decryptpdv:
+    baseUrl: ${PDV_DECRYPT_BASE_URL:}
+    cf: ${PDV_DECRYPT_SERVICE_CODE:pdv-ms-tokenizer}
+
+api.key.encrypt: ${PDV_ENCRYPT_API_KEY:}
+api.key.decrypt: ${PDV_DECRYPT_API_KEY:}
 
 keycloak:
   admin:
