@@ -43,10 +43,6 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
         String userId = pdvService.encryptCF(cleanedFiscalCode);
 
-        if (userId == null || userId.isEmpty()) {
-            return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
-        }
-
         log.info("[REPORTED_USER_CREATE] - Get userId by fiscalCode");
 
         boolean alreadyReported = repository.existsByUserId(userId);
@@ -63,6 +59,10 @@ public class ReportedUserServiceImpl implements ReportedUserService {
                     LocalDateTime.now(),
                     null,
                     PageRequest.of(0, 10));
+
+            if (trxList.isEmpty() || trxList.getFirst() == null ) {
+                return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
+            }
             trxList = trxList.stream()
                     .filter(trx -> ALLOWED_TRANSACTION_STATUSES.contains(trx.getStatus()))
                     .filter(trx -> trx.getInitiatives() != null && trx.getInitiatives().contains(initiativeId))
