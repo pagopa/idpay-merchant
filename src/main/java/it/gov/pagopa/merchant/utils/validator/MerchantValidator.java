@@ -69,13 +69,18 @@ public class MerchantValidator {
     }
 
     if (!errors.isEmpty()) {
-      Map<String, Long> grouped = errors.stream()
-              .collect(Collectors.groupingBy(MerchantValidationErrorDetail::getCode, Collectors.counting()));
+      Map<String, Map<String, Long>> grouped = errors.stream()
+              .collect(Collectors.groupingBy(
+                      MerchantValidationErrorDetail::getCode,
+                      Collectors.groupingBy(MerchantValidationErrorDetail::getMessage, Collectors.counting())
+              ));
 
       log.warn("[MERCHANT-WITHDRAWAL] Validation failed for merchantId={}: {} errors found",
               sanitizeString(merchant.getMerchantId()), errors.size());
-      grouped.forEach((code, count) ->
-              log.warn("   - {}: {} occurrences", code, count));
+
+      grouped.forEach((code, msgMap) -> msgMap.forEach((message, count) ->
+              log.warn("   - {} ({}): {} occurrence{}", code, message, count, count > 1 ? "s" : "")
+      ));
 
       log.debug("[MERCHANT-WITHDRAWAL] Validation error details: {}", errors);
       throw new MerchantValidationException(errors);
