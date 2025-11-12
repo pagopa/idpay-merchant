@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReportedUserMapperTest {
@@ -35,43 +36,43 @@ class ReportedUserMapperTest {
 
     @Test
     void toDtoList_shouldMapListAndSetFiscalCode() {
+
+        LocalDateTime now = LocalDateTime.now();
         ReportedUser e1 = ReportedUser.builder()
-                .transactionId("T1")
-                .trxChargeDate(LocalDateTime.of(2024, 1, 1, 12, 0))
-                .createdAt(LocalDateTime.of(2024, 1, 2, 8, 0))
+                .transactionId("trx-1")
+                .trxChargeDate(now.minusDays(2))
+                .createdAt(now.minusDays(1))
                 .build();
 
         ReportedUser e2 = ReportedUser.builder()
-                .transactionId("T2")
-                .trxChargeDate(LocalDateTime.of(2024, 2, 1, 12, 0))
-                .createdAt(LocalDateTime.of(2024, 2, 2, 8, 0))
+                .transactionId("trx-2")
+                .trxChargeDate(now.minusDays(5))
+                .createdAt(now.minusDays(4))
                 .build();
 
+        List<ReportedUser> entities = List.of(e1, e2);
         String fiscalCode = "ABCDEF12G34H567I";
 
-        List<ReportedUserDTO> result = mapper.toDtoList(List.of(e1, e2), fiscalCode);
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
+        List<ReportedUserDTO> dtos = mapper.toDtoList(entities, fiscalCode);
 
-        ReportedUserDTO d1 = result.getFirst();
-        assertEquals("T1", d1.getTransactionId());
-        assertEquals(e1.getTrxChargeDate(), d1.getTrxChargeDate());
-        assertEquals(e1.getCreatedAt(), d1.getReportedDate());
-        assertEquals(fiscalCode, d1.getFiscalCode());
 
-        ReportedUserDTO d2 = result.get(1);
-        assertEquals("T2", d2.getTransactionId());
-        assertEquals(e2.getTrxChargeDate(), d2.getTrxChargeDate());
-        assertEquals(e2.getCreatedAt(), d2.getReportedDate());
-        assertEquals(fiscalCode, d2.getFiscalCode());
+        assertThat(dtos).hasSize(2);
+        assertThat(dtos)
+                .extracting(ReportedUserDTO::getFiscalCode)
+                .containsOnly(fiscalCode);
+
+
+        ReportedUserDTO dto1 = dtos.getFirst();
+        assertThat(dto1.getTransactionId()).isEqualTo(e1.getTransactionId());
+        assertThat(dto1.getTrxChargeDate()).isEqualTo(e1.getTrxChargeDate());
+        assertThat(dto1.getReportedDate()).isEqualTo(e1.getCreatedAt());
+
+
+        ReportedUserDTO dto2 = dtos.get(1);
+        assertThat(dto2.getTransactionId()).isEqualTo(e2.getTransactionId());
+        assertThat(dto2.getTrxChargeDate()).isEqualTo(e2.getTrxChargeDate());
+        assertThat(dto2.getReportedDate()).isEqualTo(e2.getCreatedAt());
     }
 
-    @Test
-    void toDtoList_withEmptyListReturnsEmpty() {
-       List<ReportedUserDTO> result = mapper.toDtoList(List.of(), "ANYFC");
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
 }

@@ -7,7 +7,6 @@ import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.mapper.ReportedUserMapper;
 import it.gov.pagopa.merchant.model.ReportedUser;
 import it.gov.pagopa.merchant.repository.ReportedUserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,9 +29,9 @@ import static org.mockito.Mockito.*;
 class ReportedUserServiceImplTest {
 
     @Mock private ReportedUserRepository repository;
-    @Mock private PDVService pdvService;
     @Mock private ReportedUserMapper mapper;
     @Mock private TransactionConnector transactionConnector;
+    @Mock private PDVService pdvService;
 
     @InjectMocks
     private ReportedUserServiceImpl service;
@@ -42,20 +41,14 @@ class ReportedUserServiceImplTest {
 
     private static final String MERCHANT_ID = "m-123";
     private static final String INITIATIVE_ID = "i-456";
-    private static final String FISCAL_CODE = "RSSMRA80A01H501U";
     private static final String ENCRYPTED_USER_ID = "enc-uid-789";
 
-    @BeforeEach
-    void setup() {
-        when(pdvService.encryptCF(FISCAL_CODE)).thenReturn(ENCRYPTED_USER_ID);
-    }
 
 
     @Test
     void createReportedUser_ko_whenUserIdNullOrEmpty() {
-        when(pdvService.encryptCF(FISCAL_CODE)).thenReturn(null);
 
-        ReportedUserCreateResponseDTO res = service.createReportedUser(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res = service.createReportedUser(null, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isNotNull();
         verifyNoInteractions(transactionConnector);
@@ -66,7 +59,7 @@ class ReportedUserServiceImplTest {
     void createReportedUser_ko_whenAlreadyReported() {
         when(repository.existsByUserId(ENCRYPTED_USER_ID)).thenReturn(true);
 
-        ReportedUserCreateResponseDTO res = service.createReportedUser(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res = service.createReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isNotNull();
         verify(repository, never()).save(any());
@@ -86,7 +79,7 @@ class ReportedUserServiceImplTest {
                 eq(PageRequest.of(0, 10))
         )).thenReturn(Collections.emptyList());
 
-        ReportedUserCreateResponseDTO res = service.createReportedUser(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res = service.createReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isNotNull();
         verify(repository, never()).save(any());
@@ -117,7 +110,7 @@ class ReportedUserServiceImplTest {
         when(repository.save(any(ReportedUser.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
 
-        ReportedUserCreateResponseDTO res = service.createReportedUser(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res = service.createReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isNotNull();
         verify(repository).save(reportedUserCaptor.capture());
@@ -136,7 +129,7 @@ class ReportedUserServiceImplTest {
         when(transactionConnector.findAll(any(), any(), any(), any(), any(), any()))
                 .thenThrow(new RuntimeException("boom"));
 
-        ReportedUserCreateResponseDTO res = service.createReportedUser(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res = service.createReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isNotNull();
         verify(repository, never()).save(any());
@@ -144,9 +137,8 @@ class ReportedUserServiceImplTest {
 
     @Test
     void searchReportedUser_empty_whenUserIdNullOrEmpty() {
-        when(pdvService.encryptCF(FISCAL_CODE)).thenReturn("");
 
-        List<ReportedUserDTO> res = service.searchReportedUser(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        List<ReportedUserDTO> res = service.searchReportedUser(null, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isEmpty();
         verifyNoInteractions(repository, mapper);
@@ -156,7 +148,7 @@ class ReportedUserServiceImplTest {
     void searchReportedUser_empty_whenNotAlreadyReported() {
         when(repository.existsByUserId(ENCRYPTED_USER_ID)).thenReturn(false);
 
-        List<ReportedUserDTO> res = service.searchReportedUser(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        List<ReportedUserDTO> res = service.searchReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isEmpty();
         verify(repository, never()).findByUserIdAndInitiativeIdAndMerchantId(any(), any(), any());
@@ -180,19 +172,29 @@ class ReportedUserServiceImplTest {
         when(repository.findByUserIdAndInitiativeIdAndMerchantId(ENCRYPTED_USER_ID, INITIATIVE_ID, MERCHANT_ID))
                 .thenReturn(List.of(ru));
 
-        ReportedUserDTO dto = new ReportedUserDTO();
-        when(mapper.toDtoList(List.of(ru), FISCAL_CODE)).thenReturn(List.of(dto));
+        String fiscalCode = "RSSMRA80A01H501U";
+        when(pdvService.decryptCF(ENCRYPTED_USER_ID)).thenReturn(fiscalCode);
 
-        List<ReportedUserDTO> res = service.searchReportedUser(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserDTO dto = new ReportedUserDTO();
+        dto.setFiscalCode(fiscalCode);
+        when(mapper.toDtoList(List.of(ru), fiscalCode)).thenReturn(List.of(dto));
+
+        List<ReportedUserDTO> res = service.searchReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).hasSize(1).containsExactly(dto);
+
+        verify(repository).existsByUserId(ENCRYPTED_USER_ID);
+        verify(pdvService).decryptCF(ENCRYPTED_USER_ID);
+        verify(repository).findByUserIdAndInitiativeIdAndMerchantId(ENCRYPTED_USER_ID, INITIATIVE_ID, MERCHANT_ID);
+        verify(mapper).toDtoList(List.of(ru), fiscalCode);
+        verifyNoMoreInteractions(repository, pdvService, mapper);
     }
+
 
     @Test
     void deleteByUserId_ko_whenUserIdNullOrEmpty() {
-        when(pdvService.encryptCF(FISCAL_CODE)).thenReturn(null);
 
-        ReportedUserCreateResponseDTO res = service.deleteByUserId(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res = service.deleteByUserId(null, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isNotNull();
         verify(repository, never()).deleteByUserIdAndInitiativeIdAndMerchantId(any(), any(), any());
@@ -203,7 +205,7 @@ class ReportedUserServiceImplTest {
         when(repository.existsByUserIdAndInitiativeIdAndMerchantId(ENCRYPTED_USER_ID, INITIATIVE_ID, MERCHANT_ID))
                 .thenReturn(true);
 
-        ReportedUserCreateResponseDTO res = service.deleteByUserId(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res = service.deleteByUserId(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isNotNull();
         verify(repository).deleteByUserIdAndInitiativeIdAndMerchantId(ENCRYPTED_USER_ID, INITIATIVE_ID, MERCHANT_ID);
@@ -214,7 +216,7 @@ class ReportedUserServiceImplTest {
         when(repository.existsByUserIdAndInitiativeIdAndMerchantId(ENCRYPTED_USER_ID, INITIATIVE_ID, MERCHANT_ID))
                 .thenReturn(false);
 
-        ReportedUserCreateResponseDTO res = service.deleteByUserId(FISCAL_CODE, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res = service.deleteByUserId(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isNotNull();
         verify(repository, never()).deleteByUserIdAndInitiativeIdAndMerchantId(any(), any(), any());
