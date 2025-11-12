@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
+
 @Component
 @Slf4j
 public class MerchantValidator {
@@ -29,7 +31,7 @@ public class MerchantValidator {
     List<MerchantValidationErrorDetail> errors = new ArrayList<>();
 
     log.debug("[MERCHANT-WITHDRAWAL] Validating withdrawal for merchantId={} and initiativeId={}",
-            merchant.getMerchantId(), initiativeId);
+            sanitizeString(merchant.getMerchantId()),sanitizeString(initiativeId));
 
     if (merchant.getActivationDate() == null) {
       errors.add(MerchantValidationErrorDetail.builder()
@@ -40,7 +42,7 @@ public class MerchantValidator {
       long days = Duration.between(merchant.getActivationDate(), LocalDateTime.now()).toDays();
       if (days >= 15) {
         log.info("[MERCHANT-WITHDRAWAL] Merchant {} cannot withdraw: {} days have passed since activation",
-                merchant.getMerchantId(), days);
+                sanitizeString(merchant.getMerchantId()), days);
         errors.add(MerchantValidationErrorDetail.builder()
                 .code(MerchantConstants.CODE_CONTRACT_WITHDRAWAL_TOO_LATE)
                 .message(MerchantConstants.MSG_CONTRACT_WITHDRAWAL_TOO_LATE)
@@ -71,7 +73,7 @@ public class MerchantValidator {
               .collect(Collectors.groupingBy(MerchantValidationErrorDetail::getCode, Collectors.counting()));
 
       log.warn("[MERCHANT-WITHDRAWAL] Validation failed for merchantId={}: {} errors found",
-              merchant.getMerchantId(), errors.size());
+              sanitizeString(merchant.getMerchantId()), errors.size());
       grouped.forEach((code, count) ->
               log.warn("   - {}: {} occurrences", code, count));
 
@@ -80,6 +82,6 @@ public class MerchantValidator {
     }
 
     log.info("[MERCHANT-WITHDRAWAL] Validation completed successfully for merchantId={} (eligible for withdrawal)",
-            merchant.getMerchantId());
+            sanitizeString(merchant.getMerchantId()));
   }
 }
