@@ -56,14 +56,18 @@ public class PointOfSaleValidator {
         errors.addAll(validateDuplicates(pointOfSaleDTOS));
 
         if (!errors.isEmpty()) {
-            Map<String, Long> grouped = errors.stream()
-                    .collect(Collectors.groupingBy(ValidationErrorDetail::getCode, Collectors.counting()));
+            Map<String, Map<String, Long>> grouped = errors.stream()
+                    .collect(Collectors.groupingBy(
+                            ValidationErrorDetail::getCode,
+                            Collectors.groupingBy(ValidationErrorDetail::getMessage, Collectors.counting())
+                    ));
 
-            log.warn("[POS-VALIDATION] Validation failed: {} errors found across {} entries",
+            log.warn("[POINT-OF-SALES-VALIDATION] Validation failed: {} errors found across {} entries",
                     errors.size(), pointOfSaleDTOS.size());
 
-            grouped.forEach((code, count) ->
-                    log.warn("   - {}: {} occurrences", code, count));
+            grouped.forEach((code, msgMap) -> msgMap.forEach((message, count) ->
+                    log.warn("   - {} ({}): {} occurrence{}", code, message, count, count > 1 ? "s" : "")
+            ));
 
             log.debug("[POS-VALIDATION] Validation error details: {}", errors);
             throw new PosValidationException(errors);
