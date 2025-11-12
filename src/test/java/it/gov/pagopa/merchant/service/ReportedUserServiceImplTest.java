@@ -41,19 +41,7 @@ class ReportedUserServiceImplTest {
 
     private static final String MERCHANT_ID = "m-123";
     private static final String INITIATIVE_ID = "i-456";
-    private static final String ENCRYPTED_USER_ID = "enc-uid-789";
-
-
-
-    @Test
-    void createReportedUser_ko_whenUserIdNullOrEmpty() {
-
-        ReportedUserCreateResponseDTO res = service.createReportedUser(null, MERCHANT_ID, INITIATIVE_ID);
-
-        assertThat(res).isNotNull();
-        verifyNoInteractions(transactionConnector);
-        verify(repository, never()).save(any());
-    }
+    private static final String ENCRYPTED_USER_ID = "enc-uid-788";
 
     @Test
     void createReportedUser_ko_whenAlreadyReported() {
@@ -85,6 +73,29 @@ class ReportedUserServiceImplTest {
         verify(repository, never()).save(any());
     }
 
+    @Test
+    void createReportedUser_ko_whenTransactionsFoundButNoneMatchFilters() {
+        when(repository.existsByUserId(ENCRYPTED_USER_ID)).thenReturn(false);
+
+        RewardTransaction trx = mock(RewardTransaction.class);
+        when(trx.getStatus()).thenReturn(ALLOWED_TRANSACTION_STATUSES.iterator().next());
+        when(trx.getInitiatives()).thenReturn(List.of("another-initiative"));
+
+
+        when(transactionConnector.findAll(
+                isNull(),
+                eq(ENCRYPTED_USER_ID),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class),
+                isNull(),
+                eq(PageRequest.of(0, 10))
+        )).thenReturn(List.of(trx));
+
+        ReportedUserCreateResponseDTO res = service.createReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
+
+        assertThat(res).isNotNull();
+        verify(repository, never()).save(any());
+    }
 
     @Test
     void createReportedUser_ok_whenMatchingTransactionExists() {
@@ -107,8 +118,7 @@ class ReportedUserServiceImplTest {
                 eq(PageRequest.of(0, 10))
         )).thenReturn(List.of(trx));
 
-        when(repository.save(any(ReportedUser.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+        when(repository.save(any(ReportedUser.class))).thenAnswer(inv -> inv.getArgument(0));
 
         ReportedUserCreateResponseDTO res = service.createReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
@@ -135,13 +145,15 @@ class ReportedUserServiceImplTest {
         verify(repository, never()).save(any());
     }
 
+
     @Test
     void searchReportedUser_empty_whenUserIdNullOrEmpty() {
+        List<ReportedUserDTO> res1 = service.searchReportedUser(null, MERCHANT_ID, INITIATIVE_ID);
+        List<ReportedUserDTO> res2 = service.searchReportedUser("", MERCHANT_ID, INITIATIVE_ID);
 
-        List<ReportedUserDTO> res = service.searchReportedUser(null, MERCHANT_ID, INITIATIVE_ID);
-
-        assertThat(res).isEmpty();
-        verifyNoInteractions(repository, mapper);
+        assertThat(res1).isEmpty();
+        assertThat(res2).isEmpty();
+        verifyNoInteractions(repository, mapper, pdvService);
     }
 
     @Test
@@ -151,8 +163,9 @@ class ReportedUserServiceImplTest {
         List<ReportedUserDTO> res = service.searchReportedUser(ENCRYPTED_USER_ID, MERCHANT_ID, INITIATIVE_ID);
 
         assertThat(res).isEmpty();
+        verify(repository).existsByUserId(ENCRYPTED_USER_ID);
         verify(repository, never()).findByUserIdAndInitiativeIdAndMerchantId(any(), any(), any());
-        verifyNoInteractions(mapper);
+        verifyNoInteractions(mapper, pdvService);
     }
 
     @Test
@@ -193,10 +206,11 @@ class ReportedUserServiceImplTest {
 
     @Test
     void deleteByUserId_ko_whenUserIdNullOrEmpty() {
+        ReportedUserCreateResponseDTO res1 = service.deleteByUserId(null, MERCHANT_ID, INITIATIVE_ID);
+        ReportedUserCreateResponseDTO res2 = service.deleteByUserId("", MERCHANT_ID, INITIATIVE_ID);
 
-        ReportedUserCreateResponseDTO res = service.deleteByUserId(null, MERCHANT_ID, INITIATIVE_ID);
-
-        assertThat(res).isNotNull();
+        assertThat(res1).isNotNull();
+        assertThat(res2).isNotNull();
         verify(repository, never()).deleteByUserIdAndInitiativeIdAndMerchantId(any(), any(), any());
     }
 

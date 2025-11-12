@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.utils.validator;
 
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
-import it.gov.pagopa.common.web.exception.ValidationException;
+import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
@@ -82,7 +82,7 @@ class PointOfSaleValidatorTest {
         pointOfSaleDTOS.add(pointOfSaleOnline);
         pointOfSaleDTOS.add(pointOfSalePhysical);
 
-        ValidationException exception = assertThrows(ValidationException.class,
+        PosValidationException exception = assertThrows(PosValidationException.class,
                 () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
 
         assertEquals("Validation failed for one or more point of sales", exception.getMessage());

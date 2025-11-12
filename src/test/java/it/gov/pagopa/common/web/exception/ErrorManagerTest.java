@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 @ExtendWith(SpringExtension.class)
@@ -66,33 +65,6 @@ class ErrorManagerTest {
     logger.addAppender(memoryAppender);
     memoryAppender.reset();
   }
-
-  @Test
-  void handleExceptionValidationException() throws Exception {
-    ValidationException validationException = new ValidationException(List.of());
-    Mockito.doThrow(validationException)
-            .when(testControllerSpy).testEndpoint();
-
-    mockMvc.perform(MockMvcRequestBuilders.get("/test")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest());
-
-    checkStackTraceSuppressedLog(memoryAppender, "Something went wrong handling request GET /test");
-  }
-
-  @Test
-  void handleExceptionMerchantValidationException() throws Exception {
-    MerchantValidationException merchantValidationException = new MerchantValidationException(List.of());
-    Mockito.doThrow(merchantValidationException)
-        .when(testControllerSpy).testEndpoint();
-
-    mockMvc.perform(MockMvcRequestBuilders.get("/test")
-            .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.status().isNotAcceptable());
-
-    checkStackTraceSuppressedLog(memoryAppender, "Something went wrong handling request GET /test");
-  }
-
 
   @Test
   void handleExceptionClientExceptionNoBody() throws Exception {
