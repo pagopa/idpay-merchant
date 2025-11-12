@@ -1,11 +1,17 @@
 package it.gov.pagopa.common.web.exception;
 
 import it.gov.pagopa.common.web.dto.ErrorDTO;
+import it.gov.pagopa.common.web.dto.MerchantValidationErrorDTO;
+import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
+import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.exception.custom.MerchantValidationException;
+import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -60,4 +66,27 @@ public class ValidationExceptionHandler {
 
         return new ErrorDTO(templateValidationErrorDTO.getCode(), message);
     }
+
+    @ExceptionHandler(PosValidationException.class)
+    public ResponseEntity<ErrorDTO> handlePosValidationExceptions(PosValidationException exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    ValidationErrorDTO.builder()
+                            .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
+                            .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
+                            .details(exception.getErrors())
+                            .build()
+            );
+    }
+
+    @ExceptionHandler(MerchantValidationException.class)
+    public ResponseEntity<ErrorDTO> handleMerchantValidationException(MerchantValidationException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+                MerchantValidationErrorDTO.builder()
+                        .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
+                        .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
+                        .details(exception.getErrors())
+                        .build()
+        );
+    }
+
 }
