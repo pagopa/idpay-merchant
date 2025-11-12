@@ -26,11 +26,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@WebMvcTest(value = {ValidationExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@WebMvcTest(value = {PosValidationExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 @ContextConfiguration(classes = {
-        ValidationExceptionHandlerTest.TestController.class,
+        PosValidationExceptionHandlerTest.TestController.class,
         ValidationExceptionHandler.class})
-class ValidationExceptionHandlerTest {
+class PosValidationExceptionHandlerTest {
 
     @Autowired
     private MockMvc mockMvc;
