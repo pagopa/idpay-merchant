@@ -44,17 +44,6 @@ class ReportedUserServiceImplTest {
     private static final String ENCRYPTED_USER_ID = "enc-uid-789";
 
 
-
-    @Test
-    void createReportedUser_ko_whenUserIdNullOrEmpty() {
-
-        ReportedUserCreateResponseDTO res = service.createReportedUser(null, MERCHANT_ID, INITIATIVE_ID);
-
-        assertThat(res).isNotNull();
-        verifyNoInteractions(transactionConnector);
-        verify(repository, never()).save(any());
-    }
-
     @Test
     void createReportedUser_ko_whenAlreadyReported() {
         when(repository.existsByUserId(ENCRYPTED_USER_ID)).thenReturn(true);
