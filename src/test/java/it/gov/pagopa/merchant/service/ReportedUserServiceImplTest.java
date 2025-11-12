@@ -41,7 +41,7 @@ class ReportedUserServiceImplTest {
 
     private static final String MERCHANT_ID = "m-123";
     private static final String INITIATIVE_ID = "i-456";
-    private static final String ENCRYPTED_USER_ID = "enc-uid-789";
+    private static final String ENCRYPTED_USER_ID = "enc-uid-788";
 
     @Test
     void createReportedUser_ko_whenAlreadyReported() {
