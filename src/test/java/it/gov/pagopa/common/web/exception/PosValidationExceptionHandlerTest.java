@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.mockito.Mockito.when;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @WebMvcTest(value = {PosValidationExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = SecurityAutoConfiguration.class)
@@ -86,4 +89,43 @@ class PosValidationExceptionHandlerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Required request header 'data' for method parameter type String is not present"));
 
     }
+
+    @Test
+    void handlePosValidationExceptions() throws Exception {
+        when(testControllerSpy.testEndpoint(Mockito.any(ValidationDTO.class), Mockito.anyString()))
+                .thenThrow(new it.gov.pagopa.merchant.exception.custom.PosValidationException(java.util.Collections.emptyList()));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(VALIDATION_DTO))
+                        .header("data", "data")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code")
+                        .value(it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode.VALIDATION_ERROR))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
+                        .value(it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage.VALIDATION_ERROR))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details.length()").value(0));
+    }
+
+    @Test
+    void handleMerchantValidationException() throws Exception {
+        when(testControllerSpy.testEndpoint(Mockito.any(ValidationDTO.class), Mockito.anyString()))
+                .thenThrow(new it.gov.pagopa.merchant.exception.custom.MerchantValidationException(java.util.Collections.emptyList()));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(VALIDATION_DTO))
+                        .header("data", "data")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotAcceptable())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.code")
+                        .value(it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode.VALIDATION_ERROR))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message")
+                        .value(it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage.VALIDATION_ERROR))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.details.length()").value(0));
+    }
+
 }
