@@ -39,11 +39,15 @@ public class ReportedUserServiceImpl implements ReportedUserService {
 
         log.info("[REPORTED_USER_CREATE] - Start creating ReportedUser");
 
+        boolean alreadyReportedByMerchant = repository.existsByUserIdAndInitiativeIdAndMerchantId(userId, initiativeId, merchantId);
         boolean alreadyReported = repository.existsByUserId(userId);
 
-        if (alreadyReported) {
-            log.info("[REPORTED_USER_CREATE] - ReportedUser already reported");
+        if (alreadyReportedByMerchant) {
+            log.info("[REPORTED_USER_CREATE] - ReportedUser already reported by merchant");
             return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ALREADY_REPORTED);
+        } else if (alreadyReported) {
+            log.info("[REPORTED_USER_CREATE] - ReportedUser already reported by different merchant or initiative");
+            return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
         }
 
         try {
