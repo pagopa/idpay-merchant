@@ -1,9 +1,6 @@
 package it.gov.pagopa.common.web.exception;
 
 import it.gov.pagopa.common.web.dto.ErrorDTO;
-import it.gov.pagopa.common.web.dto.MerchantValidationErrorDTO;
-import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
-import it.gov.pagopa.merchant.constants.MerchantConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,26 +24,6 @@ public class ErrorManager {
   @ExceptionHandler(RuntimeException.class)
   protected ResponseEntity<ErrorDTO> handleException(RuntimeException error, HttpServletRequest request) {
     logClientException(error, request);
-
-    if(error instanceof ValidationException exception){
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-              ValidationErrorDTO.builder()
-                      .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
-                      .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
-                      .details(exception.getErrors())
-                      .build()
-      );
-    }
-
-    if(error instanceof MerchantValidationException exception){
-      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
-          MerchantValidationErrorDTO.builder()
-              .code(MerchantConstants.ExceptionCode.VALIDATION_ERROR)
-              .message(MerchantConstants.ExceptionMessage.VALIDATION_ERROR)
-              .details(exception.getErrors())
-              .build()
-      );
-    }
 
     if(error instanceof ClientExceptionNoBody clientExceptionNoBody){
       return ResponseEntity.status(clientExceptionNoBody.getHttpStatus()).build();

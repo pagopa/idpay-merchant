@@ -3,7 +3,7 @@ package it.gov.pagopa.merchant.utils.validator;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import it.gov.pagopa.common.web.exception.MerchantValidationException;
+import it.gov.pagopa.merchant.exception.custom.MerchantValidationException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.merchant.MerchantTransactionCheckService;

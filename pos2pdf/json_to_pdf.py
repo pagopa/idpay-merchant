@@ -19,30 +19,27 @@ import sys
 import os
 
 
-def calculate_column_widths(df, page_width):
+def calculate_column_widths(table_data, page_width):
     """
-    Calcola le larghezze delle colonne basandosi sul contenuto
+    Calcola larghezze colonne proporzionali al contenuto e header, normalizzando per non superare la larghezza disponibile
     """
+    from reportlab.lib.units import inch
     available_width = page_width - 2 * inch  # Margini
-    num_cols = len(df.columns)
 
-    # Larghezza minima per colonna
-    min_width = available_width / num_cols
+    num_cols = len(table_data[0])
+    max_lens = [0] * num_cols
+    for row in table_data:
+        for i, cell in enumerate(row):
+            max_lens[i] = max(max_lens[i], len(str(cell)))
 
-    col_widths = []
-    for col in df.columns:
-        # Considera la lunghezza dell'header e del contenuto più lungo
-        header_len = len(str(col))
-        max_content_len = df[col].astype(str).str.len().max()
-        content_width = max(header_len, max_content_len) * 6  # ~6 punti per carattere
+    total_len = sum(max_lens)
+    if total_len == 0:
+        return [available_width / num_cols] * num_cols
 
-        col_widths.append(max(min_width, content_width))
-
-    # Normalizza per non superare la larghezza disponibile
-    total_width = sum(col_widths)
-    if total_width > available_width:
-        col_widths = [w * available_width / total_width for w in col_widths]
-
+    # Calcola larghezze proporzionali e normalizza
+    raw_widths = [(l / total_len) * available_width for l in max_lens]
+    scale = available_width / sum(raw_widths)
+    col_widths = [w * scale for w in raw_widths]
     return col_widths
 
 
@@ -89,7 +86,7 @@ def split_dataframe_for_pages(df, max_rows_per_page=25):
     return chunks
 
 
-def wrap_text_in_cells(df, max_chars=30):
+def wrap_text_in_cells(df, max_chars=50):
     """
     Tronca il testo nelle celle se troppo lungo
     """
@@ -210,7 +207,7 @@ def json_to_pdf(json_file, pdf_file, orientation='portrait', max_rows_per_page=2
                 for _, row in chunk.iterrows()
             ]
 
-            col_widths = calculate_column_widths(chunk, page_size[0])
+            col_widths = calculate_column_widths(table_data, page_size[0])
 
             # Crea la tabella
             table = Table(table_data, colWidths=col_widths, repeatRows=1)
@@ -266,7 +263,7 @@ def json_to_pdf(json_file, pdf_file, orientation='portrait', max_rows_per_page=2
                 for _, row in chunk.iterrows()
             ]
 
-            col_widths = calculate_column_widths(chunk, page_size[0])
+            col_widths = calculate_column_widths(table_data, page_size[0])
             table = Table(table_data, colWidths=col_widths, repeatRows=1)
             table.setStyle(create_table_style())
 

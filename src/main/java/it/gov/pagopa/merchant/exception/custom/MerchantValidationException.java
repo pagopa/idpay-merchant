@@ -1,4 +1,4 @@
-package it.gov.pagopa.common.web.exception;
+package it.gov.pagopa.merchant.exception.custom;
 
 import it.gov.pagopa.common.web.dto.MerchantValidationErrorDetail;
 import java.util.List;
