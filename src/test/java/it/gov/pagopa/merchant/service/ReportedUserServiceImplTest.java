@@ -78,7 +78,6 @@ class ReportedUserServiceImplTest {
         when(repository.existsByUserId(ENCRYPTED_USER_ID)).thenReturn(false);
 
         RewardTransaction trx = mock(RewardTransaction.class);
-        when(trx.getStatus()).thenReturn(ALLOWED_TRANSACTION_STATUSES.iterator().next());
         when(trx.getInitiatives()).thenReturn(List.of("another-initiative"));
 
 
