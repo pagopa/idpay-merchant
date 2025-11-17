@@ -63,14 +63,6 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             }
 
             trxList = trxList.stream()
-                    .filter(trx -> ALLOWED_TRANSACTION_STATUSES.contains(trx.getStatus()))
-                    .toList();
-
-            if (trxList.isEmpty() || trxList.getFirst() == null ) {
-                return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
-            }
-
-            trxList = trxList.stream()
                     .filter(trx -> trx.getInitiatives() != null && trx.getInitiatives().contains(initiativeId))
                     .filter(trx -> merchantId.equals(trx.getMerchantId()))
                     .toList();
@@ -78,6 +70,14 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             if (trxList.isEmpty() || trxList.getFirst() == null ) {
                 return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.ENTITY_NOT_FOUND);
             }
+            trxList = trxList.stream()
+                    .filter(trx -> ALLOWED_TRANSACTION_STATUSES.contains(trx.getStatus()))
+                    .toList();
+
+            if (trxList.isEmpty() || trxList.getFirst() == null ) {
+                return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
+            }
+
 
             RewardTransaction trx = trxList.getFirst();
 
