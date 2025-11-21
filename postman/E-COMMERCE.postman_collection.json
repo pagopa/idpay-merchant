@@ -1,0 +1,684 @@
+{
+	"info": {
+		"_postman_id": "9a21c0ae-8b58-429f-b356-efa113be6e4a",
+		"name": "E-COMMERCE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16161662"
+	},
+	"item": [
+		{
+			"name": "1_GET AT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Parsa la risposta JSON\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"// Verifica se la proprietà 'access_token' esiste nella risposta\r",
+							"if (jsonData && jsonData.access_token) {\r",
+							"    // Imposta la variabile di collection 'jwt' con il valore di 'access_token'\r",
+							"    pm.collectionVariables.set(\"jwtToken\", jsonData.access_token);\r",
+							"    console.log(\"Access Token memorizzato nella variabile di collection 'jwtToken':\", jsonData.access_token);\r",
+							"} else {\r",
+							"    console.log(\"Access Token non trovato nella risposta.\");\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrlKeycloak}}/realms/merchant-operator/protocol/openid-connect/token",
+					"host": [
+						"{{baseUrlKeycloak}}"
+					],
+					"path": [
+						"realms",
+						"merchant-operator",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				},
+				"description": "Generated from cURL: curl -X POST \\\n  \"http://localhost:8080/realms/my_realm/protocol/openid-connect/token\" \\\n  -H \"Content-Type: application/x-www-form-urlencoded\" \\\n  -d \"client_id=my_client_id\" \\\n  -d \"username=my_user\" \\\n  -d \"password=my_password\" \\\n  -d \"grant_type=password\" \\\n  --compressed"
+			},
+			"response": []
+		},
+		{
+			"name": "Returns the products list",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/products?status=APPROVED&productName=Bos",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "6218",
+							"disabled": true
+						},
+						{
+							"key": "size",
+							"value": "979",
+							"disabled": true
+						},
+						{
+							"key": "sort",
+							"value": "category, desc",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "COOKINGHOBS",
+							"disabled": true
+						},
+						{
+							"key": "eprelCode",
+							"value": "065",
+							"disabled": true
+						},
+						{
+							"key": "gtinCode",
+							"value": "dRksJFM",
+							"disabled": true
+						},
+						{
+							"key": "productFileId",
+							"value": "8a554669107a5c3Db10F8cC1",
+							"disabled": true
+						},
+						{
+							"key": "organizationId",
+							"value": "36AB1d45-eD8A-41EB-84Ed-25aAa2047acF",
+							"disabled": true
+						},
+						{
+							"key": "status",
+							"value": "APPROVED"
+						},
+						{
+							"key": "productName",
+							"value": "Bos"
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Preview Transaction",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"productName\": \"Forno XYZ\",\r\n  \"productGtin\": \"OVENS09\",\r\n  \"amountCents\": 123400\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions/bar-code/:trxCode/preview",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions",
+						"bar-code",
+						":trxCode",
+						"preview"
+					],
+					"variable": [
+						{
+							"key": "trxCode",
+							"value": "asd123"
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Authorize Transaction",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amountCents\": 12345,\r\n  \"idTrxAcquirer\": \"550e8400-e29b-41d4-a716-446655440000\",\r\n  \"additionalProperties\": {\r\n    \"additionalProp1\": \"productGtin\",\r\n    \"additionalProp2\": \"productGtin\",\r\n    \"additionalProp3\": \"productGtin\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions/bar-code/{trxCode}/authorize",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions",
+						"bar-code",
+						"{trxCode}",
+						"authorize"
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Capture Transaction",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions/bar-code/:trxCode/capture",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions",
+						"bar-code",
+						":trxCode",
+						"capture"
+					],
+					"variable": [
+						{
+							"key": "trxCode",
+							"value": "asd123"
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Transactions Processed",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions/processed",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions",
+						"processed"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "6218",
+							"disabled": true
+						},
+						{
+							"key": "size",
+							"value": "979",
+							"disabled": true
+						},
+						{
+							"key": "sort",
+							"value": "category, desc",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "COOKINGHOBS",
+							"disabled": true
+						},
+						{
+							"key": "eprelCode",
+							"value": "065",
+							"disabled": true
+						},
+						{
+							"key": "gtinCode",
+							"value": "dRksJFM",
+							"disabled": true
+						},
+						{
+							"key": "productFileId",
+							"value": "8a554669107a5c3Db10F8cC1",
+							"disabled": true
+						},
+						{
+							"key": "organizationId",
+							"value": "36AB1d45-eD8A-41EB-84Ed-25aAa2047acF",
+							"disabled": true
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Transactions in Progress",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "6218",
+							"disabled": true
+						},
+						{
+							"key": "size",
+							"value": "979",
+							"disabled": true
+						},
+						{
+							"key": "sort",
+							"value": "category, desc",
+							"disabled": true
+						},
+						{
+							"key": "category",
+							"value": "COOKINGHOBS",
+							"disabled": true
+						},
+						{
+							"key": "eprelCode",
+							"value": "065",
+							"disabled": true
+						},
+						{
+							"key": "gtinCode",
+							"value": "dRksJFM",
+							"disabled": true
+						},
+						{
+							"key": "productFileId",
+							"value": "8a554669107a5c3Db10F8cC1",
+							"disabled": true
+						},
+						{
+							"key": "organizationId",
+							"value": "36AB1d45-eD8A-41EB-84Ed-25aAa2047acF",
+							"disabled": true
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel Transactions",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions/:transactionId",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions",
+						":transactionId"
+					],
+					"variable": [
+						{
+							"key": "transactionId",
+							"value": "123123"
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Download Invoice File",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions/:transactionId/download",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions",
+						":transactionId",
+						"download"
+					],
+					"variable": [
+						{
+							"key": "transactionId",
+							"value": "c7639ef2-a304-446b-b885-547a6dab3721_BARCODE_1760078561445"
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Invoice Transactions",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "multipart/form-data"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "postman-cloud:///1f03b0de-6ef2-4010-bfc0-a8b61edfbdf0"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions/:transactionId/invoice",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions",
+						":transactionId",
+						"invoice"
+					],
+					"variable": [
+						{
+							"key": "transactionId",
+							"value": "c7639ef2-a304-446b-b885-547a6dab3721_BARCODE_1760078561445"
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		},
+		{
+			"name": "Refund Transactions",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwtToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "multipart/form-data"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "postman-cloud:///1f03b0de-6ef2-4010-bfc0-a8b61edfbdf0"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrlMerchantEcommerce}}/transactions/:transactionId/reversal",
+					"host": [
+						"{{baseUrlMerchantEcommerce}}"
+					],
+					"path": [
+						"transactions",
+						":transactionId",
+						"reversal"
+					],
+					"variable": [
+						{
+							"key": "transactionId",
+							"value": "c7639ef2-a304-446b-b885-547a6dab3721_BARCODE_1760078561445"
+						}
+					]
+				},
+				"description": "ENG: Returns product list <br> IT: Lista prodotti"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "jwtToken",
+			"value": ""
+		},
+		{
+			"key": "baseUrlKeycloak",
+			"value": "https://keycloak.itn.internal.dev.cstar.pagopa.it"
+		},
+		{
+			"key": "baseUrlMerchantEcommerce",
+			"value": "https://api-io.dev.cstar.pagopa.it/idpay-itn/merchant-ecommerce"
+		},
+		{
+			"key": "client_id",
+			"value": ""
+		},
+		{
+			"key": "client_secret",
+			"value": ""
+		}
+	]
+}
