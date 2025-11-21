@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.mapper;
 import io.micrometer.common.util.StringUtils;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,18 @@ public class PointOfSaleDTOMapper {
                 .address(pointOfSale.getAddress())
                 .website(pointOfSale.getWebsite())
                 .build();
+    }
+
+    public PointOfSaleDTO entityToDto(PointOfSale pointOfSale, Merchant merchant) {
+        PointOfSaleDTO dto = entityToDto(pointOfSale);
+
+        if (merchant != null) {
+            dto.setBusinessName(merchant.getBusinessName());
+            dto.setFiscalCode(merchant.getFiscalCode());
+            dto.setVatNumber(merchant.getVatNumber());
+        }
+
+        return dto;
     }
 
     public PointOfSale dtoToEntity(PointOfSaleDTO pointOfSaleDTO, String merchantId){

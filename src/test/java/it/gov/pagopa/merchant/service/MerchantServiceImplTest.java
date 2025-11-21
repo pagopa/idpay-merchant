@@ -742,4 +742,37 @@ class MerchantServiceImplTest {
     assertTrue(exception.getMessage().contains(MERCHANT_ID));
   }
 
+  @Test
+  void getMerchantByMerchantId_found() {
+    Merchant merchant = Merchant.builder()
+        .merchantId(MERCHANT_ID)
+        .businessName("Test Business")
+        .fiscalCode("12345678901")
+        .vatNumber("IT12345678901")
+        .build();
+
+    when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
+
+    Merchant result = merchantService.getMerchantByMerchantId(MERCHANT_ID);
+
+    assertNotNull(result);
+    assertEquals(MERCHANT_ID, result.getMerchantId());
+    assertEquals("Test Business", result.getBusinessName());
+
+    verify(merchantRepositoryMock).findById(MERCHANT_ID);
+  }
+
+  @Test
+  void getMerchantByMerchantId_notFound_throwsException() {
+    when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.empty());
+
+    MerchantNotFoundException exception = Assertions.assertThrows(
+        MerchantNotFoundException.class,
+        () -> merchantService.getMerchantByMerchantId(MERCHANT_ID)
+    );
+
+    assertEquals(String.format("Merchant with id %s not found", MERCHANT_ID), exception.getMessage());
+
+    verify(merchantRepositoryMock).findById(MERCHANT_ID);
+  }
 }

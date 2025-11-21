@@ -6,7 +6,9 @@ import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
@@ -48,6 +50,8 @@ class PointOfSaleControllerImplTest {
     private PointOfSaleValidator validator;
     @MockitoBean
     private PointOfSaleDTOMapper mapper;
+    @MockitoBean
+    private MerchantService merchantService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -99,11 +103,14 @@ class PointOfSaleControllerImplTest {
     @Test
     void getPointOfSaleTestOK() throws Exception {
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+        Merchant merchant = Mockito.mock(Merchant.class);
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
         when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
                 .thenReturn(pointOfSale);
-        when(mapper.entityToDto(pointOfSale)).thenReturn(pointOfSaleDTO);
+        when(merchantService.getMerchantByMerchantId(anyString()))
+            .thenReturn(merchant);
+        when(mapper.entityToDto(pointOfSale, merchant)).thenReturn(pointOfSaleDTO);
 
         MvcResult result = mockMvc.perform(
                         MockMvcRequestBuilders.get(BASE_URL + "/MERCHANT_ID/point-of-sales/POS_ID")
@@ -115,7 +122,8 @@ class PointOfSaleControllerImplTest {
         Assertions.assertNotNull(result);
 
         Mockito.verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
-        Mockito.verify(mapper).entityToDto(pointOfSale);
+        verify(merchantService).getMerchantByMerchantId(MERCHANT_ID);
+        Mockito.verify(mapper).entityToDto(pointOfSale, merchant);
     }
 
     @Test
