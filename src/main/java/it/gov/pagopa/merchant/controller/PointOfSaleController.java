@@ -87,6 +87,7 @@ public interface PointOfSaleController {
     @GetMapping("/{merchantId}/point-of-sales/{pointOfSaleId}")
     ResponseEntity<PointOfSaleDTO> getPointOfSale(
             @PathVariable("pointOfSaleId") String pointOfSaleId,
-            @PathVariable("merchantId") String merchantId
+            @PathVariable("merchantId") String merchantId,
+            @RequestHeader("x-point-of-sale-id") String tokenPointOfSaleId
     );
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
@@ -14,7 +15,6 @@ import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static it.gov.pagopa.merchant.constants.PointOfSaleConstants.MSG_NOT_FOUND;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -40,101 +42,141 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({JsonConfig.class, ServiceExceptionConfig.class})
 class PointOfSaleControllerImplTest {
 
-    @MockitoBean
-    private PointOfSaleService pointOfSaleService;
-    @MockitoBean
-    private MerchantDetailService merchantDetailService;
-    @MockitoBean
-    private PointOfSaleValidator validator;
-    @MockitoBean
-    private PointOfSaleDTOMapper mapper;
+  @MockitoBean
+  private PointOfSaleService pointOfSaleService;
+  @MockitoBean
+  private MerchantDetailService merchantDetailService;
+  @MockitoBean
+  private PointOfSaleValidator validator;
+  @MockitoBean
+  private PointOfSaleDTOMapper mapper;
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private MockMvc mockMvc;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    private static final String BASE_URL = "/idpay/merchant/portal";
-    private static final String SAVE_POINT_OF_SALES = "/%s/point-of-sales";
-    private static final String GET_POINT_OF_SALES = "/%s/point-of-sales";
+  private static final String BASE_URL = "/idpay/merchant/portal";
+  private static final String SAVE_POINT_OF_SALES = "/%s/point-of-sales";
+  private static final String GET_POINT_OF_SALES = "/%s/point-of-sales";
 
-    private static final String MERCHANT_ID = "MERCHANT_ID";
+  private static final String MERCHANT_ID = "MERCHANT_ID";
 
-    @Test
-    void savePointOfSalesOK() throws Exception {
-        PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
-        PointOfSale pointOfSaleFaker = PointOfSaleFaker.mockInstance();
+  @Test
+  void savePointOfSalesOK() throws Exception {
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+    PointOfSale pointOfSaleFaker = PointOfSaleFaker.mockInstance();
 
-        doNothing().when(validator).validatePointOfSales(any());
+    doNothing().when(validator).validatePointOfSales(any());
 
-        doNothing().when(pointOfSaleService).savePointOfSales(MERCHANT_ID, List.of(pointOfSaleFaker));
+    doNothing().when(pointOfSaleService).savePointOfSales(MERCHANT_ID, List.of(pointOfSaleFaker));
 
+    mockMvc.perform(
+            MockMvcRequestBuilders.put(BASE_URL + String.format(SAVE_POINT_OF_SALES, MERCHANT_ID))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(List.of(pointOfSaleDTO)))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().is2xxSuccessful())
+        .andDo(print())
+        .andReturn();
+  }
+
+  @Test
+  void getPointOfSalesListOK() throws Exception {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    PageRequest pageRequest = PageRequest.of(0, 10);
+    Page<PointOfSale> expectedPage = new PageImpl<>(List.of(pointOfSale), pageRequest, 1);
+
+    when(pointOfSaleService.getPointOfSalesList(any(), any(), any(), any(), any(),
+        any())).thenReturn(expectedPage);
+
+    MvcResult result =
         mockMvc.perform(
-                        MockMvcRequestBuilders.put(BASE_URL + String.format(SAVE_POINT_OF_SALES, MERCHANT_ID))
-                                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                                .content(objectMapper.writeValueAsString(List.of(pointOfSaleDTO)))
-                                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is2xxSuccessful())
-                .andDo(print())
-                .andReturn();
-    }
+                MockMvcRequestBuilders.get(BASE_URL + String.format(GET_POINT_OF_SALES, MERCHANT_ID)))
+            .andExpect(status().is2xxSuccessful())
+            .andDo(print())
+            .andReturn();
+    Assertions.assertNotNull(result);
+  }
 
-    @Test
-    void getPointOfSalesListOK() throws Exception {
-        PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-        PageRequest pageRequest = PageRequest.of(0, 10);
-        Page<PointOfSale> expectedPage = new PageImpl<>(List.of(pointOfSale), pageRequest, 1);
+  @Test
+  void getPointOfSaleTestOK() throws Exception {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
-        when(pointOfSaleService.getPointOfSalesList(any(), any(), any(), any(), any(), any())).thenReturn(expectedPage);
+    when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
+        .thenReturn(pointOfSale);
+    when(mapper.entityToDto(pointOfSale)).thenReturn(pointOfSaleDTO);
 
-        MvcResult result =
-                mockMvc.perform(
-                                MockMvcRequestBuilders.get(BASE_URL + String.format(GET_POINT_OF_SALES, MERCHANT_ID)))
-                        .andExpect(status().is2xxSuccessful())
-                        .andDo(print())
-                        .andReturn();
-        Assertions.assertNotNull(result);
-    }
+    MvcResult result = mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/MERCHANT_ID/point-of-sales/POS_ID")
+                .header("x-point-of-sale-id", "POS_ID")
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andDo(print())
+        .andReturn();
 
-    @Test
-    void getPointOfSaleTestOK() throws Exception {
-        PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-        PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+    Assertions.assertNotNull(result);
 
-        when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
-                .thenReturn(pointOfSale);
-        when(mapper.entityToDto(pointOfSale)).thenReturn(pointOfSaleDTO);
+    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
+    verify(mapper).entityToDto(pointOfSale);
+  }
 
-        MvcResult result = mockMvc.perform(
-                        MockMvcRequestBuilders.get(BASE_URL + "/MERCHANT_ID/point-of-sales/POS_ID")
-                                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andReturn();
+  @Test
+  void getPointOfSaleTestKO() throws Exception {
+    String invalidPosId = "INVALID_POS_ID";
 
-        Assertions.assertNotNull(result);
+    when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
+        .thenThrow(new PointOfSaleNotFoundException(String.format(MSG_NOT_FOUND, invalidPosId)));
 
-        Mockito.verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
-        Mockito.verify(mapper).entityToDto(pointOfSale);
-    }
+    mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/validMerchantId/point-of-sales/" + invalidPosId)
+                .header("x-point-of-sale-id", invalidPosId)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound())
+        .andExpect(result -> Assertions.assertInstanceOf(PointOfSaleNotFoundException.class,
+            result.getResolvedException()))
+        .andExpect(result -> assertEquals(
+            String.format(MSG_NOT_FOUND, invalidPosId),
+            Objects.requireNonNull(result.getResolvedException()).getMessage()
+        ))
+        .andReturn();
 
-    @Test
-    void getPointOfSaleTestKO() throws Exception {
-        String invalidPosId = "INVALID_POS_ID";
+    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
+  }
 
-        when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
-                .thenThrow(new PointOfSaleNotFoundException(String.format(MSG_NOT_FOUND, invalidPosId)));
+  @Test
+  void getPointOfSaleTestForbidden() throws Exception {
+    String posId = "POS_ID";
+    String tokenPosId = "DIFFERENT_POS_ID";
 
-        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/validMerchantId/point-of-sales/" + invalidPosId)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> Assertions.assertInstanceOf(PointOfSaleNotFoundException.class, result.getResolvedException()))
-                .andExpect(result -> Assertions.assertEquals(
-                        String.format(MSG_NOT_FOUND, invalidPosId),
-                        Objects.requireNonNull(result.getResolvedException()).getMessage()
-                ))
-                .andReturn();
+    mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/MERCHANT_ID/point-of-sales/" + posId)
+                .header("x-point-of-sale-id", tokenPosId)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andExpect(result -> Assertions.assertInstanceOf(
+            PointOfSaleNotAllowedException.class,
+            result.getResolvedException()
+        ))
+        .andExpect(result -> Assertions.assertTrue(
+            Objects.requireNonNull(result.getResolvedException()).getMessage()
+                .contains("not authorized for the current token")
+        ))
+        .andReturn();
+  }
 
-        verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
-    }
+  @Test
+  void testConstructorWithPrintStackTraceAndThrowable() {
+    String message = "Test message";
+    Throwable cause = new RuntimeException("Cause");
+
+    PointOfSaleNotAllowedException ex = new PointOfSaleNotAllowedException(message, true, cause);
+
+    assertNotNull(ex);
+    assertEquals("POINT_OF_SALE_NOT_ALLOWED", ex.getCode());
+    assertEquals(message, ex.getMessage());
+    assertEquals(cause, ex.getCause());
+  }
 }
+

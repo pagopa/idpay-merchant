@@ -30,6 +30,10 @@ public class ServiceExceptionConfig {
         // NotFound
         exceptionMap.put(PointOfSaleNotFoundException.class, HttpStatus.NOT_FOUND);
 
-        return exceptionMap;
+        // Forbidden
+        exceptionMap.put(PointOfSaleNotAllowedException.class, HttpStatus.FORBIDDEN);
+
+
+      return exceptionMap;
     }
 }
