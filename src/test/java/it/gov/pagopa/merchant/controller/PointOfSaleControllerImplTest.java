@@ -17,6 +17,7 @@ import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -188,13 +189,17 @@ class PointOfSaleControllerImplTest {
   }
 
   @Test
-  void getPointOfSaleTestWithNullHeaderPosId() throws Exception {
+  void getPointOfSaleWithNullHeaderPosId_shouldReturnOk() throws Exception {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    Merchant merchant = new Merchant();
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
     when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
         .thenReturn(pointOfSale);
-    when(mapper.entityToDto(pointOfSale)).thenReturn(pointOfSaleDTO);
+    when(merchantService.getMerchantByMerchantId(anyString()))
+        .thenReturn(merchant);
+    when(mapper.entityToDto(any(PointOfSale.class), any(Merchant.class)))
+        .thenReturn(pointOfSaleDTO);
 
     MvcResult result = mockMvc.perform(
             MockMvcRequestBuilders.get(BASE_URL + "/MERCHANT_ID/point-of-sales/POS_ID")
@@ -204,8 +209,9 @@ class PointOfSaleControllerImplTest {
 
     Assertions.assertNotNull(result);
 
-    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
-    verify(mapper).entityToDto(pointOfSale);
+    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId("POS_ID", "MERCHANT_ID");
+    verify(merchantService).getMerchantByMerchantId("MERCHANT_ID");
+    verify(mapper).entityToDto(pointOfSale, merchant);
   }
 }
 
