@@ -86,7 +86,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     if (tokenPointOfSaleId != null && (!Utilities.sanitizeString(tokenPointOfSaleId)
         .equals(Utilities.sanitizeString(pointOfSaleId)))){
       throw new PointOfSaleNotAllowedException(
-          "The point-of-sale with id [%s] is not authorized for the current token [%s]"
+          "Point of sale mismatch: expected [%s], but received [%s]"
               .formatted(sanitizedPointOfSaleId, tokenPointOfSaleId)
       );
     }
