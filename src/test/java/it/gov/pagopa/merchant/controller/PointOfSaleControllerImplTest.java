@@ -178,5 +178,26 @@ class PointOfSaleControllerImplTest {
     assertEquals(message, ex.getMessage());
     assertEquals(cause, ex.getCause());
   }
+
+  @Test
+  void getPointOfSaleTestWithNullHeaderPosId() throws Exception {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+
+    when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
+        .thenReturn(pointOfSale);
+    when(mapper.entityToDto(pointOfSale)).thenReturn(pointOfSaleDTO);
+
+    MvcResult result = mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/MERCHANT_ID/point-of-sales/POS_ID")
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    Assertions.assertNotNull(result);
+
+    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
+    verify(mapper).entityToDto(pointOfSale);
+  }
 }
 

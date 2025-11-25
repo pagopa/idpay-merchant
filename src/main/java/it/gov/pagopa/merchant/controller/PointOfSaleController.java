@@ -88,6 +88,6 @@ public interface PointOfSaleController {
     ResponseEntity<PointOfSaleDTO> getPointOfSale(
             @PathVariable("pointOfSaleId") String pointOfSaleId,
             @PathVariable("merchantId") String merchantId,
-            @RequestHeader("x-point-of-sale-id") String tokenPointOfSaleId
+            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId
     );
 }
