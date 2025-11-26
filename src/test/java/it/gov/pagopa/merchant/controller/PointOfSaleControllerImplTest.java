@@ -170,7 +170,7 @@ class PointOfSaleControllerImplTest {
         ))
         .andExpect(result -> Assertions.assertTrue(
             Objects.requireNonNull(result.getResolvedException()).getMessage()
-                .contains("not authorized for the current token")
+                .contains("Point of sale mismatch")
         ))
         .andReturn();
   }
