@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.model.Merchant;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,4 +36,6 @@ public interface MerchantService {
   void updatingInitiative(QueueInitiativeDTO queueInitiativeDTO);
 
   MerchantWithdrawalResponse deactivateMerchant(String merchantId, String initiativeId, boolean dryRun);
+
+  Merchant getMerchantByMerchantId(String merchantId);
 }

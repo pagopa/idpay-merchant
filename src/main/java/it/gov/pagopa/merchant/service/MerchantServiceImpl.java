@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import static it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE;
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 import java.time.LocalDateTime;
@@ -122,6 +124,14 @@ public class MerchantServiceImpl implements MerchantService {
       MerchantIbanPatchDTO merchantIbanPatchDTO) {
     return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId,
         merchantIbanPatchDTO);
+  }
+
+  @Override
+  public Merchant getMerchantByMerchantId(String merchantId) {
+    return merchantRepository.findById(merchantId)
+        .orElseThrow(() -> new MerchantNotFoundException(
+            String.format("Merchant with id %s not found", merchantId)
+        ));
   }
 
   @Override
