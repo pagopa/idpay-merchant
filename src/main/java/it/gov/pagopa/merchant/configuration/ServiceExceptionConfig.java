@@ -32,6 +32,7 @@ public class ServiceExceptionConfig {
 
         // Forbidden
         exceptionMap.put(PointOfSaleNotAllowedException.class, HttpStatus.FORBIDDEN);
+        exceptionMap.put(MerchantNotAllowedException.class, HttpStatus.FORBIDDEN);
 
 
       return exceptionMap;
