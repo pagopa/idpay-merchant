@@ -87,7 +87,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
         .equals(Utilities.sanitizeString(pointOfSaleId)))){
       throw new PointOfSaleNotAllowedException(
           "Point of sale mismatch: expected [%s], but received [%s]"
-              .formatted(sanitizedPointOfSaleId, tokenPointOfSaleId)
+              .formatted(tokenPointOfSaleId, sanitizedPointOfSaleId)
       );
     }
 
