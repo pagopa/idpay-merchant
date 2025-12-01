@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
@@ -36,6 +37,7 @@ import java.util.Objects;
 import static it.gov.pagopa.merchant.constants.PointOfSaleConstants.MSG_NOT_FOUND;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -212,6 +214,107 @@ class PointOfSaleControllerImplTest {
     verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId("POS_ID", "MERCHANT_ID");
     verify(merchantService).getMerchantByMerchantId("MERCHANT_ID");
     verify(mapper).entityToDto(pointOfSale, merchant);
+  }
+
+  @Test
+  void getPointOfSalesListMerchantMismatch_shouldReturnForbidden() throws Exception {
+    String pathMerchantId = "MERCHANT_ID";
+    String tokenMerchantId = "DIFFERENT_MERCHANT_ID";
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/" + pathMerchantId + "/point-of-sales")
+                .header("x-merchant-id", tokenMerchantId)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andExpect(result -> Assertions.assertInstanceOf(
+            MerchantNotAllowedException.class,
+            result.getResolvedException()
+        ))
+        .andExpect(result -> Assertions.assertTrue(
+            Objects.requireNonNull(result.getResolvedException()).getMessage()
+                .contains("Merchant mismatch")
+        ))
+        .andReturn();
+  }
+
+  @Test
+  void savePointOfSalesMerchantMismatch_shouldThrowException() throws Exception {
+    String pathMerchantId = "MERCHANT_ID";
+    String tokenMerchantId = "DIFFERENT_MERCHANT_ID";
+
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.put(BASE_URL + "/" + pathMerchantId + "/point-of-sales")
+                .header("x-merchant-id", tokenMerchantId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of(pointOfSaleDTO)))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(result -> Assertions.assertInstanceOf(
+            MerchantNotAllowedException.class,
+            result.getResolvedException()
+        ))
+        .andExpect(result -> Assertions.assertTrue(
+            Objects.requireNonNull(result.getResolvedException()).getMessage()
+                .contains("Merchant mismatch")
+        ));
+  }
+
+  @Test
+  void getPointOfSaleMerchantMismatch_shouldThrowException() throws Exception {
+    String pathMerchantId = "MERCHANT_ID";
+    String tokenMerchantId = "DIFFERENT_MERCHANT_ID";
+    String pointOfSaleId = "POS_ID";
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + "/" + pathMerchantId + "/point-of-sales/" + pointOfSaleId)
+                .header("x-merchant-id", tokenMerchantId)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(result -> Assertions.assertInstanceOf(
+            MerchantNotAllowedException.class,
+            result.getResolvedException()
+        ))
+        .andExpect(result -> Assertions.assertTrue(
+            Objects.requireNonNull(result.getResolvedException()).getMessage()
+                .contains("Merchant mismatch")
+        ));
+  }
+
+  @Test
+  void testConstructorWithMessage() {
+    String message = "Test merchant mismatch";
+    MerchantNotAllowedException ex = new MerchantNotAllowedException(message);
+
+    assertNotNull(ex);
+    assertEquals("MERCHANT_NOT_ALLOWED", ex.getCode());
+    assertEquals(message, ex.getMessage());
+    assertNull(ex.getCause());
+  }
+
+  @Test
+  void testConstructorWithPrintStackTraceAndCause() {
+    String message = "Test message";
+    Throwable cause = new RuntimeException("Cause");
+
+    MerchantNotAllowedException ex = new MerchantNotAllowedException(message, true, cause);
+
+    assertNotNull(ex);
+    assertEquals("MERCHANT_NOT_ALLOWED", ex.getCode());
+    assertEquals(message, ex.getMessage());
+    assertEquals(cause, ex.getCause());
+  }
+
+  @Test
+  void testConstructorWithCodeAndMessage() {
+    String customCode = "CUSTOM_CODE";
+    String message = "Custom message";
+
+    MerchantNotAllowedException ex = new MerchantNotAllowedException(customCode, message);
+
+    assertNotNull(ex);
+    assertEquals(customCode, ex.getCode());
+    assertEquals(message, ex.getMessage());
+    assertNull(ex.getCause());
   }
 }
 
