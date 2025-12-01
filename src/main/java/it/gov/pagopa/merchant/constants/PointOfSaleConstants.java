@@ -23,7 +23,10 @@ public final class PointOfSaleConstants {
     public static final String MSG_ALREADY_REGISTERED = "Point of sale already registered for _id or unique index constraint";
     public static final String POINT_OF_SALE_NOT_ALLOWED = "POINT_OF_SALE_NOT_ALLOWED";
 
-    // ===EMAIL===
+    // ===MERCHANT===
+    public static final String MERCHANT_NOT_ALLOWED = "MERCHANT_NOT_ALLOWED";
+
+  // ===EMAIL===
     public static final String CODE_INVALID_EMAIL = CODE_INVALID_FORMAT;
     public static final String MSG_INVALID_EMAIL = "Email must be a valid email address.";
 

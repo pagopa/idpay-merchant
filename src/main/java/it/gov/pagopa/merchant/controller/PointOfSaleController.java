@@ -41,6 +41,7 @@ public interface PointOfSaleController {
     @PutMapping(value = "/{merchantId}/point-of-sales")
     ResponseEntity<Void> savePointOfSales(
             @PathVariable("merchantId") @NotBlank String merchantId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
             @RequestBody List<PointOfSaleDTO> pointOfSales);
 
     @Operation(
@@ -58,6 +59,7 @@ public interface PointOfSaleController {
     @GetMapping(value = "/{merchantId}/point-of-sales")
     ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(
             @PathVariable("merchantId") String merchantId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String address,
@@ -88,6 +90,7 @@ public interface PointOfSaleController {
     ResponseEntity<PointOfSaleDTO> getPointOfSale(
             @PathVariable("pointOfSaleId") String pointOfSaleId,
             @PathVariable("merchantId") String merchantId,
-            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId
+            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
     );
 }
