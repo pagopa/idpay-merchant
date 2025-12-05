@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "dbff83c2-39b6-492c-b980-ac0fc798b0ef",
+		"_postman_id": "31bf6db9-2ce1-488a-b49c-18c470866a71",
 		"name": "Merchant - e2e",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38759685"
+		"_exporter_id": "16161662",
+		"_collection_link": "https://idpay-test-funzionali.postman.co/workspace/IDPay-Test-Funzionali~d5f80577-ab5d-4d50-87c4-a81b6bcba6bc/collection/26036736-55d3f343-f907-4e20-8a60-6b6514c3b6b2?action=share&source=collection_link&creator=25824330"
 	},
 	"item": [
 		{
@@ -1367,320 +1368,6 @@
 							]
 						}
 					]
-				},
-				{
-					"name": "Merchant",
-					"item": [
-						{
-							"name": "Generate portal token",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let textResponse = pm.response.text()\r",
-											"\r",
-											"pm.test('Generate Merchant Token', () => {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    pm.collectionVariables.set(\"merchantToken\", textResponse);\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Ocp-Apim-Trace",
-										"value": "true",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"aud\": \"idpay.merchant.welfare.pagopa.it\",\r\n    \"uid\": \"{{uid_Ente}}\",\r\n    \"name\": \"{{name_Ente}}\",\r\n    \"familyName\": \"{{familyName_Ente}}\",\r\n    \"email\": \"{{email_Ente}}\",\r\n    \"orgId\": \"{{orgId_Ente}}\",\r\n    \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n    \"orgName\": \"Ente di test IdPay\",\r\n    \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n    \"orgRole\": \"{{orgRole_Ente}}\",\r\n    \"iss\": \"https://api-io.dev.cstar.pagopa.it\",\r\n    \"merchantId\": {{merchantId}}\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrlIdPay}}/merchant/token/test",
-									"host": [
-										"{{baseUrlIdPay}}"
-									],
-									"path": [
-										"merchant",
-										"token",
-										"test"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create a new reported user",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{merchantToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [
-									{
-										"key": "initiative-id",
-										"value": "{{initiativeId}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrlIdPay}}/merchant/portal/reported-user/:userId",
-									"host": [
-										"{{baseUrlIdPay}}"
-									],
-									"path": [
-										"merchant",
-										"portal",
-										"reported-user",
-										":userId"
-									],
-									"variable": [
-										{
-											"key": "userId",
-											"value": "{{userId}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Returns the reported user",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{merchantToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [
-									{
-										"key": "initiative-id",
-										"value": "{{initiativeId}}",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrlIdPay}}/merchant/portal/reported-user/:userId",
-									"host": [
-										"{{baseUrlIdPay}}"
-									],
-									"path": [
-										"merchant",
-										"portal",
-										"reported-user",
-										":userId"
-									],
-									"variable": [
-										{
-											"key": "userId",
-											"value": "{{userId}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Delete the reported user",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{merchantToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "initiative-id",
-										"value": "{{initiativeId}}",
-										"type": "text"
-									}
-								],
-								"url": {
-									"raw": "{{baseUrlIdPay}}/merchant/portal/reported-user/:userId",
-									"host": [
-										"{{baseUrlIdPay}}"
-									],
-									"path": [
-										"merchant",
-										"portal",
-										"reported-user",
-										":userId"
-									],
-									"variable": [
-										{
-											"key": "userId",
-											"value": "{{userId}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Save or update a list of points of sale",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{merchantToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "PUT",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "[\r\n    {\r\n        \"type\": \"ONLINE\",\r\n        \"franchiseName\": \"franchiseName\",\r\n        \"region\": \"region\",\r\n        \"province\": \"province\",\r\n        \"city\": \"city\",\r\n        \"zipCode\": \"zipCode\",\r\n        \"address\": \"address\",\r\n        \"website\": \"https://www.google.com\",\r\n        \"contactEmail\": \"contactEmail\",\r\n        \"contactName\": \"contactName\",\r\n        \"contactSurname\": \"contactSurname\",\r\n        \"channelEmail\": \"\",\r\n        \"channelGeolink\": \"\",\r\n        \"channelPhone\": \"\"\r\n    }\r\n]",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrlIdPay}}/merchant/portal/:merchantId/point-of-sales",
-									"host": [
-										"{{baseUrlIdPay}}"
-									],
-									"path": [
-										"merchant",
-										"portal",
-										":merchantId",
-										"point-of-sales"
-									],
-									"variable": [
-										{
-											"key": "merchantId",
-											"value": "{{merchantId}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Retrieve a list of points of sale",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{merchantToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrlIdPay}}/merchant/portal/:merchantId/point-of-sales",
-									"host": [
-										"{{baseUrlIdPay}}"
-									],
-									"path": [
-										"merchant",
-										"portal",
-										":merchantId",
-										"point-of-sales"
-									],
-									"variable": [
-										{
-											"key": "merchantId",
-											"value": "{{merchantId}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Retrieve point of sale detail",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{merchantToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{baseUrlIdPay}}/merchant/portal/:merchantId/point-of-sales/:pointOfSaleId",
-									"host": [
-										"{{baseUrlIdPay}}"
-									],
-									"path": [
-										"merchant",
-										"portal",
-										":merchantId",
-										"point-of-sales",
-										":pointOfSaleId"
-									],
-									"variable": [
-										{
-											"key": "merchantId",
-											"value": "{{merchantId}}"
-										},
-										{
-											"key": "pointOfSaleId",
-											"value": "{{pointOfSaleId}}"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					]
 				}
 			]
 		},
@@ -2452,6 +2139,381 @@
 			]
 		},
 		{
+			"name": "Merchant",
+			"item": [
+				{
+					"name": "Generate portal token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let textResponse = pm.response.text()\r",
+									"\r",
+									"pm.test('Generate Merchant Token', () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.collectionVariables.set(\"merchantToken\", textResponse);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Ocp-Apim-Trace",
+								"value": "true",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"aud\": \"idpay.merchant.welfare.pagopa.it\",\r\n    \"uid\": \"{{uid_Ente}}\",\r\n    \"name\": \"{{name_Ente}}\",\r\n    \"familyName\": \"{{familyName_Ente}}\",\r\n    \"email\": \"{{email_Ente}}\",\r\n    \"orgId\": \"{{orgId_Ente}}\",\r\n    \"orgVAT\": \"{{orgVAT_Ente}}\",\r\n    \"orgName\": \"Ente di test IdPay\",\r\n    \"orgPartyRole\": \"{{orgPartyRole_Ente}}\",\r\n    \"orgRole\": \"{{orgRole_Ente}}\",\r\n    \"iss\": \"https://api-io.dev.cstar.pagopa.it\",\r\n    \"merchantId\": {{merchantId}}\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlIdPay}}/merchant/token/test",
+							"host": [
+								"{{baseUrlIdPay}}"
+							],
+							"path": [
+								"merchant",
+								"token",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a new reported user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{merchantToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "initiative-id",
+								"value": "{{initiativeId}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlIdPay}}/merchant/portal/reported-user/:userId",
+							"host": [
+								"{{baseUrlIdPay}}"
+							],
+							"path": [
+								"merchant",
+								"portal",
+								"reported-user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Returns the reported user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{merchantToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "initiative-id",
+								"value": "{{initiativeId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrlIdPay}}/merchant/portal/reported-user/:userId",
+							"host": [
+								"{{baseUrlIdPay}}"
+							],
+							"path": [
+								"merchant",
+								"portal",
+								"reported-user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete the reported user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{merchantToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "initiative-id",
+								"value": "{{initiativeId}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrlIdPay}}/merchant/portal/reported-user/:userId",
+							"host": [
+								"{{baseUrlIdPay}}"
+							],
+							"path": [
+								"merchant",
+								"portal",
+								"reported-user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "{{userId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save or update a list of points of sale",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{merchantToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"type\": \"ONLINE\",\r\n        \"franchiseName\": \"franchiseName\",\r\n        \"region\": \"region\",\r\n        \"province\": \"province\",\r\n        \"city\": \"city\",\r\n        \"zipCode\": \"zipCode\",\r\n        \"address\": \"address\",\r\n        \"website\": \"https://www.google.com\",\r\n        \"contactEmail\": \"contactEmail\",\r\n        \"contactName\": \"contactName\",\r\n        \"contactSurname\": \"contactSurname\",\r\n        \"channelEmail\": \"\",\r\n        \"channelGeolink\": \"\",\r\n        \"channelPhone\": \"\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrlIdPay}}/merchant/portal/:merchantId/point-of-sales",
+							"host": [
+								"{{baseUrlIdPay}}"
+							],
+							"path": [
+								"merchant",
+								"portal",
+								":merchantId",
+								"point-of-sales"
+							],
+							"variable": [
+								{
+									"key": "merchantId",
+									"value": "{{merchantId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve a list of points of sale",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{merchantToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlIdPay}}/merchant/portal/:merchantId/point-of-sales",
+							"host": [
+								"{{baseUrlIdPay}}"
+							],
+							"path": [
+								"merchant",
+								"portal",
+								":merchantId",
+								"point-of-sales"
+							],
+							"variable": [
+								{
+									"key": "merchantId",
+									"value": "{{merchantId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve point of sale detail",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{merchantToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrlIdPay}}/merchant/portal/:merchantId/point-of-sales/:pointOfSaleId",
+							"host": [
+								"{{baseUrlIdPay}}"
+							],
+							"path": [
+								"merchant",
+								"portal",
+								":merchantId",
+								"point-of-sales",
+								":pointOfSaleId"
+							],
+							"variable": [
+								{
+									"key": "merchantId",
+									"value": "{{merchantId}}"
+								},
+								{
+									"key": "pointOfSaleId",
+									"value": "{{pointOfSaleId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creates a new merchant or retrieves the existing one",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"acquirerId\": \"PAGOPA\",\r\n  \"businessName\": \"businessName\",\r\n  \"fiscalCode\": \"fiscalCode\",\r\n  \"iban\": \"IT00A0000000000000000000000\",\r\n  \"ibanHolder\": \"ibanHolder\",\r\n  \"activationDate\": \"2025-01-23T10:15:30\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://idpay.itn.internal.{{env}}.cstar.pagopa.it/idpaymerchant/idpay/merchant",
+							"protocol": "https",
+							"host": [
+								"idpay",
+								"itn",
+								"internal",
+								"{{env}}",
+								"cstar",
+								"pagopa",
+								"it"
+							],
+							"path": [
+								"idpaymerchant",
+								"idpay",
+								"merchant"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate merchant",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://idpay.itn.internal.{{env}}.cstar.pagopa.it/idpaymerchant/idpay/merchant",
+							"protocol": "https",
+							"host": [
+								"idpay",
+								"itn",
+								"internal",
+								"{{env}}",
+								"cstar",
+								"pagopa",
+								"it"
+							],
+							"path": [
+								"idpaymerchant",
+								"idpay",
+								"merchant"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Delete Initiative",
 			"event": [
 				{
@@ -2489,7 +2551,6 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
-				"requests": {},
 				"exec": [
 					""
 				]
@@ -2499,7 +2560,6 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
-				"requests": {},
 				"exec": [
 					""
 				]
@@ -2628,41 +2688,12 @@
 			"value": ""
 		},
 		{
+			"key": "merchantId",
+			"value": ""
+		},
+		{
 			"key": "basePath",
 			"value": "./"
-		},
-		{
-			"key": "merchantToken",
-			"value": ""
-		},
-		{
-			"key": "acquirerId",
-			"value": ""
-		},
-		{
-			"key": "businessName",
-			"value": ""
-		},
-		{
-			"key": "fiscalCode",
-			"value": ""
-		},
-		{
-			"key": "iban",
-			"value": ""
-		},
-		{
-			"key": "ibanHolder",
-			"value": ""
-		},
-		{
-			"key": "activationDate",
-			"value": ""
-		},
-		{
-			"key": "merchantId",
-			"value": "",
-			"type": "default"
 		},
 		{
 			"key": "pointOfSaleId",
