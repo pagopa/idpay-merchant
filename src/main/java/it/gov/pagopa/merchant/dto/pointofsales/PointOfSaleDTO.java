@@ -77,6 +77,14 @@ public class PointOfSaleDTO {
     @JsonProperty("channelGeolink")
     private String channelGeolink;
 
+    @JsonProperty("businessName")
+    private String businessName;
+
+    @JsonProperty("fiscalCode")
+    private String fiscalCode;
+
+    @JsonProperty("vatNumber")
+    private String vatNumber;
 
     @Deprecated
     @JsonProperty("channelWebsite")
