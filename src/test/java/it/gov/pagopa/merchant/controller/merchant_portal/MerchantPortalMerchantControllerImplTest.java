@@ -10,11 +10,14 @@ import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
+import it.gov.pagopa.merchant.dto.ReportedUserDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.ReportedUserService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,6 +33,9 @@ import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MerchantPortalMerchantControllerImpl.class)
@@ -120,4 +126,86 @@ class MerchantPortalMerchantControllerImplTest {
         Assertions.assertEquals(String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID),errorDTO.getMessage());
         Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
     }
+
+  @Test
+  void createReportedUser_ok() throws Exception {
+    ReportedUserCreateResponseDTO expected = objectMapper.convertValue(
+        Map.of("result", "CREATED", "status", "CREATED"),
+        ReportedUserCreateResponseDTO.class
+    );
+
+    Mockito.when(reportedUserService.createReportedUser("USER1", MERCHANT_ID, INITIATIVE_ID))
+        .thenReturn(expected);
+
+    mockMvc.perform(
+            post("/idpay/merchant/portal/reported-user/{userId}", "USER1")
+                .header("x-merchant-id", MERCHANT_ID)
+                .header("initiative-id", INITIATIVE_ID)
+        )
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(content().string(objectMapper.writeValueAsString(expected)));
+  }
+
+  @Test
+  void getReportedUser_ok() throws Exception {
+    ReportedUserDTO dto = objectMapper.convertValue(
+        Map.of("userId", "USER1", "merchantId", MERCHANT_ID, "initiativeId", INITIATIVE_ID),
+        ReportedUserDTO.class
+    );
+    List<ReportedUserDTO> expected = List.of(dto);
+
+    Mockito.when(reportedUserService.searchReportedUser("USER1", MERCHANT_ID, INITIATIVE_ID))
+        .thenReturn(expected);
+
+    MvcResult result = mockMvc.perform(
+            get("/idpay/merchant/portal/reported-user/{userId}", "USER1")
+                .header("x-merchant-id", MERCHANT_ID)
+                .header("initiative-id", INITIATIVE_ID)
+        )
+        .andExpect(status().is2xxSuccessful())
+        .andReturn();
+
+    List<ReportedUserDTO> response = objectMapper.readValue(
+        result.getResponse().getContentAsString(),
+        new TypeReference<>() {}
+    );
+
+    Assertions.assertEquals(expected, response);
+  }
+
+  @Test
+  void getReportedUser_missingHeaders() throws Exception {
+    mockMvc.perform(
+            get("/idpay/merchant/portal/reported-user/{userId}", "USER1")
+        )
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void deleteReportedUser_ok() throws Exception {
+    ReportedUserCreateResponseDTO expected = objectMapper.convertValue(
+        Map.of("result", "DELETED", "status", "DELETED"),
+        ReportedUserCreateResponseDTO.class
+    );
+
+    Mockito.when(reportedUserService.deleteByUserId("USER1", MERCHANT_ID, INITIATIVE_ID))
+        .thenReturn(expected);
+
+    mockMvc.perform(
+            delete("/idpay/merchant/portal/reported-user/{userId}", "USER1")
+                .header("x-merchant-id", MERCHANT_ID)
+                .header("initiative-id", INITIATIVE_ID)
+        )
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(content().string(objectMapper.writeValueAsString(expected)));
+  }
+
+  @Test
+  void deleteReportedUser_missingHeaders() throws Exception {
+    mockMvc.perform(
+            delete("/idpay/merchant/portal/reported-user/{userId}", "USER1")
+        )
+        .andExpect(status().isBadRequest());
+  }
 }
+

@@ -44,26 +44,19 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
     }
 
     @Override
-    public ReportedUserCreateResponseDTO createReportedUser(String merchantId,
-                                                            String initiativeId,
-                                                            String userId) {
+    public ReportedUserCreateResponseDTO createReportedUser(String merchantId, String initiativeId, String userId) {
         return reportedUserService.createReportedUser(userId, merchantId, initiativeId);
     }
 
     @Override
-    public List<ReportedUserDTO> getReportedUser(
-            String merchantId,
-            String initiativeId,
-            String userId
+    public List<ReportedUserDTO> getReportedUser(String merchantId, String initiativeId, String userId
     ) {
         return reportedUserService.searchReportedUser(userId, merchantId, initiativeId);
 
     }
 
     @Override
-    public ReportedUserCreateResponseDTO deleteReportedUser(String merchantId,
-                                                            String initiativeId,
-                                                            String userId) {
+    public ReportedUserCreateResponseDTO deleteReportedUser(String merchantId, String initiativeId, String userId) {
 
         return reportedUserService.deleteByUserId(userId, merchantId, initiativeId);
 
