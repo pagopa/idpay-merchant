@@ -13,9 +13,11 @@ import feign.Response;
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnectorImpl;
 import it.gov.pagopa.merchant.connector.transaction.TransactionRestClient;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
+import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.exception.custom.TransactionInvocationException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
@@ -87,6 +89,74 @@ class TransactionConnectorTest {
     assertNotNull(ex);
     assertEquals(code, ex.getCode());
     assertEquals(message, ex.getMessage());
+  }
+
+  @Test
+  void findAll_throwsTransactionInvocationException() {
+    Request.Body body = Request.Body.create(new byte[0], StandardCharsets.UTF_8);
+    RequestTemplate requestTemplate = new RequestTemplate();
+
+    Request request = Request.create(
+        Request.HttpMethod.GET,
+        "http://localhost/test",
+        Collections.emptyMap(),
+        body,
+        requestTemplate
+    );
+
+    Response response = Response.builder()
+        .status(500)
+        .reason("Internal Server Error")
+        .request(request)
+        .build();
+
+    FeignException exception = FeignException.errorStatus("test", response);
+
+    when(restClientMock.findAll(
+        "trxId",
+        "userId",
+        null,
+        null,
+        100L,
+        PageRequest.of(0, 10)
+    )).thenThrow(exception);
+
+    Runnable call = () -> transactionConnector.findAll(
+        "trxId",
+        "userId",
+        null,
+        null,
+        100L,
+        PageRequest.of(0, 10)
+    );
+
+    assertThrows(TransactionInvocationException.class, call::run);
+  }
+
+  @Test
+  void findAll_ok() {
+    List<RewardTransaction> expected = Collections.emptyList();
+
+    when(restClientMock.findAll(
+        "trxId",
+        "userId",
+        null,
+        null,
+        100L,
+        PageRequest.of(0, 10)
+    )).thenReturn(expected);
+
+    List<RewardTransaction> result = transactionConnector.findAll(
+        "trxId",
+        "userId",
+        null,
+        null,
+        100L,
+        PageRequest.of(0, 10)
+    );
+
+    assertNotNull(result);
+    assertEquals(expected, result);
   }
 
 }
