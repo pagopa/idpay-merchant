@@ -110,4 +110,10 @@ class MerchantRepositoryExtendedImplTest {
     verify(mongoTemplate, times(1)).updateMulti(Mockito.any(), Mockito.any(), (Class<?>) Mockito.any());
   }
 
+  @Test
+  void getCriteriaByInitiative() {
+    Criteria criteria = merchantRepositoryExtended.getCriteria(INITIATIVE_ID);
+    assertEquals(1, criteria.getCriteriaObject().size());
+  }
+
 }
