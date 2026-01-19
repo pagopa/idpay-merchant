@@ -73,4 +73,10 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
                 Merchant.class);
     }
 
+    @Override
+    public Criteria getCriteria(String initiativeId) {
+        Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
+        return Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
+    }
+
 }

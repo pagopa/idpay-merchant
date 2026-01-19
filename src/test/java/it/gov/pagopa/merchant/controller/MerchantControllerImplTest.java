@@ -164,6 +164,29 @@ class MerchantControllerImplTest {
   }
 
   @Test
+  void getMerchantListByInitiative() throws Exception {
+    MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
+            .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();
+    Mockito.when(merchantServiceMock.getMerchantList(Mockito.anyString(), Mockito.any()))
+            .thenReturn(dto);
+
+    MvcResult result = mockMvc.perform(
+            get("/idpay/merchant/initiative/{initiativeId}/merchants", INITIATIVE_ID)
+                    .param("page", String.valueOf(1))
+                    .param("size", String.valueOf(10))
+    ).andExpect(status().is2xxSuccessful()).andReturn();
+
+    MerchantListDTO resultResponse = objectMapper.readValue(
+            result.getResponse().getContentAsString(),
+            MerchantListDTO.class);
+
+    Assertions.assertNotNull(resultResponse);
+    Assertions.assertEquals(dto, resultResponse);
+    Mockito.verify(merchantServiceMock)
+            .getMerchantList(anyString(), any());
+  }
+
+  @Test
   void getMerchantListWithoutFiscalCode() throws Exception {
     MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
         .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();

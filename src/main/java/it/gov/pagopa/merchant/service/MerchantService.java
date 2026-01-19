@@ -38,4 +38,6 @@ public interface MerchantService {
   MerchantWithdrawalResponse deactivateMerchant(String merchantId, String initiativeId, boolean dryRun);
 
   Merchant getMerchantByMerchantId(String merchantId);
+
+  MerchantListDTO getMerchantList(String initiativeId, Pageable pageable);
 }
