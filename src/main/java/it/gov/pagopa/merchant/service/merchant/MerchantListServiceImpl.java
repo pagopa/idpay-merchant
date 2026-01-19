@@ -6,6 +6,7 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.utils.Utilities;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,6 +21,8 @@ import java.util.List;
 public class MerchantListServiceImpl implements MerchantListService {
     private final MerchantRepository merchantRepository;
     public static final String EMPTY = "";
+    public static final String LOG_GET_MERCHANT_LIST_FLOW = "GET_MERCHANT_LIST";
+    public static final String LOG_GET_MERCHANT_LIST_BY_INITIATIVE_FLOW = "GET_MERCHANT_LIST_BY_INITIATIVE";
 
     public MerchantListServiceImpl(MerchantRepository merchantRepository) {
         this.merchantRepository = merchantRepository;
@@ -28,9 +31,22 @@ public class MerchantListServiceImpl implements MerchantListService {
     @Override
     public MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable) {
         long startTime = System.currentTimeMillis();
-        log.info("[GET_MERCHANT_LIST] Get merchant list for initiative {}", initiativeId);
+        log.info("[{}}] Get merchant list for initiative {}",LOG_GET_MERCHANT_LIST_FLOW, initiativeId);
 
         Criteria criteria = merchantRepository.getCriteria(initiativeId, organizationId, fiscalCode);
+        return getMerchantListDTO(initiativeId, pageable, criteria, startTime, LOG_GET_MERCHANT_LIST_FLOW);
+    }
+
+    @Override
+    public MerchantListDTO getMerchantList(String initiativeId, Pageable pageable) {
+        long startTime = System.currentTimeMillis();
+        log.info("[{}] Get merchant list for initiative {}", LOG_GET_MERCHANT_LIST_BY_INITIATIVE_FLOW, initiativeId);
+        Criteria criteria = merchantRepository.getCriteria(initiativeId);
+        return getMerchantListDTO(initiativeId, pageable, criteria, startTime, LOG_GET_MERCHANT_LIST_BY_INITIATIVE_FLOW);
+    }
+
+    @NotNull
+    private MerchantListDTO getMerchantListDTO(String initiativeId, Pageable pageable, Criteria criteria, long startTime, String flowName) {
         List<Merchant> merchantModelList = merchantRepository.findByFilter(criteria, pageable);
         List<MerchantDTO> merchantDTOList = new ArrayList<>();
         if (!merchantModelList.isEmpty()) {
@@ -50,7 +66,7 @@ public class MerchantListServiceImpl implements MerchantListService {
         final Page<Merchant> result = PageableExecutionUtils.getPage(merchantModelList,
                 Utilities.getPageable(pageable), () -> count);
 
-        Utilities.performanceLog(startTime, "GET_MERCHANT_LIST");
+        Utilities.performanceLog(startTime, flowName);
         return new MerchantListDTO(merchantDTOList, result.getNumber(), result.getSize(),
                 (int) result.getTotalElements(), result.getTotalPages());
     }
