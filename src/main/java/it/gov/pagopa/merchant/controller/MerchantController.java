@@ -36,6 +36,13 @@ public interface MerchantController {
       @PageableDefault(size = 15) Pageable pageable
   );
 
+  @Operation(summary = "Returns the merchants list by initiative")
+  @GetMapping("/initiative/{initiativeId}/merchants")
+  ResponseEntity<MerchantListDTO> getMerchantListByInitiative(
+          @PathVariable("initiativeId") String initiativeId,
+          @PageableDefault(size = 15) Pageable pageable
+  );
+
   @Operation(summary = "Returns the merchant detail page on initiative")
   @GetMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
   ResponseEntity<MerchantDetailDTO> getMerchantDetail(

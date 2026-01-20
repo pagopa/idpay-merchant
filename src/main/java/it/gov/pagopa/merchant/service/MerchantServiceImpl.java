@@ -135,6 +135,11 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
+  public MerchantListDTO getMerchantList(String initiativeId, Pageable pageable) {
+    return merchantListService.getMerchantList(initiativeId, pageable);
+  }
+
+  @Override
   public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
     Optional<Merchant> merchant = merchantRepository.findById(merchantId);
 
