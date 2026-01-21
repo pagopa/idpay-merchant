@@ -78,4 +78,49 @@ class MerchantListServiceTest {
     assertEquals(merchantsExpected, result);
     TestUtils.checkNotNullFields(result);
   }
+
+  @Test
+  void getMerchantByInitiativeIdList() {
+    Merchant merchant1 = MerchantFaker.mockInstance(1);
+    Merchant merchant2 = MerchantFaker.mockInstance(1);
+    merchant2.setBusinessName("NAME_2");
+    merchant2.setFiscalCode("FISCAL_CODE_2");
+    merchant2.getInitiativeList().get(0).setUpdateDate(null);
+    when(repositoryMock.findByFilter(Mockito.any(), Mockito.any())).thenReturn(List.of(merchant1, merchant2));
+
+    MerchantDTO merchantDTO1 = MerchantDTO.builder()
+            .merchantId(merchant1.getMerchantId())
+            .businessName(merchant1.getBusinessName())
+            .fiscalCode(merchant1.getFiscalCode())
+            .merchantStatus("STATUS")
+            .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
+    MerchantDTO merchantDTO2 = MerchantDTO.builder()
+            .merchantId(merchant2.getMerchantId())
+            .businessName(merchant2.getBusinessName())
+            .fiscalCode(merchant2.getFiscalCode())
+            .merchantStatus("STATUS")
+            .updateStatusDate("").build();
+    MerchantListDTO merchantsExpected = MerchantListDTO.builder().content(List.of(merchantDTO1, merchantDTO2))
+            .pageSize(15).totalElements(2).totalPages(1).build();
+
+    MerchantListDTO result = service.getMerchantList("INITIATIVEID1", null);
+
+    assertEquals(2, result.getContent().size());
+    assertEquals(merchantsExpected, result);
+    TestUtils.checkNotNullFields(result);
+  }
+
+  @Test
+  void getMerchantByInitiativeIdList_empty() {
+    when(repositoryMock.findByFilter(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyList());
+
+    MerchantListDTO merchantsExpected = MerchantListDTO.builder().content(Collections.emptyList())
+            .pageSize(15).totalElements(0).totalPages(0).build();
+
+    MerchantListDTO result = service.getMerchantList("INITIATIVE_ID_1",  null);
+
+    assertEquals(0, result.getContent().size());
+    assertEquals(merchantsExpected, result);
+    TestUtils.checkNotNullFields(result);
+  }
 }

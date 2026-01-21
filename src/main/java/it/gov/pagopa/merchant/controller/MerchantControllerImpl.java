@@ -47,6 +47,14 @@ public class MerchantControllerImpl implements MerchantController {
   }
 
   @Override
+  public ResponseEntity<MerchantListDTO> getMerchantListByInitiative(String initiativeId, Pageable pageable) {
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+
+    return ResponseEntity.ok(
+            merchantService.getMerchantList(sanitizedInitiativeId, pageable));
+  }
+
+  @Override
   public ResponseEntity<MerchantDetailDTO> getMerchantDetail(String organizationId,
       String initiativeId, String merchantId) {
     String sanitizedOrganizationId = sanitizeString(organizationId);

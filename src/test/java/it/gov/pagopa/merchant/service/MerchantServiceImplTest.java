@@ -187,6 +187,15 @@ class MerchantServiceImplTest {
   }
 
   @Test
+  void getMerchantListByInitiativeId() {
+    MerchantListDTO dto = new MerchantListDTO();
+    when(merchantListServiceMock.getMerchantList(Mockito.anyString(), any())).thenReturn(dto);
+
+    MerchantListDTO result = merchantService.getMerchantList(INITIATIVE_ID, null);
+    assertNotNull(result);
+  }
+
+  @Test
   void retrieveMerchantId() {
     Merchant merchant = MerchantFaker.mockInstance(1);
 
