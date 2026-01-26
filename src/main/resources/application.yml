@@ -172,6 +172,9 @@ spring:
           maxConnectionLifeTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_LIFE_MS:0}
           maxConnectionIdleTimeMS: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTION_IDLE_MS:120000}
           maxConnecting: ${MONGODB_CONNECTIONPOOL_MAX_CONNECTING:2}
+    web:
+      pageable:
+        max-page-size: ${DATA_WEB_PAGEABLE_MAX_PAGE_SIZE:3000}
 
 logging:
   level:
