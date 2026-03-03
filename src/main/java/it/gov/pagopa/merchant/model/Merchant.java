@@ -34,4 +34,8 @@ public class Merchant {
     private List<Initiative> initiativeList;
     private boolean enabled;
     private LocalDateTime activationDate;
+    private LocalDateTime lastLogin;
+    private LocalDateTime updateDate;
+    private LocalDateTime createdAt;
 }
+

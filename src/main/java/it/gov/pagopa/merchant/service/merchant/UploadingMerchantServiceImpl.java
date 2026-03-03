@@ -299,6 +299,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                     merchant.setIban(splitStr[IBAN_INDEX]);
                     merchant.setEnabled(true);
                 }
+                merchant.setUpdateDate(LocalDateTime.now());
                 merchantRepository.save(merchant);
                 initializeMerchantStatistics(initiativeId, merchant.getMerchantId());
             });
