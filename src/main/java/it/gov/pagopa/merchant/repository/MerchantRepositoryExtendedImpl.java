@@ -47,7 +47,8 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
         mongoTemplate.updateMulti(Query.query(criteria),
             new Update().set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.status), MerchantConstants.INITIATIVE_PUBLISHED)
-                        .set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.updateDate), LocalDateTime.now()),
+                        .set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.updateDate), LocalDateTime.now())
+                        .set(Merchant.Fields.updateDate, LocalDateTime.now()),
             Merchant.class);
     }
 

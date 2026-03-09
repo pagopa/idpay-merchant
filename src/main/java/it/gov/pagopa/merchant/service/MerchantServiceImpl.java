@@ -27,11 +27,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import static it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE;
-import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
-
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 @Slf4j
 @Service
@@ -180,6 +182,7 @@ public class MerchantServiceImpl implements MerchantService {
     deleteKeycloakUsers(pointsOfSale);
     pointOfSaleRepository.deleteByMerchantId(merchantId);
     merchant.setEnabled(false);
+    merchant.setUpdateDate(LocalDateTime.now());
     merchantRepository.save(merchant);
 
     log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} for initiative {} and removed points of sale", sanitizeString(merchantId), sanitizeString(initiativeId));
@@ -201,6 +204,7 @@ public class MerchantServiceImpl implements MerchantService {
       updateMerchant(existingMerchant, merchantCreateDTO);
 
       // Save updated entity
+      existingMerchant.setLastLogin(LocalDateTime.now());
       merchantRepository.save(existingMerchant);
       log.info("[UPDATE_MERCHANT] Merchant with merchantId={} successfully updated", existingMerchant.getMerchantId());
       return existingMerchant.getMerchantId();
@@ -236,17 +240,30 @@ public class MerchantServiceImpl implements MerchantService {
 
   private void updateMerchant(Merchant existingMerchant, MerchantCreateDTO merchantCreateDTO) {
 
-    if(StringUtils.isNotBlank(merchantCreateDTO.getIban())){
+    boolean updated = false;
+
+    if (StringUtils.isNotBlank(merchantCreateDTO.getIban())) {
       existingMerchant.setIban(merchantCreateDTO.getIban());
+      updated = true;
     }
-    if(StringUtils.isNotBlank(merchantCreateDTO.getBusinessName())){
+
+    if (StringUtils.isNotBlank(merchantCreateDTO.getBusinessName())) {
       existingMerchant.setBusinessName(merchantCreateDTO.getBusinessName());
+      updated = true;
     }
-    if(StringUtils.isNotBlank(merchantCreateDTO.getIbanHolder())){
+
+    if (StringUtils.isNotBlank(merchantCreateDTO.getIbanHolder())) {
       existingMerchant.setIbanHolder(merchantCreateDTO.getIbanHolder());
+      updated = true;
     }
-    if(merchantCreateDTO.getActivationDate()!=null){
+
+    if (merchantCreateDTO.getActivationDate() != null) {
       existingMerchant.setActivationDate(merchantCreateDTO.getActivationDate());
+      updated = true;
+    }
+
+    if (updated) {
+      existingMerchant.setUpdateDate(LocalDateTime.now());
     }
   }
 
@@ -261,6 +278,9 @@ public class MerchantServiceImpl implements MerchantService {
     Merchant merchant = merchantCreateDTOMapper.dtoToEntity(merchantCreateDTO, merchantId);
     merchant.setInitiativeList(initiatives);
     merchant.setEnabled(true);
+    merchant.setLastLogin(LocalDateTime.now());
+    merchant.setUpdateDate(LocalDateTime.now());
+    merchant.setCreatedAt(LocalDateTime.now());
     merchantRepository.save(merchant);
     return merchantId;
   }
