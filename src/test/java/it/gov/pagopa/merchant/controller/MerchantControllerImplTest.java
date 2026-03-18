@@ -1,6 +1,5 @@
 package it.gov.pagopa.merchant.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.merchant.configuration.MerchantErrorManagerConfig;
@@ -29,6 +28,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -49,7 +49,7 @@ class MerchantControllerImplTest {
   @Autowired
   private MockMvc mockMvc;
   @Autowired
-  private ObjectMapper objectMapper;
+  private JsonMapper objectMapper;
 
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
   private static final String ORGANIZATION_ID = "ORGANIZATION_ID";
