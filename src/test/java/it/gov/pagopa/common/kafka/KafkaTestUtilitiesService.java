@@ -122,7 +122,7 @@ public class KafkaTestUtilitiesService {
             kafkaBroker.addTopics(topic);
         }
 
-        Map<String, Object> consumerProps = KafkaTestUtils.consumerProps(groupId, "true", kafkaBroker);
+        Map<String, Object> consumerProps = KafkaTestUtils.consumerProps(kafkaBroker, groupId, true);
         consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         DefaultKafkaConsumerFactory<String, String> cf = new DefaultKafkaConsumerFactory<>(consumerProps);
         Consumer<String, String> consumer = cf.createConsumer();
