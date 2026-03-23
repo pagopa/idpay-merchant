@@ -128,16 +128,6 @@ public final class TestUtils {
         return payload.replaceAll("(\""+fieldName+"\":)(?:[^,}]+)", "$1:null");
     }
 
-    /** It will read a field value from json string */
-    public static String readJsonStringFieldValue(String payload, String field) {
-        int fieldIndex = payload.indexOf("\""+field+"\"");
-        if(fieldIndex>-1){
-            String afterField = payload.substring(fieldIndex+field.length()+2);
-            final int afterOpeningQuote = afterField.indexOf('"') + 1;
-            return afterField.substring(afterOpeningQuote, afterField.indexOf('"', afterOpeningQuote));
-        }
-        return null;
-    }
 
     /** It will check if the local port is available */
     public static boolean availableLocalPort(int port) {

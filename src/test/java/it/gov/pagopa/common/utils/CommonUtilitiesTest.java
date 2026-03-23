@@ -1,14 +1,28 @@
 package it.gov.pagopa.common.utils;
 
 import it.gov.pagopa.common.kafka.utils.CommonUtilities;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 class CommonUtilitiesTest {
+
+    @Test
+    void testReadMessagePayload(){
+        byte[] payload = "Questo è un messaggio".getBytes();
+
+        Message<byte[]> message = MessageBuilder.withPayload(payload)
+                .setHeader("headerKey", "headerValue")
+                .build();
+
+        Assertions.assertNotNull(CommonUtilities.readMessagePayload(message));
+    }
 
     @Test
     void testCentsToEuro(){

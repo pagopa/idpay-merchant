@@ -1,7 +1,5 @@
 package it.gov.pagopa.common.web.mockvc;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import it.gov.pagopa.common.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpStatus;
