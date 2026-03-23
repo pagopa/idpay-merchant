@@ -8,21 +8,13 @@ import org.junit.jupiter.api.Assertions;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.ConnectException;
-import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class TestUtils {
     private TestUtils() {
@@ -51,32 +43,11 @@ public final class TestUtils {
 
     }
 
-    /**
-     * It will assert null on all o's fields
-     */
-    public static void checkNullFields(Object o, String... excludedFields) {
-        Set<String> excludedFieldsSet = new HashSet<>(Arrays.asList(excludedFields));
-        org.springframework.util.ReflectionUtils.doWithFields(o.getClass(),
-                f -> {
-                    f.setAccessible(true);
-                    Object value = f.get(o);
-                    Assertions.assertNull(value, "The field %s of the input object of type %s is not null: %s".formatted(f.getName(), o.getClass(), value));
-                },
-                f -> !excludedFieldsSet.contains(f.getName()));
-
-    }
-
     /** it will create a BigDecimal with scale2 */
     public static BigDecimal bigDecimalValue(double value) {
         return BigDecimal.valueOf(value).setScale(2, RoundingMode.UNNECESSARY);
     }
 
-    /**
-     * It will assert if 2 BigDecimal are equals, ignoring scale
-     */
-    public static void assertBigDecimalEquals(BigDecimal expected, BigDecimal actual) {
-        assertEquals(0, expected.compareTo(actual), "Expected: %s, Obtained: %s".formatted(expected, actual));
-    }
 
     /**
      * To serialize an object as a JSON handling Exception
@@ -97,17 +68,6 @@ public final class TestUtils {
         return header!=null? new String(header.value()) : null;
     }
 
-    /** it will attempt the test until its invocation successfully ends until the configured maxAttempts, waiting for the configured millis between each invocation */
-    public static void waitFor(Callable<Boolean> test, Supplier<String> buildTestFailureMessage, int maxAttempts, int millisAttemptDelay) {
-        try {
-            await()
-                    .pollInterval(millisAttemptDelay, TimeUnit.MILLISECONDS)
-                    .atMost((long) maxAttempts * millisAttemptDelay, TimeUnit.MILLISECONDS)
-                    .until(test);
-        } catch (RuntimeException e) {
-            Assertions.fail(buildTestFailureMessage.get(), e);
-        }
-    }
 
     /** To wait for the configured time */
     public static void wait(long timeout, TimeUnit timeoutUnit) {
@@ -118,25 +78,5 @@ public final class TestUtils {
         }
     }
 
-    /** it will truncate the provided datetime field from payload */
-    public static String truncateDateTimeField(String payload, String fieldName){
-        return payload.replaceAll("(\""+fieldName+"\":\"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}):[0-9]{2}:[0-9]{2}\\.?[0-9]*\"", "$1:--\"");
-    }
 
-    /** it will set to null the provided datetime field from payload */
-    public static String setNullFieldValue(String payload, String fieldName) {
-        return payload.replaceAll("(\""+fieldName+"\":)(?:[^,}]+)", "$1:null");
-    }
-
-
-    /** It will check if the local port is available */
-    public static boolean availableLocalPort(int port) {
-        try (Socket ignored = new Socket("localhost", port)) {
-            return false;
-        } catch (ConnectException _) {
-            return true;
-        } catch (IOException e) {
-            throw new IllegalStateException("Error while trying to check open port", e);
-        }
-    }
 }
