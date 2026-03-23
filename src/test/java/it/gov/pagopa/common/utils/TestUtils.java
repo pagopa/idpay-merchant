@@ -2,7 +2,6 @@ package it.gov.pagopa.common.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.common.config.JsonConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.awaitility.Awaitility;
@@ -36,7 +35,7 @@ public final class TestUtils {
     /**
      * applications's objectMapper
      */
-    public static ObjectMapper objectMapper = new JsonConfig().objectMapper();
+    public static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * It will assert not null on all o's fields
