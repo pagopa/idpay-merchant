@@ -113,7 +113,7 @@ public final class TestUtils {
     public static void wait(long timeout, TimeUnit timeoutUnit) {
         try{
             Awaitility.await().timeout(timeout, timeoutUnit).until(()->false);
-        } catch (ConditionTimeoutException ex){
+        } catch (ConditionTimeoutException _){
             // Do Nothing
         }
     }
@@ -143,7 +143,7 @@ public final class TestUtils {
     public static boolean availableLocalPort(int port) {
         try (Socket ignored = new Socket("localhost", port)) {
             return false;
-        } catch (ConnectException e) {
+        } catch (ConnectException _) {
             return true;
         } catch (IOException e) {
             throw new IllegalStateException("Error while trying to check open port", e);
