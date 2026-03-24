@@ -1,8 +1,5 @@
 package it.gov.pagopa.merchant.service.merchant;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import it.gov.pagopa.common.kafka.BaseKafkaConsumer;
 import it.gov.pagopa.merchant.connector.file_storage.MerchantFileStorageConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
@@ -29,6 +26,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 
 import java.io.*;
 import java.time.LocalDateTime;
