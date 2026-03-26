@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import static org.mockito.Mockito.when;
 
@@ -42,7 +42,7 @@ class PosValidationExceptionHandlerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    JsonMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @MockitoSpyBean
     private TestController testControllerSpy;

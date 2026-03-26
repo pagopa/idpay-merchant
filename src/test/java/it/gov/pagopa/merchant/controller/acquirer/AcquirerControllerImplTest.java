@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +43,7 @@ class AcquirerControllerImplTest {
     @MockitoBean private MerchantService merchantServiceMock;
 
     @Autowired private MockMvc mockMvc;
-    @Autowired private JsonMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     private static final String MERCHANT_ID = "MERCHANT_ID";
     private static final String INITIATIVE_ID = "INITIATIVE_ID";
