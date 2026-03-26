@@ -30,7 +30,7 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.test.context.event.annotation.AfterTestClass;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -63,7 +63,7 @@ public class KafkaTestUtilitiesService {
     private String bootstrapServers;
 
     @Autowired
-    private JsonMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @TestConfiguration
     static class TestKafkaConfiguration {

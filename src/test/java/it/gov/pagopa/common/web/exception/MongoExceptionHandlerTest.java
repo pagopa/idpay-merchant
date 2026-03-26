@@ -31,7 +31,7 @@ import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = {
-        MongoExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = { UserDetailsServiceAutoConfiguration.class , SecurityAutoConfiguration.class})
+        MongoExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = { UserDetailsServiceAutoConfiguration.class , SecurityAutoConfiguration.class, JacksonAutoConfiguration.class})
 @AutoConfigureMockMvc(addFilters = false)
 @ContextConfiguration(classes = {MongoExceptionHandler.class,
         MongoExceptionHandlerTest.TestController.class, ErrorManager.class})
