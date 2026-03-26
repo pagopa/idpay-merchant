@@ -31,7 +31,7 @@ import tools.jackson.databind.ObjectMapper;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@WebMvcTest(value = {PosValidationExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = { UserDetailsServiceAutoConfiguration.class , SecurityAutoConfiguration.class, JacksonAutoConfiguration.class})
+@WebMvcTest(value = {PosValidationExceptionHandlerTest.TestController.class}, excludeAutoConfiguration = { UserDetailsServiceAutoConfiguration.class , SecurityAutoConfiguration.class})
 @AutoConfigureMockMvc(addFilters = false)
 @ContextConfiguration(classes = {
         PosValidationExceptionHandlerTest.TestController.class,
