@@ -32,7 +32,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Objects;
@@ -65,7 +65,7 @@ class PointOfSaleControllerImplTest {
   @Autowired
   private MockMvc mockMvc;
   @Autowired
-  private JsonMapper objectMapper;
+  private ObjectMapper objectMapper;
 
   private static final String BASE_URL = "/idpay/merchant/portal";
   private static final String SAVE_POINT_OF_SALES = "/%s/point-of-sales";
