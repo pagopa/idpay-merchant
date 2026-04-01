@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -47,8 +47,8 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
         mongoTemplate.updateMulti(Query.query(criteria),
             new Update().set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.status), MerchantConstants.INITIATIVE_PUBLISHED)
-                        .set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.updateDate), LocalDateTime.now())
-                        .set(Merchant.Fields.updateDate, LocalDateTime.now()),
+                        .set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.updateDate), Instant.now())
+                        .set(Merchant.Fields.updateDate, Instant.now()),
             Merchant.class);
     }
 

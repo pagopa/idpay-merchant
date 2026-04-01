@@ -2,7 +2,9 @@ package it.gov.pagopa.merchant.test.fakers;
 
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class MerchantDetailDTOFaker {
 
@@ -28,9 +30,9 @@ public class MerchantDetailDTOFaker {
             .status("STATUS")
             .iban("IT60X0542811101000000123455")
             .ibanHolder("Nome Cognome")
-            .creationDate(LocalDateTime.of(2023,5,22,10, 0))
-            .activationDate(LocalDateTime.now())
-            .updateDate(LocalDateTime.of(2023,5,22,10, 0));
+            .creationDate(LocalDateTime.of(2023,5,22,10, 0).atZone(ZoneId.systemDefault()).toInstant())
+            .activationDate(Instant.now())
+            .updateDate(LocalDateTime.of(2023,5,22,10, 0).atZone(ZoneId.systemDefault()).toInstant());
 
   }
 }

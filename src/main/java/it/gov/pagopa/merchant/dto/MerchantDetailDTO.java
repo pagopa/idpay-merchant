@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -41,9 +41,9 @@ public class MerchantDetailDTO {
 
   private String ibanHolder; // intestatario iban
 
-  private LocalDateTime creationDate;
+  private Instant creationDate;
 
-  private LocalDateTime updateDate;
+  private Instant updateDate;
 
-  private LocalDateTime activationDate;
+  private Instant activationDate;
 }

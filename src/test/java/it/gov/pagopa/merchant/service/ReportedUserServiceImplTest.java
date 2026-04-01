@@ -16,7 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,8 +62,8 @@ class ReportedUserServiceImplTest {
         when(transactionConnector.findAll(
                 isNull(),
                 eq(ENCRYPTED_USER_ID),
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
+                any(Instant.class),
+                any(Instant.class),
                 isNull(),
                 eq(PageRequest.of(0, 10))
         )).thenReturn(Collections.emptyList());
@@ -84,8 +85,8 @@ class ReportedUserServiceImplTest {
         when(transactionConnector.findAll(
                 isNull(),
                 eq(ENCRYPTED_USER_ID),
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
+                any(Instant.class),
+                any(Instant.class),
                 isNull(),
                 eq(PageRequest.of(0, 10))
         )).thenReturn(List.of(trx));
@@ -105,14 +106,14 @@ class ReportedUserServiceImplTest {
         when(trx.getStatus()).thenReturn(allowed);
         when(trx.getInitiatives()).thenReturn(List.of("other", INITIATIVE_ID));
         when(trx.getMerchantId()).thenReturn(MERCHANT_ID);
-        when(trx.getTrxChargeDate()).thenReturn(LocalDateTime.now().minusDays(3));
+        when(trx.getTrxChargeDate()).thenReturn(Instant.now().minus(3, ChronoUnit.DAYS));
         when(trx.getId()).thenReturn("trx-001");
 
         when(transactionConnector.findAll(
                 isNull(),
                 eq(ENCRYPTED_USER_ID),
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
+                any(Instant.class),
+                any(Instant.class),
                 isNull(),
                 eq(PageRequest.of(0, 10))
         )).thenReturn(List.of(trx));
@@ -177,8 +178,8 @@ class ReportedUserServiceImplTest {
                 .initiativeId(INITIATIVE_ID)
                 .merchantId(MERCHANT_ID)
                 .transactionId("trx-1")
-                .trxChargeDate(LocalDateTime.now().minusDays(1))
-                .createdAt(LocalDateTime.now())
+                .trxChargeDate(Instant.now().minus(1, ChronoUnit.DAYS))
+                .createdAt(Instant.now())
                 .build();
 
         when(repository.findByUserIdAndInitiativeIdAndMerchantId(ENCRYPTED_USER_ID, INITIATIVE_ID, MERCHANT_ID))

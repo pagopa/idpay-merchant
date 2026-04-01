@@ -2,7 +2,7 @@ package it.gov.pagopa.merchant.connector.transaction.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,10 +18,10 @@ public class MerchantTransactionDTO {
   Long effectiveAmountCents;
   Long rewardAmountCents;
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  LocalDateTime trxDate;
+  Instant trxDate;
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @JsonProperty("updateDate")
-  LocalDateTime elaborationDateTime;
+  Instant elaborationDateTime;
   String status;
   String channel;
 }

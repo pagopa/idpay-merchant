@@ -4,7 +4,7 @@ import it.gov.pagopa.merchant.dto.initiative.AdditionalInfoDTO;
 import it.gov.pagopa.merchant.dto.initiative.GeneralInfoDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 public class InitiativeBeneficiaryViewDTOFaker {
     private InitiativeBeneficiaryViewDTOFaker() {
@@ -21,7 +21,7 @@ public class InitiativeBeneficiaryViewDTOFaker {
                 .organizationId("ORGANIZATIONID%d".formatted(bias))
                 .organizationName("ORGANIZATIONNAME")
                 .additionalInfo(AdditionalInfoDTO.builder().serviceId("SERVICEID%d".formatted(bias)).build())
-                .general(GeneralInfoDTO.builder().startDate(LocalDate.now()).endDate(LocalDate.now()).build())
+                .general(GeneralInfoDTO.builder().startDate(Instant.now()).endDate(Instant.now()).build())
                 .status("PUBLISHED")
                 ;
 

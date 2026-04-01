@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -51,7 +51,7 @@ class MerchantProcessOperationServiceImplTest {
         QueueCommandOperationDTO queueCommandOperationDTO = QueueCommandOperationDTO.builder()
                 .entityId(INITIATIVE_ID)
                 .operationType(operationType)
-                .operationTime(LocalDateTime.now())
+                .operationTime(Instant.now())
                 .build();
 
         Merchant merchant = MerchantFaker.mockInstance(1);

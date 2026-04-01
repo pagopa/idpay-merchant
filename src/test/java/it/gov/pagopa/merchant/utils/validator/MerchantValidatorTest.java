@@ -7,7 +7,9 @@ import it.gov.pagopa.merchant.exception.custom.MerchantValidationException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.merchant.MerchantTransactionCheckService;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +36,7 @@ class MerchantValidatorTest {
   void validateMerchantWithdrawal_activationTooOld_throwsException() {
     Merchant merchant = new Merchant();
     merchant.setMerchantId(MERCHANT_ID);
-    merchant.setActivationDate(LocalDateTime.now().minusDays(20));
+    merchant.setActivationDate(Instant.now().minus(20, ChronoUnit.DAYS));
 
     when(pointOfSaleTransactionCheckService.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
     when(pointOfSaleTransactionCheckService.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
@@ -50,7 +52,7 @@ class MerchantValidatorTest {
   void validateMerchantWithdrawal_inProgressTransactions_throwsException() {
     Merchant merchant = new Merchant();
     merchant.setMerchantId(MERCHANT_ID);
-    merchant.setActivationDate(LocalDateTime.now().minusDays(5));
+    merchant.setActivationDate(Instant.now().minus(5,  ChronoUnit.DAYS));
 
     when(pointOfSaleTransactionCheckService.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(true);
     when(pointOfSaleTransactionCheckService.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
@@ -66,7 +68,7 @@ class MerchantValidatorTest {
   void validateMerchantWithdrawal_processedTransactions_throwsException() {
     Merchant merchant = new Merchant();
     merchant.setMerchantId(MERCHANT_ID);
-    merchant.setActivationDate(LocalDateTime.now().minusDays(5));
+    merchant.setActivationDate(Instant.now().minus(5, ChronoUnit.DAYS));
 
     when(pointOfSaleTransactionCheckService.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
     when(pointOfSaleTransactionCheckService.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(true);
@@ -82,7 +84,7 @@ class MerchantValidatorTest {
   void validateMerchantWithdrawal_noErrors_passes() {
     Merchant merchant = new Merchant();
     merchant.setMerchantId(MERCHANT_ID);
-    merchant.setActivationDate(LocalDateTime.now().minusDays(5));
+    merchant.setActivationDate(Instant.now().minus(5, ChronoUnit.DAYS));
 
     when(pointOfSaleTransactionCheckService.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
     when(pointOfSaleTransactionCheckService.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);

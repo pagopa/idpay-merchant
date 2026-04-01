@@ -4,7 +4,7 @@ import static org.mockito.Mockito.verify;
 
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
 import it.gov.pagopa.merchant.service.MerchantService;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ class CommandsConsumerTest {
 
     private static final String OPERATION_TYPE = "TESTOPERATIONTYPE";
     private static final String ENTITY_ID = "ENTITYID";
-    private static final LocalDateTime OPERATION_TIME = LocalDateTime.now();
+    private static final Instant OPERATION_TIME = Instant.now();
 
     @BeforeEach
     void setUp(){

@@ -4,7 +4,10 @@ import it.gov.pagopa.merchant.dto.ReportedUserDTO;
 import it.gov.pagopa.merchant.model.ReportedUser;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,8 +20,17 @@ class ReportedUserMapperTest {
 
     @Test
     void toDto_shouldMapEntityFields() {
-       LocalDateTime trxDate = LocalDateTime.of(2024, 5, 20, 10, 30, 0);
-        LocalDateTime createdAt = LocalDateTime.of(2024, 5, 21, 9, 0, 0);
+
+        ZoneId zone = ZoneId.systemDefault();
+
+        Instant trxDate = LocalDateTime.of(2024, 5, 20, 10, 30, 0)
+                .atZone(zone)
+                .toInstant();
+
+        Instant createdAt = LocalDateTime.of(2024, 5, 21, 9, 0, 0)
+                .atZone(zone)
+                .toInstant();
+
 
         ReportedUser entity = ReportedUser.builder()
                 .transactionId("TRX-001")
@@ -37,17 +49,17 @@ class ReportedUserMapperTest {
     @Test
     void toDtoList_shouldMapListAndSetFiscalCode() {
 
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         ReportedUser e1 = ReportedUser.builder()
                 .transactionId("trx-1")
-                .trxChargeDate(now.minusDays(2))
-                .createdAt(now.minusDays(1))
+                .trxChargeDate(now.minus(2, ChronoUnit.DAYS))
+                .createdAt(now.minus(1,ChronoUnit.DAYS))
                 .build();
 
         ReportedUser e2 = ReportedUser.builder()
                 .transactionId("trx-2")
-                .trxChargeDate(now.minusDays(5))
-                .createdAt(now.minusDays(4))
+                .trxChargeDate(now.minus(5,ChronoUnit.DAYS))
+                .createdAt(now.minus(4,ChronoUnit.DAYS))
                 .build();
 
         List<ReportedUser> entities = List.of(e1, e2);

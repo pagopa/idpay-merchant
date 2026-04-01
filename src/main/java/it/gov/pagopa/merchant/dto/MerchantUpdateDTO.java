@@ -3,7 +3,7 @@ package it.gov.pagopa.merchant.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -18,5 +18,5 @@ public class MerchantUpdateDTO {
 
     private String errorKey;
 
-    private LocalDateTime elabTimeStamp;
+    private Instant elabTimeStamp;
 }

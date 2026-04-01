@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.test.fakers;
 
 import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class InitiativeDTOFaker {
 
@@ -14,8 +14,8 @@ public class InitiativeDTOFaker {
                 .initiativeId("INITIATIVEID%d".formatted(bias))
                 .initiativeName("INITIATIVENAME%d".formatted(bias))
                 .merchantStatus("MERCHANTSTATUS%d".formatted(bias))
-                .creationDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
+                .creationDate(Instant.now())
+                .updateDate(Instant.now())
                 .enabled(true);
     }
 }

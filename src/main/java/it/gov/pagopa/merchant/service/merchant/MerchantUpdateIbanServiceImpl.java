@@ -6,7 +6,7 @@ import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +69,7 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
       }
       merchant.setIbanHolder(merchantIbanPatchDTO.getIbanHolder());
     }
-    merchant.setUpdateDate(LocalDateTime.now());
+    merchant.setUpdateDate(Instant.now());
     merchantRepository.save(merchant);
 
     return merchantDetailService.getMerchantDetail(organizationId, initiativeId, merchantId);

@@ -24,7 +24,6 @@ import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.MerchantValidator;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -447,8 +447,8 @@ class MerchantServiceImplTest {
     dto.setAdditionalInfo(additionalInfo);
 
     GeneralInfoDTO general = new GeneralInfoDTO();
-    general.setStartDate(LocalDate.now().minusDays(1));
-    general.setEndDate(LocalDate.now().plusDays(1));
+    general.setStartDate(Instant.now().minus(1, ChronoUnit.DAYS));
+    general.setEndDate(Instant.now().plus(1, ChronoUnit.DAYS));
     dto.setGeneral(general);
 
     Method method = MerchantServiceImpl.class
@@ -463,8 +463,8 @@ class MerchantServiceImplTest {
     assertEquals("ORG1", initiative.getOrganizationId());
     assertEquals("Organization 1", initiative.getOrganizationName());
     assertEquals("SERVICE1", initiative.getServiceId());
-    assertEquals(LocalDate.now().minusDays(1), initiative.getStartDate());
-    assertEquals(LocalDate.now().plusDays(1), initiative.getEndDate());
+    assertEquals(Instant.now().minus(1 ,ChronoUnit.DAYS), initiative.getStartDate());
+    assertEquals(Instant.now().plus(1 ,ChronoUnit.DAYS), initiative.getEndDate());
     assertEquals("ACTIVE", initiative.getStatus());
     assertEquals("UPLOADED", initiative.getMerchantStatus());
     assertTrue(initiative.isEnabled());
@@ -508,8 +508,8 @@ class MerchantServiceImplTest {
           dtoIBV.setAdditionalInfo(additionalInfo);
 
           GeneralInfoDTO general = new GeneralInfoDTO();
-          general.setStartDate(LocalDate.now().minusDays(1));
-          general.setEndDate(LocalDate.now().plusDays(1));
+          general.setStartDate(Instant.now().minus(1, ChronoUnit.DAYS));
+          general.setEndDate(Instant.now().plus(1, ChronoUnit.DAYS));
           dtoIBV.setGeneral(general);
 
           dtoIBV.setStatus("ACTIVE");
@@ -561,8 +561,8 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesFieldsCorrectly() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDateTime existingActivationDate = LocalDateTime.now().minusDays(1);
-    LocalDateTime newActivationDate = LocalDateTime.now();
+    Instant existingActivationDate = Instant.now().minus(1, ChronoUnit.DAYS);
+    Instant newActivationDate = Instant.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -597,7 +597,7 @@ class MerchantServiceImplTest {
   void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDateTime activationDate = LocalDateTime.now();
+    Instant activationDate = Instant.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -631,8 +631,8 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesOnlyProvidedFields() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDateTime activationDate = LocalDateTime.now();
-    LocalDateTime activatioDateTimeNew =LocalDateTime.now().plusDays(2);
+    Instant activationDate = Instant.now();
+    Instant activatioDateTimeNew =Instant.now().plus(2, ChronoUnit.DAYS);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")

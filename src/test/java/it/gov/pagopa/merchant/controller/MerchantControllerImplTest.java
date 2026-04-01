@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -304,7 +304,7 @@ class MerchantControllerImplTest {
     String expectedMerchantId = "MERCHANT123";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
-    LocalDateTime activationDate = LocalDateTime.now();
+    Instant activationDate = Instant.now();
 
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)

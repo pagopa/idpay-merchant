@@ -8,7 +8,7 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -23,6 +23,6 @@ public class ReportedUser {
     private String initiativeId;
     private String userId;
     private String transactionId;
-    private LocalDateTime trxChargeDate;
-    private LocalDateTime createdAt;
+    private Instant trxChargeDate;
+    private Instant createdAt;
 }

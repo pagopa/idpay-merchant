@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.test.fakers;
 import it.gov.pagopa.merchant.model.MerchantFile;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class MerchantFileFaker {
     private MerchantFileFaker() {
@@ -19,7 +20,7 @@ public class MerchantFileFaker {
                 .entityId("ORGANIZATION_ID_%d".formatted(bias))
                 .organizationUserId("ORGANIZATION _USER_ID")
                 .status("STATUS")
-                .uploadDate(LocalDateTime.of(2023,5,22,10, 0))
+                .uploadDate(LocalDateTime.of(2023,5,22,10, 0).atZone(ZoneId.systemDefault()).toInstant())
                 .enabled(true);
 
     }

@@ -27,7 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -182,7 +182,7 @@ public class MerchantServiceImpl implements MerchantService {
     deleteKeycloakUsers(pointsOfSale);
     pointOfSaleRepository.deleteByMerchantId(merchantId);
     merchant.setEnabled(false);
-    merchant.setUpdateDate(LocalDateTime.now());
+    merchant.setUpdateDate(Instant.now());
     merchantRepository.save(merchant);
 
     log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} for initiative {} and removed points of sale", sanitizeString(merchantId), sanitizeString(initiativeId));
@@ -204,7 +204,7 @@ public class MerchantServiceImpl implements MerchantService {
       updateMerchant(existingMerchant, merchantCreateDTO);
 
       // Save updated entity
-      existingMerchant.setLastLogin(LocalDateTime.now());
+      existingMerchant.setLastLogin(Instant.now());
       merchantRepository.save(existingMerchant);
       log.info("[UPDATE_MERCHANT] Merchant with merchantId={} successfully updated", existingMerchant.getMerchantId());
       return existingMerchant.getMerchantId();
@@ -263,7 +263,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     if (updated) {
-      existingMerchant.setUpdateDate(LocalDateTime.now());
+      existingMerchant.setUpdateDate(Instant.now());
     }
   }
 
@@ -278,9 +278,9 @@ public class MerchantServiceImpl implements MerchantService {
     Merchant merchant = merchantCreateDTOMapper.dtoToEntity(merchantCreateDTO, merchantId);
     merchant.setInitiativeList(initiatives);
     merchant.setEnabled(true);
-    merchant.setLastLogin(LocalDateTime.now());
-    merchant.setUpdateDate(LocalDateTime.now());
-    merchant.setCreatedAt(LocalDateTime.now());
+    merchant.setLastLogin(Instant.now());
+    merchant.setUpdateDate(Instant.now());
+    merchant.setCreatedAt(Instant.now());
     merchantRepository.save(merchant);
     return merchantId;
   }
@@ -309,7 +309,7 @@ public class MerchantServiceImpl implements MerchantService {
         .organizationName(dto.getOrganizationName())
         .serviceId(dto.getAdditionalInfo().getServiceId())
         .startDate(dto.getGeneral().getStartDate()).endDate(dto.getGeneral().getEndDate())
-        .status(dto.getStatus()).merchantStatus("UPLOADED").creationDate(LocalDateTime.now())
-        .updateDate(LocalDateTime.now()).enabled(true).build();
+        .status(dto.getStatus()).merchantStatus("UPLOADED").creationDate(Instant.now())
+        .updateDate(Instant.now()).enabled(true).build();
   }
 }

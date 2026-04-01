@@ -2,8 +2,8 @@ package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
 import it.gov.pagopa.merchant.constants.ReportedUserExceptions;
-import it.gov.pagopa.merchant.dto.ReportedUserDTO;
 import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
+import it.gov.pagopa.merchant.dto.ReportedUserDTO;
 import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.mapper.ReportedUserMapper;
 import it.gov.pagopa.merchant.model.ReportedUser;
@@ -15,7 +15,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,8 +55,8 @@ public class ReportedUserServiceImpl implements ReportedUserService {
         try {
             List<RewardTransaction> trxList = transactionConnector.findAll(null,
                     userId,
-                    LocalDateTime.now().minusYears(1),
-                    LocalDateTime.now(),
+                    LocalDateTime.now().minusYears(1L).atZone(ZoneId.systemDefault()).toInstant(),
+                    Instant.now(),
                     null,
                     PageRequest.of(0, 10));
 
@@ -84,7 +86,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             log.info("[REPORTED_USER_CREATE] - Get data by transaction = {}, ", trx);
 
             ReportedUser reportedUser = repository.save(ReportedUser.builder()
-                    .createdAt(LocalDateTime.now())
+                    .createdAt(Instant.now())
                     .trxChargeDate(trx.getTrxChargeDate())
                     .transactionId(trx.getId())
                     .userId(userId)

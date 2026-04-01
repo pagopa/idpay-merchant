@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.stream.function.StreamBridge;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @ExtendWith(MockitoExtension.class)
 class CommandsProducerTest {
@@ -21,7 +21,7 @@ class CommandsProducerTest {
 
     private static final String OPERATION_TYPE = "TESTOPERATIONTYPE";
     private static final String ENTITY_ID = "ENTITYID";
-    private static final LocalDateTime OPERATION_TIME = LocalDateTime.now();
+    private static final Instant OPERATION_TIME = Instant.now();
     private static final String COMMANDS_QUEUE_OUT_0 = "commandsQueue-out-0";
 
     @Test

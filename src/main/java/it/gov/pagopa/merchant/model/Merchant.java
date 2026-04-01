@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,9 +33,9 @@ public class Merchant {
     private String ibanHolder; // intestatario iban
     private List<Initiative> initiativeList;
     private boolean enabled;
-    private LocalDateTime activationDate;
-    private LocalDateTime lastLogin;
-    private LocalDateTime updateDate;
-    private LocalDateTime createdAt;
+    private Instant activationDate;
+    private Instant lastLogin;
+    private Instant updateDate;
+    private Instant createdAt;
 }
 
