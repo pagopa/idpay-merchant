@@ -31,6 +31,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 
 import java.io.*;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +68,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
     private final CommandsProducer commandsProducer;
     private final MerchantErrorNotifierService merchantErrorNotifierService;
     private final ObjectReader objectReader;
+    private final Clock clock;
 
     public UploadingMerchantServiceImpl(MerchantFileRepository merchantFileRepository,
                                         MerchantRepository merchantRepository,
@@ -75,7 +77,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                                         AuditUtilities auditUtilities, CommandsProducer commandsProducer,
                                         MerchantErrorNotifierService merchantErrorNotifierService,
                                         @Value("${spring.application.name}") String applicationName,
-                                        ObjectMapper objectMapper) {
+                                        ObjectMapper objectMapper, Clock clock) {
         super(applicationName);
         this.merchantFileRepository = merchantFileRepository;
         this.merchantRepository = merchantRepository;
@@ -87,6 +89,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         this.merchantErrorNotifierService = merchantErrorNotifierService;
         this.objectReader = objectMapper.readerFor(new TypeReference<List<StorageEventDTO>>() {
         });
+        this.clock = clock;
     }
 
     @Override
@@ -173,7 +176,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         auditUtilities.logValidationMerchantOK(initiativeId, entityId, file.getName());
         return MerchantUpdateDTO.builder()
                 .status(MerchantConstants.Status.VALIDATED)
-                .elabTimeStamp(Instant.now()).build();
+                .elabTimeStamp(Instant.now(clock)).build();
     }
 
 
@@ -203,7 +206,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                         .entityId(organizationId)
                         .organizationUserId(organizationUserId)
                         .status(status)
-                        .uploadDate(Instant.now())
+                        .uploadDate(Instant.now(clock))
                         .enabled(true).build();
 
         merchantFileRepository.save(merchantFile);
@@ -299,7 +302,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                     merchant.setIban(splitStr[IBAN_INDEX]);
                     merchant.setEnabled(true);
                 }
-                merchant.setUpdateDate(Instant.now());
+                merchant.setUpdateDate(Instant.now(clock));
                 merchantRepository.save(merchant);
                 initializeMerchantStatistics(initiativeId, merchant.getMerchantId());
             });
@@ -345,6 +348,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
     }
 
     private Initiative createMerchantInitiative(InitiativeBeneficiaryViewDTO initiativeDTO) {
+        Instant now = Instant.now(clock);
         return Initiative.builder()
                 .initiativeId(initiativeDTO.getInitiativeId())
                 .initiativeName(initiativeDTO.getInitiativeName())
@@ -355,8 +359,8 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 .endDate(initiativeDTO.getGeneral().getEndDate())
                 .status(initiativeDTO.getStatus())
                 .merchantStatus("UPLOADED")
-                .creationDate(Instant.now())
-                .updateDate(Instant.now())
+                .creationDate(now)
+                .updateDate(now)
                 .enabled(true).build();
     }
 
@@ -365,14 +369,14 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 .status(MerchantConstants.Status.KO)
                 .errorKey(errorKey)
                 .errorRow(errorRow)
-                .elabTimeStamp(Instant.now()).build();
+                .elabTimeStamp(Instant.now(clock)).build();
     }
 
     private void initializeMerchantStatistics(String initiativeId, String merchantId) {
         QueueCommandOperationDTO createMerchantStatistics = QueueCommandOperationDTO.builder()
                 .entityId(initiativeId.concat("_").concat(merchantId))
                 .operationType(MerchantConstants.OPERATION_TYPE_CREATE_MERCHANT_STATISTICS)
-                .operationTime(Instant.now())
+                .operationTime(Instant.now(clock))
                 .build();
         if (!commandsProducer.sendCommand(createMerchantStatistics)) {
             log.error("[CREATE_MERCHANT_STATISTICS] - Initiative: {}. Something went wrong while sending the message on Commands Queue", initiativeId);

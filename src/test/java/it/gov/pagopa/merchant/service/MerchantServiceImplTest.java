@@ -42,7 +42,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
@@ -78,6 +80,7 @@ class MerchantServiceImplTest {
   @Mock
   private Keycloak keycloakAdminClientMock;
 
+  private final Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
   private MerchantServiceImpl merchantService;
 
   private MerchantServiceImpl merchantServiceSpy;
@@ -88,8 +91,9 @@ class MerchantServiceImplTest {
   private static final String ACQUIRER_ID = "PAGOPA";
   private static final String MERCHANT_ID = "MERCHANT_ID";
   private static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
-  private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper();
+  private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper(clock);
   private final MerchantCreateDTOMapper merchantCreateDTOMapper = new MerchantCreateDTOMapper();
+
 
   @BeforeEach
   void setUp() {
@@ -110,8 +114,8 @@ class MerchantServiceImplTest {
         pointOfSaleRepositoryMock,
         merchantValidatorMock,
         keycloakAdminClientMock,
-        REALM
-    );
+        REALM,
+        clock);
     merchantServiceSpy = Mockito.spy(merchantService);
   }
 

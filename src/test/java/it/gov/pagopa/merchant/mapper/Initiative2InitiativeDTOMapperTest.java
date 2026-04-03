@@ -8,7 +8,9 @@ import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,9 +19,11 @@ class Initiative2InitiativeDTOMapperTest {
 
     private Initiative2InitiativeDTOMapper mapper;
 
+
     @BeforeEach
     void setUp() {
-        mapper = new Initiative2InitiativeDTOMapper();
+        Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
+        mapper = new Initiative2InitiativeDTOMapper(clock);
     }
 
     @Test

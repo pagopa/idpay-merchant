@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
@@ -21,8 +22,11 @@ import java.util.List;
 public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtended {
     private final MongoTemplate mongoTemplate;
 
-    public MerchantRepositoryExtendedImpl(MongoTemplate mongoTemplate) {
+    private final Clock clock;
+
+    public MerchantRepositoryExtendedImpl(MongoTemplate mongoTemplate, Clock clock) {
         this.mongoTemplate = mongoTemplate;
+        this.clock = clock;
     }
 
     @Override
@@ -45,11 +49,19 @@ public class MerchantRepositoryExtendedImpl implements MerchantRepositoryExtende
     public void updateInitiativeOnMerchant(String initiativeId) {
         Criteria criteriaInitiative = Criteria.where(Initiative.Fields.initiativeId).is(initiativeId);
         Criteria criteria = Criteria.where(Merchant.Fields.initiativeList).elemMatch(criteriaInitiative);
-        mongoTemplate.updateMulti(Query.query(criteria),
-            new Update().set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.status), MerchantConstants.INITIATIVE_PUBLISHED)
-                        .set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.updateDate), Instant.now())
-                        .set(Merchant.Fields.updateDate, Instant.now()),
-            Merchant.class);
+
+        Instant now = Instant.now(clock);
+
+        mongoTemplate.updateMulti(
+                Query.query(criteria),
+                new Update()
+                        .set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.status),
+                                MerchantConstants.INITIATIVE_PUBLISHED)
+                        .set("%s.$.%s".formatted(Merchant.Fields.initiativeList, Initiative.Fields.updateDate),
+                                now)
+                        .set(Merchant.Fields.updateDate, now),
+                Merchant.class
+        );
     }
 
     @Override

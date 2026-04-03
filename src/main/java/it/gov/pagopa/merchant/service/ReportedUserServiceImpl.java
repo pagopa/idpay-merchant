@@ -15,9 +15,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
     private final ReportedUserMapper mapper;
     private final TransactionConnector transactionConnector;
     private final PDVService pdvService;
-
+    private final Clock clock;
 
     @Override
     public ReportedUserCreateResponseDTO createReportedUser(String userId, String merchantId, String initiativeId) {
@@ -53,13 +53,17 @@ public class ReportedUserServiceImpl implements ReportedUserService {
         }
 
         try {
-            List<RewardTransaction> trxList = transactionConnector.findAll(null,
-                    userId,
-                    LocalDateTime.now().minusYears(1L).atZone(ZoneId.systemDefault()).toInstant(),
-                    Instant.now(),
-                    null,
-                    PageRequest.of(0, 10));
+            Instant now = Instant.now(clock);
+            Instant oneYearAgo = now.minus(365, ChronoUnit.DAYS);
 
+            List<RewardTransaction> trxList = transactionConnector.findAll(
+                    null,
+                    userId,
+                    oneYearAgo,
+                    now,
+                    null,
+                    PageRequest.of(0, 10)
+            );
             if (trxList.isEmpty() || trxList.getFirst() == null ) {
                 return ReportedUserCreateResponseDTO.ko(ReportedUserExceptions.USERID_NOT_FOUND);
             }
@@ -86,7 +90,7 @@ public class ReportedUserServiceImpl implements ReportedUserService {
             log.info("[REPORTED_USER_CREATE] - Get data by transaction = {}, ", trx);
 
             ReportedUser reportedUser = repository.save(ReportedUser.builder()
-                    .createdAt(Instant.now())
+                    .createdAt(now)
                     .trxChargeDate(trx.getTrxChargeDate())
                     .transactionId(trx.getId())
                     .userId(userId)

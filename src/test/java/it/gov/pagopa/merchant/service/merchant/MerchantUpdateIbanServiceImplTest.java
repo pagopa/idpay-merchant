@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,9 @@ class MerchantUpdateIbanServiceImplTest {
   @Mock
   private MerchantDetailService merchantDetailServiceMock;
 
+  @Mock
+  private Clock clock;
+
   private MerchantUpdateIbanService service;
 
   private static final String MERCHANT_ID = "MERCHANT_ID_1";
@@ -44,7 +48,7 @@ class MerchantUpdateIbanServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    service = new MerchantUpdateIbanServiceImpl(merchantRepositoryMock, merchantDetailServiceMock);
+    service = new MerchantUpdateIbanServiceImpl(merchantRepositoryMock, merchantDetailServiceMock,clock);
   }
 
   private Merchant buildMerchant() {

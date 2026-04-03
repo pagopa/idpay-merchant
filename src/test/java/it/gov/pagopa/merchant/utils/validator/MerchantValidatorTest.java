@@ -7,7 +7,10 @@ import it.gov.pagopa.merchant.exception.custom.MerchantValidationException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.merchant.MerchantTransactionCheckService;
+
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +25,7 @@ class MerchantValidatorTest {
   @Mock
   private MerchantTransactionCheckService pointOfSaleTransactionCheckService;
 
+  private final Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
   private MerchantValidator validator;
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
@@ -29,7 +33,7 @@ class MerchantValidatorTest {
 
   @BeforeEach
   void setUp() {
-    validator = new MerchantValidator(pointOfSaleTransactionCheckService);
+    validator = new MerchantValidator(pointOfSaleTransactionCheckService, clock);
   }
 
   @Test

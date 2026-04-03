@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.repository;
 
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.common.config.TimeConfig;
 import org.bson.BsonValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@ContextConfiguration(classes = MerchantRepositoryExtendedImpl.class)
+@ContextConfiguration(classes = {MerchantRepositoryExtendedImpl.class, TimeConfig.class})
 class MerchantRepositoryExtendedImplTest {
   public static final UpdateResult UPDATE_RESULT = new UpdateResult() {
     @Override

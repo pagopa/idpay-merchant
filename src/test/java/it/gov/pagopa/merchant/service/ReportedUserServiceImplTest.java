@@ -7,6 +7,7 @@ import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.mapper.ReportedUserMapper;
 import it.gov.pagopa.merchant.model.ReportedUser;
 import it.gov.pagopa.merchant.repository.ReportedUserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -16,7 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
@@ -36,13 +39,18 @@ class ReportedUserServiceImplTest {
 
     @InjectMocks
     private ReportedUserServiceImpl service;
-
     @Captor
     private ArgumentCaptor<ReportedUser> reportedUserCaptor;
 
     private static final String MERCHANT_ID = "m-123";
     private static final String INITIATIVE_ID = "i-456";
     private static final String ENCRYPTED_USER_ID = "enc-uid-788";
+
+    @BeforeEach
+    void setup() {
+        Clock fixedClock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
+        service = new ReportedUserServiceImpl(repository, mapper, transactionConnector, pdvService, fixedClock);
+    }
 
     @Test
     void createReportedUser_ko_whenAlreadyReported() {
