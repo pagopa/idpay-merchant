@@ -18,11 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class Initiative2InitiativeDTOMapperTest {
 
     private Initiative2InitiativeDTOMapper mapper;
-
+    private final Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
 
     @BeforeEach
     void setUp() {
-        Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
         mapper = new Initiative2InitiativeDTOMapper(clock);
     }
 
@@ -53,7 +52,7 @@ class Initiative2InitiativeDTOMapperTest {
     @Test
     void applyTest_statusClosed() {
         Initiative initiative = InitiativeFaker.mockInstance(1);
-        initiative.setEndDate(Instant.now().minus(1, ChronoUnit.DAYS));
+        initiative.setEndDate(Instant.now(clock).minus(1, ChronoUnit.DAYS));
         InitiativeDTO initiativeDTO = mapper.apply(initiative);
 
         assertNotNull(initiativeDTO);

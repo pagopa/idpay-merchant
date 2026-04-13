@@ -451,8 +451,8 @@ class MerchantServiceImplTest {
     dto.setAdditionalInfo(additionalInfo);
 
     GeneralInfoDTO general = new GeneralInfoDTO();
-    general.setStartDate(Instant.now().minus(1, ChronoUnit.DAYS));
-    general.setEndDate(Instant.now().plus(1, ChronoUnit.DAYS));
+    general.setStartDate(Instant.now(clock).minus(1, ChronoUnit.DAYS));
+    general.setEndDate(Instant.now(clock).plus(1, ChronoUnit.DAYS));
     dto.setGeneral(general);
 
     Method method = MerchantServiceImpl.class
@@ -467,8 +467,8 @@ class MerchantServiceImplTest {
     assertEquals("ORG1", initiative.getOrganizationId());
     assertEquals("Organization 1", initiative.getOrganizationName());
     assertEquals("SERVICE1", initiative.getServiceId());
-    assertEquals(Instant.now().minus(1 ,ChronoUnit.DAYS), initiative.getStartDate());
-    assertEquals(Instant.now().plus(1 ,ChronoUnit.DAYS), initiative.getEndDate());
+    assertEquals(Instant.now(clock).minus(1 ,ChronoUnit.DAYS), initiative.getStartDate());
+    assertEquals(Instant.now(clock).plus(1 ,ChronoUnit.DAYS), initiative.getEndDate());
     assertEquals("ACTIVE", initiative.getStatus());
     assertEquals("UPLOADED", initiative.getMerchantStatus());
     assertTrue(initiative.isEnabled());
@@ -512,8 +512,8 @@ class MerchantServiceImplTest {
           dtoIBV.setAdditionalInfo(additionalInfo);
 
           GeneralInfoDTO general = new GeneralInfoDTO();
-          general.setStartDate(Instant.now().minus(1, ChronoUnit.DAYS));
-          general.setEndDate(Instant.now().plus(1, ChronoUnit.DAYS));
+          general.setStartDate(Instant.now(clock).minus(1, ChronoUnit.DAYS));
+          general.setEndDate(Instant.now(clock).plus(1, ChronoUnit.DAYS));
           dtoIBV.setGeneral(general);
 
           dtoIBV.setStatus("ACTIVE");
@@ -565,8 +565,8 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesFieldsCorrectly() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    Instant existingActivationDate = Instant.now().minus(1, ChronoUnit.DAYS);
-    Instant newActivationDate = Instant.now();
+    Instant existingActivationDate = Instant.now(clock).minus(1, ChronoUnit.DAYS);
+    Instant newActivationDate = Instant.now(clock);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -601,7 +601,7 @@ class MerchantServiceImplTest {
   void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    Instant activationDate = Instant.now();
+    Instant activationDate = Instant.now(clock);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -635,8 +635,8 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesOnlyProvidedFields() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    Instant activationDate = Instant.now();
-    Instant activatioDateTimeNew =Instant.now().plus(2, ChronoUnit.DAYS);
+    Instant activationDate = Instant.now(clock);
+    Instant activatioDateTimeNew =Instant.now(clock).plus(2, ChronoUnit.DAYS);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
