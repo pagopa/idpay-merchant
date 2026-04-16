@@ -24,7 +24,6 @@ import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.MerchantValidator;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.LocalDate;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -78,6 +80,7 @@ class MerchantServiceImplTest {
   @Mock
   private Keycloak keycloakAdminClientMock;
 
+  private final Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
   private MerchantServiceImpl merchantService;
 
   private MerchantServiceImpl merchantServiceSpy;
@@ -88,8 +91,9 @@ class MerchantServiceImplTest {
   private static final String ACQUIRER_ID = "PAGOPA";
   private static final String MERCHANT_ID = "MERCHANT_ID";
   private static final String OPERATION_TYPE_DELETE_INITIATIVE = "DELETE_INITIATIVE";
-  private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper();
+  private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper = new Initiative2InitiativeDTOMapper(clock);
   private final MerchantCreateDTOMapper merchantCreateDTOMapper = new MerchantCreateDTOMapper();
+
 
   @BeforeEach
   void setUp() {
@@ -110,8 +114,8 @@ class MerchantServiceImplTest {
         pointOfSaleRepositoryMock,
         merchantValidatorMock,
         keycloakAdminClientMock,
-        REALM
-    );
+        REALM,
+        clock);
     merchantServiceSpy = Mockito.spy(merchantService);
   }
 
@@ -447,8 +451,8 @@ class MerchantServiceImplTest {
     dto.setAdditionalInfo(additionalInfo);
 
     GeneralInfoDTO general = new GeneralInfoDTO();
-    general.setStartDate(LocalDate.now().minusDays(1));
-    general.setEndDate(LocalDate.now().plusDays(1));
+    general.setStartDate(Instant.now(clock).minus(1, ChronoUnit.DAYS));
+    general.setEndDate(Instant.now(clock).plus(1, ChronoUnit.DAYS));
     dto.setGeneral(general);
 
     Method method = MerchantServiceImpl.class
@@ -463,8 +467,8 @@ class MerchantServiceImplTest {
     assertEquals("ORG1", initiative.getOrganizationId());
     assertEquals("Organization 1", initiative.getOrganizationName());
     assertEquals("SERVICE1", initiative.getServiceId());
-    assertEquals(LocalDate.now().minusDays(1), initiative.getStartDate());
-    assertEquals(LocalDate.now().plusDays(1), initiative.getEndDate());
+    assertEquals(Instant.now(clock).minus(1 ,ChronoUnit.DAYS), initiative.getStartDate());
+    assertEquals(Instant.now(clock).plus(1 ,ChronoUnit.DAYS), initiative.getEndDate());
     assertEquals("ACTIVE", initiative.getStatus());
     assertEquals("UPLOADED", initiative.getMerchantStatus());
     assertTrue(initiative.isEnabled());
@@ -508,8 +512,8 @@ class MerchantServiceImplTest {
           dtoIBV.setAdditionalInfo(additionalInfo);
 
           GeneralInfoDTO general = new GeneralInfoDTO();
-          general.setStartDate(LocalDate.now().minusDays(1));
-          general.setEndDate(LocalDate.now().plusDays(1));
+          general.setStartDate(Instant.now(clock).minus(1, ChronoUnit.DAYS));
+          general.setEndDate(Instant.now(clock).plus(1, ChronoUnit.DAYS));
           dtoIBV.setGeneral(general);
 
           dtoIBV.setStatus("ACTIVE");
@@ -561,8 +565,8 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesFieldsCorrectly() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDateTime existingActivationDate = LocalDateTime.now().minusDays(1);
-    LocalDateTime newActivationDate = LocalDateTime.now();
+    Instant existingActivationDate = Instant.now(clock).minus(1, ChronoUnit.DAYS);
+    Instant newActivationDate = Instant.now(clock);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -597,7 +601,7 @@ class MerchantServiceImplTest {
   void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDateTime activationDate = LocalDateTime.now();
+    Instant activationDate = Instant.now(clock);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")
@@ -631,8 +635,8 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesOnlyProvidedFields() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
-    LocalDateTime activationDate = LocalDateTime.now();
-    LocalDateTime activatioDateTimeNew =LocalDateTime.now().plusDays(2);
+    Instant activationDate = Instant.now(clock);
+    Instant activatioDateTimeNew =Instant.now(clock).plus(2, ChronoUnit.DAYS);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
         .iban("OLD_IBAN")

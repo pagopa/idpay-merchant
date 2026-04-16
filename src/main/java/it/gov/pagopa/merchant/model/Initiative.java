@@ -6,8 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -21,11 +20,11 @@ public class Initiative {
     private String organizationName;
     private String serviceId;
     private String status;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private Instant startDate;
+    private Instant endDate;
     private String merchantStatus;
-    private LocalDateTime creationDate;
-    private LocalDateTime updateDate;
+    private Instant creationDate;
+    private Instant updateDate;
     private boolean enabled;
 
 }

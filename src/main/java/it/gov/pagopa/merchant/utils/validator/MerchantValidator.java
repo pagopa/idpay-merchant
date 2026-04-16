@@ -5,8 +5,10 @@ import it.gov.pagopa.merchant.exception.custom.MerchantValidationException;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.service.merchant.MerchantTransactionCheckService;
+
+import java.time.Clock;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +24,10 @@ import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 public class MerchantValidator {
 
   private final MerchantTransactionCheckService transactionCheckService;
-
-  public MerchantValidator(MerchantTransactionCheckService transactionCheckService) {
+  private final Clock clock;
+  public MerchantValidator(MerchantTransactionCheckService transactionCheckService, Clock clock) {
     this.transactionCheckService = transactionCheckService;
+    this.clock = clock;
   }
 
   public void validateMerchantWithdrawal(Merchant merchant, String initiativeId) {
@@ -39,7 +42,7 @@ public class MerchantValidator {
               .message(MerchantConstants.MSG_ACTIVATION_DATE_MISSING)
               .build());
     } else {
-      long days = Duration.between(merchant.getActivationDate(), LocalDateTime.now()).toDays();
+      long days = Duration.between(merchant.getActivationDate(), Instant.now(clock)).toDays();
       if (days >= 15) {
         log.info("[MERCHANT-WITHDRAWAL] Merchant {} cannot withdraw: {} days have passed since activation",
                 sanitizeString(merchant.getMerchantId()), days);

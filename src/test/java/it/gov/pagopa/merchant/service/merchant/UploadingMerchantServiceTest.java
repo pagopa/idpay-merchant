@@ -42,6 +42,9 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +77,8 @@ class UploadingMerchantServiceTest {
     @Mock
     Throwable exception;
 
+    Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
+
     private static final String INITIATIVE_ID = "INITIATIVEID1";
     private static final String ENTITY_ID = "ORGANIZATION_ID";
     private static final String ACQUIRER_ID = "PAGOPA";
@@ -86,9 +91,9 @@ class UploadingMerchantServiceTest {
     @BeforeEach
     void setUp() {
         uploadingMerchantService = new UploadingMerchantServiceImpl(merchantFileRepositoryMock, repositoryMock, initiativeRestConnectorMock,
-                merchantFileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper);
+                merchantFileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper, clock);
         uploadingMerchantServiceImpl = new UploadingMerchantServiceImpl(merchantFileRepositoryMock, repositoryMock, initiativeRestConnectorMock,
-                merchantFileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper);
+                merchantFileStorageConnectorMock, auditUtilitiesMock, commandsProducerMock, merchantErrorNotifierServiceMock, APPLICATION_NAME, TestUtils.objectMapper, clock);
     }
     @Test
     void uploadMerchantFile_ValidFile() throws IOException {

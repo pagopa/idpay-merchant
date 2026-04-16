@@ -2,7 +2,7 @@ package it.gov.pagopa.merchant.dto.transaction;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +15,7 @@ public class RewardTransaction {
     private String id;
     private String idTrxAcquirer;
     private String acquirerCode;
-    private LocalDateTime trxDate;
+    private Instant trxDate;
     private String hpan;
     private String operationType;
     private String circuitType;
@@ -48,10 +48,10 @@ public class RewardTransaction {
 
     private String operationTypeTranscoded;
     private Long effectiveAmountCents;
-    private LocalDateTime trxChargeDate;
+    private Instant trxChargeDate;
     private RefundInfo refundInfo;
 
-    private LocalDateTime elaborationDateTime;
+    private Instant elaborationDateTime;
     private String channel;
     private Map<String, String> additionalProperties;
     private InvoiceFile invoiceFile;

@@ -5,13 +5,19 @@ import it.gov.pagopa.merchant.dto.InitiativeDTO;
 import it.gov.pagopa.merchant.model.Initiative;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.Clock;
+import java.time.Instant;
 
 @Service
 public class Initiative2InitiativeDTOMapper {
+    private final Clock clock;
+
+    public Initiative2InitiativeDTOMapper(Clock clock) {
+        this.clock = clock;
+    }
 
     public InitiativeDTO apply(Initiative initiative) {
-        String status = initiative.getEndDate() != null && LocalDate.now().isAfter(initiative.getEndDate()) ?
+        String status = initiative.getEndDate() != null && Instant.now(clock).isAfter(initiative.getEndDate()) ?
                 MerchantConstants.INITIATIVE_CLOSED : initiative.getStatus();
         return InitiativeDTO.builder()
                 .initiativeId(initiative.getInitiativeId())
@@ -28,4 +34,6 @@ public class Initiative2InitiativeDTOMapper {
                 .enabled(initiative.isEnabled())
                 .build();
     }
+
+
 }

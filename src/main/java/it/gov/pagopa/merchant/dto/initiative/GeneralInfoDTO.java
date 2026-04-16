@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -13,6 +13,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class GeneralInfoDTO {
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private Instant startDate;
+    private Instant endDate;
 }

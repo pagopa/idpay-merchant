@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
@@ -26,6 +26,6 @@ public class MerchantFile {
     private String entityId;
     private String organizationUserId;
     private String status;
-    private LocalDateTime uploadDate;
+    private Instant uploadDate;
     private boolean enabled;
 }

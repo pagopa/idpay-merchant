@@ -1,11 +1,11 @@
 package it.gov.pagopa.merchant.service.merchant;
 
+import it.gov.pagopa.common.utils.TestUtils;
 import it.gov.pagopa.merchant.dto.MerchantDTO;
 import it.gov.pagopa.merchant.dto.MerchantListDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
-import it.gov.pagopa.common.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,7 +49,11 @@ class MerchantListServiceTest {
             .businessName(merchant1.getBusinessName())
             .fiscalCode(merchant1.getFiscalCode())
             .merchantStatus("STATUS")
-            .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
+            .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toString())
+            .build();
     MerchantDTO merchantDTO2 = MerchantDTO.builder()
             .merchantId(merchant2.getMerchantId())
             .businessName(merchant2.getBusinessName())
@@ -93,7 +98,10 @@ class MerchantListServiceTest {
             .businessName(merchant1.getBusinessName())
             .fiscalCode(merchant1.getFiscalCode())
             .merchantStatus("STATUS")
-            .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).toString()).build();
+            .updateStatusDate(LocalDateTime.of(2023,5,22,10, 0).atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toString())
+            .build();
     MerchantDTO merchantDTO2 = MerchantDTO.builder()
             .merchantId(merchant2.getMerchantId())
             .businessName(merchant2.getBusinessName())

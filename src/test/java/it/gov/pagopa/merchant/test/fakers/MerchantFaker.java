@@ -3,7 +3,9 @@ package it.gov.pagopa.merchant.test.fakers;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 
 public class MerchantFaker {
@@ -21,8 +23,9 @@ public class MerchantFaker {
                 .organizationId("ORGANIZATION_ID_%d".formatted(bias))
                 .enabled(true)
                 .merchantStatus("STATUS")
-                .creationDate(LocalDateTime.of(2023,5,22,10, 0))
-                .updateDate(LocalDateTime.of(2023,5,22,10, 0)).build();
+                .creationDate(LocalDateTime.of(2023,5,22,10, 0).atZone(ZoneId.systemDefault()).toInstant())
+                .updateDate(LocalDateTime.of(2023,5,22,10, 0).atZone(ZoneId.systemDefault()).toInstant())
+                .build();
         ArrayList<Initiative> initiatives = new ArrayList<>();
         initiatives.add(initiative);
         return Merchant.builder()
@@ -39,7 +42,7 @@ public class MerchantFaker {
                 .vatNumber("VAT_NUMBER_%d".formatted(bias))
                 .iban("IT60X0542811101000000123456")
                 .ibanHolder("Nome Cognome")
-                .activationDate(LocalDateTime.now())
+                .activationDate(Instant.now())
                 .enabled(true);
     }
 }

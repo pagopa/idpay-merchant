@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ReportedUserDTO {
     private String fiscalCode;
-    private LocalDateTime reportedDate;
+    private Instant reportedDate;
     private String transactionId;
-    private LocalDateTime trxChargeDate;
+    private Instant trxChargeDate;
 }

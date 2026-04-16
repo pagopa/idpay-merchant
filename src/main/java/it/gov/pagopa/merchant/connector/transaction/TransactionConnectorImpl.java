@@ -8,7 +8,7 @@ import it.gov.pagopa.merchant.exception.custom.TransactionInvocationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -37,8 +37,8 @@ public class TransactionConnectorImpl implements TransactionConnector {
   @Override
   public List<RewardTransaction> findAll(String idTrxIssuer,
                                          String userId,
-                                         LocalDateTime trxDateStart,
-                                         LocalDateTime trxDateEnd,
+                                         Instant trxDateStart,
+                                         Instant trxDateEnd,
                                          Long amountCents,
                                          Pageable pageable) {
 

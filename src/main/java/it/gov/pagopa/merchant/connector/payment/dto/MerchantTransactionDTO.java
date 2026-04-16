@@ -2,7 +2,7 @@ package it.gov.pagopa.merchant.connector.payment.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,10 +23,10 @@ public class MerchantTransactionDTO {
   private Long effectiveAmountCents;
   private Long rewardAmountCents;
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  private LocalDateTime trxDate;
+  private Instant trxDate;
   private Long trxExpirationSeconds;
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  private LocalDateTime updateDate;
+  private Instant updateDate;
   private SyncTrxStatus status;
   private Boolean splitPayment;
   private Long residualAmountCents;

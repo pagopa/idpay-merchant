@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -14,6 +14,6 @@ import java.time.LocalDateTime;
 public class QueueInitiativeDTO {
     private String initiativeId;
     private String status;
-    private LocalDateTime updateDate;
+    private Instant updateDate;
     private String initiativeRewardType;
 }

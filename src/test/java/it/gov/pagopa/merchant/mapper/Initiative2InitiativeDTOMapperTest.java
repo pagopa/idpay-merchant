@@ -8,17 +8,21 @@ import it.gov.pagopa.merchant.test.fakers.InitiativeFaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class Initiative2InitiativeDTOMapperTest {
 
     private Initiative2InitiativeDTOMapper mapper;
+    private final Clock clock = Clock.fixed(Instant.parse("2026-04-03T10:00:00Z"), ZoneOffset.UTC);
 
     @BeforeEach
     void setUp() {
-        mapper = new Initiative2InitiativeDTOMapper();
+        mapper = new Initiative2InitiativeDTOMapper(clock);
     }
 
     @Test
@@ -48,7 +52,7 @@ class Initiative2InitiativeDTOMapperTest {
     @Test
     void applyTest_statusClosed() {
         Initiative initiative = InitiativeFaker.mockInstance(1);
-        initiative.setEndDate(LocalDate.now().minusDays(1));
+        initiative.setEndDate(Instant.now(clock).minus(1, ChronoUnit.DAYS));
         InitiativeDTO initiativeDTO = mapper.apply(initiative);
 
         assertNotNull(initiativeDTO);

@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.test.fakers;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class MerchantUpdateDTOFaker {
     private MerchantUpdateDTOFaker() {
@@ -17,7 +18,7 @@ public class MerchantUpdateDTOFaker {
                 .status("STATUS")
                 .errorRow(null)
                 .errorKey(null)
-                .elabTimeStamp(LocalDateTime.of(2023,5,22,10, 0));
+                .elabTimeStamp(LocalDateTime.of(2023,5,22,10, 0).atZone(ZoneId.systemDefault()).toInstant());
 
 
     }

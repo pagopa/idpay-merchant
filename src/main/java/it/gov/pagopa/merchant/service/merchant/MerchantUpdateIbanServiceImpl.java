@@ -6,7 +6,8 @@ import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
 
   private final MerchantRepository merchantRepository;
   private final MerchantDetailService merchantDetailService;
+  private final Clock clock;
 
   // Regex for IBAN format
   private static final Pattern ITALIAN_IBAN_PATTERN = Pattern.compile("^IT\\d{2}[A-Z]\\d{5}\\d{5}[A-Z0-9]{12}$");
@@ -25,10 +27,13 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
   private static final Pattern IBAN_HOLDER_PATTERN = Pattern.compile("^[\\p{L}'\\s-]+$");
 
 
+
+
   public MerchantUpdateIbanServiceImpl(MerchantRepository merchantRepository,
-      MerchantDetailService merchantDetailService) {
+      MerchantDetailService merchantDetailService, Clock clock) {
     this.merchantRepository = merchantRepository;
     this.merchantDetailService = merchantDetailService;
+    this.clock = clock;
   }
 
   @Override
@@ -69,7 +74,7 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
       }
       merchant.setIbanHolder(merchantIbanPatchDTO.getIbanHolder());
     }
-    merchant.setUpdateDate(LocalDateTime.now());
+    merchant.setUpdateDate(Instant.now(clock));
     merchantRepository.save(merchant);
 
     return merchantDetailService.getMerchantDetail(organizationId, initiativeId, merchantId);

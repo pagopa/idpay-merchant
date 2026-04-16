@@ -2,8 +2,7 @@ package it.gov.pagopa.merchant.test.fakers;
 
 import it.gov.pagopa.merchant.model.Initiative;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class InitiativeFaker {
 
@@ -18,12 +17,12 @@ public class InitiativeFaker {
                 .organizationId("ORGANIZATION%d".formatted(bias))
                 .organizationName("ORGANIZATIONNAME%d".formatted(bias))
                 .status("PUBLISHED")
-                .startDate(LocalDate.now())
-                .endDate(LocalDate.now())
+                .startDate(Instant.now())
+                .endDate(Instant.now())
                 .serviceId("SERVICEID%d")
                 .merchantStatus("MERCHANTSTATUS%d".formatted(bias))
-                .creationDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
+                .creationDate(Instant.now())
+                .updateDate(Instant.now())
                 .enabled(true);
     }
 }

@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +16,7 @@ public class StorageEventDTO {
     private String subject;
     private String eventType;
     private StorageEventData data;
-    private LocalDateTime eventTime;
+    private Instant eventTime;
 
     @Data
     @NoArgsConstructor

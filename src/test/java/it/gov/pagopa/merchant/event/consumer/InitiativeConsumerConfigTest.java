@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.function.Consumer;
 @ExtendWith(MockitoExtension.class)
 class InitiativeConsumerConfigTest {
@@ -21,7 +21,7 @@ class InitiativeConsumerConfigTest {
     private InitiativeConsumerConfig initiativeConsumerConfig;
 
     private Consumer<QueueInitiativeDTO> initiativeConsumer;
-    private static final LocalDateTime OPERATION_TIME = LocalDateTime.now();
+    private static final Instant OPERATION_TIME = Instant.now();
     private static final String INITIATIVEID = "INITIATIVEID";
     private static final String STATUS = "STATUS";
     private static final String REWARDTYPE = "REWARDTYPE";
