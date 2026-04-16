@@ -40,7 +40,7 @@ class MerchantValidatorTest {
   void validateMerchantWithdrawal_activationTooOld_throwsException() {
     Merchant merchant = new Merchant();
     merchant.setMerchantId(MERCHANT_ID);
-    merchant.setActivationDate(Instant.now().minus(20, ChronoUnit.DAYS));
+    merchant.setActivationDate(Instant.now(clock).minus(20, ChronoUnit.DAYS));
 
     when(pointOfSaleTransactionCheckService.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
     when(pointOfSaleTransactionCheckService.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
@@ -56,7 +56,7 @@ class MerchantValidatorTest {
   void validateMerchantWithdrawal_inProgressTransactions_throwsException() {
     Merchant merchant = new Merchant();
     merchant.setMerchantId(MERCHANT_ID);
-    merchant.setActivationDate(Instant.now().minus(5,  ChronoUnit.DAYS));
+    merchant.setActivationDate(Instant.now(clock).minus(5,  ChronoUnit.DAYS));
 
     when(pointOfSaleTransactionCheckService.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(true);
     when(pointOfSaleTransactionCheckService.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
@@ -72,7 +72,7 @@ class MerchantValidatorTest {
   void validateMerchantWithdrawal_processedTransactions_throwsException() {
     Merchant merchant = new Merchant();
     merchant.setMerchantId(MERCHANT_ID);
-    merchant.setActivationDate(Instant.now().minus(5, ChronoUnit.DAYS));
+    merchant.setActivationDate(Instant.now(clock).minus(5, ChronoUnit.DAYS));
 
     when(pointOfSaleTransactionCheckService.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
     when(pointOfSaleTransactionCheckService.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(true);
@@ -88,7 +88,7 @@ class MerchantValidatorTest {
   void validateMerchantWithdrawal_noErrors_passes() {
     Merchant merchant = new Merchant();
     merchant.setMerchantId(MERCHANT_ID);
-    merchant.setActivationDate(Instant.now().minus(5, ChronoUnit.DAYS));
+    merchant.setActivationDate(Instant.now(clock).minus(5, ChronoUnit.DAYS));
 
     when(pointOfSaleTransactionCheckService.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
     when(pointOfSaleTransactionCheckService.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID)).thenReturn(false);
