@@ -243,6 +243,32 @@ class MerchantServiceImplTest {
   }
 
   @Test
+  void getMerchantInitiativeList_sortedAlphabeticallyByInitiativeName() {
+    Initiative initiativeC = Initiative.builder()
+        .initiativeId("ID_C").initiativeName("Charlie")
+        .status(MerchantConstants.INITIATIVE_PUBLISHED).build();
+    Initiative initiativeA = Initiative.builder()
+        .initiativeId("ID_A").initiativeName("Alpha")
+        .status(MerchantConstants.INITIATIVE_PUBLISHED).build();
+    Initiative initiativeB = Initiative.builder()
+        .initiativeId("ID_B").initiativeName("Bravo")
+        .status(MerchantConstants.INITIATIVE_PUBLISHED).build();
+
+    Merchant merchant = MerchantFaker.mockInstanceBuilder(1)
+        .initiativeList(List.of(initiativeC, initiativeA, initiativeB))
+        .build();
+
+    when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
+
+    List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
+
+    assertEquals(3, result.size());
+    assertEquals("Alpha", result.get(0).getInitiativeName());
+    assertEquals("Bravo", result.get(1).getInitiativeName());
+    assertEquals("Charlie", result.get(2).getInitiativeName());
+  }
+
+  @Test
   void getMerchantInitiativeList_emptyList() {
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.empty());

@@ -28,10 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
@@ -147,6 +144,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     return merchant.map(value -> value.getInitiativeList().stream()
         .filter(i -> MerchantConstants.INITIATIVE_PUBLISHED.equals(i.getStatus()))
+        .sorted(Comparator.comparing(Initiative::getInitiativeName))
         .map(initiative2InitiativeDTOMapper::apply).toList()).orElse(Collections.emptyList());
   }
 
