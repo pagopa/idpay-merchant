@@ -67,8 +67,9 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   }
 
   @Override
-  public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String merchantId, String tokenMerchantId, String type,
-      String city, String address, String contactName, Pageable pageable) {
+  public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String initiativeId, String merchantId, String tokenMerchantId, String type,
+                                                                String city, String address, String contactName, Pageable pageable) {
+    String sanitizedInitiativeId = initiativeId == null ? null : sanitizeString(initiativeId);
     String sanitizedMerchantId = sanitizeString(merchantId);
     log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", sanitizedMerchantId);
 
@@ -79,8 +80,8 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
       );
     }
 
-    Page<PointOfSale> pagePointOfSales = pointOfSaleService.getPointOfSalesList(sanitizedMerchantId, type,
-        city, address, contactName, pageable);
+    Page<PointOfSale> pagePointOfSales = pointOfSaleService.getPointOfSalesList(sanitizedInitiativeId, sanitizedMerchantId,
+            type, city, address, contactName, pageable);
 
     Page<PointOfSaleDTO> result = pagePointOfSales.map(pointOfSaleDTOMapper::entityToDto);
 
@@ -92,8 +93,9 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   }
 
   @Override
-  public ResponseEntity<PointOfSaleDTO> getPointOfSale(String pointOfSaleId, String merchantId, String tokenPointOfSaleId, String tokenMerchantId) {
+  public ResponseEntity<PointOfSaleDTO> getPointOfSale(String initiativeId, String pointOfSaleId, String merchantId, String tokenPointOfSaleId, String tokenMerchantId) {
 
+    String sanitizedInitiativeId = initiativeId == null ? null : sanitizeString(initiativeId);
     String sanitizedPointOfSaleId = sanitizeString(pointOfSaleId);
     String sanitizedMerchantId   = sanitizeString(merchantId);
 
@@ -115,7 +117,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     }
 
     PointOfSale pointOfSale =
-        pointOfSaleService.getPointOfSaleByIdAndMerchantId(sanitizedPointOfSaleId, sanitizedMerchantId);
+        pointOfSaleService.getPointOfSaleByIdAndMerchantId(sanitizedInitiativeId, sanitizedPointOfSaleId, sanitizedMerchantId);
 
     Merchant merchant =
         merchantService.getMerchantByMerchantId(sanitizedMerchantId);

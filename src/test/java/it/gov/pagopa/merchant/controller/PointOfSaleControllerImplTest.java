@@ -99,7 +99,7 @@ class PointOfSaleControllerImplTest {
     Page<PointOfSale> expectedPage = new PageImpl<>(List.of(pointOfSale), pageRequest, 1);
 
     when(pointOfSaleService.getPointOfSalesList(any(), any(), any(), any(), any(),
-        any())).thenReturn(expectedPage);
+            any(), any())).thenReturn(expectedPage);
 
     MvcResult result =
         mockMvc.perform(
@@ -116,7 +116,7 @@ class PointOfSaleControllerImplTest {
         Merchant merchant = Mockito.mock(Merchant.class);
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
-        when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
+        when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(isNull(), anyString(), anyString()))
                 .thenReturn(pointOfSale);
         when(merchantService.getMerchantByMerchantId(anyString()))
             .thenReturn(merchant);
@@ -132,7 +132,7 @@ class PointOfSaleControllerImplTest {
 
     Assertions.assertNotNull(result);
 
-        Mockito.verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
+        Mockito.verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(isNull(), anyString(), anyString());
         verify(merchantService).getMerchantByMerchantId(MERCHANT_ID);
         Mockito.verify(mapper).entityToDto(pointOfSale, merchant);
     }
@@ -141,7 +141,7 @@ class PointOfSaleControllerImplTest {
   void getPointOfSaleTestKO() throws Exception {
     String invalidPosId = "INVALID_POS_ID";
 
-    when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
+    when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(isNull(), anyString(), anyString()))
         .thenThrow(new PointOfSaleNotFoundException(String.format(MSG_NOT_FOUND, invalidPosId)));
 
     mockMvc.perform(
@@ -157,7 +157,7 @@ class PointOfSaleControllerImplTest {
         ))
         .andReturn();
 
-    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
+    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(isNull(), anyString(), anyString());
   }
 
   @Test
@@ -200,7 +200,7 @@ class PointOfSaleControllerImplTest {
     Merchant merchant = new Merchant();
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
-    when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
+    when(pointOfSaleService.getPointOfSaleByIdAndMerchantId(isNull(), anyString(), anyString()))
         .thenReturn(pointOfSale);
     when(merchantService.getMerchantByMerchantId(anyString()))
         .thenReturn(merchant);
@@ -215,7 +215,7 @@ class PointOfSaleControllerImplTest {
 
     Assertions.assertNotNull(result);
 
-    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId("POS_ID", "MERCHANT_ID");
+    verify(pointOfSaleService).getPointOfSaleByIdAndMerchantId(isNull(), eq("POS_ID"), eq("MERCHANT_ID"));
     verify(merchantService).getMerchantByMerchantId("MERCHANT_ID");
     verify(mapper).entityToDto(pointOfSale, merchant);
   }

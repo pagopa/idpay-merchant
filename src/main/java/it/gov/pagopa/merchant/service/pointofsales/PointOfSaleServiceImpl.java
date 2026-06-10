@@ -9,7 +9,9 @@ import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.model.PointOfSalesInitiative;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
+import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import jakarta.ws.rs.core.Response;
@@ -34,6 +36,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
   private final MerchantService merchantService;
   private final PointOfSaleRepository pointOfSaleRepository;
+  private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
 
   private final Keycloak keycloakAdminClient;
   private final String realm;
@@ -46,6 +49,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   public PointOfSaleServiceImpl(
           MerchantService merchantService,
           PointOfSaleRepository pointOfSaleRepository,
+          PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository,
           Keycloak keycloakAdminClient,
           @Value("${keycloak.admin.realm}") String realm,
           @Value("${keycloak.admin.user.actions.email.lifespan}") Integer keycloakUserActionsEmailLifespan,
@@ -53,6 +57,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
           @Value("${keycloak.admin.redirect-client-id}") String keycloakClientId) {
     this.merchantService = merchantService;
     this.pointOfSaleRepository = pointOfSaleRepository;
+    this.pointOfSalesInitiativeRepository = pointOfSalesInitiativeRepository;
     this.keycloakAdminClient = keycloakAdminClient;
     this.realm = realm;
     this.redirectURI = redirectURI;
@@ -63,11 +68,11 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   @Override
   public void savePointOfSales(String merchantId, List<PointOfSale> pointOfSales) {
 
-    verifyMerchantExists(merchantId);
+    verifyMerchantExists(merchantId); //capire se togliere controlla il merchant se esiste?!
 
     List<PointOfSaleUpdateContext> entities = pointOfSales.stream()
             .map(this::preparePointOfSaleForSave)
-            .toList();
+            .toList(); //controllo se update o insert
 
     List<PointOfSale> savedPointOfSales = new ArrayList<>();
     String currentEmail = "";
@@ -110,6 +115,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
   @Override
   public Page<PointOfSale> getPointOfSalesList(
+          String initiativeId,
           String merchantId,
           String type,
           String city,
@@ -119,8 +125,24 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
     verifyMerchantExists(merchantId);
 
-    Criteria criteria = pointOfSaleRepository.getCriteria(merchantId, type, city, address,
-            contactName);
+    Criteria criteria;
+    if (initiativeId == null || initiativeId.isBlank()) {
+      criteria = pointOfSaleRepository.getCriteria(merchantId, type, city, address,
+              contactName);
+    } else {
+      List<String> pointOfSaleIds = pointOfSalesInitiativeRepository
+              .findByInitiativeIdAndMerchantIdAndEnabledTrue(initiativeId, merchantId).stream()
+              .map(PointOfSalesInitiative::getPointOfSaleId)
+              .toList();
+
+      if (pointOfSaleIds.isEmpty()) {
+        return PageableExecutionUtils.getPage(
+                Collections.<PointOfSale>emptyList(), Utilities.getPageable(pageable), () -> 0L);
+      }
+
+      criteria = pointOfSaleRepository.getCriteria(merchantId, pointOfSaleIds, type, city, address,
+              contactName);
+    }
     List<PointOfSale> matched = pointOfSaleRepository.findByFilter(criteria, pageable);
     long total = pointOfSaleRepository.getCount(criteria);
 
@@ -181,13 +203,26 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   }
 
   @Override
-  public PointOfSale getPointOfSaleByIdAndMerchantId(String pointOfSaleId, String merchantId) {
+  public PointOfSale getPointOfSaleByIdAndMerchantId(String initiativeId, String pointOfSaleId, String merchantId) {
     verifyMerchantExists(merchantId);
 
-    return pointOfSaleRepository.findByIdAndMerchantId(pointOfSaleId, merchantId)
-            .orElseThrow(() -> new PointOfSaleNotFoundException(
-                    String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
-            ));
+    if (initiativeId == null || initiativeId.isBlank()) {
+        return pointOfSaleRepository.findByIdAndMerchantId(pointOfSaleId, merchantId)
+                .orElseThrow(() -> new PointOfSaleNotFoundException(
+                        String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
+                ));
+    } else {
+        pointOfSalesInitiativeRepository.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(
+                pointOfSaleId, initiativeId, merchantId)
+                .orElseThrow(() -> new PointOfSaleNotFoundException(
+                        String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
+                ));
+        return pointOfSaleRepository.findByIdAndMerchantId(pointOfSaleId, merchantId)
+                .orElseThrow(() -> new PointOfSaleNotFoundException(
+                        String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
+                ));
+    }
+
   }
 
   private void manageReferentUserOnKeycloak(PointOfSale pointOfSale, String oldEmail) {

@@ -58,6 +58,7 @@ public interface PointOfSaleController {
             @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
     @GetMapping(value = "/{merchantId}/point-of-sales")
     ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(
+            @RequestParam(required = false) String initiativeId,
             @PathVariable("merchantId") String merchantId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
             @RequestParam(required = false) String type,
@@ -88,6 +89,7 @@ public interface PointOfSaleController {
     })
     @GetMapping("/{merchantId}/point-of-sales/{pointOfSaleId}")
     ResponseEntity<PointOfSaleDTO> getPointOfSale(
+            @RequestParam(required = false) String initiativeId,
             @PathVariable("pointOfSaleId") String pointOfSaleId,
             @PathVariable("merchantId") String merchantId,
             @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
