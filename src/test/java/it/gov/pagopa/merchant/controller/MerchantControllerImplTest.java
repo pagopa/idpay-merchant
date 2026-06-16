@@ -249,8 +249,8 @@ class MerchantControllerImplTest {
     requestDto.setIban("IT60X0542811101000000123456");
 
     MerchantDetailDTO responseDto = MerchantDetailDTOFaker.mockInstance(1);
-    Mockito.when(merchantServiceMock.updateIban(
-        anyString(), anyString(), anyString(), any(MerchantIbanPatchDTO.class))
+    Mockito.when(merchantServiceMock.patchMerchant(
+        anyString(), anyString(), any(MerchantIbanPatchDTO.class))
     ).thenReturn(responseDto);
 
     mockMvc.perform(
@@ -262,7 +262,7 @@ class MerchantControllerImplTest {
         )
         .andExpect(status().isOk());
     Mockito.verify(merchantServiceMock)
-        .updateIban(anyString(), anyString(), anyString(), any(MerchantIbanPatchDTO.class));
+        .patchMerchant(anyString(), anyString(), any(MerchantIbanPatchDTO.class));
   }
 
 
