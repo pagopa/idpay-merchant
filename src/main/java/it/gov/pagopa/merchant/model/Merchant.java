@@ -27,6 +27,7 @@ public class Merchant {
     private String legalOfficeProvince;
     private String legalOfficeZipCode;
     private String certifiedEmail;
+    private String operativeEmail;
     private String fiscalCode;
     private String vatNumber;
     private String iban;

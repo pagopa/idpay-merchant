@@ -21,6 +21,8 @@ public class Initiative {
     private String organizationName;
     private String serviceId;
     private String status;
+    private String iban;
+    private String ibanHolder;
     private LocalDate startDate;
     private LocalDate endDate;
     private String merchantStatus;
