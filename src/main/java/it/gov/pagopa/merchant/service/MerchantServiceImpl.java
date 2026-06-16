@@ -119,9 +119,9 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
-  public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId,
+  public MerchantDetailDTO patchMerchant(String merchantId, String initiativeId,
       MerchantIbanPatchDTO merchantIbanPatchDTO) {
-    return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId,
+    return merchantUpdateIbanService.patchMerchant(merchantId, initiativeId,
         merchantIbanPatchDTO);
   }
 
