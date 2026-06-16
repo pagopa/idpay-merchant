@@ -47,7 +47,7 @@ import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.argThat;
 
 @ExtendWith(MockitoExtension.class)
-class PointOfSaleServiceTest {
+class GetPointOfSaleServiceTest {
 
   @Mock
   private MerchantService merchantServiceMock;
@@ -70,14 +70,19 @@ class PointOfSaleServiceTest {
   private static final String MERCHANT_ID = "MERCHANT_ID";
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
 
-  PointOfSaleService service;
+  GetPointOfSaleService service;
 
   @BeforeEach
   void setUp() {
-    service = new PointOfSaleServiceImpl(
-        merchantServiceMock,
+    GetPointOfSaleWithInitiativeServiceImpl getPointOfSaleWithInitiativeService =
+        new GetPointOfSaleWithInitiativeServiceImpl(
+            repositoryMock,
+            pointOfSalesInitiativeRepositoryMock,
+            merchantServiceMock);
+
+    service = new GetPointOfSaleServiceImpl(
         repositoryMock,
-        pointOfSalesInitiativeRepositoryMock,
+        getPointOfSaleWithInitiativeService,
         keycloak,
         "test-realm",
         300,
@@ -173,6 +178,31 @@ class PointOfSaleServiceTest {
   }
 
   @Test
+  void savePointOfSales_createsKeycloakUserWithoutMerchantAttributeWhenMissing() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId("id");
+    pointOfSale.setMerchantId(null);
+
+    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
+        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
+    when(repositoryMock.findById("id")).thenReturn(Optional.of(pointOfSale));
+    when(repositoryMock.save(pointOfSale)).thenReturn(pointOfSale);
+    when(keycloak.realm("test-realm")).thenReturn(realmResourceMock);
+    when(realmResourceMock.users()).thenReturn(usersResourceMock);
+    when(usersResourceMock.searchByEmail(pointOfSale.getContactEmail(), true))
+        .thenReturn(List.of());
+    when(usersResourceMock.create(any(UserRepresentation.class))).thenReturn(responseMock);
+    when(responseMock.getStatus()).thenReturn(Response.Status.CREATED.getStatusCode());
+    when(responseMock.getLocation()).thenReturn(URI.create("users/DUMMY_USER_ID"));
+
+    service.savePointOfSales(MERCHANT_ID, List.of(pointOfSale));
+
+    verify(usersResourceMock).create(argThat(user ->
+        !user.getAttributes().containsKey("merchantId")
+            && user.getAttributes().get("pointOfSaleId").equals(List.of("id"))));
+  }
+
+  @Test
   void savePointOfSalesOK_withIdNotFound() {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setId("id");
@@ -240,7 +270,6 @@ class PointOfSaleServiceTest {
     service.savePointOfSales(MERCHANT_ID, List.of(dto));
   }
 
-
   @Test
   void getPointOfSalesListOK() {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
@@ -252,53 +281,9 @@ class PointOfSaleServiceTest {
     when(repositoryMock.findByFilter(any(), any())).thenReturn(List.of(pointOfSale));
 
     Pageable paging = PageRequest.of(0, 20, Sort.by("franchiseName"));
-    Page<PointOfSale> pointOfSalePage = service.getPointOfSalesList(null, MERCHANT_ID, "type",
+    Page<PointOfSale> pointOfSalePage = service.getPointOfSalesList(MERCHANT_ID, "type",
             "city", "address", "contactName", paging);
     assertNotNull(pointOfSalePage);
-  }
-
-  @Test
-  void getPointOfSalesList_withInitiativeId_filtersByRelation() {
-    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-    pointOfSale.setId("POS_ID");
-    PointOfSalesInitiative relation = PointOfSalesInitiative.builder()
-        .pointOfSaleId("POS_ID")
-        .initiativeId(INITIATIVE_ID)
-        .merchantId(MERCHANT_ID)
-        .enabled(true)
-        .build();
-
-    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
-        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
-    when(pointOfSalesInitiativeRepositoryMock.findByInitiativeIdAndMerchantIdAndEnabledTrue(
-        INITIATIVE_ID, MERCHANT_ID)).thenReturn(List.of(relation));
-
-    Criteria criteria = new Criteria();
-    when(repositoryMock.getCriteria(eq(MERCHANT_ID), eq(List.of("POS_ID")), any(), any(), any(), any()))
-        .thenReturn(criteria);
-    when(repositoryMock.findByFilter(eq(criteria), any())).thenReturn(List.of(pointOfSale));
-
-    Pageable paging = PageRequest.of(0, 20, Sort.by("franchiseName"));
-    Page<PointOfSale> pointOfSalePage = service.getPointOfSalesList(
-        INITIATIVE_ID, MERCHANT_ID, null, null, null, null, paging);
-
-    assertNotNull(pointOfSalePage);
-    verify(repositoryMock).getCriteria(eq(MERCHANT_ID), eq(List.of("POS_ID")), any(), any(), any(), any());
-  }
-
-  @Test
-  void getPointOfSalesList_withInitiativeIdAndNoRelations_returnsEmptyPage() {
-    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
-        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
-    when(pointOfSalesInitiativeRepositoryMock.findByInitiativeIdAndMerchantIdAndEnabledTrue(
-        INITIATIVE_ID, MERCHANT_ID)).thenReturn(List.of());
-
-    Pageable paging = PageRequest.of(0, 20, Sort.by("franchiseName"));
-    Page<PointOfSale> pointOfSalePage = service.getPointOfSalesList(
-        INITIATIVE_ID, MERCHANT_ID, null, null, null, null, paging);
-
-    Assertions.assertTrue(pointOfSalePage.isEmpty());
-    verify(repositoryMock, never()).findByFilter(any(), any());
   }
 
   @Test
@@ -414,7 +399,6 @@ class PointOfSaleServiceTest {
   @Test
   void getPointOfSaleByIdAndMerchantIdOK() {
     String merchantId = "mock-merchant-id";
-    String initiativeId = null;
     String pointOfSaleId = new ObjectId().toHexString();
 
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
@@ -426,7 +410,7 @@ class PointOfSaleServiceTest {
         merchantId))
         .thenReturn(Optional.of(pointOfSale));
 
-    PointOfSale result = service.getPointOfSaleByIdAndMerchantId(initiativeId, pointOfSaleId, merchantId);
+    PointOfSale result = service.getPointOfSaleByIdAndMerchantId(pointOfSaleId, merchantId);
 
     Assertions.assertNotNull(result);
     Assertions.assertEquals(pointOfSale, result);
@@ -437,7 +421,6 @@ class PointOfSaleServiceTest {
   @Test
   void getPointOfSaleByIdAndMerchantId_KO_notFound() {
     String merchantId = "mock-merchant-id";
-    String initiativeId = null;
     ObjectId fakeId = new ObjectId();
     String pointOfSaleId = fakeId.toHexString();
 
@@ -447,7 +430,7 @@ class PointOfSaleServiceTest {
         .thenReturn(Optional.empty());
 
     PointOfSaleNotFoundException ex = Assertions.assertThrows(PointOfSaleNotFoundException.class,
-        () -> service.getPointOfSaleByIdAndMerchantId(initiativeId, pointOfSaleId, merchantId));
+        () -> service.getPointOfSaleByIdAndMerchantId(pointOfSaleId, merchantId));
 
     Assertions.assertEquals(
         String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId),
@@ -455,42 +438,6 @@ class PointOfSaleServiceTest {
     );
 
     verify(repositoryMock).findByIdAndMerchantId(String.valueOf(fakeId), merchantId);
-  }
-
-  @Test
-  void getPointOfSaleByIdAndMerchantId_withInitiativeIdOK() {
-    String merchantId = "mock-merchant-id";
-    String pointOfSaleId = new ObjectId().toHexString();
-    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-    pointOfSale.setId(pointOfSaleId);
-
-    when(merchantServiceMock.getMerchantDetail(merchantId))
-        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
-    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(
-        pointOfSaleId, INITIATIVE_ID, merchantId))
-        .thenReturn(Optional.of(PointOfSalesInitiative.builder().build()));
-    when(repositoryMock.findByIdAndMerchantId(pointOfSaleId, merchantId))
-        .thenReturn(Optional.of(pointOfSale));
-
-    PointOfSale result = service.getPointOfSaleByIdAndMerchantId(INITIATIVE_ID, pointOfSaleId, merchantId);
-
-    Assertions.assertEquals(pointOfSale, result);
-  }
-
-  @Test
-  void getPointOfSaleByIdAndMerchantId_withInitiativeIdAndNoRelation_KO_notFound() {
-    String merchantId = "mock-merchant-id";
-    String pointOfSaleId = new ObjectId().toHexString();
-
-    when(merchantServiceMock.getMerchantDetail(merchantId))
-        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
-    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(
-        pointOfSaleId, INITIATIVE_ID, merchantId))
-        .thenReturn(Optional.empty());
-
-    assertThrows(PointOfSaleNotFoundException.class,
-        () -> service.getPointOfSaleByIdAndMerchantId(INITIATIVE_ID, pointOfSaleId, merchantId));
-    verify(repositoryMock, never()).findByIdAndMerchantId(pointOfSaleId, merchantId);
   }
 
   @Test
@@ -527,9 +474,12 @@ class PointOfSaleServiceTest {
     when(keycloak.realm(anyString())).thenReturn(realmMock);
     when(realmMock.users()).thenReturn(usersMock);
     when(usersMock.searchByEmail(anyString(),anyBoolean())).thenReturn(userRepresentationList);
+    UserResource userResource = mock(UserResource.class);
+    when(usersMock.get(anyString())).thenReturn(userResource);
     assertThrows(ServiceException.class, () -> service.savePointOfSales(MERCHANT_ID, posList));
 
     verify(repositoryMock).deleteById(pos1.getId());
+    verify(userResource, times(userRepresentationList.size())).remove();
   }
 
   @Test
