@@ -22,7 +22,7 @@ public interface MerchantService {
   MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode,
       Pageable pageable);
 
-  MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId,
+  MerchantDetailDTO patchMerchant(String merchantId, String initiativeId,
       MerchantIbanPatchDTO merchantIbanPatchDTO);
 
   String retrieveOrCreateMerchantIfNotExists(MerchantCreateDTO merchantCreateDTO);
