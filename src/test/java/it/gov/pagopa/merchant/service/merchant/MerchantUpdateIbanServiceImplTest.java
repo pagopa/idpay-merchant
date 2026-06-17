@@ -87,7 +87,9 @@ class MerchantUpdateIbanServiceImplTest {
     verify(merchantRepositoryMock).save(merchantCaptor.capture());
 
     Merchant savedMerchant = merchantCaptor.getValue();
-    assertEquals(VALID_IBAN, savedMerchant.getIban());
+    Initiative savedInitiative = savedMerchant.getInitiativeList().get(0);
+    assertEquals(VALID_IBAN, savedInitiative.getIban());
+    assertNull(savedInitiative.getIbanHolder());
   }
 
   @Test
@@ -119,6 +121,9 @@ class MerchantUpdateIbanServiceImplTest {
     verify(merchantRepositoryMock).save(merchantCaptor.capture());
 
     Merchant savedMerchant = merchantCaptor.getValue();
+    Initiative savedInitiative = savedMerchant.getInitiativeList().get(0);
+    assertNull(savedInitiative.getIban());
+    assertEquals(VALID_HOLDER, savedInitiative.getIbanHolder());
 
     assertEquals(VALID_IBAN, savedMerchant.getIban());
 
@@ -154,8 +159,9 @@ class MerchantUpdateIbanServiceImplTest {
     verify(merchantRepositoryMock).save(merchantCaptor.capture());
 
     Merchant savedMerchant = merchantCaptor.getValue();
-    assertEquals(VALID_IBAN, savedMerchant.getIban());
-    assertEquals(VALID_HOLDER, savedMerchant.getIbanHolder());
+    Initiative savedInitiative = savedMerchant.getInitiativeList().get(0);
+    assertEquals(VALID_IBAN, savedInitiative.getIban());
+    assertEquals(VALID_HOLDER, savedInitiative.getIbanHolder());
   }
 
   @Test

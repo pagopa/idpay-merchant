@@ -6,8 +6,9 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-public interface PointOfSaleService {
+public interface GetPointOfSaleService {
 
+    //da spostare in service separato
     void savePointOfSales(String merchantId, List<PointOfSale> pointOfSaleList);
 
     Page<PointOfSale> getPointOfSalesList(String merchantId, String type, String city, String address, String contactName, Pageable pageable);
@@ -15,4 +16,5 @@ public interface PointOfSaleService {
     PointOfSale getPointOfSaleById(String pointOfSaleId);
 
     PointOfSale getPointOfSaleByIdAndMerchantId(String pointOfSaleId, String merchantId);
+
 }
