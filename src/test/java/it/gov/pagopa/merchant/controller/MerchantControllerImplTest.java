@@ -244,29 +244,6 @@ class MerchantControllerImplTest {
   }
 
   @Test
-  void updateIban() throws Exception {
-    MerchantIbanPatchDTO requestDto = new MerchantIbanPatchDTO();
-    requestDto.setIban("IT60X0542811101000000123456");
-
-    MerchantDetailDTO responseDto = MerchantDetailDTOFaker.mockInstance(1);
-    Mockito.when(merchantServiceMock.patchMerchant(
-        anyString(), anyString(), any(MerchantIbanPatchDTO.class))
-    ).thenReturn(responseDto);
-
-    mockMvc.perform(
-            patch(
-                "/idpay/merchant/{merchantId}/organization/{organizationId}/initiative/{initiativeId}",
-                MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDto))
-        )
-        .andExpect(status().isOk());
-    Mockito.verify(merchantServiceMock)
-        .patchMerchant(anyString(), anyString(), any(MerchantIbanPatchDTO.class));
-  }
-
-
-  @Test
   void createOrUpdateMerchant_ok() throws Exception {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";

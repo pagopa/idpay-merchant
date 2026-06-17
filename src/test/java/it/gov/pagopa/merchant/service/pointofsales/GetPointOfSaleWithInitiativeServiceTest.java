@@ -27,7 +27,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -161,10 +160,11 @@ class GetPointOfSaleWithInitiativeServiceTest {
   @Test
   void getPointOfSalesListByInitiative_merchantNotFound() {
     when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(null);
+    Pageable pageable = PageRequest.of(0, 8);
 
     assertThrows(MerchantNotFoundException.class,
         () -> service.getPointOfSalesListByInitiative(
-            INITIATIVE_ID, MERCHANT_ID, null, null, null, null, PageRequest.of(0, 8)));
+            INITIATIVE_ID, MERCHANT_ID, null, null, null, null, pageable));
 
     verifyNoInteractions(pointOfSalesInitiativeRepositoryMock);
   }

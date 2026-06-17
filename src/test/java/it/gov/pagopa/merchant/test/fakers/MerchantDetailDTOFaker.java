@@ -23,6 +23,7 @@ public class MerchantDetailDTOFaker {
             .legalOfficeProvince("PROVINCE")
             .legalOfficeZipCode("ZIP_CODE")
             .certifiedEmail("MAIL")
+            .operativeEmail("operative.mail@test.it")
             .fiscalCode("FISCAL_CODE")
             .vatNumber("VAT_NUMBER_%d".formatted(bias))
             .status("STATUS")

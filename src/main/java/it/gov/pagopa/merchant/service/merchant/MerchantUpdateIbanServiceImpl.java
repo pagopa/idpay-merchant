@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -56,6 +57,10 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
 
     if (!Objects.isNull(merchantIbanPatchDTO.getIban())) {
 
+      if (StringUtils.isNotBlank(merchantInitiative.getIban())) {
+        throw new IllegalStateException("Invalid state of merchant, IBAN field is not empty");
+      }
+
       if (!ITALIAN_IBAN_PATTERN.matcher(merchantIbanPatchDTO.getIban()).matches()) {
         throw new IllegalArgumentException("Invalid IBAN format.");
       }
@@ -63,6 +68,10 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
     }
 
     if (!Objects.isNull(merchantIbanPatchDTO.getIbanHolder())) {
+
+      if (StringUtils.isNotBlank(merchantInitiative.getIbanHolder())) {
+        throw new IllegalStateException("Invalid state of merchant, IBAN Holder field is not empty");
+      }
 
       if (!IBAN_HOLDER_PATTERN.matcher(merchantIbanPatchDTO.getIbanHolder()).matches()) {
         throw new IllegalArgumentException("Invalid IBAN holder format.");

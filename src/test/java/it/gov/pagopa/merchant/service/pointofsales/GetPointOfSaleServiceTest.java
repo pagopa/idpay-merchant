@@ -7,7 +7,6 @@ import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.model.PointOfSale;
-import it.gov.pagopa.merchant.model.PointOfSalesInitiative;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -68,7 +67,6 @@ class GetPointOfSaleServiceTest {
   private Response responseMock;
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
-  private static final String INITIATIVE_ID = "INITIATIVE_ID";
 
   GetPointOfSaleService service;
 

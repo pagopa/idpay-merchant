@@ -35,6 +35,7 @@ public class MerchantFaker {
                 .legalOfficeProvince("PROVINCE")
                 .legalOfficeZipCode("ZIP_CODE")
                 .certifiedEmail("MAIL")
+                .operativeEmail("operative.mail@test.it")
                 .fiscalCode("FISCAL_CODE")
                 .vatNumber("VAT_NUMBER_%d".formatted(bias))
                 .iban("IT60X0542811101000000123456")

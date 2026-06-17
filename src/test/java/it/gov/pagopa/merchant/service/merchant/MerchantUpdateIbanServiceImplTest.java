@@ -68,7 +68,7 @@ class MerchantUpdateIbanServiceImplTest {
     MerchantDetailDTO expectedDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
-    when(merchantDetailServiceMock.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
+    when(merchantDetailServiceMock.getMerchantDetail(INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
 
     // When
     MerchantDetailDTO result = service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO);
@@ -81,8 +81,9 @@ class MerchantUpdateIbanServiceImplTest {
     verify(merchantRepositoryMock).save(merchantCaptor.capture());
 
     Merchant savedMerchant = merchantCaptor.getValue();
-    assertEquals(VALID_IBAN, savedMerchant.getIban());
-    assertNull(savedMerchant.getIbanHolder());
+    Initiative savedInitiative = savedMerchant.getInitiativeList().get(0);
+    assertEquals(VALID_IBAN, savedInitiative.getIban());
+    assertNull(savedInitiative.getIbanHolder());
   }
 
   @Test
@@ -93,7 +94,7 @@ class MerchantUpdateIbanServiceImplTest {
     MerchantDetailDTO expectedDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
-    when(merchantDetailServiceMock.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
+    when(merchantDetailServiceMock.getMerchantDetail(INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
 
     // When
     MerchantDetailDTO result = service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO);
@@ -106,8 +107,9 @@ class MerchantUpdateIbanServiceImplTest {
     verify(merchantRepositoryMock).save(merchantCaptor.capture());
 
     Merchant savedMerchant = merchantCaptor.getValue();
-    assertNull(savedMerchant.getIban());
-    assertEquals(VALID_HOLDER, savedMerchant.getIbanHolder());
+    Initiative savedInitiative = savedMerchant.getInitiativeList().get(0);
+    assertNull(savedInitiative.getIban());
+    assertEquals(VALID_HOLDER, savedInitiative.getIbanHolder());
   }
 
   @Test
@@ -118,7 +120,7 @@ class MerchantUpdateIbanServiceImplTest {
     MerchantDetailDTO expectedDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
-    when(merchantDetailServiceMock.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
+    when(merchantDetailServiceMock.getMerchantDetail(INITIATIVE_ID, MERCHANT_ID)).thenReturn(expectedDetailDTO);
 
     // When
     MerchantDetailDTO result = service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO);
@@ -131,8 +133,9 @@ class MerchantUpdateIbanServiceImplTest {
     verify(merchantRepositoryMock).save(merchantCaptor.capture());
 
     Merchant savedMerchant = merchantCaptor.getValue();
-    assertEquals(VALID_IBAN, savedMerchant.getIban());
-    assertEquals(VALID_HOLDER, savedMerchant.getIbanHolder());
+    Initiative savedInitiative = savedMerchant.getInitiativeList().get(0);
+    assertEquals(VALID_IBAN, savedInitiative.getIban());
+    assertEquals(VALID_HOLDER, savedInitiative.getIbanHolder());
   }
 
   @Test
@@ -162,8 +165,8 @@ class MerchantUpdateIbanServiceImplTest {
     // When & Then
     MerchantNotFoundException e = assertThrows(MerchantNotFoundException.class,
         () -> service.patchMerchant(MERCHANT_ID,INITIATIVE_ID, patchDTO));
-    assertEquals(String.format("Merchant with id %s is not associated with initiative %s for organization %s.",
-        MERCHANT_ID, INITIATIVE_ID, ORGANIZATION_ID), e.getMessage());
+    assertEquals(String.format("Merchant with id %s is not associated with initiative %s",
+        MERCHANT_ID, INITIATIVE_ID), e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
   }
 
@@ -171,7 +174,7 @@ class MerchantUpdateIbanServiceImplTest {
   void updateIban_fail_ibanAlreadySet() {
     // Given
     Merchant merchant = buildMerchant();
-    merchant.setIban("IT00A1234567890123456789012"); // Pre-existing IBAN
+    merchant.getInitiativeList().get(0).setIban("IT00A1234567890123456789012"); // Pre-existing IBAN
     MerchantIbanPatchDTO patchDTO = new MerchantIbanPatchDTO("test@gmail.com",VALID_IBAN, null);
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
@@ -187,7 +190,7 @@ class MerchantUpdateIbanServiceImplTest {
   void updateIban_fail_ibanHolderAlreadySet() {
     // Given
     Merchant merchant = buildMerchant();
-    merchant.setIbanHolder("Old Holder"); // Pre-existing IBAN Holder
+    merchant.getInitiativeList().get(0).setIbanHolder("Old Holder"); // Pre-existing IBAN Holder
     MerchantIbanPatchDTO patchDTO = new MerchantIbanPatchDTO("test@mail.com",null, VALID_HOLDER);
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
