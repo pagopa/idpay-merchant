@@ -1,11 +1,9 @@
 package it.gov.pagopa.merchant.controller.merchant_portal;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserDTO;
+import it.gov.pagopa.merchant.dto.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +22,14 @@ public interface MerchantPortalMerchantController {
     MerchantDetailDTO getMerchantDetail(
             @RequestHeader("x-merchant-id") String merchantId,
             @PathVariable("initiativeId") String initiativeId
+    );
+
+    @Operation(summary = "Patches the iban and/or the holder of a merchant")
+    @PatchMapping("/initiatives/{initiativeId}")
+    ResponseEntity<MerchantDetailDTO> patchMerchant(
+            @RequestHeader("x-merchant-id") String merchantId,
+            @PathVariable("initiativeId") String initiativeId,
+            @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
     );
 
     @Operation(summary = "Create a new reported user")

@@ -9,7 +9,9 @@ import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.model.PointOfSalesInitiative;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
+import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import jakarta.ws.rs.core.Response;
@@ -30,10 +32,10 @@ import java.util.*;
 
 @Service
 @Slf4j
-public class PointOfSaleServiceImpl implements PointOfSaleService {
+public class GetPointOfSaleServiceImpl implements GetPointOfSaleService {
 
-  private final MerchantService merchantService;
   private final PointOfSaleRepository pointOfSaleRepository;
+  private final GetPointOfSaleWithInitiativeServiceImpl getPointOfSaleWithInitiativeService;
 
   private final Keycloak keycloakAdminClient;
   private final String realm;
@@ -43,16 +45,16 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
   private static final String REQUIRED_ACTION_UPDATE_PASSWORD = "UPDATE_PASSWORD";
 
-  public PointOfSaleServiceImpl(
-          MerchantService merchantService,
+  public GetPointOfSaleServiceImpl(
           PointOfSaleRepository pointOfSaleRepository,
+          GetPointOfSaleWithInitiativeServiceImpl getPointOfSaleWithInitiativeService,
           Keycloak keycloakAdminClient,
           @Value("${keycloak.admin.realm}") String realm,
           @Value("${keycloak.admin.user.actions.email.lifespan}") Integer keycloakUserActionsEmailLifespan,
           @Value("${keycloak.admin.redirect-uri}") String redirectURI,
           @Value("${keycloak.admin.redirect-client-id}") String keycloakClientId) {
-    this.merchantService = merchantService;
     this.pointOfSaleRepository = pointOfSaleRepository;
+    this.getPointOfSaleWithInitiativeService = getPointOfSaleWithInitiativeService;
     this.keycloakAdminClient = keycloakAdminClient;
     this.realm = realm;
     this.redirectURI = redirectURI;
@@ -63,7 +65,7 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
   @Override
   public void savePointOfSales(String merchantId, List<PointOfSale> pointOfSales) {
 
-    verifyMerchantExists(merchantId);
+    getPointOfSaleWithInitiativeService.verifyMerchantExists(merchantId);
 
     List<PointOfSaleUpdateContext> entities = pointOfSales.stream()
             .map(this::preparePointOfSaleForSave)
@@ -101,12 +103,14 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
         for (UserRepresentation user : existingUsers) {
           usersResource.get(user.getId()).remove();
         }
-      } catch (Exception exception) {
+      } catch (Exception _) {
         log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}",
                 sanitizeForLog(pointOfSale.getId()));
       }
     }
   }
+
+
 
   @Override
   public Page<PointOfSale> getPointOfSalesList(
@@ -117,15 +121,14 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
           String contactName,
           Pageable pageable) {
 
-    verifyMerchantExists(merchantId);
+    getPointOfSaleWithInitiativeService.verifyMerchantExists(merchantId);
 
     Criteria criteria = pointOfSaleRepository.getCriteria(merchantId, type, city, address,
             contactName);
-    List<PointOfSale> matched = pointOfSaleRepository.findByFilter(criteria, pageable);
-    long total = pointOfSaleRepository.getCount(criteria);
-
-    return PageableExecutionUtils.getPage(matched, Utilities.getPageable(pageable), () -> total);
+    return getPointOfSaleWithInitiativeService.getPointOfSalesPage(criteria, pageable);
   }
+
+
 
   /**
    * Prepares the PointOfSale entity for insert or update
@@ -160,20 +163,6 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
     return new PointOfSaleUpdateContext(pointOfSale, oldEmail);
   }
 
-  /**
-   * Verifies if the merchant exists in the system.
-   *
-   * @param merchantId the ID of the merchant to check
-   * @throws MerchantNotFoundException if the merchant does not exist
-   */
-  private void verifyMerchantExists(String merchantId) {
-    MerchantDetailDTO merchantDetail = merchantService.getMerchantDetail(merchantId);
-    if (merchantDetail == null) {
-      throw new MerchantNotFoundException(
-              String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, merchantId));
-    }
-  }
-
   public PointOfSale getPointOfSaleById(String pointOfSaleId) {
     return pointOfSaleRepository.findById(pointOfSaleId)
             .orElseThrow(() -> new PointOfSaleNotFoundException(
@@ -182,13 +171,12 @@ public class PointOfSaleServiceImpl implements PointOfSaleService {
 
   @Override
   public PointOfSale getPointOfSaleByIdAndMerchantId(String pointOfSaleId, String merchantId) {
-    verifyMerchantExists(merchantId);
+    getPointOfSaleWithInitiativeService.verifyMerchantExists(merchantId);
 
-    return pointOfSaleRepository.findByIdAndMerchantId(pointOfSaleId, merchantId)
-            .orElseThrow(() -> new PointOfSaleNotFoundException(
-                    String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
-            ));
+    return getPointOfSaleWithInitiativeService.findPointOfSaleByIdAndMerchantId(pointOfSaleId, merchantId);
   }
+
+
 
   private void manageReferentUserOnKeycloak(PointOfSale pointOfSale, String oldEmail) {
     final String contactEmail = pointOfSale.getContactEmail();

@@ -66,6 +66,17 @@ public interface PointOfSaleController {
             @RequestParam(required = false) String contactName,
             @PageableDefault(size = 8) Pageable pageable);
 
+    @GetMapping(value = "/{merchantId}/initiatives/{initiativeId}/point-of-sales")
+    ResponseEntity<PointOfSaleListDTO> getPointOfSalesListByInitiative(
+            @PathVariable("merchantId") String merchantId,
+            @PathVariable("initiativeId") @NotBlank String initiativeId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) String contactName,
+            @PageableDefault(size = 8) Pageable pageable);
+
     @Operation(
             summary = "Retrieve point of sale detail",
             security = {@SecurityRequirement(name = "Bearer")},
@@ -90,6 +101,15 @@ public interface PointOfSaleController {
     ResponseEntity<PointOfSaleDTO> getPointOfSale(
             @PathVariable("pointOfSaleId") String pointOfSaleId,
             @PathVariable("merchantId") String merchantId,
+            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
+    );
+
+    @GetMapping("/{merchantId}/initiatives/{initiativeId}/point-of-sales/{pointOfSaleId}")
+    ResponseEntity<PointOfSaleDTO> getPointOfSaleByInitiative(
+            @PathVariable("pointOfSaleId") String pointOfSaleId,
+            @PathVariable("merchantId") String merchantId,
+            @PathVariable("initiativeId") @NotBlank String initiativeId,
             @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
     );

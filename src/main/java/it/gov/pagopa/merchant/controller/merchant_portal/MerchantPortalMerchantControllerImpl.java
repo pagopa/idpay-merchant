@@ -2,17 +2,18 @@ package it.gov.pagopa.merchant.controller.merchant_portal;
 
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserDTO;
+import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.ReportedUserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
+
 @Slf4j
 @RestController
 public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerchantController {
@@ -41,6 +42,18 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
             );
         }
         return merchantDetail;
+    }
+
+    @Override
+    public ResponseEntity<MerchantDetailDTO> patchMerchant(String merchantId,
+                                                        String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
+        String sanitizedMerchantId = sanitizeString(merchantId);
+        String sanitizedInitiativeId = sanitizeString(initiativeId);
+
+        log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}",
+                sanitizedMerchantId, sanitizedInitiativeId);
+        MerchantDetailDTO merchantDetailDTO = merchantService.patchMerchant(sanitizedMerchantId, sanitizedInitiativeId, merchantIbanPatchDTO);
+        return ResponseEntity.ok(merchantDetailDTO);
     }
 
     @Override

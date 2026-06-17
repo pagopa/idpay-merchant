@@ -6,10 +6,7 @@ import it.gov.pagopa.merchant.configuration.MerchantErrorManagerConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserDTO;
+import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.ReportedUserService;
@@ -24,6 +21,7 @@ import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoCon
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -34,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -73,6 +72,28 @@ class MerchantPortalMerchantControllerImplTest {
         );
 
         Assertions.assertEquals(expectedResult, response);
+    }
+
+    @Test
+    void patchMerchant() throws Exception {
+        MerchantIbanPatchDTO requestDto = new MerchantIbanPatchDTO();
+        requestDto.setIban("IT60X0542811101000000123456");
+
+        MerchantDetailDTO responseDto = MerchantDetailDTOFaker.mockInstance(1);
+        Mockito.when(merchantServiceMock.patchMerchant(
+                anyString(), anyString(), any(MerchantIbanPatchDTO.class))
+        ).thenReturn(responseDto);
+
+        mockMvc.perform(
+                        patch("/idpay/merchant/portal/initiatives/{initiativeId}", INITIATIVE_ID)
+                                .header("x-merchant-id", "MOCK_MERCHANT_ID")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDto))
+                )
+                .andExpect(status().isOk());
+
+        Mockito.verify(merchantServiceMock)
+                .patchMerchant(anyString(), anyString(), any(MerchantIbanPatchDTO.class));
     }
 
     @Test
@@ -127,6 +148,28 @@ class MerchantPortalMerchantControllerImplTest {
         Assertions.assertEquals(ExceptionCode.MERCHANT_NOT_ONBOARDED, errorDTO.getCode());
         Assertions.assertEquals(String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID),errorDTO.getMessage());
         Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
+    }
+
+    @Test
+    void updateIban() throws Exception {
+        MerchantIbanPatchDTO requestDto = new MerchantIbanPatchDTO();
+        requestDto.setIban("IT60X0542811101000000123456");
+
+        MerchantDetailDTO responseDto = MerchantDetailDTOFaker.mockInstance(1);
+        Mockito.when(merchantServiceMock.patchMerchant(
+                anyString(), anyString(), any(MerchantIbanPatchDTO.class))
+        ).thenReturn(responseDto);
+
+        mockMvc.perform(
+                        patch("/idpay/merchant/portal/initiatives/{initiativeId}", INITIATIVE_ID)
+                                .header("x-merchant-id", MERCHANT_ID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDto))
+                )
+                .andExpect(status().isOk());
+
+        Mockito.verify(merchantServiceMock)
+                .patchMerchant(anyString(), anyString(), any(MerchantIbanPatchDTO.class));
     }
 
   @Test

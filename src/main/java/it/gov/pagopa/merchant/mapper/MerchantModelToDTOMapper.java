@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.mapper;
 
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.model.Merchant;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,11 +21,12 @@ public class MerchantModelToDTOMapper {
               merchantDetailDTO.setLegalOfficeProvince(merchant.getLegalOfficeProvince());
               merchantDetailDTO.setLegalOfficeZipCode(merchant.getLegalOfficeZipCode());
               merchantDetailDTO.setCertifiedEmail(merchant.getCertifiedEmail());
+              merchantDetailDTO.setOperativeEmail(merchant.getOperativeEmail());
               merchantDetailDTO.setFiscalCode(merchant.getFiscalCode());
               merchantDetailDTO.setVatNumber(merchant.getVatNumber());
               merchantDetailDTO.setStatus(initiative.getMerchantStatus());
-              merchantDetailDTO.setIban(merchant.getIban());
-              merchantDetailDTO.setIbanHolder(merchant.getIbanHolder());
+              merchantDetailDTO.setIban(StringUtils.isNotBlank(initiative.getIban())? initiative.getIban() : merchant.getIban());
+              merchantDetailDTO.setIbanHolder(StringUtils.isNotBlank(initiative.getIbanHolder())? initiative.getIbanHolder() : merchant.getIbanHolder());
               merchantDetailDTO.setCreationDate(initiative.getCreationDate());
               merchantDetailDTO.setUpdateDate(initiative.getUpdateDate());
               merchantDetailDTO.setActivationDate(merchant.getActivationDate());

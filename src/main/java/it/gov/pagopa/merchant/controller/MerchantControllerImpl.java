@@ -66,20 +66,6 @@ public class MerchantControllerImpl implements MerchantController {
             sanitizedMerchantId));
   }
 
-  @Override
-  public ResponseEntity<MerchantDetailDTO> updateIban(String merchantId, String organizationId,
-      String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
-    String sanitizedMerchantId = sanitizeString(merchantId);
-    String sanitizedOrganizationId = sanitizeString(organizationId);
-    String sanitizedInitiativeId = sanitizeString(initiativeId);
-
-    log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}",
-        sanitizedMerchantId, sanitizedInitiativeId);
-    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(sanitizedMerchantId,
-        sanitizedOrganizationId, sanitizedInitiativeId, merchantIbanPatchDTO);
-    return ResponseEntity.ok(merchantDetailDTO);
-  }
-
   public String retrieveMerchantId(String acquirerId, String fiscalCode) {
     String sanitizedAcquirerId = sanitizeString(acquirerId);
     String sanitizedFiscalCode = sanitizeString(fiscalCode);
