@@ -5,17 +5,17 @@ import static it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode.I
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.common.web.exception.ServiceExceptionPayload;
 
-public class MerchantInvalidRequestException extends ServiceException {
+public class MerchantBadRequestException extends ServiceException {
 
-    public MerchantInvalidRequestException(String message) {
+    public MerchantBadRequestException(String message) {
         this(INVALID_REQUEST, message);
     }
 
-    public MerchantInvalidRequestException(String code, String message) {
+    public MerchantBadRequestException(String code, String message) {
         this(code, message, null, false, null);
     }
 
-    public MerchantInvalidRequestException(String code, String message, ServiceExceptionPayload payload, boolean printStackTrace, Throwable ex) {
+    public MerchantBadRequestException(String code, String message, ServiceExceptionPayload payload, boolean printStackTrace, Throwable ex) {
         super(code, message, payload, printStackTrace, ex);
     }
 }
