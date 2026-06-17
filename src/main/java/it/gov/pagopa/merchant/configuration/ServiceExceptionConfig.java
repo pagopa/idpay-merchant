@@ -26,6 +26,7 @@ public class ServiceExceptionConfig {
         exceptionMap.put(TransactionInvocationException.class, HttpStatus.INTERNAL_SERVER_ERROR);
 
         exceptionMap.put(PointOfSaleDuplicateException.class, HttpStatus.BAD_REQUEST);
+        exceptionMap.put(MerchantBadRequestException.class, HttpStatus.BAD_REQUEST);
 
         // NotFound
         exceptionMap.put(PointOfSaleNotFoundException.class, HttpStatus.NOT_FOUND);
