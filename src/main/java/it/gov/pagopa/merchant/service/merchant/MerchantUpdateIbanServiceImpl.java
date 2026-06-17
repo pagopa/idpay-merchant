@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.service.merchant;
 
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.exception.custom.MerchantInvalidRequestException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -57,7 +58,7 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
     if (!Objects.isNull(merchantIbanPatchDTO.getIban())) {
 
       if (!ITALIAN_IBAN_PATTERN.matcher(merchantIbanPatchDTO.getIban()).matches()) {
-        throw new IllegalArgumentException("Invalid IBAN format.");
+        throw new MerchantInvalidRequestException("Invalid IBAN format.");
       }
       merchantInitiative.setIban(merchantIbanPatchDTO.getIban());
     }
@@ -65,7 +66,7 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
     if (!Objects.isNull(merchantIbanPatchDTO.getIbanHolder())) {
 
       if (!IBAN_HOLDER_PATTERN.matcher(merchantIbanPatchDTO.getIbanHolder()).matches()) {
-        throw new IllegalArgumentException("Invalid IBAN holder format.");
+        throw new MerchantInvalidRequestException("Invalid IBAN holder format.");
       }
       merchantInitiative.setIbanHolder(merchantIbanPatchDTO.getIbanHolder());
     }
@@ -73,7 +74,7 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
     if (!Objects.isNull(merchantIbanPatchDTO.getOperativeEmail())) {
 
       if (!EMAIL_PATTERN.matcher(merchantIbanPatchDTO.getOperativeEmail()).matches()) {
-        throw new IllegalArgumentException("Invalid operative email format.");
+        throw new MerchantInvalidRequestException("Invalid operative email format.");
       }
       merchant.setOperativeEmail(merchantIbanPatchDTO.getOperativeEmail());
     }
