@@ -4,6 +4,7 @@ import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 
 public class MerchantFaker {
@@ -21,8 +22,8 @@ public class MerchantFaker {
                 .organizationId("ORGANIZATION_ID_%d".formatted(bias))
                 .enabled(true)
                 .merchantStatus("STATUS")
-                .creationDate(LocalDateTime.of(2023,5,22,10, 0))
-                .updateDate(LocalDateTime.of(2023,5,22,10, 0)).build();
+                .creationDate(LocalDateTime.of(2023, Month.MAY,22,10, 0))
+                .updateDate(LocalDateTime.of(2023,Month.MAY,22,10, 0)).build();
         ArrayList<Initiative> initiatives = new ArrayList<>();
         initiatives.add(initiative);
         return Merchant.builder()
