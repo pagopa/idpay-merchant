@@ -243,6 +243,7 @@ class MerchantControllerImplTest {
     Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(), anyString());
   }
 
+
   @Test
   void createOrUpdateMerchant_ok() throws Exception {
     String acquirerId = "ACQ123";
