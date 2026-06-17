@@ -41,7 +41,7 @@ public class MerchantFaker {
                 .vatNumber("VAT_NUMBER_%d".formatted(bias))
                 .iban("IT60X0542811101000000123456")
                 .ibanHolder("Nome Cognome")
-                .activationDate(LocalDateTime.now())
+                .activationDate(LocalDateTime.of(2026, Month.MAY, 22, 10, 0))
                 .enabled(true);
     }
 }
