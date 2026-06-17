@@ -2,9 +2,10 @@ package it.gov.pagopa.merchant.utils.validator;
 
 import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
-import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.exception.custom.PosValidationException;
+import it.gov.pagopa.merchant.utils.Utilities;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +39,14 @@ public class PointOfSaleValidator {
                     PointOfSaleConstants.CODE_BAD_REQUEST,
                     PointOfSaleConstants.MSG_LIST_NOT_EMPTY);
         }
+        if (pointOfSaleDTOS.size() > 5) {
+            throw new ClientExceptionWithBody(
+                    HttpStatus.BAD_REQUEST,
+                    PointOfSaleConstants.CODE_BAD_REQUEST,
+                    PointOfSaleConstants.MSG_POINT_OF_SALE_SIZE_EXCEEDED);
+        }
         log.debug("[POS-VALIDATION] Received {} PointOfSale entries to validate", pointOfSaleDTOS.size());
+
     }
 
     public void validateViolationsPointOfSales(List<PointOfSaleDTO> pointOfSaleDTOS) {
@@ -79,17 +87,57 @@ public class PointOfSaleValidator {
 
     private List<ValidationErrorDetail> validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS) {
         List<ValidationErrorDetail> errors = new ArrayList<>();
-        Set<String> emails = new HashSet<>();
+        Set<String> emails     = new HashSet<>();
+        Set<String> physicalPOS = new HashSet<>();
+        Set<String> onlinePOS  = new HashSet<>();
 
         for (int i = 0; i < pointOfSaleDTOS.size(); i++) {
-            String email = pointOfSaleDTOS.get(i).getContactEmail();
-            if (StringUtils.isNotBlank(email) && !emails.add(email)) {
-                errors.add(buildError(i, "contactEmail", email,
-                        PointOfSaleConstants.CODE_ALREADY_REGISTERED,
-                        "Duplicate email detected in the list"));
-            }
+            PointOfSaleDTO pos = pointOfSaleDTOS.get(i);
+            checkDuplicateEmail(pos, i, emails, errors);
+            checkDuplicateByType(pos, i, physicalPOS, onlinePOS, errors);
         }
+
         return errors;
+    }
+
+    private void checkDuplicateEmail(PointOfSaleDTO pos, int index, Set<String> emails, List<ValidationErrorDetail> errors) {
+        String email = pos.getContactEmail();
+        if (StringUtils.isNotBlank(email) && !emails.add(email)) {
+            errors.add(buildError(index, "contactEmail", email,
+                    PointOfSaleConstants.CODE_ALREADY_REGISTERED,
+                    "Duplicate email detected in the list"));
+        }
+    }
+
+    private void checkDuplicateByType(PointOfSaleDTO pos, int index, Set<String> physicalPOS, Set<String> onlinePOS, List<ValidationErrorDetail> errors) {
+        switch (pos.getType()) {
+            case PHYSICAL -> checkDuplicatePhysical(pos, index, physicalPOS, errors);
+            case ONLINE   -> checkDuplicateOnline(pos, index, onlinePOS, errors);
+        }
+    }
+
+    private void checkDuplicatePhysical(PointOfSaleDTO pos, int index, Set<String> seen, List<ValidationErrorDetail> errors) {
+        String key = pos.getAddress()
+                + "|" + pos.getStreetNumber()
+                + "|" + pos.getCity()
+                + "|" + pos.getFranchiseName();
+
+        if (!seen.add(key)) {
+            errors.add(buildError(index, "address|streetNumber|city|franchiseName", key,
+                    PointOfSaleConstants.CODE_ALREADY_REGISTERED,
+                    "Duplicate physical point of sale in request"));
+        }
+    }
+
+    private void checkDuplicateOnline(PointOfSaleDTO pos, int index,  Set<String> seen,  List<ValidationErrorDetail> errors) {
+        String key = Utilities.sanitizeDomain(pos.getWebsite())
+                + "|" + pos.getFranchiseName();
+
+        if (!seen.add(key)) {
+            errors.add(buildError(index, "website|franchiseName", key,
+                    PointOfSaleConstants.CODE_ALREADY_REGISTERED,
+                    "Duplicate online point of sale in request"));
+        }
     }
 
     // --- core bean validation ---
