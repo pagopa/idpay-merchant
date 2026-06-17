@@ -15,6 +15,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -93,6 +95,26 @@ class PointOfSaleRepositoryExtendedImplTest {
   void getCriteria_withAddressNullAndContactNameNull() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY",null,null);
     assertEquals(1, criteria.getCriteriaObject().size());
+  }
+
+  @Test
+  void getCriteria_withPointOfSaleIds() {
+    Criteria criteria = repositoryExtended.getCriteria(
+        "MERCHANT-ID", List.of("POS-1", "POS-2"), null, null, null, null);
+
+    String criteriaJson = criteria.getCriteriaObject().toJson();
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("_id"));
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("POS-1"));
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("POS-2"));
+  }
+
+  @Test
+  void getCriteria_withEmptyPointOfSaleIds_doesNotAddIdFilter() {
+    Criteria criteria = repositoryExtended.getCriteria(
+        "MERCHANT-ID", List.of(), null, null, null, null);
+
+    org.junit.jupiter.api.Assertions.assertFalse(
+        criteria.getCriteriaObject().toJson().contains("_id"));
   }
 
 

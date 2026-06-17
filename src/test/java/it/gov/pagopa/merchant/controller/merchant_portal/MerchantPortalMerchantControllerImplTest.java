@@ -150,6 +150,28 @@ class MerchantPortalMerchantControllerImplTest {
         Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
     }
 
+    @Test
+    void updateIban() throws Exception {
+        MerchantIbanPatchDTO requestDto = new MerchantIbanPatchDTO();
+        requestDto.setIban("IT60X0542811101000000123456");
+
+        MerchantDetailDTO responseDto = MerchantDetailDTOFaker.mockInstance(1);
+        Mockito.when(merchantServiceMock.patchMerchant(
+                anyString(), anyString(), any(MerchantIbanPatchDTO.class))
+        ).thenReturn(responseDto);
+
+        mockMvc.perform(
+                        patch("/idpay/merchant/portal/initiatives/{initiativeId}", INITIATIVE_ID)
+                                .header("x-merchant-id", MERCHANT_ID)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDto))
+                )
+                .andExpect(status().isOk());
+
+        Mockito.verify(merchantServiceMock)
+                .patchMerchant(anyString(), anyString(), any(MerchantIbanPatchDTO.class));
+    }
+
   @Test
   void createReportedUser_ok() throws Exception {
     ReportedUserCreateResponseDTO expected = objectMapper.convertValue(
