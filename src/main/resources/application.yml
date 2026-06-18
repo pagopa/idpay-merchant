@@ -198,19 +198,76 @@ logging:
     org.springframework.boot.autoconfigure: WARN
 
 rest-client:
+  pdnd-infocamere:
+    serviceCode: ${PDND_INFOCAMERE_SERVICE_CODE:pdnd-infocamere}
+    base-url: ${PDND_INFOCAMERE_URL:https://pdnd.registroimprese.it/rest/pcad/v1/ricerca}
+    getDescription:
+      path: /denominazione
+    getTaxCode:
+      path: /codicefiscale
+    privateKey: ${PDND_INFOCAMERE_PRIVATE_KEY:test}
+    clientId: ${PDND_INFOCAMERE_CLIENT_ID:test}
+    kid: ${PDND_INFOCAMERE_KID:test}
+    audience: ${PDND_INFOCAMERE_AUDIENCE:test}
+    purposeId: ${PDND_INFOCAMERE_PURPOSE_ID:test}
+
+  pdnd:
+    base-url: ${PDND_BASE_URL:https://localhost:8080}
+    grant-type: client_credentials
+    client-assertion-type: urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+    serviceCode: pdnd
+    token:
+      deadline: 60
+    client-assertion:
+      deadline: 3300
+
+  pdnd-visura-infocamere:
+    serviceCode: pdnd-infocamere-visura
+    base-url: ${PDND_INFOCAMERE_URL:https://pdnd.registroimprese.it/rest/pcad/v1}
+    getTaxCode:
+      path: /dettaglio/codicefiscale
+    getRea:
+      path: /ricerca/nrea
+    privateKey: ${PDND_INVITALIA_INFOCAMERE_PRIVATE_KEY:test}
+    clientId: ${PDND_INVITALIA_INFOCAMERE_CLIENT_ID:test}
+    kid: ${PDND_INVITALIA_INFOCAMERE_KID:test}
+    audience: ${PDND_INFOCAMERE_AUDIENCE:test}
+    purposeId: ${PDND_INVITALIA_INFOCAMERE_PURPOSE_ID:test}
+
+  pdnd-visura-infocamere-raw:
+    serviceCode: pdnd-infocamere-visura-raw
+
   initiative:
     serviceCode: ${IDPAY_INITIATIVE_SERVICE_CODE:idpay-initiative}
     baseUrl: ${IDPAY_INITIATIVE_BASE_URL:}
+
   payment:
     baseUrl: ${IDPAY_PAYMENT_BASE_URL:http://idpay-payment}
+
   transactions:
     baseUrl: ${IDPAY_TRANSACTIONS_BASE_URL:http://idpay-transactions}
+
   encryptpdv:
     baseUrl: ${PDV_ENCRYPT_BASE_URL:}
     cf: ${PDV_ENCRYPT_SERVICE_CODE:pdv-ms-tokenizer-encrypt}
+
   decryptpdv:
     baseUrl: ${PDV_DECRYPT_BASE_URL:}
     cf: ${PDV_DECRYPT_SERVICE_CODE:pdv-ms-tokenizer}
+
+feign:
+  client:
+    config:
+      pdnd-infocamere:
+        connectTimeout: ${PDND_INFOCAMERE_CLIENT_CONNECT_TIMEOUT:${REST_CLIENT_CONNECT_TIMEOUT:5000}}
+        readTimeout: ${PDND_INFOCAMERE_CLIENT_READ_TIMEOUT:${REST_CLIENT_READ_TIMEOUT:5000}}
+        loggerLevel: ${PDND_INFOCAMERE_LOG_LEVEL:${REST_CLIENT_LOG_LEVEL:FULL}}
+
+      pdnd-visura-infocamere:
+        connectTimeout: ${PDND_INFOCAMERE_CLIENT_CONNECT_TIMEOUT:${REST_CLIENT_CONNECT_TIMEOUT:5000}}
+        readTimeout: ${PDND_INFOCAMERE_CLIENT_READ_TIMEOUT:${REST_CLIENT_READ_TIMEOUT:5000}}
+        loggerLevel: ${PDND_INFOCAMERE_LOG_LEVEL:${REST_CLIENT_LOG_LEVEL:FULL}}
+
 
 api.key.encrypt: ${PDV_ENCRYPT_API_KEY:}
 api.key.decrypt: ${PDV_DECRYPT_API_KEY:}

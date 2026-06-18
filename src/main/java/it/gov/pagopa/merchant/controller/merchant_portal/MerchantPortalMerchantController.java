@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.controller.merchant_portal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,4 +51,10 @@ public interface MerchantPortalMerchantController {
     ReportedUserCreateResponseDTO deleteReportedUser(@RequestHeader ("x-merchant-id")String merchantId,
                                                      @RequestHeader ("initiative-id")String initiativeId,
                                                      @PathVariable String userId);
+
+
+    @GetMapping("/{merchantId}/initiatives")
+    public ResponseEntity<List<InitiativeResponse>> getAvailableInitiatives(
+            @PathVariable String merchantId);
+
 }

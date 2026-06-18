@@ -103,7 +103,7 @@ public class GetPointOfSaleServiceImpl implements GetPointOfSaleService {
         for (UserRepresentation user : existingUsers) {
           usersResource.get(user.getId()).remove();
         }
-      } catch (Exception _) {
+      } catch (Exception ex) {
         log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}",
                 sanitizeForLog(pointOfSale.getId()));
       }

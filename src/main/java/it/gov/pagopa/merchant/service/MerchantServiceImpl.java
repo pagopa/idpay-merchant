@@ -2,9 +2,12 @@ package it.gov.pagopa.merchant.service;
 
 import feign.FeignException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
+import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDBusiness;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
@@ -12,6 +15,7 @@ import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.repository.InitiativeRepository;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
@@ -29,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
@@ -52,19 +57,20 @@ public class MerchantServiceImpl implements MerchantService {
   private final MerchantValidator merchantValidator;
   private final Keycloak keycloakAdminClient;
   private final String realm;
-
+  private final PDNDInfoCamereConnectorImpl pdndConnector;
+  private final InitiativeRepository initiativeRepository;
   public MerchantServiceImpl(MerchantDetailService merchantDetailService,
-      MerchantListService merchantListService,
-      MerchantProcessOperationService merchantProcessOperationService,
-      MerchantUpdatingInitiativeService merchantUpdatingInitiativeService,
-      MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
-      UploadingMerchantService uploadingMerchantService,
-      Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
-      @Value("${merchant.default-initiatives}") List<String> defaultInitiatives,
-      InitiativeRestConnector initiativeRestConnector,
-      MerchantCreateDTOMapper merchantCreateDTOMapper, PointOfSaleRepository pointOfSaleRepository,
-      MerchantValidator merchantValidator, Keycloak keycloakAdminClient,
-      @Value("${keycloak.admin.realm}") String realm) {
+                             MerchantListService merchantListService,
+                             MerchantProcessOperationService merchantProcessOperationService,
+                             MerchantUpdatingInitiativeService merchantUpdatingInitiativeService,
+                             MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
+                             UploadingMerchantService uploadingMerchantService,
+                             Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
+                             @Value("${merchant.default-initiatives}") List<String> defaultInitiatives,
+                             InitiativeRestConnector initiativeRestConnector,
+                             MerchantCreateDTOMapper merchantCreateDTOMapper, PointOfSaleRepository pointOfSaleRepository,
+                             MerchantValidator merchantValidator, Keycloak keycloakAdminClient,
+                             @Value("${keycloak.admin.realm}") String realm, PDNDInfoCamereConnectorImpl pdndConnector, InitiativeRepository initiativeRepository) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
     this.merchantProcessOperationService = merchantProcessOperationService;
@@ -80,6 +86,8 @@ public class MerchantServiceImpl implements MerchantService {
     this.merchantValidator = merchantValidator;
     this.keycloakAdminClient = keycloakAdminClient;
     this.realm = realm;
+    this.pdndConnector = pdndConnector;
+    this.initiativeRepository = initiativeRepository;
   }
 
   @Override
@@ -139,6 +147,39 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
+
+  public List<InitiativeResponse> processMerchantInitiatives(String merchantId) {
+
+    Merchant merchant = merchantRepository.findById(merchantId)
+            .orElseThrow(() -> new IllegalArgumentException("Merchant not found"));
+
+    // PDND call
+    PDNDBusiness pdndBusiness = pdndConnector.retrieveInstitutionDetail(merchant.getVatNumber());
+
+    List<String> newAtecoCodes = Optional.ofNullable(pdndBusiness.getAtecoCodes())
+            .orElse(Collections.emptyList());
+
+    // Update atecoCodes se cambiati
+    if (!newAtecoCodes.equals(merchant.getAtecoCodes())) {
+      merchant.setAtecoCodes(newAtecoCodes);
+      merchant.setUpdateDate(LocalDateTime.now());
+      merchantRepository.save(merchant);
+    }
+
+    // initiative già presenti
+    Set<String> existingIds = Optional.ofNullable(merchant.getInitiativeList())
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(Initiative::getInitiativeId)
+            .collect(Collectors.toSet());
+
+    // QUERY Mongo con onboardable già calcolato
+    return initiativeRepository.findFilteredInitiatives(existingIds, newAtecoCodes);
+  }
+
+
+
+    @Override
   public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
     Optional<Merchant> merchant = merchantRepository.findById(merchantId);
 

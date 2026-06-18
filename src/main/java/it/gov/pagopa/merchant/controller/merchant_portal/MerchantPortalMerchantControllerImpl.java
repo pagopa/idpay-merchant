@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.controller.merchant_portal;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.ReportedUserService;
@@ -65,13 +66,21 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
     public List<ReportedUserDTO> getReportedUser(String merchantId, String initiativeId, String userId
     ) {
         return reportedUserService.searchReportedUser(userId, merchantId, initiativeId);
-
     }
 
     @Override
     public ReportedUserCreateResponseDTO deleteReportedUser(String merchantId, String initiativeId, String userId) {
 
         return reportedUserService.deleteByUserId(userId, merchantId, initiativeId);
-
     }
+
+
+    @GetMapping("/{merchantId}/initiatives")
+    public ResponseEntity<List<InitiativeResponse>> getAvailableInitiatives(
+            @PathVariable String merchantId) {
+
+        List<InitiativeResponse> response = merchantService.processMerchantInitiatives(merchantId);
+        return ResponseEntity.ok(response);
+    }
+
 }
