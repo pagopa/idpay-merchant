@@ -246,3 +246,6 @@ management:
 
 merchant:
   defaultInitiatives: ${MERCHANT_DEFAULT_INITIATIVES:}
+
+point-of-sales:
+  defaultMaxSizeRequest: ${POS_DEFAULT_MAX_SIZE_REQUEST:5}

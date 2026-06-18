@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.service.merchant;
 
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.dto.MerchantIbanPatchDTO;
+import it.gov.pagopa.merchant.exception.custom.MerchantBadRequestException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -213,7 +214,7 @@ class MerchantUpdateIbanServiceImplTest {
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
     // When & Then
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+    MerchantBadRequestException e = assertThrows(MerchantBadRequestException.class,
             () -> service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO));
 
     assertEquals("Invalid IBAN format.", e.getMessage());
@@ -235,7 +236,7 @@ class MerchantUpdateIbanServiceImplTest {
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
     // When & Then
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+    MerchantBadRequestException e = assertThrows(MerchantBadRequestException.class,
             () -> service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO));
 
     assertEquals("Invalid IBAN holder format.", e.getMessage());
@@ -251,7 +252,7 @@ class MerchantUpdateIbanServiceImplTest {
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
     // When & Then
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+    MerchantBadRequestException e = assertThrows(MerchantBadRequestException.class,
         () -> service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO));
     assertEquals("Invalid IBAN format.", e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
@@ -266,7 +267,7 @@ class MerchantUpdateIbanServiceImplTest {
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
     // When & Then
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+    MerchantBadRequestException e = assertThrows(MerchantBadRequestException.class,
         () -> service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO));
     assertEquals("Invalid IBAN holder format.", e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
@@ -287,7 +288,7 @@ class MerchantUpdateIbanServiceImplTest {
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
     // When & Then
-    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+    MerchantBadRequestException e = assertThrows(MerchantBadRequestException.class,
             () -> service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO));
 
     assertEquals("Invalid operative email format.", e.getMessage());

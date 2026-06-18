@@ -48,6 +48,10 @@ public class PointOfSaleDTO {
     @JsonProperty("address")
     private String address;
 
+    @NotBlank(message = "Street Number must not be blank", groups = PhysicalGroup.class)
+    @JsonProperty("streetNumber")
+    private String streetNumber;
+
     @NotBlank(message = "website must not be blank", groups = OnlineGroup.class)
     @JsonProperty("website")
     private String website;
