@@ -8,8 +8,10 @@ import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.utils.Utilities;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +29,12 @@ public class PointOfSaleValidator {
     private static final String REGEX_LINK = "^(http|https|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
     private static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 
-    public PointOfSaleValidator(Validator validator) {
+    private final int posDefaultMaxSizeRequest;
+
+    public PointOfSaleValidator(Validator validator,
+                                @Value("${point-of-sales.defaultMaxSizeRequest}")int posDefaultMaxSizeRequest) {
         this.validator = validator;
+        this.posDefaultMaxSizeRequest = posDefaultMaxSizeRequest;
     }
 
     public void validatePointOfSales(List<PointOfSaleDTO> pointOfSaleDTOS) {
@@ -39,11 +45,11 @@ public class PointOfSaleValidator {
                     PointOfSaleConstants.CODE_BAD_REQUEST,
                     PointOfSaleConstants.MSG_LIST_NOT_EMPTY);
         }
-        if (pointOfSaleDTOS.size() > 5) {
+        if (pointOfSaleDTOS.size() > posDefaultMaxSizeRequest) {
             throw new ClientExceptionWithBody(
                     HttpStatus.BAD_REQUEST,
                     PointOfSaleConstants.CODE_BAD_REQUEST,
-                    PointOfSaleConstants.MSG_POINT_OF_SALE_SIZE_EXCEEDED);
+                    PointOfSaleConstants.MSG_POINT_OF_SALE_SIZE_EXCEEDED.formatted(posDefaultMaxSizeRequest));
         }
         log.debug("[POS-VALIDATION] Received {} PointOfSale entries to validate", pointOfSaleDTOS.size());
 
@@ -87,7 +93,7 @@ public class PointOfSaleValidator {
 
     private List<ValidationErrorDetail> validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS) {
         List<ValidationErrorDetail> errors = new ArrayList<>();
-        Set<String> emails     = new HashSet<>();
+        Set<String> emails = new HashSet<>();
         Set<String> physicalPOS = new HashSet<>();
         Set<String> onlinePOS  = new HashSet<>();
 
@@ -117,24 +123,26 @@ public class PointOfSaleValidator {
     }
 
     private void checkDuplicatePhysical(PointOfSaleDTO pos, int index, Set<String> seen, List<ValidationErrorDetail> errors) {
-        String key = pos.getAddress()
+        String key = pos.getType()
+                + "|" + pos.getAddress()
                 + "|" + pos.getStreetNumber()
                 + "|" + pos.getCity()
                 + "|" + pos.getFranchiseName();
 
         if (!seen.add(key)) {
-            errors.add(buildError(index, "address|streetNumber|city|franchiseName", key,
+            errors.add(buildError(index, "type|address|streetNumber|city|franchiseName", key,
                     PointOfSaleConstants.CODE_ALREADY_REGISTERED,
                     "Duplicate physical point of sale in request"));
         }
     }
 
     private void checkDuplicateOnline(PointOfSaleDTO pos, int index,  Set<String> seen,  List<ValidationErrorDetail> errors) {
-        String key = Utilities.sanitizeDomain(pos.getWebsite())
+        String key = pos.getType()
+                + "|" + Utilities.sanitizeDomain(pos.getWebsite())
                 + "|" + pos.getFranchiseName();
 
         if (!seen.add(key)) {
-            errors.add(buildError(index, "website|franchiseName", key,
+            errors.add(buildError(index, "type|website|franchiseName", key,
                     PointOfSaleConstants.CODE_ALREADY_REGISTERED,
                     "Duplicate online point of sale in request"));
         }

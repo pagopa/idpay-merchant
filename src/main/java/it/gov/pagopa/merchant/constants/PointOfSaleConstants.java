@@ -13,13 +13,14 @@ public final class PointOfSaleConstants {
     public static final String CODE_BAD_REQUEST = "POINT_OF_SALE_BAD_REQUEST";
     public static final String CODE_NOT_FOUND = "POINT_OF_SALE_NOT_FOUND";
     public static final String CODE_ALREADY_REGISTERED = "POINT_OF_SALE_ALREADY_REGISTERED";
+    public static final String CODE_DATA_INCONSISTENCY = "CODE_DATA_INCONSISTENCY";
     // ===GENERIC MESSAGES===
 
 
     // ===POINT OF SALE===
     public static final String MSG_GENERIC_SAVE_ERROR = "Unexpected error occurred while saving point of sales";
     public static final String MSG_LIST_NOT_EMPTY = "Point of sales list cannot be empty.";
-    public static final String MSG_POINT_OF_SALE_SIZE_EXCEEDED = "A maximum of 5 point of sale entries is allowed";
+    public static final String MSG_POINT_OF_SALE_SIZE_EXCEEDED = "A maximum of %s point of sale entries is allowed";
     public static final String MSG_NOT_FOUND = "Point of sale with id %s not found.";
     public static final String MSG_ALREADY_REGISTERED = "Point of sale already registered for _id or unique index constraint";
     public static final String POINT_OF_SALE_NOT_ALLOWED = "POINT_OF_SALE_NOT_ALLOWED";
