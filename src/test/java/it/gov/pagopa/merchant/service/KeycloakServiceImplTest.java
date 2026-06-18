@@ -12,7 +12,6 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.URI;
@@ -97,9 +96,7 @@ class KeycloakServiceImplTest {
         keycloakService.manageReferentUserOnKeycloak(pos, null);
 
         verify(usersResourceMock).create(any(UserRepresentation.class));
-        verify(userResourceMock).executeActionsEmail(
-                eq(CLIENT_ID), eq(REDIRECT_URI), eq(LIFESPAN),
-                Mockito.eq(List.of("UPDATE_PASSWORD")));
+        verify(userResourceMock).executeActionsEmail(CLIENT_ID, REDIRECT_URI, LIFESPAN, List.of("UPDATE_PASSWORD"));
     }
 
     @Test
@@ -128,8 +125,7 @@ class KeycloakServiceImplTest {
                         "NewSurname".equals(user.getLastName())
         ));
         verify(usersResourceMock, never()).create(any(UserRepresentation.class));
-        verify(userResourceMock, never())
-                .executeActionsEmail(anyString(), anyString(), anyInt(), anyList());
+        verify(userResourceMock, never()).executeActionsEmail(anyString(), anyString(), anyInt(), anyList());
     }
 
     @Test

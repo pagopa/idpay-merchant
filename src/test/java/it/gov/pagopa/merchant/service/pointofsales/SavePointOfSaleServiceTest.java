@@ -92,7 +92,7 @@ class SavePointOfSaleServiceTest {
         service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto));
 
         verify(pointOfSaleRepositoryMock).save(entity);
-        verify(keycloakServiceMock).manageReferentUserOnKeycloak(eq(entity), eq(dto.getContactEmail()));
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
         verify(pointOfSalesInitiativeRepositoryMock).saveAll(anySet());
     }
 
@@ -126,8 +126,12 @@ class SavePointOfSaleServiceTest {
                 .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("POS-1", INITIATIVE_ID, MERCHANT_ID))
                 .thenReturn(Optional.of(new PointOfSalesInitiative()));
 
-        assertThrows(PointOfSaleDuplicateException.class,
-                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto)));
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
+
+        assertThrows(
+                PointOfSaleDuplicateException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
 
         verify(pointOfSaleRepositoryMock, never()).save(any());
         verify(pointOfSalesInitiativeRepositoryMock, never()).saveAll(anySet());
@@ -143,8 +147,12 @@ class SavePointOfSaleServiceTest {
         when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity)).thenReturn(Optional.empty());
         when(pointOfSaleRepositoryMock.save(entity)).thenThrow(new DuplicateKeyException("dup"));
 
-        assertThrows(PointOfSaleDuplicateException.class,
-                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto)));
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
+
+        assertThrows(
+                PointOfSaleDuplicateException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
 
         verify(pointOfSalesInitiativeRepositoryMock)
                 .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of());
@@ -160,8 +168,12 @@ class SavePointOfSaleServiceTest {
         when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity))
                 .thenThrow(new IncorrectResultSizeDataAccessException(1));
 
-        assertThrows(ServiceException.class,
-                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto)));
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
+
+        assertThrows(
+                ServiceException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
 
         verify(pointOfSalesInitiativeRepositoryMock)
                 .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of());
@@ -182,10 +194,14 @@ class SavePointOfSaleServiceTest {
         when(keycloakServiceMock.getUserResource()).thenReturn(usersResourceMock);
         when(usersResourceMock.searchByEmail(entity.getContactEmail(), true)).thenReturn(List.of());
 
-        assertThrows(ServiceException.class,
-                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto)));
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
 
-        verify(keycloakServiceMock).manageReferentUserOnKeycloak(eq(entity), eq(dto.getContactEmail()));
+        assertThrows(
+                ServiceException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
         verify(pointOfSalesInitiativeRepositoryMock)
                 .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
         verify(pointOfSaleRepositoryMock).deleteById("POS-1");
@@ -212,10 +228,14 @@ class SavePointOfSaleServiceTest {
         when(usersResourceMock.searchByEmail(entity.getContactEmail(), true)).thenReturn(List.of(userRep));
         when(usersResourceMock.get("KC-USER-1")).thenReturn(userResourceMock);
 
-        assertThrows(ServiceException.class,
-                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto)));
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
 
-        verify(keycloakServiceMock).manageReferentUserOnKeycloak(eq(entity), eq(dto.getContactEmail()));
+        assertThrows(
+                ServiceException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
         verify(pointOfSalesInitiativeRepositoryMock)
                 .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
         verify(pointOfSaleRepositoryMock).deleteById("POS-1");
@@ -240,10 +260,14 @@ class SavePointOfSaleServiceTest {
         doThrow(new RuntimeException("delete failed"))
                 .when(pointOfSaleRepositoryMock).deleteById("POS-1");
 
-        assertThrows(ServiceException.class,
-                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto)));
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
 
-        verify(keycloakServiceMock).manageReferentUserOnKeycloak(eq(entity), eq(dto.getContactEmail()));
+        assertThrows(
+                ServiceException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
         verify(pointOfSalesInitiativeRepositoryMock)
                 .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
         verify(pointOfSaleRepositoryMock).deleteById("POS-1");
