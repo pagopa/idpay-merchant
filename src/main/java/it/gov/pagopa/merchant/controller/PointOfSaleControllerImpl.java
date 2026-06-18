@@ -10,7 +10,8 @@ import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.service.MerchantService;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleService;
+import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleService;
+import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleWithInitiativeService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import java.util.List;
@@ -24,16 +25,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PointOfSaleControllerImpl implements PointOfSaleController {
 
-  private final PointOfSaleService pointOfSaleService;
+  private final GetPointOfSaleService getPointOfSaleService;
+  private final GetPointOfSaleWithInitiativeService getPointOfSaleWithInitiativeService;
   private final PointOfSaleValidator pointOfSaleValidator;
   private final PointOfSaleDTOMapper pointOfSaleDTOMapper;
   private final MerchantService merchantService;
   private static final String MERCHANT_MISMATCH_MSG = "Merchant mismatch: expected [%s], but received [%s]";
 
-  public PointOfSaleControllerImpl(PointOfSaleService pointOfSaleService,
-      PointOfSaleValidator pointOfSaleValidator,
-      PointOfSaleDTOMapper pointOfSaleDTOMapper, MerchantService merchantService) {
-    this.pointOfSaleService = pointOfSaleService;
+  public PointOfSaleControllerImpl(GetPointOfSaleService getPointOfSaleService,
+                                   GetPointOfSaleWithInitiativeService getPointOfSaleWithInitiativeService,
+                                   PointOfSaleValidator pointOfSaleValidator,
+                                   PointOfSaleDTOMapper pointOfSaleDTOMapper,
+                                   MerchantService merchantService) {
+    this.getPointOfSaleService = getPointOfSaleService;
+    this.getPointOfSaleWithInitiativeService = getPointOfSaleWithInitiativeService;
     this.pointOfSaleValidator = pointOfSaleValidator;
     this.pointOfSaleDTOMapper = pointOfSaleDTOMapper;
     this.merchantService = merchantService;
@@ -61,7 +66,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
         .map(pointOfSaleDTO -> pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO, sanitizedMerchantId))
         .toList();
 
-    pointOfSaleService.savePointOfSales(sanitizedMerchantId, entities);
+    getPointOfSaleService.savePointOfSales(sanitizedMerchantId, entities);
 
     return ResponseEntity.noContent().build();
   }
@@ -72,15 +77,34 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     String sanitizedMerchantId = sanitizeString(merchantId);
     log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", sanitizedMerchantId);
 
-    if (tokenMerchantId != null &&
-        !Utilities.sanitizeString(tokenMerchantId).equals(sanitizedMerchantId)) {
+    validateMerchantAccess(tokenMerchantId, sanitizedMerchantId);
 
-      throw new MerchantNotAllowedException(MERCHANT_MISMATCH_MSG.formatted(tokenMerchantId, sanitizedMerchantId)
-      );
-    }
+    Page<PointOfSale> pagePointOfSales = getPointOfSaleService.getPointOfSalesList(sanitizedMerchantId,
+        type, city, address, contactName, pageable);
 
-    Page<PointOfSale> pagePointOfSales = pointOfSaleService.getPointOfSalesList(sanitizedMerchantId, type,
-        city, address, contactName, pageable);
+    return buildPointOfSalesListResponse(pagePointOfSales);
+  }
+
+  @Override
+  public ResponseEntity<PointOfSaleListDTO> getPointOfSalesListByInitiative(
+      String merchantId, String initiativeId, String tokenMerchantId, String type,
+      String city, String address, String contactName, Pageable pageable) {
+    String sanitizedMerchantId = sanitizeString(merchantId);
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+
+    log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={} and initiativeId={}",
+        sanitizedMerchantId, sanitizedInitiativeId);
+
+    validateMerchantAccess(tokenMerchantId, sanitizedMerchantId);
+
+    Page<PointOfSale> pagePointOfSales = getPointOfSaleWithInitiativeService.getPointOfSalesListByInitiative(
+        sanitizedInitiativeId, sanitizedMerchantId, type, city, address, contactName, pageable);
+
+    return buildPointOfSalesListResponse(pagePointOfSales);
+  }
+
+  private ResponseEntity<PointOfSaleListDTO> buildPointOfSalesListResponse(
+      Page<PointOfSale> pagePointOfSales) {
 
     Page<PointOfSaleDTO> result = pagePointOfSales.map(pointOfSaleDTOMapper::entityToDto);
 
@@ -92,36 +116,68 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   }
 
   @Override
-  public ResponseEntity<PointOfSaleDTO> getPointOfSale(String pointOfSaleId, String merchantId, String tokenPointOfSaleId, String tokenMerchantId) {
+  public ResponseEntity<PointOfSaleDTO> getPointOfSale(String pointOfSaleId, String merchantId,
+      String tokenPointOfSaleId, String tokenMerchantId) {
 
     String sanitizedPointOfSaleId = sanitizeString(pointOfSaleId);
-    String sanitizedMerchantId   = sanitizeString(merchantId);
+    String sanitizedMerchantId = sanitizeString(merchantId);
 
-    log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={} for merchantId={}",
+    validatePointOfSaleAccess(tokenMerchantId, tokenPointOfSaleId, sanitizedMerchantId,
+        sanitizedPointOfSaleId);
+
+    PointOfSale pointOfSale = getPointOfSaleService.getPointOfSaleByIdAndMerchantId(
         sanitizedPointOfSaleId, sanitizedMerchantId);
 
-    if (tokenMerchantId != null &&
-        !Utilities.sanitizeString(tokenMerchantId).equals(sanitizedMerchantId)) {
+    return buildPointOfSaleResponse(pointOfSale, sanitizedMerchantId);
+  }
 
-      throw new MerchantNotAllowedException(MERCHANT_MISMATCH_MSG.formatted(tokenMerchantId, sanitizedMerchantId)
-      );
-    }
+  @Override
+  public ResponseEntity<PointOfSaleDTO> getPointOfSaleByInitiative(String pointOfSaleId,
+      String merchantId, String initiativeId, String tokenPointOfSaleId, String tokenMerchantId) {
+
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+    String sanitizedPointOfSaleId = sanitizeString(pointOfSaleId);
+    String sanitizedMerchantId = sanitizeString(merchantId);
+
+    validatePointOfSaleAccess(tokenMerchantId, tokenPointOfSaleId, sanitizedMerchantId,
+        sanitizedPointOfSaleId);
+
+    PointOfSale pointOfSale = getPointOfSaleWithInitiativeService.getPointOfSaleByIdAndMerchantIdAndInitiativeId(
+        sanitizedInitiativeId, sanitizedPointOfSaleId, sanitizedMerchantId);
+
+    return buildPointOfSaleResponse(pointOfSale, sanitizedMerchantId);
+  }
+
+  private void validatePointOfSaleAccess(String tokenMerchantId, String tokenPointOfSaleId,
+      String merchantId, String pointOfSaleId) {
+    log.info("[POINT-OF-SALE][GET] Fetching detail for pointOfSaleId={} for merchantId={}",
+        pointOfSaleId, merchantId);
+
+    validateMerchantAccess(tokenMerchantId, merchantId);
+
     if (tokenPointOfSaleId != null &&
-        !Utilities.sanitizeString(tokenPointOfSaleId).equals(sanitizedPointOfSaleId)) {
+        !Utilities.sanitizeString(tokenPointOfSaleId).equals(pointOfSaleId)) {
 
       throw new PointOfSaleNotAllowedException(
-          "Point of sale mismatch: expected [%s], but received [%s]".formatted(tokenPointOfSaleId, sanitizedPointOfSaleId)
+          "Point of sale mismatch: expected [%s], but received [%s]".formatted(tokenPointOfSaleId,
+              pointOfSaleId)
       );
     }
+  }
 
-    PointOfSale pointOfSale =
-        pointOfSaleService.getPointOfSaleByIdAndMerchantId(sanitizedPointOfSaleId, sanitizedMerchantId);
+  private void validateMerchantAccess(String tokenMerchantId, String merchantId) {
+    if (tokenMerchantId != null &&
+        !Utilities.sanitizeString(tokenMerchantId).equals(merchantId)) {
+      throw new MerchantNotAllowedException(
+          MERCHANT_MISMATCH_MSG.formatted(tokenMerchantId, merchantId));
+    }
+  }
 
-    Merchant merchant =
-        merchantService.getMerchantByMerchantId(sanitizedMerchantId);
+  private ResponseEntity<PointOfSaleDTO> buildPointOfSaleResponse(PointOfSale pointOfSale,
+      String merchantId) {
+    Merchant merchant = merchantService.getMerchantByMerchantId(merchantId);
 
-    PointOfSaleDTO dto =
-        pointOfSaleDTOMapper.entityToDto(pointOfSale, merchant);
+    PointOfSaleDTO dto = pointOfSaleDTOMapper.entityToDto(pointOfSale, merchant);
 
     return ResponseEntity.ok(dto);
   }
