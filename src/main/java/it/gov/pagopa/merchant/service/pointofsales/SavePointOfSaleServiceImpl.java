@@ -164,7 +164,7 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
         for (UserRepresentation user : existingUsers) {
           usersResource.get(user.getId()).remove();
         }
-      } catch (Exception exception) {
+      } catch (Exception _) {
         log.error("[POINT-OF-SALES][COMPENSATION] Failed to delete Point of sale with id: {}",
                 sanitizeForLog(pointOfSale.getId()));
       }
