@@ -27,20 +27,21 @@ public interface PointOfSaleController {
 
 
     @Operation(
-            summary = "Save or update a list of points of sale",
+            summary = "Save a list of points of sale",
             security = {@SecurityRequirement(name = "Bearer")},
             tags = {"point-of-sales"},
-            description = "Save or update a list of points of sale fo the specified merchant")
+            description = "Save a list of points of sale for the specified merchant")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "No Content - Successfully saved or updated"),
+            @ApiResponse(responseCode = "204", description = "No Content - Successfully saved"),
             @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationErrorDTO.class))),
             @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "429", description = "Too many Request - Rate limit exceeded", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
             @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
-    @PutMapping(value = "/{merchantId}/point-of-sales")
+    @PostMapping(value = "/{merchantId}/initiatives/{initiativeId}/point-of-sales")
     ResponseEntity<Void> savePointOfSales(
             @PathVariable("merchantId") @NotBlank String merchantId,
+            @PathVariable("initiativeId") @NotBlank String initiativeId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
             @RequestBody List<PointOfSaleDTO> pointOfSales);
 

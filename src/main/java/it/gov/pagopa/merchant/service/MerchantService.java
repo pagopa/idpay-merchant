@@ -40,4 +40,5 @@ public interface MerchantService {
   Merchant getMerchantByMerchantId(String merchantId);
 
   MerchantListDTO getMerchantList(String initiativeId, Pageable pageable);
+  void verifyMerchantExists(String merchantId);
 }

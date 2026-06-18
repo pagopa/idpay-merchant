@@ -214,6 +214,21 @@ public class MerchantServiceImpl implements MerchantService {
     }
   }
 
+  /**
+   * Verifies if the merchant exists in the system.
+   *
+   * @param merchantId the ID of the merchant to check
+   * @throws MerchantNotFoundException if the merchant does not exist
+   */
+  @Override
+  public void verifyMerchantExists(String merchantId) {
+    MerchantDetailDTO merchantDetail = getMerchantDetail(merchantId);
+    if (merchantDetail == null) {
+      throw new MerchantNotFoundException(
+              String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, merchantId));
+    }
+  }
+
   private void deleteKeycloakUsers(List<PointOfSale> pointsOfSale) {
     UsersResource usersResource = keycloakAdminClient.realm(realm).users();
 
