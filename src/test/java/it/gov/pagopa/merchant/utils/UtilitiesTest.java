@@ -49,4 +49,32 @@ class UtilitiesTest {
         assertNull(result);
     }
 
+    @Test
+    void sanitizeForLog_shouldReturnNull_whenInputIsNull() {
+        assertNull(Utilities.sanitizeForLog(null));
+    }
+
+    @Test
+    void sanitizeForLog_shouldReturnSameString_whenInputIsAlreadyValid() {
+        String input = "merchant_123-test@example.com";
+
+        assertEquals(input, Utilities.sanitizeForLog(input));
+    }
+
+    @Test
+    void sanitizeForLog_shouldReplaceInvalidCharactersWithUnderscore() {
+        String input = "merchant id: 123/#";
+        String expected = "merchant_id__123__";
+
+        assertEquals(expected, Utilities.sanitizeForLog(input));
+    }
+
+    @Test
+    void sanitizeForLog_shouldRemoveUnicodeLineSeparators() {
+        String input = "abc\u2028def\u2029ghi";
+        String expected = "abcdefghi";
+
+        assertEquals(expected, Utilities.sanitizeForLog(input));
+    }
+
 }
