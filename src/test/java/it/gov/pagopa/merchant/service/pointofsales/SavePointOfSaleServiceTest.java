@@ -97,34 +97,34 @@ class SavePointOfSaleServiceTest {
 
     @Test
     void shouldNotSavePos_whenDuplicateExists_throwPointOfSaleDuplicateException() {
-        PointOfSaleDTO dto_1 = dto();
-        PointOfSaleDTO dto_2 = dto();
-        PointOfSale entity_1 = entity("POS-1");
+        PointOfSaleDTO dto1 = dto();
+        PointOfSaleDTO dto2 = dto();
+        PointOfSale entity1 = entity("POS-1");
         PointOfSale duplicate = entity("POS-DUP");
 
         doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
-        when(pointOfSaleDTOMapperMock.dtoToEntity(dto_1, MERCHANT_ID)).thenReturn(entity_1);
-        when(pointOfSaleDTOMapperMock.dtoToEntity(dto_2, MERCHANT_ID)).thenReturn(duplicate);
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity_1)).thenReturn(Optional.empty());
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto1, MERCHANT_ID)).thenReturn(entity1);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto2, MERCHANT_ID)).thenReturn(duplicate);
+        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity1)).thenReturn(Optional.empty());
         when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, duplicate)).thenReturn(Optional.of(duplicate));
-        when(pointOfSaleRepositoryMock.save(entity_1)).thenReturn(entity_1);
+        when(pointOfSaleRepositoryMock.save(entity1)).thenReturn(entity1);
 
-        List<PointOfSaleDTO> pointOfSales = List.of(dto_1, dto_2);
+        List<PointOfSaleDTO> pointOfSales = List.of(dto1, dto2);
 
         assertThrows(
                 PointOfSaleDuplicateException.class,
                 () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
         );
 
-        verify(pointOfSaleRepositoryMock).save(entity_1);
+        verify(pointOfSaleRepositoryMock).save(entity1);
         verify(pointOfSaleRepositoryMock, never()).save(duplicate);
         verify(pointOfSalesInitiativeRepositoryMock, never()).saveAll(anySet());
-        verify(pointOfSalesInitiativeRepositoryMock).deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
-        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity_1, dto_1.getContactEmail());
-        verify(pointOfSalesInitiativeRepositoryMock)
-                .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
-        verify(pointOfSaleRepositoryMock).deleteById("POS-1");
+
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity1, dto1.getContactEmail());
         verify(keycloakServiceMock).getUserResource();
+
+        verify(pointOfSalesInitiativeRepositoryMock).deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
+        verify(pointOfSaleRepositoryMock).deleteById("POS-1");
     }
 
     @Test
