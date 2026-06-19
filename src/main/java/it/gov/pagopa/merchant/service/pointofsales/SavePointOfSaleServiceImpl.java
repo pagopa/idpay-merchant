@@ -56,8 +56,11 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
 
     Set<PointOfSale> savedPosSet = new HashSet<>();
     Set<PointOfSalesInitiative> associations = new HashSet<>();
+    String currentEmail = "";
+
     try {
       for (PointOfSaleDTO dto : pointOfSaleList) {
+        currentEmail = dto.getContactEmail();
         processDto(dto, merchantId, initiativeId, savedPosSet, associations);
       }
 
@@ -71,17 +74,14 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
       compensatingDelete(savedPosSet);
       log.error("[POINT-OF-SALES][SAVE] Compensation completed.");
 
-      handleException(exception);
+      handleException(exception, currentEmail);
     }
 
-    if (associations.isEmpty() && savedPosSet.isEmpty()) {
-      throw new PointOfSaleDuplicateException("PointOfSales with the same functional and initiative association key already exists");
-    }
   }
 
-  private static void handleException(Exception exception) {
+  private static void handleException(Exception exception, String currentEmail) {
     if (exception instanceof DuplicateKeyException) {
-      throw new PointOfSaleDuplicateException("PointOfSales with the same functional key already exists");
+      throw new PointOfSaleDuplicateException(currentEmail);
     }
 
     if (exception instanceof IncorrectResultSizeDataAccessException){
@@ -90,6 +90,10 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
               PointOfSaleConstants.CODE_DATA_INCONSISTENCY,
               "Multiple PointOfSale found for business key"
       );
+    }
+
+    if (exception instanceof PointOfSaleDuplicateException ex){
+      throw ex;
     }
 
     log.error("[POINT-OF-SALES][SAVE] Exception: {}", exception.getMessage());
@@ -106,19 +110,9 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
     PointOfSale duplicate = getDuplicatePointOfSale(merchantId, entity);
 
     if (duplicate != null) {
-      handleDuplicatePOS(duplicate, merchantId, initiativeId, associations);
+      throw new PointOfSaleDuplicateException(duplicate.getContactEmail());
     } else {
       handleNewPOS(entity, dto.getContactEmail(), merchantId, initiativeId, savedPosSet, associations);
-    }
-  }
-
-  private void handleDuplicatePOS(PointOfSale duplicate, String merchantId, String initiativeId, Set<PointOfSalesInitiative> associations) {
-
-    boolean associationExists = pointOfSalesInitiativeRepository
-            .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(duplicate.getId(), initiativeId, merchantId).isPresent();
-
-    if (!associationExists) {
-      associations.add(buildPointOfSaleInitiative(duplicate.getId(), merchantId, initiativeId));
     }
   }
 
