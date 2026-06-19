@@ -7,6 +7,7 @@ import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDBusiness;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativePageResult;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -27,6 +28,8 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -147,34 +150,36 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
-
-  public List<InitiativeResponse> processMerchantInitiatives(String merchantId) {
+  public Page<InitiativeResponse> processMerchantInitiatives(String merchantId, Pageable pageable) {
 
     Merchant merchant = merchantRepository.findById(merchantId)
             .orElseThrow(() -> new IllegalArgumentException("Merchant not found"));
 
-    // PDND call
     PDNDBusiness pdndBusiness = pdndConnector.retrieveInstitutionDetail(merchant.getVatNumber());
-
     List<String> newAtecoCodes = Optional.ofNullable(pdndBusiness.getAtecoCodes())
             .orElse(Collections.emptyList());
 
-    // Update atecoCodes se cambiati
     if (!newAtecoCodes.equals(merchant.getAtecoCodes())) {
       merchant.setAtecoCodes(newAtecoCodes);
       merchant.setUpdateDate(LocalDateTime.now());
       merchantRepository.save(merchant);
     }
 
-    // initiative già presenti
     Set<String> existingIds = Optional.ofNullable(merchant.getInitiativeList())
             .orElse(Collections.emptyList())
             .stream()
             .map(Initiative::getInitiativeId)
             .collect(Collectors.toSet());
 
-    // QUERY Mongo con onboardable già calcolato
-    return initiativeRepository.findFilteredInitiatives(existingIds, newAtecoCodes);
+    List<InitiativePageResult> results = initiativeRepository.findFilteredInitiativesPaged(
+            existingIds, newAtecoCodes, (int) pageable.getOffset(), pageable.getPageSize());
+
+    InitiativePageResult result = results.isEmpty() ? null : results.get(0);
+
+    List<InitiativeResponse> content = result != null ? result.getData() : Collections.emptyList();
+    long total = result != null ? result.getTotal() : 0L;
+
+    return new PageImpl<>(content, pageable, total);
   }
 
 

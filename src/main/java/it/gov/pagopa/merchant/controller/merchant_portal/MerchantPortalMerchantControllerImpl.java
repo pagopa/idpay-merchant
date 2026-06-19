@@ -8,6 +8,8 @@ import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.ReportedUserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,11 +78,10 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
 
 
     @GetMapping("/{merchantId}/initiatives")
-    public ResponseEntity<List<InitiativeResponse>> getAvailableInitiatives(
-            @PathVariable String merchantId) {
-
-        List<InitiativeResponse> response = merchantService.processMerchantInitiatives(merchantId);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Page<InitiativeResponse>> getAvailableInitiatives(
+            @PathVariable String merchantId,
+            Pageable pageable) {
+        return ResponseEntity.ok(merchantService.processMerchantInitiatives(merchantId, pageable));
     }
 
 }
