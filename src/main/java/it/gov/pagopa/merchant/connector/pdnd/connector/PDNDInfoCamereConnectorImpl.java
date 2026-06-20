@@ -1,34 +1,23 @@
 package it.gov.pagopa.merchant.connector.pdnd.connector;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import it.gov.pagopa.common.azure.storage.AzureBlobClientImpl;
 import it.gov.pagopa.merchant.connector.pdnd.config.PDNDConfig;
-import it.gov.pagopa.merchant.connector.pdnd.config.PDNDInfoCamereRestClientConfig;
-import it.gov.pagopa.merchant.connector.pdnd.config.PDNDVisuraInfoCamereRestClientConfig;
-import it.gov.pagopa.merchant.connector.pdnd.dto.ClientCredentialsResponse;
 import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDBusiness;
-import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDImpresa;
 import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDVisuraImpresa;
-import it.gov.pagopa.merchant.connector.pdnd.exception.ResourceNotFoundException;
-import it.gov.pagopa.merchant.connector.pdnd.extra.rest.PDNDVisuraInfoCamereRestClient;
 import it.gov.pagopa.merchant.connector.pdnd.mapper.PDNDBusinessMapper;
-import it.gov.pagopa.merchant.connector.pdnd.extra.rest.PDNDInfoCamereRestClient;
-import it.gov.pagopa.merchant.connector.pdnd.rest.PDNDVisuraInfoCamereRawRestClient;
 import it.gov.pagopa.merchant.connector.pdnd.service.PDNDCacheableService;
-import it.gov.pagopa.merchant.connector.pdnd.service.TokenProvider;
-import it.gov.pagopa.merchant.connector.pdnd.service.TokenProviderPDND;
-import it.gov.pagopa.merchant.connector.pdnd.service.TokenProviderVisura;
 import it.gov.pagopa.merchant.connector.pdnd.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 public class PDNDInfoCamereConnectorImpl implements PDNDInfoCamereConnector {
@@ -37,7 +26,7 @@ public class PDNDInfoCamereConnectorImpl implements PDNDInfoCamereConnector {
   private final PDNDBusinessMapper pdndBusinessMapper;
   private final PDNDCacheableService PDNDCacheableService;
   private final PDNDConfig pdndConfig;
-
+  private final AzureBlobClientImpl azureBlobClient;
   /*
   private final PDNDInfoCamereRestClient pdndInfoCamereRestClient;
   private final PDNDVisuraInfoCamereRawRestClient pdndVisuraInfoCamereRawRestClient;
@@ -61,7 +50,7 @@ public class PDNDInfoCamereConnectorImpl implements PDNDInfoCamereConnector {
           */
           PDNDBusinessMapper pdndBusinessMapper,
           PDNDCacheableService PDNDCacheableService,
-          PDNDConfig pdndConfig) {
+          PDNDConfig pdndConfig, AzureBlobClientImpl azureBlobClient) {
     /*
     this.pdndInfoCamereRestClient = pdndInfoCamereRestClient;
     this.pdndVisuraInfoCamereRawRestClient = pdndVisuraInfoCamereRawRestClient;
@@ -74,6 +63,7 @@ public class PDNDInfoCamereConnectorImpl implements PDNDInfoCamereConnector {
     this.pdndBusinessMapper = pdndBusinessMapper;
     this.PDNDCacheableService = PDNDCacheableService;
     this.pdndConfig = pdndConfig;
+    this.azureBlobClient = azureBlobClient;
   }
 
 
@@ -82,25 +72,35 @@ public class PDNDInfoCamereConnectorImpl implements PDNDInfoCamereConnector {
    */
   @Override
   public PDNDBusiness retrieveInstitutionDetail(String taxCode) {
-      Assert.hasText(taxCode, TAX_CODE_REQUIRED_MESSAGE);
-        String encTaxCode = DataEncryptionUtils.encrypt(taxCode);
-      try {
-        String document = PDNDCacheableService.getEncryptedDocument(encTaxCode);
+    Assert.hasText(taxCode, TAX_CODE_REQUIRED_MESSAGE);
+    String encTaxCode = DataEncryptionUtils.encrypt(taxCode);
+    try {
+      String document = PDNDCacheableService.getEncryptedDocument(encTaxCode);
 
-        String decDocument = DataEncryptionUtils.decrypt(document);
+      String decDocument = DataEncryptionUtils.decrypt(document);
 
-        /*
-          storageService.saveStringToStorage(document,"visura_" + taxCode + "_" + LocalDateTime.now() + ".xml");
-        */
+      saveVisuraToStorage(decDocument, taxCode);
 
-        PDNDVisuraImpresa result = xmlToVisuraImpresa(decDocument.getBytes(StandardCharsets.UTF_8));
+      PDNDVisuraImpresa result = xmlToVisuraImpresa(decDocument.getBytes(StandardCharsets.UTF_8));
 
-       return pdndBusinessMapper.toPDNDBusiness(result, pdndConfig);
+      return pdndBusinessMapper.toPDNDBusiness(result, pdndConfig);
 
-      } catch (Exception e) {
-        log.error("Unexpected exception occurred while retrieving institution detail", e);
-        throw new IllegalArgumentException("Unexpected error while retrieving institution detail", e);
-      }
+    } catch (Exception e) {
+      log.error("Unexpected exception occurred while retrieving institution detail", e);
+      throw new IllegalArgumentException("Unexpected error while retrieving institution detail", e);
+    }
+  }
+
+  private void saveVisuraToStorage(String decDocument, String taxCode) {
+    try (InputStream is = new ByteArrayInputStream(decDocument.getBytes(StandardCharsets.UTF_8))) {
+      azureBlobClient.upload(
+              is,
+              "visura_" + taxCode + "_" + LocalDateTime.now() + ".xml",
+              "application/xml"
+      );
+    } catch (IOException e) {
+      log.error("Unable to save visura to storage for taxCode {}", taxCode, e);
+    }
   }
 
   private PDNDVisuraImpresa xmlToVisuraImpresa(byte[] xmlBytes) throws IOException {

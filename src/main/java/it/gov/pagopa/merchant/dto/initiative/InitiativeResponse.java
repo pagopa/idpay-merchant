@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,5 +14,8 @@ import lombok.NoArgsConstructor;
 public class InitiativeResponse {
     private String initiativeId;
     private String initiativeName;
-    private boolean onboardable;
+    private String status;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String onboardStatus;
 }

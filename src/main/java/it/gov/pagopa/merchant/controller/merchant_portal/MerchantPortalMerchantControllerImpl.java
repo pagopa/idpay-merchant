@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.controller.merchant_portal;
 
+import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
@@ -77,11 +78,22 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
     }
 
 
-    @GetMapping("/{merchantId}/initiatives")
-    public ResponseEntity<Page<InitiativeResponse>> getAvailableInitiatives(
-            @PathVariable String merchantId,
+
+    @Override
+    public ResponseEntity<PageResponse<InitiativeResponse>> getAvailableInitiatives(
+            String merchantId,
             Pageable pageable) {
-        return ResponseEntity.ok(merchantService.processMerchantInitiatives(merchantId, pageable));
+
+        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(merchantId, pageable);
+
+        PageResponse<InitiativeResponse> response = new PageResponse<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
 }

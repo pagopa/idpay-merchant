@@ -7,11 +7,14 @@ import it.gov.pagopa.merchant.connector.pdnd.dto.ClassificazioneAteco;
 import it.gov.pagopa.merchant.connector.pdnd.dto.Localizzazione;
 import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDBusiness;
 import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDImpresa;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
+@Component
 public class PDNDBusinessMapper {
     /*
     public List<PDNDBusiness> toPDNDBusinesses(List<PDNDImpresa> list) {

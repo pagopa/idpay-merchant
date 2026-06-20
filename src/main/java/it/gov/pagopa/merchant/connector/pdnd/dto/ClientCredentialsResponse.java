@@ -2,7 +2,6 @@ package it.gov.pagopa.merchant.connector.pdnd.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.codehaus.janino.TokenType;
 
 @Data
 public class ClientCredentialsResponse {
@@ -10,7 +9,7 @@ public class ClientCredentialsResponse {
     private String accessToken;
 
     @JsonProperty("token_type")
-    private TokenType tokenType;
+    private String tokenType;
 
     @JsonProperty("expires_in")
     private Integer expiresIn;

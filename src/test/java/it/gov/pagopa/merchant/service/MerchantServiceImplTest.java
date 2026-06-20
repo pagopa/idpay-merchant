@@ -112,7 +112,7 @@ class MerchantServiceImplTest {
         keycloakAdminClientMock,
         REALM,
         pdndConnector,
-        initiativeRepository);
+        initiativeRepository, initiativeRestClient);
     merchantServiceSpy = Mockito.spy(merchantService);
   }
 

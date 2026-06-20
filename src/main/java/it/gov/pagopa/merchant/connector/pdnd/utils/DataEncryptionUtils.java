@@ -12,8 +12,8 @@ public class DataEncryptionUtils {
         /* This utility class should not be instantiated */
     }
 
-    private static String defaultKey;
-    private static String defaultIv;
+    private static String defaultKey = "1234567890123456";
+    private static String defaultIv  = "123456789012";
 
     private static SecretKey getKey(String key) {
         byte[] raw = key.getBytes(StandardCharsets.UTF_8);

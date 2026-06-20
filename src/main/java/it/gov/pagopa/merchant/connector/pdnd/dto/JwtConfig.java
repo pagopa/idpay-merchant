@@ -11,4 +11,5 @@ public class JwtConfig {
     private String audience;
     private String kid;
     private String purposeId;
+
 }

@@ -1,9 +1,9 @@
 package it.gov.pagopa.merchant.controller.merchant_portal;
 
 import io.swagger.v3.oas.annotations.Operation;
+import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +56,7 @@ public interface MerchantPortalMerchantController {
 
 
     @GetMapping("/{merchantId}/initiatives")
-    ResponseEntity<Page<InitiativeResponse>> getAvailableInitiatives(
+    ResponseEntity<PageResponse<InitiativeResponse>> getAvailableInitiatives(
             @PathVariable String merchantId,
             Pageable pageable);
 

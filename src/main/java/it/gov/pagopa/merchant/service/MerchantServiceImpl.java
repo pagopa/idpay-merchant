@@ -1,13 +1,14 @@
 package it.gov.pagopa.merchant.service;
 
 import feign.FeignException;
+import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
 import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDBusiness;
+import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
-import it.gov.pagopa.merchant.dto.initiative.InitiativePageResult;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -16,7 +17,7 @@ import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
-import it.gov.pagopa.merchant.repository.InitiativeRepository;
+import it.gov.pagopa.merchant.dto.InitiativePageItem;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
@@ -61,7 +62,7 @@ public class MerchantServiceImpl implements MerchantService {
   private final Keycloak keycloakAdminClient;
   private final String realm;
   private final PDNDInfoCamereConnectorImpl pdndConnector;
-  private final InitiativeRepository initiativeRepository;
+  private final InitiativeRestClient initiativeRestClient;
   public MerchantServiceImpl(MerchantDetailService merchantDetailService,
                              MerchantListService merchantListService,
                              MerchantProcessOperationService merchantProcessOperationService,
@@ -73,7 +74,8 @@ public class MerchantServiceImpl implements MerchantService {
                              InitiativeRestConnector initiativeRestConnector,
                              MerchantCreateDTOMapper merchantCreateDTOMapper, PointOfSaleRepository pointOfSaleRepository,
                              MerchantValidator merchantValidator, Keycloak keycloakAdminClient,
-                             @Value("${keycloak.admin.realm}") String realm, PDNDInfoCamereConnectorImpl pdndConnector, InitiativeRepository initiativeRepository) {
+                             @Value("${keycloak.admin.realm}") String realm, PDNDInfoCamereConnectorImpl pdndConnector,
+                             InitiativeRestClient initiativeRestClient) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
     this.merchantProcessOperationService = merchantProcessOperationService;
@@ -90,7 +92,7 @@ public class MerchantServiceImpl implements MerchantService {
     this.keycloakAdminClient = keycloakAdminClient;
     this.realm = realm;
     this.pdndConnector = pdndConnector;
-    this.initiativeRepository = initiativeRepository;
+    this.initiativeRestClient = initiativeRestClient;
   }
 
   @Override
@@ -149,11 +151,12 @@ public class MerchantServiceImpl implements MerchantService {
     return merchantListService.getMerchantList(initiativeId, pageable);
   }
 
+
   @Override
   public Page<InitiativeResponse> processMerchantInitiatives(String merchantId, Pageable pageable) {
 
     Merchant merchant = merchantRepository.findById(merchantId)
-            .orElseThrow(() -> new IllegalArgumentException("Merchant not found"));
+            .orElseThrow(() -> new MerchantNotFoundException(merchantId));
 
     PDNDBusiness pdndBusiness = pdndConnector.retrieveInstitutionDetail(merchant.getVatNumber());
     List<String> newAtecoCodes = Optional.ofNullable(pdndBusiness.getAtecoCodes())
@@ -171,17 +174,20 @@ public class MerchantServiceImpl implements MerchantService {
             .map(Initiative::getInitiativeId)
             .collect(Collectors.toSet());
 
-    List<InitiativePageResult> results = initiativeRepository.findFilteredInitiativesPaged(
-            existingIds, newAtecoCodes, (int) pageable.getOffset(), pageable.getPageSize());
+    InitiativeSearchRequest request = new InitiativeSearchRequest(existingIds, newAtecoCodes);
 
-    InitiativePageResult result = results.isEmpty() ? null : results.get(0);
+    PageResponse<InitiativeResponse> remoteResponse =
+            initiativeRestClient.searchInitiatives(request, pageable).getBody();
 
-    List<InitiativeResponse> content = result != null ? result.getData() : Collections.emptyList();
-    long total = result != null ? result.getTotal() : 0L;
+    List<InitiativeResponse> content = remoteResponse != null
+            ? remoteResponse.getContent()
+            : Collections.emptyList();
+    long totalElements = remoteResponse != null
+            ? remoteResponse.getTotalElements()
+            : 0L;
 
-    return new PageImpl<>(content, pageable, total);
+    return new PageImpl<>(content, pageable, totalElements);
   }
-
 
 
     @Override

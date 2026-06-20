@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 import static it.gov.pagopa.merchant.connector.pdnd.constant.PdndConst.PDND_VISURA_CLIENT_ASSERTION_CACHE;
@@ -32,6 +33,12 @@ public class AssertionGeneratorVisura {
                 .withJWTId(UUID.randomUUID()
                         .toString())
                 .withIssuedAt(now)
+
+                .withClaim("digest", Map.of(
+                        "alg", "SHA-256",
+                        "value", "abc123"
+                ))
+
                 .sign(alg);
 
         log.info("END - AssertionGenerator.generateClientAssertion Timelapse: {} ms", System.currentTimeMillis() - startTime);
