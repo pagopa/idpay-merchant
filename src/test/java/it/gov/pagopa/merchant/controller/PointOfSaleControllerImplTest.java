@@ -14,6 +14,7 @@ import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleService;
 import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleWithInitiativeService;
 import it.gov.pagopa.merchant.service.pointofsales.SavePointOfSaleService;
+import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
@@ -59,6 +60,8 @@ class PointOfSaleControllerImplTest {
     private GetPointOfSaleService getPointOfSaleService;
     @MockitoBean
     private GetPointOfSaleWithInitiativeService getPointOfSaleWithInitiativeService;
+    @MockitoBean
+    private UpdatePointOfSaleService updatePointOfSaleService;
     @MockitoBean
     private MerchantDetailService merchantDetailService;
     @MockitoBean
@@ -268,6 +271,51 @@ class PointOfSaleControllerImplTest {
                 .contains("Point of sale mismatch")
         ))
         .andReturn();
+  }
+
+  @Test
+  void patchPointOfSale_updatesOperativeEmail() throws Exception {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setContactEmail("updated@email.it");
+    Merchant merchant = new Merchant();
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstanceBuilder()
+        .contactEmail("updated@email.it")
+        .build();
+    PointOfSaleDTO patchDTO = PointOfSaleDTO.builder()
+        .contactEmail("updated@email.it")
+        .build();
+
+    when(updatePointOfSaleService.patchPointOfSale(eq("POS_ID"), eq(MERCHANT_ID), any(PointOfSaleDTO.class)))
+        .thenReturn(pointOfSale);
+    when(merchantService.getMerchantByMerchantId(MERCHANT_ID)).thenReturn(merchant);
+    when(mapper.entityToDto(pointOfSale, merchant)).thenReturn(pointOfSaleDTO);
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.patch(BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/POS_ID")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(patchDTO))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    verify(updatePointOfSaleService).patchPointOfSale(eq("POS_ID"), eq(MERCHANT_ID),
+        argThat(patch -> "updated@email.it".equals(patch.getContactEmail())));
+    verify(mapper).entityToDto(pointOfSale, merchant);
+  }
+
+  @Test
+  void patchPointOfSale_withPointOfSaleMismatch_shouldReturnForbidden() throws Exception {
+    PointOfSaleDTO patchDTO = PointOfSaleDTO.builder()
+        .contactEmail("updated@email.it")
+        .build();
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.patch(BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/POS_ID")
+                .header("x-point-of-sale-id", "DIFFERENT_POS_ID")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(patchDTO)))
+        .andExpect(status().isForbidden());
+
+    verifyNoInteractions(updatePointOfSaleService);
   }
 
   @Test
