@@ -14,6 +14,7 @@ import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleWithInitiativeS
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -73,15 +74,23 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   }
 
   @Override
-  public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String merchantId, String tokenMerchantId, String type,
-      String city, String address, String contactName, Pageable pageable) {
+  public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String merchantId, String tokenMerchantId,
+      String initiativeId, String type, String city, String address, String contactName, Pageable pageable) {
     String sanitizedMerchantId = sanitizeString(merchantId);
     log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", sanitizedMerchantId);
 
     validateMerchantAccess(tokenMerchantId, sanitizedMerchantId);
 
-    Page<PointOfSale> pagePointOfSales = getPointOfSaleService.getPointOfSalesList(sanitizedMerchantId,
-        type, city, address, contactName, pageable);
+    Page<PointOfSale> pagePointOfSales;
+
+    if (StringUtils.isNotBlank(initiativeId)) {
+      String sanitizedInitiativeId = sanitizeString(initiativeId);
+      pagePointOfSales = getPointOfSaleWithInitiativeService.getPointOfSalesListByInitiative(
+          sanitizedInitiativeId, sanitizedMerchantId, type, city, address, contactName, pageable);
+    } else {
+      pagePointOfSales = getPointOfSaleService.getPointOfSalesList(sanitizedMerchantId,
+          type, city, address, contactName, pageable);
+    }
 
     return buildPointOfSalesListResponse(pagePointOfSales);
   }

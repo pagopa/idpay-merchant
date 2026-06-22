@@ -61,6 +61,7 @@ public interface PointOfSaleController {
     ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(
             @PathVariable("merchantId") String merchantId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
+            @RequestParam(required = false) String initiativeId,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String address,
