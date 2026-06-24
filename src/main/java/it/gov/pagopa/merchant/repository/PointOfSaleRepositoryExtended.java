@@ -12,5 +12,5 @@ public interface PointOfSaleRepositoryExtended {
     Criteria getCriteria(String merchantId, String type, String city, String address, String contactName);
     Criteria getCriteria(String merchantId, List<String> pointOfSaleIds, String type, String city, String address, String contactName);
     long getCount(Criteria criteria);
-    Optional<PointOfSale> findDuplicate(String merchantId, PointOfSale pointOfSale);
+    Optional<PointOfSale> findDuplicate(PointOfSale pointOfSale);
 }

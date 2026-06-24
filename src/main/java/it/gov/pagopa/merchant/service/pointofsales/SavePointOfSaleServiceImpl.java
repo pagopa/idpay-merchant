@@ -107,7 +107,7 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
 
   private void processDto(PointOfSaleDTO dto, String merchantId, String initiativeId,  Set<PointOfSale> savedPosSet, Set<PointOfSalesInitiative> associations) {
     PointOfSale entity = pointOfSaleDTOMapper.dtoToEntity(dto, merchantId);
-    PointOfSale duplicate = getDuplicatePointOfSale(merchantId, entity);
+    PointOfSale duplicate = getDuplicatePointOfSale(entity);
 
     if (duplicate != null) {
       throw new PointOfSaleDuplicateException(duplicate.getContactEmail());
@@ -130,8 +130,8 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
     return saved;
   }
 
-  private PointOfSale getDuplicatePointOfSale(String merchantId, PointOfSale entity) {
-    Optional<PointOfSale> existing = pointOfSaleRepository.findDuplicate(merchantId, entity);
+  private PointOfSale getDuplicatePointOfSale(PointOfSale entity) {
+    Optional<PointOfSale> existing = pointOfSaleRepository.findDuplicate(entity);
 
     return existing.orElse(null);
   }

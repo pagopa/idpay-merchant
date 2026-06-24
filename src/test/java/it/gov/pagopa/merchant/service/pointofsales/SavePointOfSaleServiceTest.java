@@ -85,7 +85,7 @@ class SavePointOfSaleServiceTest {
 
         doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
         when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
         when(pointOfSaleRepositoryMock.save(entity)).thenReturn(entity);
 
         service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto));
@@ -105,8 +105,8 @@ class SavePointOfSaleServiceTest {
         doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
         when(pointOfSaleDTOMapperMock.dtoToEntity(dto1, MERCHANT_ID)).thenReturn(entity1);
         when(pointOfSaleDTOMapperMock.dtoToEntity(dto2, MERCHANT_ID)).thenReturn(duplicate);
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity1)).thenReturn(Optional.empty());
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, duplicate)).thenReturn(Optional.of(duplicate));
+        when(pointOfSaleRepositoryMock.findDuplicate(entity1)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.findDuplicate(duplicate)).thenReturn(Optional.of(duplicate));
         when(pointOfSaleRepositoryMock.save(entity1)).thenReturn(entity1);
 
         List<PointOfSaleDTO> pointOfSales = List.of(dto1, dto2);
@@ -134,7 +134,7 @@ class SavePointOfSaleServiceTest {
 
         doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
         when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
         when(pointOfSaleRepositoryMock.save(entity)).thenThrow(new DuplicateKeyException("dup"));
 
         List<PointOfSaleDTO> pointOfSales = List.of(dto);
@@ -155,7 +155,7 @@ class SavePointOfSaleServiceTest {
 
         doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
         when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity))
+        when(pointOfSaleRepositoryMock.findDuplicate(entity))
                 .thenThrow(new IncorrectResultSizeDataAccessException(1));
 
         List<PointOfSaleDTO> pointOfSales = List.of(dto);
@@ -176,7 +176,7 @@ class SavePointOfSaleServiceTest {
 
         doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
         when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
         when(pointOfSaleRepositoryMock.save(entity)).thenReturn(entity);
         doThrow(new RuntimeException("DB error"))
                 .when(pointOfSalesInitiativeRepositoryMock).saveAll(anySet());
@@ -209,7 +209,7 @@ class SavePointOfSaleServiceTest {
 
         doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
         when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
         when(pointOfSaleRepositoryMock.save(entity)).thenReturn(entity);
         doThrow(new RuntimeException("DB error"))
                 .when(pointOfSalesInitiativeRepositoryMock).saveAll(anySet());
@@ -242,7 +242,7 @@ class SavePointOfSaleServiceTest {
 
         doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
         when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
-        when(pointOfSaleRepositoryMock.findDuplicate(MERCHANT_ID, entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
         when(pointOfSaleRepositoryMock.save(entity)).thenReturn(entity);
         doThrow(new RuntimeException("DB error"))
                 .when(pointOfSalesInitiativeRepositoryMock).saveAll(anySet());

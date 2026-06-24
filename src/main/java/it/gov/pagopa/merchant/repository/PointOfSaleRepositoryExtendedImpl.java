@@ -84,9 +84,9 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
     }
 
     @Override
-    public Optional<PointOfSale> findDuplicate(String merchantId, PointOfSale pointOfSale) {
+    public Optional<PointOfSale> findDuplicate(PointOfSale pointOfSale) {
 
-        Criteria criteria = Criteria.where(PointOfSale.Fields.merchantId).is(merchantId)
+        Criteria criteria = Criteria.where(PointOfSale.Fields.franchiseName).is(pointOfSale.getFranchiseName())
                 .and(PointOfSale.Fields.type).is(pointOfSale.getType());
 
         if ("ONLINE".equals(pointOfSale.getType())) {
