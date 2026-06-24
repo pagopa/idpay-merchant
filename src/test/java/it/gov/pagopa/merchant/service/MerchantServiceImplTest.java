@@ -112,7 +112,8 @@ class MerchantServiceImplTest {
         keycloakAdminClientMock,
         REALM,
         pdndConnector,
-        initiativeRepository, initiativeRestClient);
+        initiativeRepository,
+        initiativeRestClient);
     merchantServiceSpy = Mockito.spy(merchantService);
   }
 
@@ -810,5 +811,26 @@ class MerchantServiceImplTest {
     assertEquals(String.format("Merchant with id %s not found", MERCHANT_ID), exception.getMessage());
 
     verify(merchantRepositoryMock).findById(MERCHANT_ID);
+  }
+
+  @Test
+  void verifyMerchantExists_merchantFound_doesNotThrow() {
+    MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
+    when(merchantDetailServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(dto);
+
+    assertDoesNotThrow(() -> merchantService.verifyMerchantExists(MERCHANT_ID));
+
+    verify(merchantDetailServiceMock).getMerchantDetail(MERCHANT_ID);
+  }
+
+  @Test
+  void verifyMerchantExists_merchantNotFound_throwsMerchantNotFoundException() {
+    when(merchantDetailServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(null);
+
+    MerchantNotFoundException exception = assertThrows(MerchantNotFoundException.class,
+            () -> merchantService.verifyMerchantExists(MERCHANT_ID));
+
+    assertTrue(exception.getMessage().contains(MERCHANT_ID));
+    verify(merchantDetailServiceMock).getMerchantDetail(MERCHANT_ID);
   }
 }

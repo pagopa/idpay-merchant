@@ -1,0 +1,266 @@
+package it.gov.pagopa.merchant.service.pointofsales;
+
+import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
+import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
+import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
+import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
+import it.gov.pagopa.merchant.service.KeycloakService;
+import it.gov.pagopa.merchant.service.MerchantService;
+import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
+import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class SavePointOfSaleServiceTest {
+
+    @Mock private MerchantService merchantServiceMock;
+    @Mock private PointOfSaleRepository pointOfSaleRepositoryMock;
+    @Mock private KeycloakService keycloakServiceMock;
+    @Mock private PointOfSaleDTOMapper pointOfSaleDTOMapperMock;
+    @Mock private PointOfSalesInitiativeRepository pointOfSalesInitiativeRepositoryMock;
+    @Mock private UsersResource usersResourceMock;
+    @Mock private UserResource userResourceMock;
+
+    private SavePointOfSaleServiceImpl service;
+
+    private static final String MERCHANT_ID = "MERCHANT-ID";
+    private static final String INITIATIVE_ID = "INITIATIVE";
+
+    @BeforeEach
+    void setUp() {
+        service = new SavePointOfSaleServiceImpl(
+                merchantServiceMock,
+                pointOfSaleRepositoryMock,
+                keycloakServiceMock,
+                pointOfSaleDTOMapperMock,
+                pointOfSalesInitiativeRepositoryMock
+        );
+    }
+
+    private PointOfSaleDTO dto() {
+        return PointOfSaleDTOFaker.mockInstance();
+    }
+
+    private PointOfSale entity(String id) {
+        PointOfSale pos = PointOfSaleFaker.mockInstance();
+        pos.setId(id);
+        return pos;
+    }
+
+    @AfterEach
+    void mockitoVerify() {
+        Mockito.verifyNoMoreInteractions(
+                merchantServiceMock,
+                pointOfSaleRepositoryMock,
+                keycloakServiceMock,
+                pointOfSaleDTOMapperMock,
+                pointOfSalesInitiativeRepositoryMock);
+    }
+
+    @Test
+    void shouldSaveNewPos_andCreateAssociation() {
+        PointOfSaleDTO dto = dto();
+        PointOfSale entity = entity("POS-1");
+
+        doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.save(entity)).thenReturn(entity);
+
+        service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(dto));
+
+        verify(pointOfSaleRepositoryMock).save(entity);
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
+        verify(pointOfSalesInitiativeRepositoryMock).saveAll(anySet());
+    }
+
+    @Test
+    void shouldNotSavePos_whenDuplicateExists_throwPointOfSaleDuplicateException() {
+        PointOfSaleDTO dto1 = dto();
+        PointOfSaleDTO dto2 = dto();
+        PointOfSale entity1 = entity("POS-1");
+        PointOfSale duplicate = entity("POS-DUP");
+
+        doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto1, MERCHANT_ID)).thenReturn(entity1);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto2, MERCHANT_ID)).thenReturn(duplicate);
+        when(pointOfSaleRepositoryMock.findDuplicate(entity1)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.findDuplicate(duplicate)).thenReturn(Optional.of(duplicate));
+        when(pointOfSaleRepositoryMock.save(entity1)).thenReturn(entity1);
+
+        List<PointOfSaleDTO> pointOfSales = List.of(dto1, dto2);
+
+        assertThrows(
+                PointOfSaleDuplicateException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(pointOfSaleRepositoryMock).save(entity1);
+        verify(pointOfSaleRepositoryMock, never()).save(duplicate);
+        verify(pointOfSalesInitiativeRepositoryMock, never()).saveAll(anySet());
+
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity1, dto1.getContactEmail());
+        verify(keycloakServiceMock).getUserResource();
+
+        verify(pointOfSalesInitiativeRepositoryMock).deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
+        verify(pointOfSaleRepositoryMock).deleteById("POS-1");
+    }
+
+    @Test
+    void shouldThrowDuplicateException_onDuplicateKeyFromRepository() {
+        PointOfSaleDTO dto = dto();
+        PointOfSale entity = PointOfSaleFaker.mockInstance();
+
+        doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.save(entity)).thenThrow(new DuplicateKeyException("dup"));
+
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
+
+        assertThrows(
+                PointOfSaleDuplicateException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(pointOfSalesInitiativeRepositoryMock)
+                .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of());
+    }
+
+    @Test
+    void shouldThrowServiceException_onIncorrectResultSizeDataAccessException() {
+        PointOfSaleDTO dto = dto();
+        PointOfSale entity = PointOfSaleFaker.mockInstance();
+
+        doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
+        when(pointOfSaleRepositoryMock.findDuplicate(entity))
+                .thenThrow(new IncorrectResultSizeDataAccessException(1));
+
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
+
+        assertThrows(
+                ServiceException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(pointOfSalesInitiativeRepositoryMock)
+                .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of());
+    }
+
+    @Test
+    void shouldTriggerCompensation_andThrowServiceException_onGenericError() {
+        PointOfSaleDTO dto = dto();
+        PointOfSale entity = entity("POS-1");
+
+        doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.save(entity)).thenReturn(entity);
+        doThrow(new RuntimeException("DB error"))
+                .when(pointOfSalesInitiativeRepositoryMock).saveAll(anySet());
+
+        when(keycloakServiceMock.getUserResource()).thenReturn(usersResourceMock);
+        when(usersResourceMock.searchByEmail(entity.getContactEmail(), true)).thenReturn(List.of());
+
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
+
+        assertThrows(
+                ServiceException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
+        verify(pointOfSalesInitiativeRepositoryMock)
+                .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
+        verify(pointOfSaleRepositoryMock).deleteById("POS-1");
+        verify(keycloakServiceMock).getUserResource();
+        verify(usersResourceMock).searchByEmail(entity.getContactEmail(), true);
+    }
+
+    @Test
+    void shouldTriggerCompensation_andDeleteKeycloakUser_whenUserExists() {
+        PointOfSaleDTO dto = dto();
+        PointOfSale entity = entity("POS-1");
+
+        UserRepresentation userRep = new UserRepresentation();
+        userRep.setId("KC-USER-1");
+
+        doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.save(entity)).thenReturn(entity);
+        doThrow(new RuntimeException("DB error"))
+                .when(pointOfSalesInitiativeRepositoryMock).saveAll(anySet());
+
+        when(keycloakServiceMock.getUserResource()).thenReturn(usersResourceMock);
+        when(usersResourceMock.searchByEmail(entity.getContactEmail(), true)).thenReturn(List.of(userRep));
+        when(usersResourceMock.get("KC-USER-1")).thenReturn(userResourceMock);
+
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
+
+        assertThrows(
+                ServiceException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
+        verify(pointOfSalesInitiativeRepositoryMock)
+                .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
+        verify(pointOfSaleRepositoryMock).deleteById("POS-1");
+        verify(keycloakServiceMock).getUserResource();
+        verify(usersResourceMock).searchByEmail(entity.getContactEmail(), true);
+        verify(usersResourceMock).get("KC-USER-1");
+        verify(userResourceMock).remove();
+    }
+
+    @Test
+    void shouldContinueCompensation_whenDeleteThrows() {
+        PointOfSaleDTO dto = dto();
+        PointOfSale entity = entity("POS-1");
+
+        doNothing().when(merchantServiceMock).verifyMerchantExists(MERCHANT_ID);
+        when(pointOfSaleDTOMapperMock.dtoToEntity(dto, MERCHANT_ID)).thenReturn(entity);
+        when(pointOfSaleRepositoryMock.findDuplicate(entity)).thenReturn(Optional.empty());
+        when(pointOfSaleRepositoryMock.save(entity)).thenReturn(entity);
+        doThrow(new RuntimeException("DB error"))
+                .when(pointOfSalesInitiativeRepositoryMock).saveAll(anySet());
+
+        doThrow(new RuntimeException("delete failed"))
+                .when(pointOfSaleRepositoryMock).deleteById("POS-1");
+
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
+
+        assertThrows(
+                ServiceException.class,
+                () -> service.savePointOfSales(MERCHANT_ID, INITIATIVE_ID, pointOfSales)
+        );
+
+        verify(keycloakServiceMock).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
+        verify(pointOfSalesInitiativeRepositoryMock)
+                .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(MERCHANT_ID, INITIATIVE_ID, List.of("POS-1"));
+        verify(pointOfSaleRepositoryMock).deleteById("POS-1");
+        verify(keycloakServiceMock, never()).getUserResource();
+    }
+}

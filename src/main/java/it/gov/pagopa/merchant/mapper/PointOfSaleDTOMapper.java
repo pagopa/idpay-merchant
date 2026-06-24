@@ -29,6 +29,7 @@ public class PointOfSaleDTOMapper {
                 .city(pointOfSale.getCity())
                 .zipCode(pointOfSale.getZipCode())
                 .address(pointOfSale.getAddress())
+                .streetNumber(pointOfSale.getStreetNumber())
                 .website(pointOfSale.getWebsite())
                 .build();
     }
@@ -69,6 +70,7 @@ public class PointOfSaleDTOMapper {
             pointOfSale.setChannelPhone(pointOfSaleDTO.getChannelPhone());
             pointOfSale.setChannelGeolink(pointOfSaleDTO.getChannelGeolink());
             pointOfSale.setAddress(pointOfSaleDTO.getAddress());
+            pointOfSale.setStreetNumber(pointOfSaleDTO.getStreetNumber());
         }
 
         return pointOfSale;

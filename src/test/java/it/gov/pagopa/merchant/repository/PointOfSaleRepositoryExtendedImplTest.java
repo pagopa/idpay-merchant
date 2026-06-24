@@ -1,9 +1,13 @@
 package it.gov.pagopa.merchant.repository;
 
 import com.mongodb.client.result.UpdateResult;
+import it.gov.pagopa.merchant.model.PointOfSale;
 import org.bson.BsonValue;
+import org.bson.Document;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +15,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = PointOfSaleRepositoryExtendedImpl.class)
@@ -50,6 +57,11 @@ class PointOfSaleRepositoryExtendedImplTest {
   @MockitoBean
   MongoTemplate mongoTemplate;
 
+
+  @AfterEach
+  void mockitoVerify(){
+    verifyNoMoreInteractions(mongoTemplate);
+  }
 
   @Test
   void findByFilter() {
@@ -117,6 +129,127 @@ class PointOfSaleRepositoryExtendedImplTest {
         criteria.getCriteriaObject().toJson().contains("_id"));
   }
 
+  @Test
+  void findDuplicate_onlineType_shouldQueryByWebsite_andReturnResult() {
+    PointOfSale pos = PointOfSale.builder()
+            .merchantId("MERCHANT-ID")
+            .franchiseName("FRANCHISE-NAME")
+            .type("ONLINE")
+            .website("https://example.com")
+            .build();
 
+    PointOfSale expected = PointOfSale.builder()
+            .id("pos1")
+            .merchantId("MERCHANT-ID")
+            .franchiseName("FRANCHISE-NAME")
+            .type("ONLINE")
+            .website("https://example.com")
+            .build();
 
+    when(mongoTemplate.findOne(any(Query.class), eq(PointOfSale.class)))
+            .thenReturn(expected);
+
+    Optional<PointOfSale> result = repositoryExtended.findDuplicate(pos);
+
+    assertThat(result).isPresent();
+    assertEquals("pos1", result.get().getId());
+
+    Query query = captureQuery().getValue();
+    Document q = query.getQueryObject();
+
+    assertEquals("https://example.com", q.get(PointOfSale.Fields.website));
+    assertFalse(q.containsKey(PointOfSale.Fields.address));
+  }
+
+  @Test
+  void findDuplicate_onlineType_shouldNotQueryByAddress() {
+    PointOfSale pos = PointOfSale.builder()
+            .merchantId("MERCHANT-ID")
+            .franchiseName("FRANCHISE-NAME")
+            .type("ONLINE")
+            .website("https://example.com")
+            .address("Via Roma 1")
+            .city("Milan")
+            .build();
+
+    when(mongoTemplate.findOne(any(Query.class), eq(PointOfSale.class)))
+            .thenReturn(null);
+
+    repositoryExtended.findDuplicate(pos);
+
+    Query query = captureQuery().getValue();
+    Document q = query.getQueryObject();
+
+    assertFalse(q.containsKey(PointOfSale.Fields.address));
+    assertFalse(q.containsKey(PointOfSale.Fields.city));
+    assertTrue(q.containsKey(PointOfSale.Fields.website));
+  }
+
+  @Test
+  void findDuplicate_physicalType_shouldQueryByAddress_andReturnResult() {
+    PointOfSale pos = PointOfSale.builder()
+            .merchantId("MERCHANT-ID")
+            .franchiseName("FRANCHISE-NAME")
+            .type("PHYSICAL")
+            .address("Via Roma")
+            .streetNumber("1")
+            .city("Milan")
+            .build();
+
+    PointOfSale expected = PointOfSale.builder()
+            .id("pos2")
+            .merchantId("MERCHANT-ID")
+            .franchiseName("FRANCHISE-NAME")
+            .type("PHYSICAL")
+            .address("Via Roma")
+            .streetNumber("1")
+            .city("Milan")
+            .build();
+
+    when(mongoTemplate.findOne(any(Query.class), eq(PointOfSale.class)))
+            .thenReturn(expected);
+
+    Optional<PointOfSale> result = repositoryExtended.findDuplicate(pos);
+
+    assertThat(result).isPresent();
+    assertEquals("pos2", result.get().getId());
+
+    Query query = captureQuery().getValue();
+    Document q = query.getQueryObject();
+
+    assertEquals("Via Roma", q.get(PointOfSale.Fields.address));
+    assertEquals("1", q.get(PointOfSale.Fields.streetNumber));
+    assertEquals("Milan", q.get(PointOfSale.Fields.city));
+    assertFalse(q.containsKey(PointOfSale.Fields.website));
+  }
+
+  @Test
+  void findDuplicate_shouldAlwaysFilterByFranchiseNameAndType() {
+    PointOfSale pos = PointOfSale.builder()
+            .merchantId("MERCHANT-ID")
+            .franchiseName("FRANCHISE-NAME")
+            .type("PHYSICAL")
+            .address("Via Roma")
+            .streetNumber("1")
+            .city("Milan")
+            .build();
+
+    when(mongoTemplate.findOne(any(Query.class), eq(PointOfSale.class)))
+            .thenReturn(null);
+
+    repositoryExtended.findDuplicate(pos);
+
+    Query query = captureQuery().getValue();
+    Document q = query.getQueryObject();
+
+    assertEquals("FRANCHISE-NAME", q.get(PointOfSale.Fields.franchiseName));
+    assertFalse(q.containsKey(PointOfSale.Fields.merchantId));
+    assertEquals("PHYSICAL", q.get(PointOfSale.Fields.type));
+  }
+
+  private ArgumentCaptor<Query> captureQuery() {
+    ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
+    verify(mongoTemplate).findOne(captor.capture(), eq(PointOfSale.class));
+    return captor;
+  }
 }

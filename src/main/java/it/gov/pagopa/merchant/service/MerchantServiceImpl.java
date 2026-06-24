@@ -17,7 +17,6 @@ import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
-import it.gov.pagopa.merchant.dto.InitiativePageItem;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.merchant.*;
@@ -159,9 +158,11 @@ public class MerchantServiceImpl implements MerchantService {
             .orElseThrow(() -> new MerchantNotFoundException(merchantId));
 
     PDNDBusiness pdndBusiness = pdndConnector.retrieveInstitutionDetail(merchant.getVatNumber());
+
     List<String> newAtecoCodes = Optional.ofNullable(pdndBusiness.getAtecoCodes())
             .orElse(Collections.emptyList());
 
+    //TODO equale ignorando ordine
     if (!newAtecoCodes.equals(merchant.getAtecoCodes())) {
       merchant.setAtecoCodes(newAtecoCodes);
       merchant.setUpdateDate(LocalDateTime.now());
@@ -263,6 +264,21 @@ public class MerchantServiceImpl implements MerchantService {
       String merchantId = createNewMerchant(merchantCreateDTO);
       log.info("[CREATE_MERCHANT] Merchant with merchantId={} successfully created", merchantId);
       return merchantId;
+    }
+  }
+
+  /**
+   * Verifies if the merchant exists in the system.
+   *
+   * @param merchantId the ID of the merchant to check
+   * @throws MerchantNotFoundException if the merchant does not exist
+   */
+  @Override
+  public void verifyMerchantExists(String merchantId) {
+    MerchantDetailDTO merchantDetail = getMerchantDetail(merchantId);
+    if (merchantDetail == null) {
+      throw new MerchantNotFoundException(
+              String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, merchantId));
     }
   }
 

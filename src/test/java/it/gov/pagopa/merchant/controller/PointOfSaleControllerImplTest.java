@@ -13,6 +13,7 @@ import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleService;
 import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleWithInitiativeService;
+import it.gov.pagopa.merchant.service.pointofsales.SavePointOfSaleService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
@@ -64,6 +65,8 @@ class PointOfSaleControllerImplTest {
     private PointOfSaleDTOMapper mapper;
     @MockitoBean
     private MerchantService merchantService;
+    @MockitoBean
+    private SavePointOfSaleService savePointOfSaleServiceMock;
 
   @Autowired
   private MockMvc mockMvc;
@@ -71,7 +74,6 @@ class PointOfSaleControllerImplTest {
   private ObjectMapper objectMapper;
 
   private static final String BASE_URL = "/idpay/merchant/portal";
-  private static final String SAVE_POINT_OF_SALES = "/%s/point-of-sales";
   private static final String GET_POINT_OF_SALES = "/%s/point-of-sales";
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
 
@@ -80,14 +82,13 @@ class PointOfSaleControllerImplTest {
   @Test
   void savePointOfSalesOK() throws Exception {
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
-    PointOfSale pointOfSaleFaker = PointOfSaleFaker.mockInstance();
 
     doNothing().when(validator).validatePointOfSales(any());
 
-    doNothing().when(getPointOfSaleService).savePointOfSales(MERCHANT_ID, List.of(pointOfSaleFaker));
+    doNothing().when(savePointOfSaleServiceMock).savePointOfSales(MERCHANT_ID, INITIATIVE_ID, List.of(pointOfSaleDTO));
 
     mockMvc.perform(
-            MockMvcRequestBuilders.put(BASE_URL + String.format(SAVE_POINT_OF_SALES, MERCHANT_ID))
+            MockMvcRequestBuilders.post(BASE_URL + "/" + MERCHANT_ID + "/initiatives/" +  INITIATIVE_ID + "/point-of-sales")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(objectMapper.writeValueAsString(List.of(pointOfSaleDTO)))
                 .accept(MediaType.APPLICATION_JSON))
@@ -99,18 +100,15 @@ class PointOfSaleControllerImplTest {
   @Test
   void savePointOfSalesWithMatchingMerchantHeader_shouldReturnNoContent() throws Exception {
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
-    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-
-    when(mapper.dtoToEntity(any(PointOfSaleDTO.class), eq(MERCHANT_ID))).thenReturn(pointOfSale);
-
+    List<PointOfSaleDTO> pointOfSaleDTOList = List.of(pointOfSaleDTO);
     mockMvc.perform(
-            MockMvcRequestBuilders.put(BASE_URL + String.format(SAVE_POINT_OF_SALES, MERCHANT_ID))
+            MockMvcRequestBuilders.post(BASE_URL + "/" + MERCHANT_ID + "/initiatives/" +  INITIATIVE_ID + "/point-of-sales")
                 .header("x-merchant-id", MERCHANT_ID)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(List.of(pointOfSaleDTO))))
+                .content(objectMapper.writeValueAsString(pointOfSaleDTOList)))
         .andExpect(status().isNoContent());
 
-    verify(getPointOfSaleService).savePointOfSales(MERCHANT_ID, List.of(pointOfSale));
+    verify(savePointOfSaleServiceMock).savePointOfSales(anyString(), anyString(), anyList());
   }
 
   @Test
@@ -348,13 +346,12 @@ class PointOfSaleControllerImplTest {
 
   @Test
   void savePointOfSalesMerchantMismatch_shouldThrowException() throws Exception {
-    String pathMerchantId = "MERCHANT_ID";
     String tokenMerchantId = "DIFFERENT_MERCHANT_ID";
 
     PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
     mockMvc.perform(
-            MockMvcRequestBuilders.put(BASE_URL + "/" + pathMerchantId + "/point-of-sales")
+              MockMvcRequestBuilders.post(BASE_URL + "/" + MERCHANT_ID + "/initiatives/" +  INITIATIVE_ID + "/point-of-sales")
                 .header("x-merchant-id", tokenMerchantId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(List.of(pointOfSaleDTO)))

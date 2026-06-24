@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Repository
@@ -80,6 +81,25 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         addressCriterias.add(Criteria.where(PointOfSale.Fields.address).regex(addressPattern));
 
         return new Criteria().orOperator(addressCriterias.toArray(new Criteria[0]));
+    }
+
+    @Override
+    public Optional<PointOfSale> findDuplicate(PointOfSale pointOfSale) {
+
+        Criteria criteria = Criteria.where(PointOfSale.Fields.franchiseName).is(pointOfSale.getFranchiseName())
+                .and(PointOfSale.Fields.type).is(pointOfSale.getType());
+
+        if ("ONLINE".equals(pointOfSale.getType())) {
+            criteria.and(PointOfSale.Fields.website).is(pointOfSale.getWebsite());
+        } else {
+            criteria.and(PointOfSale.Fields.address).is(pointOfSale.getAddress())
+                    .and(PointOfSale.Fields.streetNumber).is(pointOfSale.getStreetNumber())
+                    .and(PointOfSale.Fields.city).is(pointOfSale.getCity());
+        }
+
+        return Optional.ofNullable(
+                mongoTemplate.findOne(Query.query(criteria), PointOfSale.class)
+        );
     }
 
     private Criteria buildContactNameCriteria(String contactName){
