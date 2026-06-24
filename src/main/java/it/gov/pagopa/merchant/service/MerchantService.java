@@ -45,5 +45,5 @@ public interface MerchantService {
 
   void verifyMerchantExists(String merchantId);
 
-  Page<InitiativeResponse> processMerchantInitiatives(String merchantId, Pageable pageable);
+  Page<InitiativeResponse> processMerchantInitiatives(String merchantId, String initiativeName, Pageable pageable);
 }

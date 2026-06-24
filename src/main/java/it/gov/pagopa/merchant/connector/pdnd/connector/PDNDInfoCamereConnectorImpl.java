@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.connector.pdnd.connector;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import it.gov.pagopa.common.azure.storage.AzureBlobClientImpl;
+import it.gov.pagopa.merchant.connector.file_storage.MerchantBlobClientImpl;
 import it.gov.pagopa.merchant.connector.pdnd.config.PDNDConfig;
 import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDBusiness;
 import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDVisuraImpresa;
@@ -26,7 +26,7 @@ public class PDNDInfoCamereConnectorImpl implements PDNDInfoCamereConnector {
   private final PDNDBusinessMapper pdndBusinessMapper;
   private final PDNDCacheableService PDNDCacheableService;
   private final PDNDConfig pdndConfig;
-  private final AzureBlobClientImpl azureBlobClient;
+  private final MerchantBlobClientImpl azureBlobClient;
   /*
   private final PDNDInfoCamereRestClient pdndInfoCamereRestClient;
   private final PDNDVisuraInfoCamereRawRestClient pdndVisuraInfoCamereRawRestClient;
@@ -50,7 +50,8 @@ public class PDNDInfoCamereConnectorImpl implements PDNDInfoCamereConnector {
           */
           PDNDBusinessMapper pdndBusinessMapper,
           PDNDCacheableService PDNDCacheableService,
-          PDNDConfig pdndConfig, AzureBlobClientImpl azureBlobClient) {
+          PDNDConfig pdndConfig,
+          MerchantBlobClientImpl azureBlobClient) {
     /*
     this.pdndInfoCamereRestClient = pdndInfoCamereRestClient;
     this.pdndVisuraInfoCamereRawRestClient = pdndVisuraInfoCamereRawRestClient;

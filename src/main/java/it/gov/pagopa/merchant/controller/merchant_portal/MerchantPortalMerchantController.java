@@ -58,6 +58,7 @@ public interface MerchantPortalMerchantController {
     @GetMapping("/initiatives/available")
     ResponseEntity<PageResponse<InitiativeResponse>> getAvailableInitiatives(
             @RequestHeader ("x-merchant-id") String merchantId,
+            @RequestParam (required = false) String initiativeName,
             Pageable pageable);
 
 }

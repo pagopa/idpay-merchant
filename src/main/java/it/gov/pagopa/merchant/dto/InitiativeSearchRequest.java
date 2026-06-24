@@ -18,4 +18,6 @@ public class InitiativeSearchRequest {
 
     @NotNull
     private List<String> atecoCodes;
+
+    private String initiativeName;
 }

@@ -152,7 +152,7 @@ public class MerchantServiceImpl implements MerchantService {
 
 
   @Override
-  public Page<InitiativeResponse> processMerchantInitiatives(String merchantId, Pageable pageable) {
+  public Page<InitiativeResponse> processMerchantInitiatives(String merchantId, String initiativeName, Pageable pageable) {
 
     Merchant merchant = merchantRepository.findById(merchantId)
             .orElseThrow(() -> new MerchantNotFoundException(merchantId));
@@ -162,8 +162,7 @@ public class MerchantServiceImpl implements MerchantService {
     List<String> newAtecoCodes = Optional.ofNullable(pdndBusiness.getAtecoCodes())
             .orElse(Collections.emptyList());
 
-    //TODO equale ignorando ordine
-    if (!newAtecoCodes.equals(merchant.getAtecoCodes())) {
+    if (!new HashSet<>(newAtecoCodes).equals(new HashSet<>(merchant.getAtecoCodes()))) {
       merchant.setAtecoCodes(newAtecoCodes);
       merchant.setUpdateDate(LocalDateTime.now());
       merchantRepository.save(merchant);
@@ -175,7 +174,7 @@ public class MerchantServiceImpl implements MerchantService {
             .map(Initiative::getInitiativeId)
             .collect(Collectors.toSet());
 
-    InitiativeSearchRequest request = new InitiativeSearchRequest(existingIds, newAtecoCodes);
+    InitiativeSearchRequest request = new InitiativeSearchRequest(existingIds, newAtecoCodes, initiativeName);
 
     PageResponse<InitiativeResponse> remoteResponse =
             initiativeRestClient.searchInitiatives(request, pageable).getBody();

@@ -82,9 +82,10 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
     @Override
     public ResponseEntity<PageResponse<InitiativeResponse>> getAvailableInitiatives(
             String merchantId,
+            String initiativeName,
             Pageable pageable) {
 
-        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(merchantId, pageable);
+        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
 
         PageResponse<InitiativeResponse> response = new PageResponse<>(
                 page.getContent(),
