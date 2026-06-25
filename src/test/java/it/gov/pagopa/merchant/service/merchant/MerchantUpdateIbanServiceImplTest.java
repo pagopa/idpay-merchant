@@ -41,7 +41,6 @@ class MerchantUpdateIbanServiceImplTest {
   private static final String VALID_IBAN = "IT60X0542811101000000123456";
   private static final String VALID_HOLDER = "John Doe";
   private static final String INVALID_IBAN = "IT12345";
-  private static final String INVALID_HOLDER = "John Doe 123";
 
   @BeforeEach
   void setUp() {
@@ -231,7 +230,7 @@ class MerchantUpdateIbanServiceImplTest {
     initiative.setInitiativeId(INITIATIVE_ID);
     merchant.setInitiativeList(List.of(initiative));
 
-    MerchantIbanPatchDTO patchDTO = new MerchantIbanPatchDTO("test@mail.com", null, INVALID_HOLDER);
+    MerchantIbanPatchDTO patchDTO = new MerchantIbanPatchDTO("test@mail.com", null, "Ab");
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
@@ -262,13 +261,13 @@ class MerchantUpdateIbanServiceImplTest {
   void updateIban_fail_invalidIbanHolderFormat() {
     // Given
     Merchant merchant = buildMerchant();
-    MerchantIbanPatchDTO patchDTO = new MerchantIbanPatchDTO("test@mail.com", null, INVALID_HOLDER);
+    MerchantIbanPatchDTO patchDTO = new MerchantIbanPatchDTO("test@mail.com", null, "Ab");
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
     // When & Then
     MerchantBadRequestException e = assertThrows(MerchantBadRequestException.class,
-        () -> service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO));
+            () -> service.patchMerchant(MERCHANT_ID, INITIATIVE_ID, patchDTO));
     assertEquals("Invalid IBAN holder format.", e.getMessage());
     verify(merchantRepositoryMock, never()).save(any());
   }

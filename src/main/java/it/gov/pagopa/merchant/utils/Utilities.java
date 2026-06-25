@@ -52,6 +52,12 @@ public final class Utilities {
                 : franchiseName;
     }
 
+    public static String spaceRemover(String name) {
+        return StringUtils.isNotBlank(name)
+                ? name.trim().replaceAll("\\s+", " ")
+                : name;
+    }
+
     public static String sanitizeForLog(String input) {
         if (input == null) {
             return null;

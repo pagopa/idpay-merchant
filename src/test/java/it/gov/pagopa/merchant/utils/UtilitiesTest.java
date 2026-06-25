@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -87,6 +88,35 @@ class UtilitiesTest {
         String expected = "abcdefghi";
 
         assertEquals(expected, Utilities.sanitizeForLog(input));
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "'nome cognome', 'nome cognome'",                  // Caso standard, nessuna modifica
+            "'  nome cognome', 'nome cognome'",                // Spazi all'inizio rimossi
+            "'nome cognome  ', 'nome cognome'",                // Spazi alla fine rimossi
+            "'  nome cognome  ', 'nome cognome'",              // Spazi sia all'inizio che alla fine
+            "'nome   cognome', 'nome cognome'",                // Multipli spazi in mezzo ridotti a uno
+            "'  nome   cognome  ', 'nome cognome'",            // Mix di spazi ovunque
+            "'nome\tcognome', 'nome cognome'",                 // Tabulazione (\t) convertita in spazio singolo
+            "'nome \n cognome', 'nome cognome'"                // Andata a capo (\n) convertita in spazio singolo
+    })
+    void givenStringWithExtraSpacesWhenSpaceRemoverThenReturnCleanedString(String input, String expectedResult) {
+        String result = Utilities.spaceRemover(input);
+        assertEquals(expectedResult, result);
+    }
+
+    @Test
+    void givenNullStringWhenSpaceRemoverThenReturnNull() {
+        String result = Utilities.spaceRemover(null);
+        assertNull(result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "   ", "\t\t", "\n\n"})
+    void givenBlankStringWhenSpaceRemoverThenReturnTrimmedOrOriginalBlank(String input) {
+        String result = Utilities.spaceRemover(input);
+        assertEquals(input.trim(), result.trim());
     }
 
 }
