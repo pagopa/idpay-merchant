@@ -158,6 +158,29 @@ class PointOfSaleValidatorTest {
     }
 
     @Test
+    void validateDuplicates_duplicatePhysicalPOSWithEquivalentFranchiseName_throwsPosValidationException() {
+        PointOfSaleDTO pos1 = PointOfSaleDTOFaker.mockInstance();
+        pos1.setType(PointOfSaleTypeEnum.PHYSICAL);
+        pos1.setContactEmail("unique1@email.it");
+        pos1.setFranchiseName("trony spa");
+
+        PointOfSaleDTO pos2 = PointOfSaleDTOFaker.mockInstance();
+        pos2.setType(PointOfSaleTypeEnum.PHYSICAL);
+        pos2.setContactEmail("unique2@email.it");
+        pos2.setAddress(pos1.getAddress());
+        pos2.setStreetNumber(pos1.getStreetNumber());
+        pos2.setCity(pos1.getCity());
+        pos2.setFranchiseName("  Trony   SPA  ");
+
+        List<PointOfSaleDTO> list = new ArrayList<>(List.of(pos1, pos2));
+
+        PosValidationException exception = assertThrows(PosValidationException.class,
+                () -> pointOfSaleValidator.validateViolationsPointOfSales(list));
+
+        assertEquals("Validation failed for one or more point of sales", exception.getMessage());
+    }
+
+    @Test
     void validateDuplicates_physicalPOSSameAddressDifferentCity_ok() {
         PointOfSaleDTO pos1 = PointOfSaleDTOFaker.mockInstance();
         pos1.setType(PointOfSaleTypeEnum.PHYSICAL);
