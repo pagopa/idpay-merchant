@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static it.gov.pagopa.merchant.utils.Utilities.spaceRemover;
+
 @Service
 @Slf4j
 public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService {
@@ -64,11 +66,13 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
     }
 
     if (!Objects.isNull(merchantIbanPatchDTO.getIbanHolder())) {
+      String cleanedHolder = spaceRemover(merchantIbanPatchDTO.getIbanHolder());
 
-      if (!IBAN_HOLDER_PATTERN.matcher(merchantIbanPatchDTO.getIbanHolder()).matches()) {
+      if (!IBAN_HOLDER_PATTERN.matcher(cleanedHolder).matches()) {
         throw new MerchantBadRequestException("Invalid IBAN holder format.");
       }
-      merchantInitiative.setIbanHolder(merchantIbanPatchDTO.getIbanHolder());
+
+      merchantInitiative.setIbanHolder(cleanedHolder);
     }
 
     if (!Objects.isNull(merchantIbanPatchDTO.getOperativeEmail())) {
