@@ -127,7 +127,7 @@ public class PointOfSaleValidator {
                 + "|" + pos.getAddress()
                 + "|" + pos.getStreetNumber()
                 + "|" + pos.getCity()
-                + "|" + pos.getFranchiseName();
+                + "|" + Utilities.normalizeFranchiseName(pos.getFranchiseName());
 
         if (!seen.add(key)) {
             errors.add(buildError(index, "type|address|streetNumber|city|franchiseName", key,
@@ -137,9 +137,9 @@ public class PointOfSaleValidator {
     }
 
     private void checkDuplicateOnline(PointOfSaleDTO pos, int index,  Set<String> seen,  List<ValidationErrorDetail> errors) {
-        String key = pos.getType()
+                String key = pos.getType()
                 + "|" + Utilities.sanitizeDomain(pos.getWebsite())
-                + "|" + pos.getFranchiseName();
+                + "|" + Utilities.normalizeFranchiseName(pos.getFranchiseName());
 
         if (!seen.add(key)) {
             errors.add(buildError(index, "type|website|franchiseName", key,

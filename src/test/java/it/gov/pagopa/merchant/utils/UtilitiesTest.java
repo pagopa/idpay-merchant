@@ -50,6 +50,18 @@ class UtilitiesTest {
     }
 
     @Test
+    void normalizeFranchiseName_shouldTrimCollapseSpacesAndUppercase() {
+        String result = Utilities.normalizeFranchiseName("  Trony   SPA  ");
+
+        assertEquals("TRONY SPA", result);
+    }
+
+    @Test
+    void normalizeFranchiseName_shouldReturnNull_whenInputIsNull() {
+        assertNull(Utilities.normalizeFranchiseName(null));
+    }
+
+    @Test
     void sanitizeForLog_shouldReturnNull_whenInputIsNull() {
         assertNull(Utilities.sanitizeForLog(null));
     }
