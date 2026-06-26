@@ -3,8 +3,8 @@ package it.gov.pagopa.merchant.service.pointofsales;
 import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
@@ -14,6 +14,8 @@ import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.KeycloakService;
 import it.gov.pagopa.merchant.service.MerchantService;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
@@ -54,7 +56,8 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
             .map(dto -> mapper.dtoToEntity(dto, merchantId))
             .toList();
 
-    List<ValidationErrorDetail> errors = validate(entities, dtos, merchantId, initiativeId);
+    List<ValidationErrorDetail> errors =
+            validate(entities, dtos, merchantId, initiativeId);
 
     if (!errors.isEmpty()) {
       throw new PosValidationException(errors);
@@ -72,11 +75,20 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
 
         PointOfSale persisted = repository.save(entity);
 
-        keycloakService.manageReferentUserOnKeycloak(persisted, dto.getContactEmail());
+        keycloakService.manageReferentUserOnKeycloak(
+                persisted,
+                dto.getContactEmail()
+        );
 
         saved.add(persisted);
 
-        associations.add(buildAssociation(persisted.getId(), merchantId, initiativeId));
+        associations.add(
+                buildAssociation(
+                        persisted.getId(),
+                        merchantId,
+                        initiativeId
+                )
+        );
       }
 
       initiativeRepository.saveAll(associations);
@@ -86,7 +98,6 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
       throw handle(ex);
     }
   }
-
 
   private List<ValidationErrorDetail> validate(
           List<PointOfSale> entities,
@@ -100,7 +111,6 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
 
       PointOfSale entity = entities.get(i);
       PointOfSaleDTO dto = dtos.get(i);
-
       int index = i;
 
       boolean emailExists = repository
@@ -128,7 +138,6 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
 
     return errors;
   }
-
 
   private ValidationErrorDetail emailError(int index, String email) {
     return ValidationErrorDetail.builder()
@@ -166,45 +175,87 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
             .build();
   }
 
-
   private void compensate(Set<PointOfSale> saved, String merchantId, String initiativeId) {
 
     try {
+      List<String> ids = saved.stream()
+              .map(PointOfSale::getId)
+              .toList();
 
-      List<String> ids = saved.stream().map(PointOfSale::getId).toList();
+      initiativeRepository
+              .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(
+                      merchantId, initiativeId, ids
+              );
 
-      initiativeRepository.deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(
-              merchantId, initiativeId, ids);
+      for (PointOfSale pos : saved) {
 
-      saved.forEach(p -> repository.deleteById(p.getId()));
+        try {
+          repository.deleteById(pos.getId());
+          removeKeycloakUser(pos.getContactEmail());
+
+        } catch (Exception ex) {
+          log.error("[COMPENSATION] failed for pos {}", pos.getId(), ex);
+        }
+      }
 
     } catch (Exception ex) {
-      log.error("[COMPENSATION] failed", ex);
+      log.error("[COMPENSATION] global failure", ex);
+    }
+  }
+
+  private void removeKeycloakUser(String email) {
+
+    try {
+      UsersResource usersResource = keycloakService.getUserResource();
+
+      List<UserRepresentation> users =
+              usersResource.searchByEmail(email, true);
+
+      for (UserRepresentation user : users) {
+        usersResource.get(user.getId()).remove();
+      }
+
+    } catch (Exception ex) {
+      log.error("[COMPENSATION][KEYCLOAK] failed for email {}", email, ex);
     }
   }
 
   private RuntimeException handle(Exception ex) {
 
     if (ex instanceof DuplicateKeyException) {
-      return new ServiceException(PointOfSaleConstants.CODE_ALREADY_REGISTERED, "duplicate");
+      return new ServiceException(
+              PointOfSaleConstants.CODE_ALREADY_REGISTERED,
+              "duplicate"
+      );
     }
 
     if (ex instanceof IncorrectResultSizeDataAccessException) {
-      return new ServiceException(PointOfSaleConstants.CODE_DATA_INCONSISTENCY, "inconsistent DB");
+      return new ServiceException(
+              PointOfSaleConstants.CODE_DATA_INCONSISTENCY,
+              "inconsistent DB"
+      );
     }
 
-    return new ServiceException(PointOfSaleConstants.CODE_GENERIC_SAVE_ERROR,
-            PointOfSaleConstants.MSG_GENERIC_SAVE_ERROR);
+    return new ServiceException(
+            PointOfSaleConstants.CODE_GENERIC_SAVE_ERROR,
+            PointOfSaleConstants.MSG_GENERIC_SAVE_ERROR
+    );
   }
 
-  private PointOfSalesInitiative buildAssociation(String posId, String merchantId, String initiativeId) {
+  private PointOfSalesInitiative buildAssociation(
+          String posId,
+          String merchantId,
+          String initiativeId) {
+
+    Instant now = Instant.now();
+
     return PointOfSalesInitiative.builder()
             .pointOfSaleId(posId)
             .merchantId(merchantId)
             .initiativeId(initiativeId)
             .enabled(true)
-            .createdAt(Instant.now())
-            .updatedAt(Instant.now())
+            .createdAt(now)
+            .updatedAt(now)
             .build();
   }
 }
