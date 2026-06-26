@@ -13,6 +13,7 @@ import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.KeycloakService;
 import it.gov.pagopa.merchant.service.MerchantService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -27,6 +28,7 @@ import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
 
   private final MerchantService merchantService;
@@ -34,20 +36,6 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
   private final KeycloakService keycloakService;
   private final PointOfSaleDTOMapper mapper;
   private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
-
-  public SavePointOfSaleServiceImpl(
-          MerchantService merchantService,
-          PointOfSaleRepository pointOfSaleRepository,
-          KeycloakService keycloakService,
-          PointOfSaleDTOMapper mapper,
-          PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository) {
-
-    this.merchantService = merchantService;
-    this.pointOfSaleRepository = pointOfSaleRepository;
-    this.keycloakService = keycloakService;
-    this.mapper = mapper;
-    this.pointOfSalesInitiativeRepository = pointOfSalesInitiativeRepository;
-  }
 
   @Override
   public void savePointOfSales(String merchantId, String initiativeId, List<PointOfSaleDTO> dtos) {
