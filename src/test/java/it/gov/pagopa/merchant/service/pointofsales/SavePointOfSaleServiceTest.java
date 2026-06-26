@@ -17,9 +17,12 @@ import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -239,4 +242,106 @@ class SavePointOfSaleServiceTest {
         assertThrows(ServiceException.class,
                 () -> service.savePointOfSales(M, I, list));
     }
+
+    @Test
+    void shouldCompensate_whenAssociationSaveFails(){
+        PointOfSaleDTO dto = dto();
+        dto.setContactEmail("test@email.it");
+
+        PointOfSale entity = entity("P1");
+        entity.setContactEmail("test@email.it");
+
+        List<PointOfSaleDTO> list = List.of(dto);
+
+        when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
+        when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
+        when(repository.findDuplicate(entity)).thenReturn(Optional.empty());
+        when(repository.save(entity)).thenReturn(entity);
+
+        doThrow(new RuntimeException())
+                .when(initiativeRepository).saveAll(any());
+
+        UsersResource usersResource = mock(UsersResource.class);
+        when(keycloakService.getUserResource()).thenReturn(usersResource);
+
+        UserRepresentation user = new UserRepresentation();
+        user.setId("USER_ID");
+
+        var userResource = mock(org.keycloak.admin.client.resource.UserResource.class);
+
+        when(usersResource.searchByEmail("test@email.it", true))
+                .thenReturn(List.of(user));
+
+        when(usersResource.get("USER_ID"))
+                .thenReturn(userResource);
+
+        assertThrows(ServiceException.class,
+                () -> service.savePointOfSales(M, I, list));
+
+        verify(initiativeRepository)
+                .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(eq(M), eq(I), any());
+
+        verify(repository).deleteById("P1");
+
+        verify(usersResource).searchByEmail("test@email.it", true);
+        verify(userResource).remove();
+    }
+
+
+
+    @Test
+    void shouldContinueCompensation_whenKeycloakFails() {
+
+        PointOfSaleDTO dto = dto();
+        PointOfSale entity = entity("P1");
+        List<PointOfSaleDTO> list = List.of(dto);
+
+        when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
+        when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
+        when(repository.findDuplicate(entity)).thenReturn(Optional.empty());
+        when(repository.save(entity)).thenReturn(entity);
+
+        doThrow(new RuntimeException())
+                .when(initiativeRepository).saveAll(any());
+
+        UsersResource usersResource = mock(UsersResource.class);
+        when(keycloakService.getUserResource()).thenReturn(usersResource);
+
+        when(usersResource.searchByEmail(anyString(), eq(true)))
+                .thenThrow(new RuntimeException());
+
+        assertThrows(ServiceException.class,
+                () -> service.savePointOfSales(M, I, list));
+
+
+        verify(repository).deleteById(entity.getId());
+    }
+
+    @Test
+    void shouldContinueCompensation_whenDeleteFails() {
+        PointOfSaleDTO dto = dto();
+        PointOfSale entity = entity("P1");
+
+        dto.setContactEmail("test@email.it");
+        entity.setContactEmail("test@email.it");
+
+        List<PointOfSaleDTO> list = List.of(dto);
+
+        when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
+        when(repository.save(entity)).thenReturn(entity);
+
+        doThrow(new RuntimeException())
+                .when(initiativeRepository).saveAll(any());
+
+        doThrow(new RuntimeException())
+                .when(repository).deleteById("P1");
+
+
+        assertThrows(ServiceException.class,
+                () -> service.savePointOfSales(M, I, list));
+
+        verify(repository).deleteById("P1");
+    }
+
+
 }

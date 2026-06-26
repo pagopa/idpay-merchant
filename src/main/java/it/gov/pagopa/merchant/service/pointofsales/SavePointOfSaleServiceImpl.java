@@ -23,28 +23,30 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.*;
 
+import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
+
 @Service
 @Slf4j
 public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
 
   private final MerchantService merchantService;
-  private final PointOfSaleRepository repository;
+  private final PointOfSaleRepository pointOfSaleRepository;
   private final KeycloakService keycloakService;
   private final PointOfSaleDTOMapper mapper;
-  private final PointOfSalesInitiativeRepository initiativeRepository;
+  private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
 
   public SavePointOfSaleServiceImpl(
           MerchantService merchantService,
-          PointOfSaleRepository repository,
+          PointOfSaleRepository pointOfSaleRepository,
           KeycloakService keycloakService,
           PointOfSaleDTOMapper mapper,
-          PointOfSalesInitiativeRepository initiativeRepository) {
+          PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository) {
 
     this.merchantService = merchantService;
-    this.repository = repository;
+    this.pointOfSaleRepository = pointOfSaleRepository;
     this.keycloakService = keycloakService;
     this.mapper = mapper;
-    this.initiativeRepository = initiativeRepository;
+    this.pointOfSalesInitiativeRepository = pointOfSalesInitiativeRepository;
   }
 
   @Override
@@ -73,7 +75,7 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
         PointOfSale entity = entities.get(i);
         PointOfSaleDTO dto = dtos.get(i);
 
-        PointOfSale persisted = repository.save(entity);
+        PointOfSale persisted = pointOfSaleRepository.save(entity);
 
         keycloakService.manageReferentUserOnKeycloak(
                 persisted,
@@ -91,7 +93,7 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
         );
       }
 
-      initiativeRepository.saveAll(associations);
+      pointOfSalesInitiativeRepository.saveAll(associations);
 
     } catch (Exception ex) {
       compensate(saved, merchantId, initiativeId);
@@ -113,7 +115,7 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
       PointOfSaleDTO dto = dtos.get(i);
       int index = i;
 
-      boolean emailExists = repository
+      boolean emailExists = pointOfSaleRepository
               .findByContactEmail(dto.getContactEmail())
               .map(e -> {
                 errors.add(emailError(index, dto.getContactEmail()));
@@ -125,9 +127,9 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
         continue;
       }
 
-      repository.findDuplicate(entity).ifPresent(existing -> {
+      pointOfSaleRepository.findDuplicate(entity).ifPresent(existing -> {
 
-        boolean sameInitiative = initiativeRepository
+        boolean sameInitiative = pointOfSalesInitiativeRepository
                 .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(
                         existing.getId(), initiativeId, merchantId)
                 .isPresent();
@@ -182,24 +184,26 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
               .map(PointOfSale::getId)
               .toList();
 
-      initiativeRepository
+      pointOfSalesInitiativeRepository
               .deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(
                       merchantId, initiativeId, ids
               );
 
       for (PointOfSale pos : saved) {
-
-        try {
-          repository.deleteById(pos.getId());
-          removeKeycloakUser(pos.getContactEmail());
-
-        } catch (Exception ex) {
-          log.error("[COMPENSATION] failed for pos {}", pos.getId(), ex);
-        }
+        removeEntity(pos);
       }
 
     } catch (Exception ex) {
       log.error("[COMPENSATION] global failure", ex);
+    }
+  }
+
+  private void removeEntity(PointOfSale pos) {
+    try {
+      pointOfSaleRepository.deleteById(pos.getId());
+      removeKeycloakUser(pos.getContactEmail());
+    } catch (Exception ex) {
+      log.error("[COMPENSATION] failed for pos {}", pos.getId(), ex);
     }
   }
 
@@ -216,7 +220,7 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
       }
 
     } catch (Exception ex) {
-      log.error("[COMPENSATION][KEYCLOAK] failed for email {}", email, ex);
+      log.error("[COMPENSATION][KEYCLOAK] failed for email {}", sanitizeString(email), ex);
     }
   }
 
