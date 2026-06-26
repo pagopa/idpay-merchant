@@ -63,9 +63,7 @@ class SavePointOfSaleServiceTest {
         return p;
     }
 
-    // =========================================================
-    // SUCCESS
-    // =========================================================
+
     @Test
     void shouldSaveSuccessfully() {
 
@@ -84,9 +82,6 @@ class SavePointOfSaleServiceTest {
         verify(initiativeRepository).saveAll(any());
     }
 
-    // =========================================================
-    // EMAIL DUPLICATE
-    // =========================================================
     @Test
     void shouldFail_whenEmailAlreadyExists() {
 
@@ -106,9 +101,6 @@ class SavePointOfSaleServiceTest {
         verify(repository, never()).save(any());
     }
 
-    // =========================================================
-    // SAME INITIATIVE - ONLINE
-    // =========================================================
     @Test
     void shouldFail_whenOnlinePosAlreadyOnSameInitiative() {
 
@@ -140,9 +132,6 @@ class SavePointOfSaleServiceTest {
         verify(repository, never()).save(any());
     }
 
-    // =========================================================
-    // SAME INITIATIVE - PHYSICAL
-    // =========================================================
     @Test
     void shouldFail_whenPhysicalPosAlreadyOnSameInitiative() {
 
@@ -174,9 +163,6 @@ class SavePointOfSaleServiceTest {
         verify(repository, never()).save(any());
     }
 
-    // =========================================================
-    // OTHER INITIATIVE DUPLICATE
-    // =========================================================
     @Test
     void shouldFail_whenPosAlreadyOnAnotherInitiative() {
 
@@ -203,9 +189,6 @@ class SavePointOfSaleServiceTest {
         );
     }
 
-    // =========================================================
-    // MULTI ERROR
-    // =========================================================
     @Test
     void shouldReturnMultipleErrors() {
 
@@ -229,9 +212,6 @@ class SavePointOfSaleServiceTest {
         verify(repository, never()).save(any());
     }
 
-    // =========================================================
-    // DB ERRORS
-    // =========================================================
     @Test
     void shouldThrowServiceException_onDuplicateKey() {
 
