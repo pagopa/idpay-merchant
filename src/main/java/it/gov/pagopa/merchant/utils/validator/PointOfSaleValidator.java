@@ -91,51 +91,6 @@ public class PointOfSaleValidator {
                 pointOfSaleDTOS.size());
     }
 
-    public void validatePointOfSalePatch(PointOfSaleDTO pointOfSaleDTO) {
-        if (pointOfSaleDTO == null || isEmptyPatch(pointOfSaleDTO)) {
-            throw new ClientExceptionWithBody(
-                    HttpStatus.BAD_REQUEST,
-                    PointOfSaleConstants.CODE_BAD_REQUEST,
-                    PointOfSaleConstants.MSG_PATCH_NOT_EMPTY);
-        }
-
-        List<ValidationErrorDetail> errors = Stream.of(
-                validatePatchChannelField(pointOfSaleDTO.getContactEmail(), "contactEmail", REGEX_EMAIL,
-                        PointOfSaleConstants.CODE_INVALID_EMAIL, PointOfSaleConstants.MSG_INVALID_EMAIL),
-                validatePatchChannelField(pointOfSaleDTO.getChannelEmail(), "channelEmail", REGEX_EMAIL,
-                        PointOfSaleConstants.CODE_INVALID_EMAIL, PointOfSaleConstants.MSG_INVALID_EMAIL),
-                validatePatchChannelField(pointOfSaleDTO.getWebsite(), "website", REGEX_LINK,
-                        PointOfSaleConstants.CODE_INVALID_WEBSITE, PointOfSaleConstants.MSG_INVALID_WEBSITE),
-                validatePatchChannelField(pointOfSaleDTO.getChannelGeolink(), "channelGeolink", REGEX_LINK,
-                        PointOfSaleConstants.CODE_INVALID_WEBSITE, PointOfSaleConstants.MSG_INVALID_WEBSITE),
-                validatePatchChannelField(pointOfSaleDTO.getChannelPhone(), "channelPhone", REGEX_PHONE,
-                        PointOfSaleConstants.CODE_INVALID_MOBILE, PointOfSaleConstants.MSG_INVALID_MOBILE)
-        ).flatMap(List::stream).toList();
-
-        if (!errors.isEmpty()) {
-            throw new PosValidationException(errors);
-        }
-    }
-
-    private boolean isEmptyPatch(PointOfSaleDTO pointOfSaleDTO) {
-        return pointOfSaleDTO.getType() == null
-                && pointOfSaleDTO.getFranchiseName() == null
-                && pointOfSaleDTO.getRegion() == null
-                && pointOfSaleDTO.getProvince() == null
-                && pointOfSaleDTO.getCity() == null
-                && pointOfSaleDTO.getZipCode() == null
-                && pointOfSaleDTO.getAddress() == null
-                && pointOfSaleDTO.getStreetNumber() == null
-                && pointOfSaleDTO.getWebsite() == null
-                && pointOfSaleDTO.getContactEmail() == null
-                && pointOfSaleDTO.getContactName() == null
-                && pointOfSaleDTO.getContactSurname() == null
-                && pointOfSaleDTO.getChannelEmail() == null
-                && pointOfSaleDTO.getChannelPhone() == null
-                && pointOfSaleDTO.getChannelGeolink() == null
-                && pointOfSaleDTO.getChannelWebsite() == null;
-    }
-
     private List<ValidationErrorDetail> validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS) {
         List<ValidationErrorDetail> errors = new ArrayList<>();
         Set<String> emails = new HashSet<>();
@@ -231,14 +186,6 @@ public class PointOfSaleValidator {
                                                              String errorCode, String message, int index) {
         if (isInvalidFormat(value, regex)) {
             return List.of(buildError(index, field, value, errorCode, message));
-        }
-        return Collections.emptyList();
-    }
-
-    private List<ValidationErrorDetail> validatePatchChannelField(String value, String field, String regex,
-                                                            String errorCode, String message) {
-        if (value != null && (StringUtils.isBlank(value) || !value.matches(regex))) {
-            return List.of(buildError(0, field, value, errorCode, message));
         }
         return Collections.emptyList();
     }

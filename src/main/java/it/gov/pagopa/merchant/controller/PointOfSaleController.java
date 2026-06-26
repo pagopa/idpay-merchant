@@ -107,35 +107,6 @@ public interface PointOfSaleController {
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
     );
 
-    @Operation(
-            summary = "Patch point of sale",
-            security = {@SecurityRequirement(name = "Bearer")},
-            tags = {"point-of-sales"},
-            description = "Partially updates a point of sale for this merchant"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful response with updated point of sale",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PointOfSaleDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Point of sale or merchant not found",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
-            @ApiResponse(responseCode = "429", description = "Too many Requests - Rate limit exceeded",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
-            @ApiResponse(responseCode = "500", description = "Internal Server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))
-    })
-    @PatchMapping("/{merchantId}/point-of-sales/{pointOfSaleId}")
-    ResponseEntity<PointOfSaleDTO> patchPointOfSale(
-            @PathVariable("pointOfSaleId") String pointOfSaleId,
-            @PathVariable("merchantId") String merchantId,
-            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
-            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
-            @RequestBody PointOfSaleDTO pointOfSaleDTO
-    );
-
     @GetMapping("/{merchantId}/initiatives/{initiativeId}/point-of-sales/{pointOfSaleId}")
     ResponseEntity<PointOfSaleDTO> getPointOfSaleByInitiative(
             @PathVariable("pointOfSaleId") String pointOfSaleId,
