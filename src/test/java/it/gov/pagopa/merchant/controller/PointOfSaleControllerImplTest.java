@@ -20,6 +20,7 @@ import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
@@ -29,6 +30,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -141,6 +143,33 @@ class PointOfSaleControllerImplTest {
 
     verify(getPointOfSaleService).getPointOfSalesList(eq(MERCHANT_ID), any(), any(), any(), any(),
         any());
+  }
+
+  @Test
+  void getPointOfSalesListWithInitiativeQueryParam_shouldUseInitiativeFilter() throws Exception {
+    when(getPointOfSaleWithInitiativeService.getPointOfSalesListByInitiative(
+        any(), any(), any(), any(), any(), any(), any())).thenReturn(Page.empty());
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + String.format(GET_POINT_OF_SALES, MERCHANT_ID))
+                .param("initiativeId", INITIATIVE_ID)
+                .param("type", "Fisico")
+                .param("city", "Rieti")
+                .param("address", "Via Nome")
+                .param("contactName", "Mario Rossi")
+                .param("page", "1")
+                .param("size", "10")
+                .param("sort", "city,asc"))
+        .andExpect(status().isOk());
+
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    verify(getPointOfSaleWithInitiativeService).getPointOfSalesListByInitiative(
+        eq(INITIATIVE_ID), eq(MERCHANT_ID), eq("Fisico"), eq("Rieti"), eq("Via Nome"),
+        eq("Mario Rossi"), pageableCaptor.capture());
+    verifyNoInteractions(getPointOfSaleService);
+    assertEquals(1, pageableCaptor.getValue().getPageNumber());
+    assertEquals(10, pageableCaptor.getValue().getPageSize());
+    Assertions.assertTrue(pageableCaptor.getValue().getSort().isSorted());
   }
 
   @Test
