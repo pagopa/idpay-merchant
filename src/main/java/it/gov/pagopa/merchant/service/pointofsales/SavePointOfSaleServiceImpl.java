@@ -203,7 +203,7 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
       pointOfSaleRepository.deleteById(pos.getId());
       removeKeycloakUser(pos.getContactEmail());
     } catch (Exception ex) {
-      log.error("[COMPENSATION] failed for pos {}", pos.getId(), ex);
+      log.error("[COMPENSATION] failed for pos {}", sanitizeString(pos.getId()), ex);
     }
   }
 
