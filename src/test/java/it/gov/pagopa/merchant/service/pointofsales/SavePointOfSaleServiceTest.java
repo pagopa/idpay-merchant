@@ -31,11 +31,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SavePointOfSaleServiceTest {
 
-    @Mock MerchantService merchantService;
-    @Mock PointOfSaleRepository repository;
-    @Mock KeycloakService keycloakService;
-    @Mock PointOfSaleDTOMapper mapper;
-    @Mock PointOfSalesInitiativeRepository initiativeRepository;
+    @Mock
+    MerchantService merchantService;
+    @Mock
+    PointOfSaleRepository repository;
+    @Mock
+    KeycloakService keycloakService;
+    @Mock
+    PointOfSaleDTOMapper mapper;
+    @Mock
+    PointOfSalesInitiativeRepository initiativeRepository;
 
     SavePointOfSaleServiceImpl service;
 
@@ -65,17 +70,17 @@ class SavePointOfSaleServiceTest {
 
 
     @Test
-    void shouldSaveSuccessfully() {
-
+    void shouldSaveSuccessfully () {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P1");
+        List<PointOfSaleDTO> list = List.of(dto);
 
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
         when(repository.findDuplicate(entity)).thenReturn(Optional.empty());
         when(repository.save(entity)).thenReturn(entity);
 
-        service.savePointOfSales(M, I, List.of(dto));
+        service.savePointOfSales(M, I, list);
 
         verify(repository).save(entity);
         verify(keycloakService).manageReferentUserOnKeycloak(entity, dto.getContactEmail());
@@ -83,32 +88,31 @@ class SavePointOfSaleServiceTest {
     }
 
     @Test
-    void shouldFail_whenEmailAlreadyExists() {
-
+    void shouldFail_whenEmailAlreadyExists () {
         PointOfSaleDTO dto = dto();
         PointOfSale existing = entity("X");
+        List<PointOfSaleDTO> list = List.of(dto);
 
         when(mapper.dtoToEntity(dto, M)).thenReturn(existing);
         when(repository.findByContactEmail(any())).thenReturn(Optional.of(existing));
 
         PosValidationException ex = assertThrows(
                 PosValidationException.class,
-                () -> service.savePointOfSales(M, I, List.of(dto))
+                () -> service.savePointOfSales(M, I, list)
         );
 
         assertFalse(ex.getErrors().isEmpty());
-
         verify(repository, never()).save(any());
     }
 
     @Test
-    void shouldFail_whenOnlinePosAlreadyOnSameInitiative() {
-
+    void shouldFail_whenOnlinePosAlreadyOnSameInitiative () {
         PointOfSaleDTO dto = dto();
         dto.setType(PointOfSaleTypeEnum.ONLINE);
         dto.setWebsite("https://test.it");
 
         PointOfSale entity = entity("P1");
+        List<PointOfSaleDTO> list = List.of(dto);
 
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
@@ -121,25 +125,23 @@ class SavePointOfSaleServiceTest {
 
         PosValidationException ex = assertThrows(
                 PosValidationException.class,
-                () -> service.savePointOfSales(M, I, List.of(dto))
+                () -> service.savePointOfSales(M, I, list)
         );
 
-        assertTrue(
-                ex.getErrors().stream().anyMatch(e ->
-                        e.getCode().equals(PointOfSaleConstants.CODE_ONLINE_POS_ALREADY_REGISTERED))
-        );
+        assertTrue(ex.getErrors().stream().anyMatch(e ->
+                e.getCode().equals(PointOfSaleConstants.CODE_ONLINE_POS_ALREADY_REGISTERED)));
 
         verify(repository, never()).save(any());
     }
 
     @Test
-    void shouldFail_whenPhysicalPosAlreadyOnSameInitiative() {
-
+    void shouldFail_whenPhysicalPosAlreadyOnSameInitiative () {
         PointOfSaleDTO dto = dto();
         dto.setType(PointOfSaleTypeEnum.PHYSICAL);
         dto.setAddress("Via Roma");
 
         PointOfSale entity = entity("P2");
+        List<PointOfSaleDTO> list = List.of(dto);
 
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
@@ -152,22 +154,20 @@ class SavePointOfSaleServiceTest {
 
         PosValidationException ex = assertThrows(
                 PosValidationException.class,
-                () -> service.savePointOfSales(M, I, List.of(dto))
+                () -> service.savePointOfSales(M, I, list)
         );
 
-        assertTrue(
-                ex.getErrors().stream().anyMatch(e ->
-                        e.getCode().equals(PointOfSaleConstants.CODE_PHYSICAL_POS_ALREADY_REGISTERED))
-        );
+        assertTrue(ex.getErrors().stream().anyMatch(e ->
+                e.getCode().equals(PointOfSaleConstants.CODE_PHYSICAL_POS_ALREADY_REGISTERED)));
 
         verify(repository, never()).save(any());
     }
 
     @Test
-    void shouldFail_whenPosAlreadyOnAnotherInitiative() {
-
+    void shouldFail_whenPosAlreadyOnAnotherInitiative () {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P3");
+        List<PointOfSaleDTO> list = List.of(dto);
 
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
@@ -180,23 +180,22 @@ class SavePointOfSaleServiceTest {
 
         PosValidationException ex = assertThrows(
                 PosValidationException.class,
-                () -> service.savePointOfSales(M, I, List.of(dto))
+                () -> service.savePointOfSales(M, I, list)
         );
 
-        assertTrue(
-                ex.getErrors().stream().anyMatch(e ->
-                        e.getCode().equals(PointOfSaleConstants.CODE_POS_ALREADY_REGISTERED_OTHER_INITIATIVE))
-        );
+        assertTrue(ex.getErrors().stream().anyMatch(e ->
+                e.getCode().equals(PointOfSaleConstants.CODE_POS_ALREADY_REGISTERED_OTHER_INITIATIVE)));
     }
 
     @Test
-    void shouldReturnMultipleErrors() {
-
+    void shouldReturnMultipleErrors () {
         PointOfSaleDTO dto1 = dto();
         PointOfSaleDTO dto2 = dto();
 
         PointOfSale e1 = entity("1");
         PointOfSale e2 = entity("2");
+
+        List<PointOfSaleDTO> list = List.of(dto1, dto2);
 
         when(mapper.dtoToEntity(dto1, M)).thenReturn(e1);
         when(mapper.dtoToEntity(dto2, M)).thenReturn(e2);
@@ -206,17 +205,17 @@ class SavePointOfSaleServiceTest {
 
         assertThrows(
                 PosValidationException.class,
-                () -> service.savePointOfSales(M, I, List.of(dto1, dto2))
+                () -> service.savePointOfSales(M, I, list)
         );
 
         verify(repository, never()).save(any());
     }
 
     @Test
-    void shouldThrowServiceException_onDuplicateKey() {
-
+    void shouldThrowServiceException_onDuplicateKey () {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P1");
+        List<PointOfSaleDTO> list = List.of(dto);
 
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
@@ -224,21 +223,20 @@ class SavePointOfSaleServiceTest {
         when(repository.save(entity)).thenThrow(new DuplicateKeyException("dup"));
 
         assertThrows(ServiceException.class,
-                () -> service.savePointOfSales(M, I, List.of(dto)));
+                () -> service.savePointOfSales(M, I, list));
     }
 
-
     @Test
-    void shouldThrowServiceException_onGenericError() {
-
+    void shouldThrowServiceException_onGenericError () {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P1");
+        List<PointOfSaleDTO> list = List.of(dto);
 
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findDuplicate(entity)).thenReturn(Optional.empty());
         when(repository.save(entity)).thenThrow(new RuntimeException());
 
         assertThrows(ServiceException.class,
-                () -> service.savePointOfSales(M, I, List.of(dto)));
+                () -> service.savePointOfSales(M, I, list));
     }
 }
