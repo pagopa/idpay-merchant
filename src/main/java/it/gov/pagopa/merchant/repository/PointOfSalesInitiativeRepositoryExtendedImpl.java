@@ -30,4 +30,18 @@ public class PointOfSalesInitiativeRepositoryExtendedImpl implements PointOfSale
                 .map(PointOfSalesInitiative::getPointOfSaleId)
                 .toList();
     }
+
+    @Override
+    public List<PointOfSalesInitiative> findInitiativesByPointOfSaleIdAndMerchantIdAndEnabledTrue(
+            String pointOfSaleId, String merchantId) {
+        Query query = Query.query(Criteria.where(PointOfSalesInitiative.Fields.pointOfSaleId).is(pointOfSaleId)
+                .and(PointOfSalesInitiative.Fields.merchantId).is(merchantId)
+                .and(PointOfSalesInitiative.Fields.enabled).is(true));
+        query.fields()
+                .include(PointOfSalesInitiative.Fields.initiativeId)
+                .include(PointOfSalesInitiative.Fields.createdAt)
+                .exclude("_id");
+
+        return mongoTemplate.find(query, PointOfSalesInitiative.class);
+    }
 }
