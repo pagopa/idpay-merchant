@@ -55,7 +55,7 @@ public class PointOfSaleDTOMapper {
                 .id(StringUtils.isEmpty(pointOfSaleDTO.getId()) ? null : pointOfSaleDTO.getId())
                 .type(pointOfSaleDTO.getType().name())
                 .franchiseName(Utilities.normalizeFranchiseName(pointOfSaleDTO.getFranchiseName()))
-                .contactEmail(pointOfSaleDTO.getContactEmail())
+                .contactEmail(pointOfSaleDTO.getContactEmail().toLowerCase())
                 .website(pointOfSaleDTO.getWebsite())
                 .contactName(pointOfSaleDTO.getContactName())
                 .contactSurname(pointOfSaleDTO.getContactSurname())
