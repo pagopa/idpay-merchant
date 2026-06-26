@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
@@ -126,6 +127,19 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   }
 
   @Override
+  public ResponseEntity<PointOfSaleInitiativeListDTO> getPointOfSaleInitiatives(
+      String merchantId, String pointOfSaleId) {
+    String sanitizedMerchantId = sanitizeString(merchantId);
+    String sanitizedPointOfSaleId = sanitizeString(pointOfSaleId);
+
+    log.info("[POINT-OF-SALE][GET] Fetching initiatives for pointOfSaleId={} and merchantId={}",
+        sanitizedPointOfSaleId, sanitizedMerchantId);
+
+    return ResponseEntity.ok(getPointOfSaleWithInitiativeService
+        .getInitiativesByPointOfSaleIdAndMerchantId(sanitizedPointOfSaleId, sanitizedMerchantId));
+  }
+
+  @Override
   public ResponseEntity<PointOfSaleDTO> getPointOfSale(String pointOfSaleId, String merchantId,
       String tokenPointOfSaleId, String tokenMerchantId) {
 
@@ -191,4 +205,5 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
 
     return ResponseEntity.ok(dto);
   }
+
 }

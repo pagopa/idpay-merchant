@@ -3,6 +3,8 @@ package it.gov.pagopa.merchant.controller;
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
@@ -38,6 +40,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -197,6 +200,31 @@ class PointOfSaleControllerImplTest {
         .andExpect(status().isForbidden());
 
     verifyNoInteractions(getPointOfSaleService, getPointOfSaleWithInitiativeService);
+  }
+
+  @Test
+  void getPointOfSaleInitiativesOK() throws Exception {
+    Instant createdAt = Instant.parse("2026-06-26T10:15:30Z");
+    when(getPointOfSaleWithInitiativeService.getInitiativesByPointOfSaleIdAndMerchantId(
+        "POS_ID", MERCHANT_ID))
+        .thenReturn(PointOfSaleInitiativeListDTO.builder()
+            .initiatives(List.of(PointOfSaleInitiativeDTO.builder()
+                .initiativeId(INITIATIVE_ID)
+                .createdAt(createdAt)
+                .build()))
+            .build());
+
+    MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(
+            BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/POS_ID/initiatives"))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    String responseBody = result.getResponse().getContentAsString();
+    Assertions.assertTrue(responseBody.contains("\"initiatives\":["));
+    Assertions.assertTrue(responseBody.contains("\"initiativeId\":\"INITIATIVE_ID\""));
+    Assertions.assertTrue(responseBody.contains("\"createdAt\":\"2026-06-26T10:15:30Z\""));
+    verify(getPointOfSaleWithInitiativeService)
+        .getInitiativesByPointOfSaleIdAndMerchantId("POS_ID", MERCHANT_ID);
   }
 
     @Test

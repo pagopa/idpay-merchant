@@ -3,9 +3,12 @@ package it.gov.pagopa.merchant.service.pointofsales;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.model.PointOfSalesInitiative;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -76,6 +79,21 @@ public class GetPointOfSaleWithInitiativeServiceImpl implements GetPointOfSaleWi
         return getPointOfSalesPage(criteria, pageable);
     }
 
+    @Override
+    public PointOfSaleInitiativeListDTO getInitiativesByPointOfSaleIdAndMerchantId(
+            String pointOfSaleId, String merchantId) {
+        verifyMerchantExists(merchantId);
+        List<PointOfSaleInitiativeDTO> initiatives = pointOfSalesInitiativeRepository
+                .findInitiativesByPointOfSaleIdAndMerchantIdAndEnabledTrue(pointOfSaleId, merchantId)
+                .stream()
+                .map(this::toPointOfSaleInitiativeDTO)
+                .toList();
+
+        return PointOfSaleInitiativeListDTO.builder()
+                .initiatives(initiatives)
+                .build();
+    }
+
     protected Page<PointOfSale> getPointOfSalesPage(Criteria criteria, Pageable pageable) {
         List<PointOfSale> matched = pointOfSaleRepository.findByFilter(criteria, pageable);
         long total = pointOfSaleRepository.getCount(criteria);
@@ -96,5 +114,13 @@ public class GetPointOfSaleWithInitiativeServiceImpl implements GetPointOfSaleWi
                 .orElseThrow(() -> new PointOfSaleNotFoundException(
                         String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
                 ));
+    }
+
+    private PointOfSaleInitiativeDTO toPointOfSaleInitiativeDTO(
+            PointOfSalesInitiative pointOfSalesInitiative) {
+        return PointOfSaleInitiativeDTO.builder()
+                .initiativeId(pointOfSalesInitiative.getInitiativeId())
+                .createdAt(pointOfSalesInitiative.getCreatedAt())
+                .build();
     }
 }

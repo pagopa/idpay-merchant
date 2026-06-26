@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.model.PointOfSale;
@@ -176,6 +177,40 @@ class GetPointOfSaleWithInitiativeServiceTest {
     assertThrows(MerchantNotFoundException.class,
         () -> service.getPointOfSaleByIdAndMerchantIdAndInitiativeId(
             INITIATIVE_ID, "POS_ID", MERCHANT_ID));
+
+    verifyNoInteractions(pointOfSalesInitiativeRepositoryMock);
+  }
+
+  @Test
+  void getInitiativesByPointOfSaleIdAndMerchantIdOK() {
+    PointOfSalesInitiative relation = PointOfSalesInitiative.builder()
+        .pointOfSaleId("POS_ID")
+        .initiativeId(INITIATIVE_ID)
+        .merchantId(MERCHANT_ID)
+        .enabled(true)
+        .build();
+
+    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
+        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
+    when(pointOfSalesInitiativeRepositoryMock.findInitiativesByPointOfSaleIdAndMerchantIdAndEnabledTrue(
+        "POS_ID", MERCHANT_ID))
+        .thenReturn(List.of(relation));
+
+    PointOfSaleInitiativeListDTO result = service.getInitiativesByPointOfSaleIdAndMerchantId(
+        "POS_ID", MERCHANT_ID);
+
+    Assertions.assertEquals(1, result.getInitiatives().size());
+    Assertions.assertEquals(INITIATIVE_ID, result.getInitiatives().get(0).getInitiativeId());
+    verify(pointOfSalesInitiativeRepositoryMock)
+        .findInitiativesByPointOfSaleIdAndMerchantIdAndEnabledTrue("POS_ID", MERCHANT_ID);
+  }
+
+  @Test
+  void getInitiativesByPointOfSaleIdAndMerchantId_merchantNotFound() {
+    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(null);
+
+    assertThrows(MerchantNotFoundException.class,
+        () -> service.getInitiativesByPointOfSaleIdAndMerchantId("POS_ID", MERCHANT_ID));
 
     verifyNoInteractions(pointOfSalesInitiativeRepositoryMock);
   }
