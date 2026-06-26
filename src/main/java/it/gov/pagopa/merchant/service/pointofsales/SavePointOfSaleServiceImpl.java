@@ -101,9 +101,19 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
       PointOfSale entity = entities.get(i);
       PointOfSaleDTO dto = dtos.get(i);
 
-      int finalI = i;
-      repository.findByContactEmail(dto.getContactEmail())
-              .ifPresent(e -> errors.add(emailError(finalI, dto.getContactEmail())));
+      int index = i;
+
+      boolean emailExists = repository
+              .findByContactEmail(dto.getContactEmail())
+              .map(e -> {
+                errors.add(emailError(index, dto.getContactEmail()));
+                return true;
+              })
+              .orElse(false);
+
+      if (emailExists) {
+        continue;
+      }
 
       repository.findDuplicate(entity).ifPresent(existing -> {
 
@@ -112,7 +122,7 @@ public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
                         existing.getId(), initiativeId, merchantId)
                 .isPresent();
 
-        errors.add(posError(finalI, dto, existing, sameInitiative));
+        errors.add(posError(index, dto, existing, sameInitiative));
       });
     }
 
