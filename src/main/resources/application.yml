@@ -226,7 +226,7 @@ keycloak:
     user:
       actions:
         email:
-          lifespan: ${KEYCLOAK_ADMIN_USER_ACTIONS_EMAIL_LIFESPAN:43200}
+          lifespan: ${KEYCLOAK_ADMIN_USER_ACTIONS_EMAIL_LIFESPAN:604800}
 
 management:
   health:
