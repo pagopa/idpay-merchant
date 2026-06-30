@@ -65,9 +65,11 @@ class PointOfSalesInitiativeRepositoryExtendedImplTest {
   @Test
   void findInitiativesByPointOfSaleIdAndMerchantIdAndEnabledTrue_returnsInitiativeIdsAndCreatedAt() {
     Instant createdAt = Instant.parse("2026-06-26T10:15:30Z");
+    Instant updatedAt = Instant.parse("2026-06-26T11:15:30Z");
     PointOfSalesInitiative relation = PointOfSalesInitiative.builder()
         .initiativeId("INITIATIVE_ID")
         .createdAt(createdAt)
+        .updatedAt(updatedAt)
         .build();
 
     when(mongoTemplate.find(org.mockito.ArgumentMatchers.any(Query.class),
@@ -91,6 +93,7 @@ class PointOfSalesInitiativeRepositoryExtendedImplTest {
     Document fieldsObject = queryCaptor.getValue().getFieldsObject();
     Assertions.assertEquals(1, fieldsObject.get("initiativeId"));
     Assertions.assertEquals(1, fieldsObject.get("createdAt"));
+    Assertions.assertEquals(1, fieldsObject.get("updatedAt"));
     Assertions.assertEquals(0, fieldsObject.get("_id"));
   }
 }

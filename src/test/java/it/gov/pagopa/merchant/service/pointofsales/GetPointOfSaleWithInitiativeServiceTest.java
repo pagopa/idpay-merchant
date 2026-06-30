@@ -10,6 +10,7 @@ import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.bson.types.ObjectId;
@@ -183,11 +184,15 @@ class GetPointOfSaleWithInitiativeServiceTest {
 
   @Test
   void getInitiativesByPointOfSaleIdAndMerchantIdOK() {
+    Instant createdAt = Instant.parse("2026-06-26T10:15:30Z");
+    Instant updatedAt = Instant.parse("2026-06-26T11:15:30Z");
     PointOfSalesInitiative relation = PointOfSalesInitiative.builder()
         .pointOfSaleId("POS_ID")
         .initiativeId(INITIATIVE_ID)
         .merchantId(MERCHANT_ID)
         .enabled(true)
+        .createdAt(createdAt)
+        .updatedAt(updatedAt)
         .build();
 
     when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
@@ -201,6 +206,8 @@ class GetPointOfSaleWithInitiativeServiceTest {
 
     Assertions.assertEquals(1, result.getInitiatives().size());
     Assertions.assertEquals(INITIATIVE_ID, result.getInitiatives().get(0).getInitiativeId());
+    Assertions.assertEquals(createdAt, result.getInitiatives().get(0).getCreatedAt());
+    Assertions.assertEquals(updatedAt, result.getInitiatives().get(0).getUpdatedAt());
     verify(pointOfSalesInitiativeRepositoryMock)
         .findInitiativesByPointOfSaleIdAndMerchantIdAndEnabledTrue("POS_ID", MERCHANT_ID);
   }
