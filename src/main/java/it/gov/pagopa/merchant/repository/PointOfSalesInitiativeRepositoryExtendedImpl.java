@@ -40,6 +40,7 @@ public class PointOfSalesInitiativeRepositoryExtendedImpl implements PointOfSale
         query.fields()
                 .include(PointOfSalesInitiative.Fields.initiativeId)
                 .include(PointOfSalesInitiative.Fields.createdAt)
+                .include(PointOfSalesInitiative.Fields.updatedAt)
                 .exclude("_id");
 
         return mongoTemplate.find(query, PointOfSalesInitiative.class);

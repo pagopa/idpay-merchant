@@ -121,6 +121,7 @@ public class GetPointOfSaleWithInitiativeServiceImpl implements GetPointOfSaleWi
         return PointOfSaleInitiativeDTO.builder()
                 .initiativeId(pointOfSalesInitiative.getInitiativeId())
                 .createdAt(pointOfSalesInitiative.getCreatedAt())
+                .updatedAt(pointOfSalesInitiative.getUpdatedAt())
                 .build();
     }
 }
