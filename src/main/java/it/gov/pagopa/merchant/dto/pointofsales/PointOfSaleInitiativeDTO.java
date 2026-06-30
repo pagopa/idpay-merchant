@@ -14,4 +14,5 @@ public class PointOfSaleInitiativeDTO {
 
     private String initiativeId;
     private Instant createdAt;
+    private Instant updatedAt;
 }

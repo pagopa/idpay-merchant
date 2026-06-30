@@ -205,12 +205,14 @@ class PointOfSaleControllerImplTest {
   @Test
   void getPointOfSaleInitiativesOK() throws Exception {
     Instant createdAt = Instant.parse("2026-06-26T10:15:30Z");
+    Instant updatedAt = Instant.parse("2026-06-26T11:15:30Z");
     when(getPointOfSaleWithInitiativeService.getInitiativesByPointOfSaleIdAndMerchantId(
         "POS_ID", MERCHANT_ID))
         .thenReturn(PointOfSaleInitiativeListDTO.builder()
             .initiatives(List.of(PointOfSaleInitiativeDTO.builder()
                 .initiativeId(INITIATIVE_ID)
                 .createdAt(createdAt)
+                .updatedAt(updatedAt)
                 .build()))
             .build());
 
@@ -223,6 +225,7 @@ class PointOfSaleControllerImplTest {
     Assertions.assertTrue(responseBody.contains("\"initiatives\":["));
     Assertions.assertTrue(responseBody.contains("\"initiativeId\":\"INITIATIVE_ID\""));
     Assertions.assertTrue(responseBody.contains("\"createdAt\":\"2026-06-26T10:15:30Z\""));
+    Assertions.assertTrue(responseBody.contains("\"updatedAt\":\"2026-06-26T11:15:30Z\""));
     verify(getPointOfSaleWithInitiativeService)
         .getInitiativesByPointOfSaleIdAndMerchantId("POS_ID", MERCHANT_ID);
   }
