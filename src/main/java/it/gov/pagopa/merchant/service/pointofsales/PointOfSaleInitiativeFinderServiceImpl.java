@@ -130,9 +130,12 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
             if (initiative != null) {
                 validInitiatives.add(pointOfSaleInitiativeDTOMapper.initiativeEntityToDto(initiative));
             } else {
+                String sanitizedInitiativeId = Utilities.sanitizeString(initiativeId);
+                String sanitizedPointOfSaleId = Utilities.sanitizeString(pointOfSaleId);
+                String sanitizedMerchantId = Utilities.sanitizeString(merchantId);
                 log.warn(
                         "[POS-INITIATIVES] Initiative [{}] linked to point of sale [{}] is not associated to merchant [{}]. Skipping.",
-                        initiativeId, pointOfSaleId, merchantId
+                        sanitizedInitiativeId, sanitizedPointOfSaleId, sanitizedMerchantId
                 );
             }
         }
