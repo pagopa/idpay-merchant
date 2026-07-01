@@ -20,7 +20,7 @@ class PointOfSaleInitiativeDTOMapperTest {
                 .initiativeName("Test Initiative")
                 .organizationName("Test Org")
                 .startDate(LocalDate.of(2024, Month.JUNE, 1))
-                .endDate(LocalDate.of(2024, Month.JUNE, 31))
+                .endDate(LocalDate.of(2024, Month.JUNE, 30))
                 .status("ACTIVE")
                 .build();
 
@@ -32,7 +32,7 @@ class PointOfSaleInitiativeDTOMapperTest {
         assertEquals("Test Initiative", dto.getInitiativeName());
         assertEquals("Test Org", dto.getOrganizationName());
         assertEquals(LocalDate.of(2024, Month.JUNE, 1), dto.getStartDate());
-        assertEquals(LocalDate.of(2024, Month.JUNE, 31), dto.getEndDate());
+        assertEquals(LocalDate.of(2024, Month.JUNE, 30), dto.getEndDate());
         assertEquals("ACTIVE", dto.getStatus());
     }
 
