@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDetailDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.*;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -151,4 +148,57 @@ public interface PointOfSaleController {
             @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
     );
+
+    @Operation(
+            summary = "Onboarding a list of points of sale",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"point-of-sales"},
+            description = "Onboarding a list of points of sale on the specified merchant"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully onboarded",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PointOfSaleOnboardingResultDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad request - Invalid input data",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Authentication failed",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "429",
+                    description = "Too many Request - Rate limit exceeded",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            )
+    })
+    @PostMapping("/{merchantId}/initiatives/{initiativeId}/point-of-sales/onboarding")
+    ResponseEntity<PointOfSaleOnboardingResultDTO> onboardingPointOfSales(
+            @PathVariable("merchantId") @NotBlank String merchantId,
+            @PathVariable("initiativeId") @NotBlank String initiativeId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
+            @RequestBody List<String> pointOfSaleIds
+    );
+
 }
