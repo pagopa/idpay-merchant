@@ -26,7 +26,7 @@ public class PointOfSaleValidator {
     private final Validator validator;
 
     private static final String REGEX_PHONE = "^\\+?\\d{7,15}$";
-    private static final String REGEX_LINK = "^(https:\\/\\/)?(www\\.)?(?=[a-zA-Z0-9.-]*[a-zA-Z])((?!-)[a-zA-Z0-9-]+(?<!-)\\.)+[a-zA-Z]{2,6}(\\/[a-zA-Z0-9#_.-]*)*(\\?[a-zA-Z0-9_.-]+=[a-zA-Z0-9_.-]*(?:\\&[a-zA-Z0-9_.-]+=[a-zA-Z0-9_.-]*)*)?$";
+    private static final String REGEX_LINK = "^https:\\/\\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}(?:\\/[^\\s]*)?$";
     private static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 
     private final int posDefaultMaxSizeRequest;
