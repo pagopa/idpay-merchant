@@ -5,6 +5,7 @@ import it.gov.pagopa.merchant.model.Initiative;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,8 +19,8 @@ class PointOfSaleInitiativeDTOMapperTest {
                 .initiativeId("INITIATIVE_1")
                 .initiativeName("Test Initiative")
                 .organizationName("Test Org")
-                .startDate(LocalDate.of(2024, 1, 1))
-                .endDate(LocalDate.of(2024, 12, 31))
+                .startDate(LocalDate.of(2024, Month.JUNE, 1))
+                .endDate(LocalDate.of(2024, Month.JUNE, 31))
                 .status("ACTIVE")
                 .build();
 
@@ -30,8 +31,8 @@ class PointOfSaleInitiativeDTOMapperTest {
         assertEquals("INITIATIVE_1", dto.getInitiativeId());
         assertEquals("Test Initiative", dto.getInitiativeName());
         assertEquals("Test Org", dto.getOrganizationName());
-        assertEquals(LocalDate.of(2024, 1, 1), dto.getStartDate());
-        assertEquals(LocalDate.of(2024, 12, 31), dto.getEndDate());
+        assertEquals(LocalDate.of(2024, Month.JUNE, 1), dto.getStartDate());
+        assertEquals(LocalDate.of(2024, Month.JUNE, 31), dto.getEndDate());
         assertEquals("ACTIVE", dto.getStatus());
     }
 
