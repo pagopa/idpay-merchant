@@ -7,8 +7,12 @@ import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
+import it.gov.pagopa.merchant.mapper.PointOfSaleInitiativeDTOMapper;
+import it.gov.pagopa.merchant.model.Initiative;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.model.PointOfSalesInitiative;
+import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -20,23 +24,30 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class GetPointOfSaleWithInitiativeServiceImpl implements GetPointOfSaleWithInitiativeService{
-
+public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitiativeFinderService {
+    private final MerchantRepository merchantRepository;
     private final PointOfSaleRepository pointOfSaleRepository;
     private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
     private final MerchantService merchantService;
 
-    public GetPointOfSaleWithInitiativeServiceImpl(PointOfSaleRepository pointOfSaleRepository,
-                                                   PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository,
-                                                   MerchantService merchantService) {
+    private final PointOfSaleInitiativeDTOMapper pointOfSaleInitiativeDTOMapper;
+
+    public PointOfSaleInitiativeFinderServiceImpl(PointOfSaleRepository pointOfSaleRepository,
+                                                  PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository,
+                                                  MerchantService merchantService,
+                                                  MerchantRepository merchantRepository,
+                                                  PointOfSaleInitiativeDTOMapper pointOfSaleInitiativeDTOMapper) {
         this.pointOfSaleRepository = pointOfSaleRepository;
         this.pointOfSalesInitiativeRepository = pointOfSalesInitiativeRepository;
         this.merchantService = merchantService;
+        this.merchantRepository = merchantRepository;
+        this.pointOfSaleInitiativeDTOMapper = pointOfSaleInitiativeDTOMapper;
     }
 
     @Override
@@ -71,7 +82,7 @@ public class GetPointOfSaleWithInitiativeServiceImpl implements GetPointOfSaleWi
 
         if (pointOfSaleIds.isEmpty()) {
             return PageableExecutionUtils.getPage(
-                    Collections.<PointOfSale>emptyList(), Utilities.getPageable(pageable), () -> 0L);
+                    Collections.emptyList(), Utilities.getPageable(pageable), () -> 0L);
         }
 
         Criteria criteria = pointOfSaleRepository.getCriteria(merchantId, pointOfSaleIds, type, city,
@@ -91,6 +102,46 @@ public class GetPointOfSaleWithInitiativeServiceImpl implements GetPointOfSaleWi
 
         return PointOfSaleInitiativeListDTO.builder()
                 .initiatives(initiatives)
+                .build();
+    }
+
+    @Override
+    public PointOfSaleInitiativeListDTO getInitiativesByPointOfSaleId(String pointOfSaleId, String merchantId) {
+        Merchant merchant = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new MerchantNotFoundException(merchantId));
+
+        Map<String, Initiative> initiativeMap = merchant.getInitiativeList().stream()
+                .collect(Collectors.toMap(
+                        Initiative::getInitiativeId,
+                        Function.identity()
+                ));
+
+
+        List<PointOfSalesInitiative> posInitiatives =
+                pointOfSalesInitiativeRepository.findByPointOfSaleId(pointOfSaleId);
+
+        List<PointOfSaleInitiativeDTO> validInitiatives = new ArrayList<>();
+
+        for (PointOfSalesInitiative posInitiative : posInitiatives) {
+            String initiativeId = posInitiative.getInitiativeId();
+
+            Initiative initiative = initiativeMap.get(initiativeId);
+
+            if (initiative != null) {
+                validInitiatives.add(pointOfSaleInitiativeDTOMapper.initiativeEntityToDto(initiative));
+            } else {
+                String sanitizedInitiativeId = Utilities.sanitizeString(initiativeId);
+                String sanitizedPointOfSaleId = Utilities.sanitizeString(pointOfSaleId);
+                String sanitizedMerchantId = Utilities.sanitizeString(merchantId);
+                log.warn(
+                        "[POS-INITIATIVES] Initiative [{}] linked to point of sale [{}] is not associated to merchant [{}]. Skipping.",
+                        sanitizedInitiativeId, sanitizedPointOfSaleId, sanitizedMerchantId
+                );
+            }
+        }
+
+        return PointOfSaleInitiativeListDTO.builder()
+                .initiatives(validInitiatives)
                 .build();
     }
 
