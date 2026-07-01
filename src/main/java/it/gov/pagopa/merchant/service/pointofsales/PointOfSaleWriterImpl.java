@@ -29,7 +29,7 @@ import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class SavePointOfSaleServiceImpl implements SavePointOfSaleService {
+public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
   private final MerchantService merchantService;
   private final PointOfSaleRepository pointOfSaleRepository;

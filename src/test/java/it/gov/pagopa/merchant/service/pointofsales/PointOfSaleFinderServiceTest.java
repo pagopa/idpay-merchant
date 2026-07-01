@@ -3,7 +3,9 @@ package it.gov.pagopa.merchant.service.pointofsales;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
+import it.gov.pagopa.merchant.mapper.PointOfSaleInitiativeDTOMapper;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.repository.MerchantRepository;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.MerchantService;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class GetPointOfSaleServiceTest {
+class PointOfSaleFinderServiceTest {
 
   @Mock
   private MerchantService merchantServiceMock;
@@ -40,20 +42,26 @@ class GetPointOfSaleServiceTest {
   private PointOfSaleRepository repositoryMock;
   @Mock
   private PointOfSalesInitiativeRepository pointOfSalesInitiativeRepositoryMock;
+  @Mock
+  private MerchantRepository merchantRepositoryMock;
 
-  GetPointOfSaleService service;
+  private PointOfSaleFinderService service;
 
   private static final String MERCHANT_ID = "MERCHANT_ID";
 
+
   @BeforeEach
   void setUp() {
-    GetPointOfSaleWithInitiativeServiceImpl getPointOfSaleWithInitiativeService =
-        new GetPointOfSaleWithInitiativeServiceImpl(
+    PointOfSaleInitiativeFinderServiceImpl getPointOfSaleWithInitiativeService =
+        new PointOfSaleInitiativeFinderServiceImpl(
             repositoryMock,
             pointOfSalesInitiativeRepositoryMock,
-            merchantServiceMock);
+            merchantServiceMock,
+            merchantRepositoryMock,
+            new PointOfSaleInitiativeDTOMapper()
+        );
 
-    service = new GetPointOfSaleServiceImpl(
+    service = new PointOfSaleFinderServiceImpl(
         repositoryMock,
         getPointOfSaleWithInitiativeService);
   }
