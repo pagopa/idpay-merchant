@@ -3,9 +3,14 @@ package it.gov.pagopa.merchant.service.pointofsales;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.exception.custom.InitiativeNotValidException;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
+import it.gov.pagopa.merchant.model.Initiative;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.model.PointOfSalesInitiative;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
@@ -24,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
 
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +83,8 @@ class PointOfSaleWriterTest {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P1");
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
         when(repository.findDuplicate(entity)).thenReturn(Optional.empty());
@@ -95,7 +102,8 @@ class PointOfSaleWriterTest {
         PointOfSaleDTO dto = dto();
         PointOfSale existing = entity("X");
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(existing);
         when(repository.findByContactEmail(any())).thenReturn(Optional.of(existing));
 
@@ -116,7 +124,8 @@ class PointOfSaleWriterTest {
 
         PointOfSale entity = entity("P1");
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
         when(repository.findDuplicate(entity)).thenReturn(Optional.of(entity));
@@ -145,7 +154,8 @@ class PointOfSaleWriterTest {
 
         PointOfSale entity = entity("P2");
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
         when(repository.findDuplicate(entity)).thenReturn(Optional.of(entity));
@@ -171,7 +181,8 @@ class PointOfSaleWriterTest {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P3");
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
         when(repository.findDuplicate(entity)).thenReturn(Optional.of(entity));
@@ -199,7 +210,8 @@ class PointOfSaleWriterTest {
         PointOfSale e2 = entity("2");
 
         List<PointOfSaleDTO> list = List.of(dto1, dto2);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto1, M)).thenReturn(e1);
         when(mapper.dtoToEntity(dto2, M)).thenReturn(e2);
 
@@ -219,7 +231,8 @@ class PointOfSaleWriterTest {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P1");
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
         when(repository.findDuplicate(entity)).thenReturn(Optional.empty());
@@ -234,7 +247,8 @@ class PointOfSaleWriterTest {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P1");
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findDuplicate(entity)).thenReturn(Optional.empty());
         when(repository.save(entity)).thenThrow(new RuntimeException());
@@ -275,6 +289,9 @@ class PointOfSaleWriterTest {
         when(usersResource.get("USER_ID"))
                 .thenReturn(userResource);
 
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
         assertThrows(ServiceException.class,
                 () -> service.savePointOfSales(M, I, list));
 
@@ -295,7 +312,8 @@ class PointOfSaleWriterTest {
         PointOfSaleDTO dto = dto();
         PointOfSale entity = entity("P1");
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
         when(repository.findDuplicate(entity)).thenReturn(Optional.empty());
@@ -326,7 +344,8 @@ class PointOfSaleWriterTest {
         entity.setContactEmail("test@email.it");
 
         List<PointOfSaleDTO> list = List.of(dto);
-
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
         when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(entity);
 
@@ -341,6 +360,164 @@ class PointOfSaleWriterTest {
                 () -> service.savePointOfSales(M, I, list));
 
         verify(repository).deleteById("P1");
+    }
+
+    private Merchant buildMerchant(boolean validInitiative, boolean expired) {
+        Initiative initiative = new Initiative();
+        initiative.setInitiativeId(I);
+        initiative.setEndDate(expired
+                ? LocalDate.now().minusDays(1)
+                : LocalDate.now().plusDays(10));
+
+        Merchant merchant = new Merchant();
+        if (validInitiative) {
+            merchant.setInitiativeList(List.of(initiative));
+        } else {
+            merchant.setInitiativeList(List.of());
+        }
+
+        return merchant;
+    }
+
+    private PointOfSale pos() {
+        PointOfSale p = new PointOfSale();
+        p.setId("P1");
+        p.setMerchantId(M);
+        p.setFranchiseName("SHOP");
+        p.setAddress("ADDR");
+        p.setCity("CITY");
+        p.setStreetNumber("1");
+        return p;
+    }
+
+    @Test
+    void shouldThrow_whenMerchantNotOnboardedOnInitiative() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(false, false));
+
+        assertThrows(MerchantNotAllowedException.class,
+                () -> service.onboardingPointOfSales(M, I, List.of("P1")));
+    }
+
+    @Test
+    void shouldThrow_whenInitiativeEnded() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, true));
+
+        assertThrows(InitiativeNotValidException.class,
+                () -> service.onboardingPointOfSales(M, I, List.of("P1")));
+    }
+
+    @Test
+    void shouldAddNotAssociated_whenPosNotFound() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        when(repository.findById("P1"))
+                .thenReturn(Optional.empty());
+
+        var result = service.onboardingPointOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getNotAssociated().size());
+        assertEquals(PosOnbordingRejectionReason.NOT_FOUND,
+                result.getNotAssociated().get(0).getReason());
+    }
+
+    @Test
+    void shouldAddNotAssociated_whenInvalidMerchant() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        PointOfSale pos = pos();
+        pos.setMerchantId("OTHER");
+
+        when(repository.findById("P1"))
+                .thenReturn(Optional.of(pos));
+
+        var result = service.onboardingPointOfSales(M, I, List.of("P1"));
+
+        assertEquals(PosOnbordingRejectionReason.INVALID,
+                result.getNotAssociated().get(0).getReason());
+    }
+
+    @Test
+    void shouldAddNotAssociated_whenAlreadyAssociated() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        PointOfSale pos = pos();
+
+        when(repository.findById("P1"))
+                .thenReturn(Optional.of(pos));
+
+        when(initiativeRepository
+                .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .thenReturn(Optional.of(new PointOfSalesInitiative()));
+
+        var result = service.onboardingPointOfSales(M, I, List.of("P1"));
+
+        assertEquals(PosOnbordingRejectionReason.ALREADY_ASSOCIATED,
+                result.getNotAssociated().get(0).getReason());
+    }
+
+    @Test
+    void shouldAssociateSuccessfully() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        PointOfSale pos = pos();
+
+        when(repository.findById("P1"))
+                .thenReturn(Optional.of(pos));
+
+        when(initiativeRepository
+                .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .thenReturn(Optional.empty());
+
+        var result = service.onboardingPointOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getAssociated().size());
+        assertTrue(result.getNotAssociated().isEmpty());
+
+        verify(initiativeRepository).save(any());
+    }
+
+    @Test
+    void shouldHandleGenericException() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        when(repository.findById("P1"))
+                .thenThrow(new RuntimeException());
+
+        var result = service.onboardingPointOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getNotAssociated().size());
+        assertEquals(PosOnbordingRejectionReason.GENERIC_ERROR,
+                result.getNotAssociated().get(0).getReason());
+    }
+
+    @Test
+    void shouldHandleMixedResults() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        PointOfSale valid = pos();
+
+        when(repository.findById("P1"))
+                .thenReturn(Optional.of(valid));
+
+        when(repository.findById("P2"))
+                .thenReturn(Optional.empty());
+
+        when(initiativeRepository
+                .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .thenReturn(Optional.empty());
+
+        var result = service.onboardingPointOfSales(M, I, List.of("P1", "P2"));
+
+        assertEquals(1, result.getAssociated().size());
+        assertEquals(1, result.getNotAssociated().size());
     }
 
 

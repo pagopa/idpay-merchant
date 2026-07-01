@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.controller;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleOnboardingResultDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
@@ -175,6 +176,20 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   @Override
   public ResponseEntity<PointOfSaleInitiativeListDTO> getPointOfSaleInitiativesDetail(String tokenPointOfSaleId, String tokenMerchantId) {
     return ResponseEntity.ok(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleId(tokenPointOfSaleId,tokenMerchantId));
+  }
+
+  @Override
+  public ResponseEntity<PointOfSaleOnboardingResultDTO> onboardingPointOfSales(String merchantId, String initiativeId, String tokenMerchantId, List<String> pointOfSaleIds) {
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+    String sanitizedMerchantId = sanitizeString(merchantId);
+
+    validateMerchantAccess(tokenMerchantId,tokenMerchantId);
+
+    return ResponseEntity.ok(pointOfSaleWriter.onboardingPointOfSales(
+             sanitizedMerchantId,
+             sanitizedInitiativeId,
+             pointOfSaleIds)
+    );
   }
 
   private void validatePointOfSaleAccess(String tokenMerchantId, String tokenPointOfSaleId,

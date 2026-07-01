@@ -4,9 +4,17 @@ import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
+import it.gov.pagopa.merchant.dto.pointofsales.AssociatedPointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.NotAssociatedPointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleOnboardingResultDTO;
+import it.gov.pagopa.merchant.exception.custom.InitiativeNotValidException;
+import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
+import it.gov.pagopa.merchant.model.Initiative;
+import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.model.PointOfSalesInitiative;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
@@ -22,6 +30,7 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
@@ -40,7 +49,24 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
   @Override
   public void savePointOfSales(String merchantId, String initiativeId, List<PointOfSaleDTO> dtos) {
 
-    merchantService.verifyMerchantExists(merchantId);
+    Merchant merchant = merchantService.getMerchantByMerchantId(merchantId);
+
+    Initiative initiative = merchant.getInitiativeList().stream()
+            .filter(i -> initiativeId.equals(i.getInitiativeId()))
+            .findFirst()
+            .orElseThrow(() -> new MerchantNotAllowedException(
+                    String.format(
+                            "Merchant with id %s not onboarded on initiative %s",
+                            merchantId,
+                            initiativeId
+                    )
+            ));
+
+    if (initiative.getEndDate().isBefore(LocalDate.now())) {
+      throw new InitiativeNotValidException(
+              String.format("Initiative %s ended", initiativeId)
+      );
+    }
 
     List<PointOfSale> entities = dtos.stream()
             .map(dto -> mapper.dtoToEntity(dto, merchantId))
@@ -249,5 +275,129 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .createdAt(now)
             .updatedAt(now)
             .build();
+  }
+
+  @Override
+  public PointOfSaleOnboardingResultDTO onboardingPointOfSales(
+          String merchantId,
+          String initiativeId,
+          List<String> pointOfSaleIds) {
+
+    Merchant merchant = merchantService.getMerchantByMerchantId(merchantId);
+
+    Initiative initiative = merchant.getInitiativeList().stream()
+            .filter(i -> initiativeId.equals(i.getInitiativeId()))
+            .findFirst()
+            .orElseThrow(() -> new MerchantNotAllowedException(
+                    String.format(
+                            "Merchant with id %s not onboarded on initiative %s",
+                            merchantId,
+                            initiativeId
+                    )
+            ));
+
+    if (initiative.getEndDate().isBefore(LocalDate.now())) {
+      throw new InitiativeNotValidException(
+              String.format("Initiative %s ended", initiativeId)
+      );
+    }
+
+    List<AssociatedPointOfSaleDTO> associated = new ArrayList<>();
+    List<NotAssociatedPointOfSaleDTO> notAssociated = new ArrayList<>();
+
+
+    for (String posId : pointOfSaleIds) {
+
+      try {
+
+        AssociatedPointOfSaleDTO associatedEntry = null;
+        NotAssociatedPointOfSaleDTO notAssociatedEntry = null;
+
+        Optional<PointOfSale> posOpt = pointOfSaleRepository.findById(posId);
+
+        if (posOpt.isEmpty()) {
+
+          notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
+                  .pointOfSaleId(posId)
+                  .pointOfSaleName("")
+                  .address("")
+                  .city("")
+                  .streetNumber("")
+                  .reason(PosOnbordingRejectionReason.NOT_FOUND)
+                  .build();
+
+        } else {
+
+          PointOfSale pos = posOpt.get();
+
+          if (!merchantId.equals(pos.getMerchantId())) {
+
+            notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
+                    .pointOfSaleId(posId)
+                    .pointOfSaleName(pos.getFranchiseName())
+                    .reason(PosOnbordingRejectionReason.INVALID)
+                    .address(posOpt.get().getAddress())
+                    .city(posOpt.get().getCity())
+                    .streetNumber(posOpt.get().getStreetNumber())
+                    .build();
+
+          } else if (pointOfSalesInitiativeRepository
+                  .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(
+                          posId, initiativeId, merchantId)
+                  .isPresent()) {
+
+            notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
+                    .pointOfSaleId(posId)
+                    .pointOfSaleName(pos.getFranchiseName())
+                    .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
+                    .address(posOpt.get().getAddress())
+                    .city(posOpt.get().getCity())
+                    .streetNumber(posOpt.get().getStreetNumber())
+                    .build();
+
+          } else {
+
+            pointOfSalesInitiativeRepository.save(
+                    PointOfSalesInitiative.builder()
+                            .pointOfSaleId(posId)
+                            .initiativeId(initiativeId)
+                            .merchantId(merchantId)
+                            .createdAt(Instant.now())
+                            .updatedAt(Instant.now())
+                            .enabled(true)
+                            .build()
+            );
+
+            associatedEntry = AssociatedPointOfSaleDTO.builder()
+                    .pointOfSaleId(posId)
+                    .pointOfSaleName(pos.getFranchiseName())
+                    .build();
+          }
+        }
+
+        if (associatedEntry != null) {
+          associated.add(associatedEntry);
+        } else {
+          notAssociated.add(notAssociatedEntry);
+        }
+
+      } catch (Exception ex) {
+        notAssociated.add(NotAssociatedPointOfSaleDTO.builder()
+                .pointOfSaleId(posId)
+                .pointOfSaleName("")
+                .reason(PosOnbordingRejectionReason.GENERIC_ERROR)
+                .address("")
+                .city("")
+                .streetNumber("")
+                .build());
+      }
+    }
+
+
+    PointOfSaleOnboardingResultDTO result = new PointOfSaleOnboardingResultDTO();
+    result.setAssociated(associated);
+    result.setNotAssociated(notAssociated);
+
+    return result;
   }
 }
