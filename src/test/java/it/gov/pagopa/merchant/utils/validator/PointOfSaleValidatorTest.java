@@ -76,14 +76,14 @@ class PointOfSaleValidatorTest {
         PointOfSaleDTO pointOfSalePhysical = PointOfSaleDTOFaker.mockInstance();
         pointOfSalePhysical.setType(PointOfSaleTypeEnum.PHYSICAL);
         pointOfSalePhysical.setWebsite("https://www.google.it");
-        pointOfSalePhysical.setChannelGeolink("https://maps.google.com/pos1");
+        pointOfSalePhysical.setChannelGeolink("https://maps.google.com/location");
 
         PointOfSaleDTO pointOfSaleOnline = PointOfSaleDTOFaker.mockInstance();
         pointOfSaleOnline.setType(PointOfSaleTypeEnum.ONLINE);
         pointOfSaleOnline.setContactEmail("email@email.it");
         pointOfSaleOnline.setChannelEmail("channel@email.it");
         pointOfSaleOnline.setWebsite("https://ShOp.ExAmPlE.co.uk/home");
-        pointOfSaleOnline.setChannelGeolink("www.my-valid-channel.it?param=1");
+        pointOfSaleOnline.setChannelGeolink("https://www.my-valid-channel.it/channel");
 
         List<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
         pointOfSaleDTOS.add(pointOfSaleOnline);
@@ -92,7 +92,7 @@ class PointOfSaleValidatorTest {
         assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
 
         assertEquals("https://shop.example.co.uk/home", pointOfSaleOnline.getWebsite());
-        assertEquals("www.my-valid-channel.it?param=1", pointOfSaleOnline.getChannelGeolink());
+        assertEquals("https://www.my-valid-channel.it/channel", pointOfSaleOnline.getChannelGeolink());
     }
 
     @Test
