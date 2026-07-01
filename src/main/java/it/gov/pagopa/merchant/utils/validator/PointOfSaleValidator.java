@@ -62,12 +62,8 @@ public class PointOfSaleValidator {
             PointOfSaleDTO dto = pointOfSaleDTOS.get(i);
             log.debug("[POS-VALIDATION] Validating PointOfSale entry at index {}", i);
 
-            if (dto.getWebsite() != null) {
-                dto.setWebsite(dto.getWebsite().toLowerCase().trim());
-            }
-            if (dto.getChannelGeolink() != null) {
-                dto.setChannelGeolink(dto.getChannelGeolink().toLowerCase().trim());
-            }
+            dto.setWebsite(StringUtils.lowerCase(StringUtils.trim(dto.getWebsite()), Locale.ROOT));
+            dto.setChannelGeolink(StringUtils.lowerCase(StringUtils.trim(dto.getChannelGeolink()), Locale.ROOT));
 
             errors.addAll(validatePointOfSale(dto, i));
             errors.addAll(validateEmailAndWebsite(dto, i));
