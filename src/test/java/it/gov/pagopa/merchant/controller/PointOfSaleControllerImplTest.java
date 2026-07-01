@@ -5,6 +5,7 @@ import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleReferentPatchDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
@@ -16,6 +17,7 @@ import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleService;
 import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleWithInitiativeService;
 import it.gov.pagopa.merchant.service.pointofsales.SavePointOfSaleService;
+import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleReferentService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
@@ -72,6 +74,8 @@ class PointOfSaleControllerImplTest {
     private MerchantService merchantService;
     @MockitoBean
     private SavePointOfSaleService savePointOfSaleServiceMock;
+    @MockitoBean
+    private UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
 
   @Autowired
   private MockMvc mockMvc;
@@ -444,6 +448,58 @@ class PointOfSaleControllerImplTest {
             Objects.requireNonNull(result.getResolvedException()).getMessage()
                 .contains("Merchant mismatch")
         ));
+  }
+
+  @Test
+  void updatePointOfSaleReferentOK() throws Exception {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+    Merchant merchant = new Merchant();
+    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
+        .contactEmail("referent@email.it")
+        .contactName("Mario")
+        .contactSurname("Rossi")
+        .build();
+
+    when(updatePointOfSaleReferentService.updateReferent(eq(MERCHANT_ID), eq("POS_ID"), any()))
+        .thenReturn(pointOfSale);
+    when(merchantService.getMerchantByMerchantId(MERCHANT_ID)).thenReturn(merchant);
+    when(mapper.entityToDto(pointOfSale, merchant)).thenReturn(pointOfSaleDTO);
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.patch(BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/POS_ID/referent")
+                .header("x-point-of-sale-id", "POS_ID")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(patchDTO))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    ArgumentCaptor<PointOfSaleReferentPatchDTO> patchCaptor =
+        ArgumentCaptor.forClass(PointOfSaleReferentPatchDTO.class);
+    verify(updatePointOfSaleReferentService).updateReferent(eq(MERCHANT_ID), eq("POS_ID"),
+        patchCaptor.capture());
+    assertEquals("referent@email.it", patchCaptor.getValue().getContactEmail());
+    assertEquals("Mario", patchCaptor.getValue().getContactName());
+    assertEquals("Rossi", patchCaptor.getValue().getContactSurname());
+    verify(mapper).entityToDto(pointOfSale, merchant);
+  }
+
+  @Test
+  void updatePointOfSaleReferentInvalidBody_shouldReturnBadRequest() throws Exception {
+    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
+        .contactEmail("not-an-email")
+        .contactName("")
+        .contactSurname("Rossi")
+        .build();
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.patch(BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/POS_ID/referent")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(patchDTO))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
+
+    verifyNoInteractions(updatePointOfSaleReferentService);
   }
 
   @Test

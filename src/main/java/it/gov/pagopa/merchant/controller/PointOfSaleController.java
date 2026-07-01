@@ -12,6 +12,8 @@ import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDetailDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleReferentPatchDTO;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -132,5 +134,35 @@ public interface PointOfSaleController {
             @PathVariable("initiativeId") @NotBlank String initiativeId,
             @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
+    );
+
+    @Operation(
+            summary = "Update point of sale referent",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"point-of-sales"},
+            description = "Updates contact email, name and surname of the point of sale referent.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful response with updated point of sale",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PointOfSaleDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationErrorDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Point of sale or merchant not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "429", description = "Too many Requests - Rate limit exceeded",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))
+    })
+    @PatchMapping("/{merchantId}/point-of-sales/{pointOfSaleId}/referent")
+    ResponseEntity<PointOfSaleDTO> updatePointOfSaleReferent(
+            @PathVariable("pointOfSaleId") String pointOfSaleId,
+            @PathVariable("merchantId") String merchantId,
+            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
+            @Valid @RequestBody PointOfSaleReferentPatchDTO referentPatchDTO
     );
 }

@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.controller;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleReferentPatchDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
@@ -12,6 +13,7 @@ import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.pointofsales.SavePointOfSaleService;
 import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleService;
 import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleWithInitiativeService;
+import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleReferentService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   private final SavePointOfSaleService savePointOfSaleService;
   private final GetPointOfSaleService getPointOfSaleService;
   private final GetPointOfSaleWithInitiativeService getPointOfSaleWithInitiativeService;
+  private final UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
   private final PointOfSaleValidator pointOfSaleValidator;
   private final PointOfSaleDTOMapper pointOfSaleDTOMapper;
   private final MerchantService merchantService;
@@ -40,11 +43,13 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   public PointOfSaleControllerImpl(SavePointOfSaleService savePointOfSaleService,
                                    GetPointOfSaleService getPointOfSaleService,
                                    GetPointOfSaleWithInitiativeService getPointOfSaleWithInitiativeService,
+                                   UpdatePointOfSaleReferentService updatePointOfSaleReferentService,
                                    PointOfSaleValidator pointOfSaleValidator,
                                    PointOfSaleDTOMapper pointOfSaleDTOMapper,
                                    MerchantService merchantService) {
     this.getPointOfSaleService = getPointOfSaleService;
     this.getPointOfSaleWithInitiativeService = getPointOfSaleWithInitiativeService;
+    this.updatePointOfSaleReferentService = updatePointOfSaleReferentService;
     this.savePointOfSaleService = savePointOfSaleService;
     this.pointOfSaleValidator = pointOfSaleValidator;
     this.pointOfSaleDTOMapper = pointOfSaleDTOMapper;
@@ -168,6 +173,25 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
 
     PointOfSale pointOfSale = getPointOfSaleWithInitiativeService.getPointOfSaleByIdAndMerchantIdAndInitiativeId(
         sanitizedInitiativeId, sanitizedPointOfSaleId, sanitizedMerchantId);
+
+    return buildPointOfSaleResponse(pointOfSale, sanitizedMerchantId);
+  }
+
+  @Override
+  public ResponseEntity<PointOfSaleDTO> updatePointOfSaleReferent(String pointOfSaleId,
+      String merchantId, String tokenPointOfSaleId, String tokenMerchantId,
+      PointOfSaleReferentPatchDTO referentPatchDTO) {
+    String sanitizedPointOfSaleId = sanitizeString(pointOfSaleId);
+    String sanitizedMerchantId = sanitizeString(merchantId);
+
+    validatePointOfSaleAccess(tokenMerchantId, tokenPointOfSaleId, sanitizedMerchantId,
+        sanitizedPointOfSaleId);
+
+    log.info("[POINT-OF-SALE][PATCH] Updating referent for pointOfSaleId={} for merchantId={}",
+        sanitizedPointOfSaleId, sanitizedMerchantId);
+
+    PointOfSale pointOfSale = updatePointOfSaleReferentService.updateReferent(
+        sanitizedMerchantId, sanitizedPointOfSaleId, referentPatchDTO);
 
     return buildPointOfSaleResponse(pointOfSale, sanitizedMerchantId);
   }
