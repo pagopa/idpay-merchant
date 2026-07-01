@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SavePointOfSaleServiceTest {
+class PointOfSaleWriterTest {
 
     @Mock
     MerchantService merchantService;
@@ -45,14 +45,14 @@ class SavePointOfSaleServiceTest {
     @Mock
     PointOfSalesInitiativeRepository initiativeRepository;
 
-    SavePointOfSaleServiceImpl service;
+    PointOfSaleWriterImpl service;
 
     static final String M = "M1";
     static final String I = "I1";
 
     @BeforeEach
     void setUp() {
-        service = new SavePointOfSaleServiceImpl(
+        service = new PointOfSaleWriterImpl(
                 merchantService,
                 repository,
                 keycloakService,

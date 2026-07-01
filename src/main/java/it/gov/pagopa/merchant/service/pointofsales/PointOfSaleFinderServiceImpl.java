@@ -1,7 +1,6 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
-import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
-import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
+
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -12,14 +11,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class GetPointOfSaleServiceImpl implements GetPointOfSaleService {
+public class PointOfSaleFinderServiceImpl implements PointOfSaleFinderService {
 
   private final PointOfSaleRepository pointOfSaleRepository;
-  private final GetPointOfSaleWithInitiativeServiceImpl getPointOfSaleWithInitiativeService;
+  private final PointOfSaleInitiativeFinderServiceImpl getPointOfSaleWithInitiativeService;
 
-  public GetPointOfSaleServiceImpl(
+  public PointOfSaleFinderServiceImpl(
           PointOfSaleRepository pointOfSaleRepository,
-          GetPointOfSaleWithInitiativeServiceImpl getPointOfSaleWithInitiativeService) {
+          PointOfSaleInitiativeFinderServiceImpl getPointOfSaleWithInitiativeService) {
     this.pointOfSaleRepository = pointOfSaleRepository;
     this.getPointOfSaleWithInitiativeService = getPointOfSaleWithInitiativeService;
   }
@@ -40,11 +39,6 @@ public class GetPointOfSaleServiceImpl implements GetPointOfSaleService {
     return getPointOfSaleWithInitiativeService.getPointOfSalesPage(criteria, pageable);
   }
 
-  public PointOfSale getPointOfSaleById(String pointOfSaleId) {
-    return pointOfSaleRepository.findById(pointOfSaleId)
-            .orElseThrow(() -> new PointOfSaleNotFoundException(
-                    String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)));
-  }
 
   @Override
   public PointOfSale getPointOfSaleByIdAndMerchantId(String pointOfSaleId, String merchantId) {

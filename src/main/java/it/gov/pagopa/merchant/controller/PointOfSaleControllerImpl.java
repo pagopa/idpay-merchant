@@ -74,7 +74,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
       );
     }
 
-    savePointOfSaleService.savePointOfSales(sanitizedMerchantId,initiativeId, pointOfSales);
+    pointOfSaleWriter.savePointOfSales(sanitizedMerchantId,initiativeId, pointOfSales);
 
     return ResponseEntity.noContent().build();
   }
@@ -91,10 +91,10 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
 
     if (StringUtils.isNotBlank(initiativeId)) {
       String sanitizedInitiativeId = sanitizeString(initiativeId);
-      pagePointOfSales = getPointOfSaleWithInitiativeService.getPointOfSalesListByInitiative(
+      pagePointOfSales = pointOfSaleInitiativeFinderService.getPointOfSalesListByInitiative(
           sanitizedInitiativeId, sanitizedMerchantId, type, city, address, contactName, pageable);
     } else {
-      pagePointOfSales = getPointOfSaleService.getPointOfSalesList(sanitizedMerchantId,
+      pagePointOfSales = pointOfSaleFinderService.getPointOfSalesList(sanitizedMerchantId,
           type, city, address, contactName, pageable);
     }
 
@@ -113,7 +113,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
 
     validateMerchantAccess(tokenMerchantId, sanitizedMerchantId);
 
-    Page<PointOfSale> pagePointOfSales = getPointOfSaleWithInitiativeService.getPointOfSalesListByInitiative(
+    Page<PointOfSale> pagePointOfSales = pointOfSaleInitiativeFinderService.getPointOfSalesListByInitiative(
         sanitizedInitiativeId, sanitizedMerchantId, type, city, address, contactName, pageable);
 
     return buildPointOfSalesListResponse(pagePointOfSales);
@@ -140,7 +140,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     log.info("[POINT-OF-SALE][GET] Fetching initiatives for pointOfSaleId={} and merchantId={}",
         sanitizedPointOfSaleId, sanitizedMerchantId);
 
-    return ResponseEntity.ok(getPointOfSaleWithInitiativeService
+    return ResponseEntity.ok(pointOfSaleInitiativeFinderService
         .getInitiativesByPointOfSaleIdAndMerchantId(sanitizedPointOfSaleId, sanitizedMerchantId));
   }
 
@@ -154,7 +154,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     validatePointOfSaleAccess(tokenMerchantId, tokenPointOfSaleId, sanitizedMerchantId,
         sanitizedPointOfSaleId);
 
-    PointOfSale pointOfSale = getPointOfSaleService.getPointOfSaleByIdAndMerchantId(
+    PointOfSale pointOfSale = pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(
         sanitizedPointOfSaleId, sanitizedMerchantId);
 
     return buildPointOfSaleResponse(pointOfSale, sanitizedMerchantId);
@@ -171,7 +171,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     validatePointOfSaleAccess(tokenMerchantId, tokenPointOfSaleId, sanitizedMerchantId,
         sanitizedPointOfSaleId);
 
-    PointOfSale pointOfSale = getPointOfSaleWithInitiativeService.getPointOfSaleByIdAndMerchantIdAndInitiativeId(
+    PointOfSale pointOfSale = pointOfSaleInitiativeFinderService.getPointOfSaleByIdAndMerchantIdAndInitiativeId(
         sanitizedInitiativeId, sanitizedPointOfSaleId, sanitizedMerchantId);
 
     return buildPointOfSaleResponse(pointOfSale, sanitizedMerchantId);
