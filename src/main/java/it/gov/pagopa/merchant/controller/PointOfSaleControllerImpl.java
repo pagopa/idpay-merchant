@@ -10,9 +10,9 @@ import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.service.MerchantService;
-import it.gov.pagopa.merchant.service.pointofsales.SavePointOfSaleService;
-import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleService;
-import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleWithInitiativeService;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
 import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleReferentService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
@@ -31,26 +31,26 @@ import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 @RestController
 public class PointOfSaleControllerImpl implements PointOfSaleController {
 
-  private final SavePointOfSaleService savePointOfSaleService;
-  private final GetPointOfSaleService getPointOfSaleService;
-  private final GetPointOfSaleWithInitiativeService getPointOfSaleWithInitiativeService;
+  private final PointOfSaleWriter pointOfSaleWriter;
+  private final PointOfSaleFinderService pointOfSaleFinderService;
+  private final PointOfSaleInitiativeFinderService pointOfSaleInitiativeFinderService;
   private final UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
   private final PointOfSaleValidator pointOfSaleValidator;
   private final PointOfSaleDTOMapper pointOfSaleDTOMapper;
   private final MerchantService merchantService;
   private static final String MERCHANT_MISMATCH_MSG = "Merchant mismatch: expected [%s], but received [%s]";
 
-  public PointOfSaleControllerImpl(SavePointOfSaleService savePointOfSaleService,
-                                   GetPointOfSaleService getPointOfSaleService,
-                                   GetPointOfSaleWithInitiativeService getPointOfSaleWithInitiativeService,
+  public PointOfSaleControllerImpl(PointOfSaleWriter pointOfSaleWriter,
+                                   PointOfSaleFinderService pointOfSaleFinderService,
+                                   PointOfSaleInitiativeFinderService pointOfSaleInitiativeFinderService,
                                    UpdatePointOfSaleReferentService updatePointOfSaleReferentService,
                                    PointOfSaleValidator pointOfSaleValidator,
                                    PointOfSaleDTOMapper pointOfSaleDTOMapper,
                                    MerchantService merchantService) {
-    this.getPointOfSaleService = getPointOfSaleService;
-    this.getPointOfSaleWithInitiativeService = getPointOfSaleWithInitiativeService;
+    this.pointOfSaleFinderService = pointOfSaleFinderService;
+    this.pointOfSaleInitiativeFinderService = pointOfSaleInitiativeFinderService;
     this.updatePointOfSaleReferentService = updatePointOfSaleReferentService;
-    this.savePointOfSaleService = savePointOfSaleService;
+    this.pointOfSaleWriter = pointOfSaleWriter;
     this.pointOfSaleValidator = pointOfSaleValidator;
     this.pointOfSaleDTOMapper = pointOfSaleDTOMapper;
     this.merchantService = merchantService;
@@ -179,13 +179,9 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
 
   @Override
   public ResponseEntity<PointOfSaleDTO> updatePointOfSaleReferent(String pointOfSaleId,
-      String merchantId, String tokenPointOfSaleId, String tokenMerchantId,
-      PointOfSaleReferentPatchDTO referentPatchDTO) {
+      String merchantId, PointOfSaleReferentPatchDTO referentPatchDTO) {
     String sanitizedPointOfSaleId = sanitizeString(pointOfSaleId);
     String sanitizedMerchantId = sanitizeString(merchantId);
-
-    validatePointOfSaleAccess(tokenMerchantId, tokenPointOfSaleId, sanitizedMerchantId,
-        sanitizedPointOfSaleId);
 
     log.info("[POINT-OF-SALE][PATCH] Updating referent for pointOfSaleId={} for merchantId={}",
         sanitizedPointOfSaleId, sanitizedMerchantId);

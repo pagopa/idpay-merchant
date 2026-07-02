@@ -161,8 +161,6 @@ public interface PointOfSaleController {
     ResponseEntity<PointOfSaleDTO> updatePointOfSaleReferent(
             @PathVariable("pointOfSaleId") String pointOfSaleId,
             @PathVariable("merchantId") String merchantId,
-            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
-            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
             @Valid @RequestBody PointOfSaleReferentPatchDTO referentPatchDTO
     );
 }

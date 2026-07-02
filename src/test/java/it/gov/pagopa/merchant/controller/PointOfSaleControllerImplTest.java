@@ -14,9 +14,9 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
-import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleService;
-import it.gov.pagopa.merchant.service.pointofsales.GetPointOfSaleWithInitiativeService;
-import it.gov.pagopa.merchant.service.pointofsales.SavePointOfSaleService;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
 import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleReferentService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
@@ -73,7 +73,7 @@ class PointOfSaleControllerImplTest {
     @MockitoBean
     private MerchantService merchantService;
     @MockitoBean
-    private SavePointOfSaleService savePointOfSaleServiceMock;
+    private PointOfSaleWriter PointOfSaleWriterMock;
     @MockitoBean
     private UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
 

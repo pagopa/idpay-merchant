@@ -30,7 +30,7 @@ class UpdatePointOfSaleReferentServiceTest {
   @Mock
   private PointOfSaleRepository pointOfSaleRepository;
   @Mock
-  private GetPointOfSaleService getPointOfSaleService;
+  private PointOfSaleFinderService pointOfSaleFinderService;
   @Mock
   private KeycloakService keycloakService;
   @Mock
@@ -44,7 +44,7 @@ class UpdatePointOfSaleReferentServiceTest {
   @BeforeEach
   void setUp() {
     service = new UpdatePointOfSaleReferentServiceImpl(
-        pointOfSaleRepository, getPointOfSaleService, keycloakService, pointOfSaleValidator);
+        pointOfSaleRepository, pointOfSaleFinderService, keycloakService, pointOfSaleValidator);
   }
 
   @Test
@@ -60,7 +60,7 @@ class UpdatePointOfSaleReferentServiceTest {
         .contactSurname(" NewSurname ")
         .build();
 
-    when(getPointOfSaleService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
         .thenReturn(pointOfSale);
     when(pointOfSaleRepository.findByContactEmail("new.email@example.com"))
         .thenReturn(Optional.empty());
@@ -88,7 +88,7 @@ class UpdatePointOfSaleReferentServiceTest {
         .contactSurname("Rossi")
         .build();
 
-    when(getPointOfSaleService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
         .thenReturn(pointOfSale);
     when(pointOfSaleRepository.findByContactEmail("same.email@example.com"))
         .thenReturn(Optional.of(pointOfSale));
@@ -102,6 +102,132 @@ class UpdatePointOfSaleReferentServiceTest {
     assertEquals("Rossi", pointOfSaleCaptor.getValue().getContactSurname());
     verify(keycloakService).updateReferentUserOnKeycloak(
         pointOfSale, "same.email@example.com", false);
+  }
+
+  @Test
+  void updateReferent_emailMissing_keepsExistingEmailAndUpdatesNameSurnameWithoutResetEmail() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId(POINT_OF_SALE_ID);
+    pointOfSale.setContactEmail("same.email@example.com");
+
+    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
+        .contactName("Mario")
+        .contactSurname("Rossi")
+        .build();
+
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+        .thenReturn(pointOfSale);
+    when(pointOfSaleRepository.save(pointOfSale)).thenReturn(pointOfSale);
+
+    service.updateReferent(MERCHANT_ID, POINT_OF_SALE_ID, patchDTO);
+
+    ArgumentCaptor<PointOfSale> pointOfSaleCaptor = ArgumentCaptor.forClass(PointOfSale.class);
+    verify(pointOfSaleRepository).save(pointOfSaleCaptor.capture());
+    assertEquals("same.email@example.com", pointOfSaleCaptor.getValue().getContactEmail());
+    assertEquals("Mario", pointOfSaleCaptor.getValue().getContactName());
+    assertEquals("Rossi", pointOfSaleCaptor.getValue().getContactSurname());
+    verify(pointOfSaleValidator, never()).validateEmailFormat(any());
+    verify(pointOfSaleRepository, never()).findByContactEmail(any());
+    verify(keycloakService).updateReferentUserOnKeycloak(
+        pointOfSale, "same.email@example.com", false);
+  }
+
+  @Test
+  void updateReferent_onlyNameProvided_keepsExistingEmailAndSurname() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId(POINT_OF_SALE_ID);
+    pointOfSale.setContactEmail("same.email@example.com");
+    pointOfSale.setContactName("OldName");
+    pointOfSale.setContactSurname("OldSurname");
+
+    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
+        .contactName("NewName")
+        .build();
+
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+        .thenReturn(pointOfSale);
+    when(pointOfSaleRepository.save(pointOfSale)).thenReturn(pointOfSale);
+
+    service.updateReferent(MERCHANT_ID, POINT_OF_SALE_ID, patchDTO);
+
+    ArgumentCaptor<PointOfSale> pointOfSaleCaptor = ArgumentCaptor.forClass(PointOfSale.class);
+    verify(pointOfSaleRepository).save(pointOfSaleCaptor.capture());
+    assertEquals("same.email@example.com", pointOfSaleCaptor.getValue().getContactEmail());
+    assertEquals("NewName", pointOfSaleCaptor.getValue().getContactName());
+    assertEquals("OldSurname", pointOfSaleCaptor.getValue().getContactSurname());
+    verify(keycloakService).updateReferentUserOnKeycloak(
+        pointOfSale, "same.email@example.com", false);
+  }
+
+  @Test
+  void updateReferent_onlySurnameProvided_keepsExistingEmailAndName() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId(POINT_OF_SALE_ID);
+    pointOfSale.setContactEmail("same.email@example.com");
+    pointOfSale.setContactName("OldName");
+    pointOfSale.setContactSurname("OldSurname");
+
+    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
+        .contactSurname("NewSurname")
+        .build();
+
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+        .thenReturn(pointOfSale);
+    when(pointOfSaleRepository.save(pointOfSale)).thenReturn(pointOfSale);
+
+    service.updateReferent(MERCHANT_ID, POINT_OF_SALE_ID, patchDTO);
+
+    ArgumentCaptor<PointOfSale> pointOfSaleCaptor = ArgumentCaptor.forClass(PointOfSale.class);
+    verify(pointOfSaleRepository).save(pointOfSaleCaptor.capture());
+    assertEquals("same.email@example.com", pointOfSaleCaptor.getValue().getContactEmail());
+    assertEquals("OldName", pointOfSaleCaptor.getValue().getContactName());
+    assertEquals("NewSurname", pointOfSaleCaptor.getValue().getContactSurname());
+    verify(keycloakService).updateReferentUserOnKeycloak(
+        pointOfSale, "same.email@example.com", false);
+  }
+
+  @Test
+  void updateReferent_blankName_throwsBadRequestBeforeSaving() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId(POINT_OF_SALE_ID);
+    pointOfSale.setContactEmail("old.email@example.com");
+
+    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
+        .contactName(" ")
+        .build();
+
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+        .thenReturn(pointOfSale);
+
+    Assertions.assertThrows(ClientExceptionWithBody.class,
+        () -> service.updateReferent(MERCHANT_ID, POINT_OF_SALE_ID, patchDTO));
+
+    verify(pointOfSaleRepository, never()).save(any());
+    verify(keycloakService, never()).updateReferentUserOnKeycloak(any(), any(), anyBoolean());
+  }
+
+  @Test
+  void updateReferent_blankEmail_throwsBadRequestBeforeSaving() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId(POINT_OF_SALE_ID);
+    pointOfSale.setContactEmail("old.email@example.com");
+
+    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
+        .contactEmail(" ")
+        .contactName("Mario")
+        .contactSurname("Rossi")
+        .build();
+
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+        .thenReturn(pointOfSale);
+
+    Assertions.assertThrows(ClientExceptionWithBody.class,
+        () -> service.updateReferent(MERCHANT_ID, POINT_OF_SALE_ID, patchDTO));
+
+    verify(pointOfSaleValidator, never()).validateEmailFormat(any());
+    verify(pointOfSaleRepository, never()).findByContactEmail(any());
+    verify(pointOfSaleRepository, never()).save(any());
+    verify(keycloakService, never()).updateReferentUserOnKeycloak(any(), any(), anyBoolean());
   }
 
   @Test
@@ -120,7 +246,7 @@ class UpdatePointOfSaleReferentServiceTest {
         .contactSurname("Rossi")
         .build();
 
-    when(getPointOfSaleService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
         .thenReturn(pointOfSale);
     when(pointOfSaleRepository.findByContactEmail("used.email@example.com"))
         .thenReturn(Optional.of(anotherPointOfSale));
@@ -144,7 +270,7 @@ class UpdatePointOfSaleReferentServiceTest {
         .contactSurname("Rossi")
         .build();
 
-    when(getPointOfSaleService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
+    when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
         .thenReturn(pointOfSale);
     org.mockito.Mockito.doThrow(new ClientExceptionWithBody(
             org.springframework.http.HttpStatus.BAD_REQUEST,
