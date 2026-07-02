@@ -430,7 +430,7 @@ class PointOfSaleWriterTest {
 
         PointOfSale pos = pos();
         pos.setMerchantId("OTHER");
-
+        pos.setType(String.valueOf(PointOfSaleTypeEnum.PHYSICAL));
         when(repository.findById("P1"))
                 .thenReturn(Optional.of(pos));
 
@@ -446,7 +446,7 @@ class PointOfSaleWriterTest {
                 .thenReturn(buildMerchant(true, false));
 
         PointOfSale pos = pos();
-
+        pos.setType(String.valueOf(PointOfSaleTypeEnum.PHYSICAL));
         when(repository.findById("P1"))
                 .thenReturn(Optional.of(pos));
 
