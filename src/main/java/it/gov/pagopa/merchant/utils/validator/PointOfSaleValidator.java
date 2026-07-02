@@ -26,8 +26,8 @@ public class PointOfSaleValidator {
     private final Validator validator;
 
     private static final String REGEX_PHONE = "^\\+?\\d{7,15}$";
-    private static final String REGEX_LINK = "^(http|https|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-    private static final String REGEX_EMAIL = "^(?=.{1,255}$)[A-Za-z0-9]([A-Za-z0-9+_-]*(\\.[A-Za-z0-9+_-]+)*)?@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$";
+    private static final String REGEX_LINK = "^https:\\/\\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}(?:\\/[^\\s]*)?$";
+    private static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 
     private final int posDefaultMaxSizeRequest;
 
@@ -61,6 +61,9 @@ public class PointOfSaleValidator {
         for (int i = 0; i < pointOfSaleDTOS.size(); i++) {
             PointOfSaleDTO dto = pointOfSaleDTOS.get(i);
             log.debug("[POS-VALIDATION] Validating PointOfSale entry at index {}", i);
+
+            dto.setWebsite(StringUtils.lowerCase(StringUtils.trim(dto.getWebsite()), Locale.ROOT));
+            dto.setChannelGeolink(StringUtils.lowerCase(StringUtils.trim(dto.getChannelGeolink()), Locale.ROOT));
 
             errors.addAll(validatePointOfSale(dto, i));
             errors.addAll(validateEmailAndWebsite(dto, i));

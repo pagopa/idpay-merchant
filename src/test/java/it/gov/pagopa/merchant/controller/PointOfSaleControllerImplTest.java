@@ -2,6 +2,8 @@ package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
+import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
+import it.gov.pagopa.merchant.dto.pointofsales.*;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
@@ -451,58 +453,6 @@ class PointOfSaleControllerImplTest {
   }
 
   @Test
-  void updatePointOfSaleReferentOK() throws Exception {
-    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
-    Merchant merchant = new Merchant();
-    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
-        .contactEmail("referent@email.it")
-        .contactName("Mario")
-        .contactSurname("Rossi")
-        .build();
-
-    when(updatePointOfSaleReferentService.updateReferent(eq(MERCHANT_ID), eq("POS_ID"), any()))
-        .thenReturn(pointOfSale);
-    when(merchantService.getMerchantByMerchantId(MERCHANT_ID)).thenReturn(merchant);
-    when(mapper.entityToDto(pointOfSale, merchant)).thenReturn(pointOfSaleDTO);
-
-    mockMvc.perform(
-            MockMvcRequestBuilders.patch(BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/POS_ID/referent")
-                .header("x-point-of-sale-id", "POS_ID")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(patchDTO))
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk());
-
-    ArgumentCaptor<PointOfSaleReferentPatchDTO> patchCaptor =
-        ArgumentCaptor.forClass(PointOfSaleReferentPatchDTO.class);
-    verify(updatePointOfSaleReferentService).updateReferent(eq(MERCHANT_ID), eq("POS_ID"),
-        patchCaptor.capture());
-    assertEquals("referent@email.it", patchCaptor.getValue().getContactEmail());
-    assertEquals("Mario", patchCaptor.getValue().getContactName());
-    assertEquals("Rossi", patchCaptor.getValue().getContactSurname());
-    verify(mapper).entityToDto(pointOfSale, merchant);
-  }
-
-  @Test
-  void updatePointOfSaleReferentInvalidBody_shouldReturnBadRequest() throws Exception {
-    PointOfSaleReferentPatchDTO patchDTO = PointOfSaleReferentPatchDTO.builder()
-        .contactEmail("not-an-email")
-        .contactName("")
-        .contactSurname("Rossi")
-        .build();
-
-    mockMvc.perform(
-            MockMvcRequestBuilders.patch(BASE_URL + "/" + MERCHANT_ID + "/point-of-sales/POS_ID/referent")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(patchDTO))
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
-
-    verifyNoInteractions(updatePointOfSaleReferentService);
-  }
-
-  @Test
   void testConstructorWithMessage() {
     String message = "Test merchant mismatch";
     MerchantNotAllowedException ex = new MerchantNotAllowedException(message);
@@ -572,6 +522,64 @@ class PointOfSaleControllerImplTest {
             .andExpect(jsonPath("$.initiatives[0].initiativeName").value("Initiative Name"))
             .andExpect(jsonPath("$.initiatives[0].organizationName").value("Organization"))
             .andExpect(jsonPath("$.initiatives[0].status").value("ACTIVE"))
+            .andDo(print())
+            .andReturn();
+  }
+
+  @Test
+  void onboardingPointOfSales_OK() throws Exception {
+
+    String merchantId = MERCHANT_ID;
+    String initiativeId = "INITIATIVE_1";
+
+    List<String> posIds = List.of("POS1", "POS2");
+
+    AssociatedPointOfSaleDTO associated = AssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId("POS1")
+            .pointOfSaleName("Shop 1")
+            .build();
+
+    NotAssociatedPointOfSaleDTO notAssociated = NotAssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId("POS2")
+            .pointOfSaleName("Shop 2")
+            .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
+            .address("ADDR")
+            .city("CITY")
+            .streetNumber("1")
+            .build();
+
+    PointOfSaleOnboardingResultDTO responseDTO = new PointOfSaleOnboardingResultDTO();
+    responseDTO.setAssociated(List.of(associated));
+    responseDTO.setNotAssociated(List.of(notAssociated));
+
+    when(pointOfSaleWriterMock.onboardingPointOfSales(
+            merchantId,
+            initiativeId,
+            posIds
+    )).thenReturn(responseDTO);
+
+    mockMvc.perform(
+                    MockMvcRequestBuilders.post(
+                                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/onboarding",
+                                    merchantId,
+                                    initiativeId
+                            )
+                            .header("x-merchant-id", merchantId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(posIds))
+                            .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+            .andExpect(jsonPath("$.associated").isArray())
+            .andExpect(jsonPath("$.associated[0].pointOfSaleId").value("POS1"))
+            .andExpect(jsonPath("$.associated[0].pointOfSaleName").value("Shop 1"))
+
+            .andExpect(jsonPath("$.notAssociated").isArray())
+            .andExpect(jsonPath("$.notAssociated[0].pointOfSaleId").value("POS2"))
+            .andExpect(jsonPath("$.notAssociated[0].reason").value("ALREADY_ASSOCIATED"))
+
             .andDo(print())
             .andReturn();
   }

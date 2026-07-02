@@ -75,9 +75,15 @@ class PointOfSaleValidatorTest {
     void validateViolationsPointOfSales_pointOfSaleIsOk(){
         PointOfSaleDTO pointOfSalePhysical = PointOfSaleDTOFaker.mockInstance();
         pointOfSalePhysical.setType(PointOfSaleTypeEnum.PHYSICAL);
+        pointOfSalePhysical.setWebsite("https://www.google.it");
+        pointOfSalePhysical.setChannelGeolink("https://maps.google.com/location");
+
         PointOfSaleDTO pointOfSaleOnline = PointOfSaleDTOFaker.mockInstance();
-        pointOfSaleOnline.setContactEmail("email@email.it");
         pointOfSaleOnline.setType(PointOfSaleTypeEnum.ONLINE);
+        pointOfSaleOnline.setContactEmail("email@email.it");
+        pointOfSaleOnline.setChannelEmail("channel@email.it");
+        pointOfSaleOnline.setWebsite("https://ShOp.ExAmPlE.co.uk/home");
+        pointOfSaleOnline.setChannelGeolink("https://www.my-valid-channel.it/channel");
 
         List<PointOfSaleDTO> pointOfSaleDTOS = new ArrayList<>();
         pointOfSaleDTOS.add(pointOfSaleOnline);
@@ -85,6 +91,23 @@ class PointOfSaleValidatorTest {
 
         assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
 
+        assertEquals("https://shop.example.co.uk/home", pointOfSaleOnline.getWebsite());
+        assertEquals("https://www.my-valid-channel.it/channel", pointOfSaleOnline.getChannelGeolink());
+    }
+
+    @Test
+    void validateViolationsPointOfSales_channelGeolinkIsNull_shouldBeOk() {
+        PointOfSaleDTO pointOfSaleOnline = PointOfSaleDTOFaker.mockInstance();
+        pointOfSaleOnline.setType(PointOfSaleTypeEnum.ONLINE);
+        pointOfSaleOnline.setContactEmail("email@email.it");
+        pointOfSaleOnline.setWebsite("https://www.google.it");
+
+        pointOfSaleOnline.setChannelGeolink(null);
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSaleOnline);
+
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+        assertNull(pointOfSaleOnline.getChannelGeolink());
     }
 
 
