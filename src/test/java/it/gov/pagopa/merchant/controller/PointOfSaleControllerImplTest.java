@@ -7,7 +7,6 @@ import it.gov.pagopa.merchant.dto.pointofsales.*;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleReferentPatchDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
