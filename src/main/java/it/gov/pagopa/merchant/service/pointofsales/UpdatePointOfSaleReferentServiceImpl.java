@@ -9,6 +9,7 @@ import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.service.KeycloakService;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import java.util.Locale;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,10 +52,10 @@ public class UpdatePointOfSaleReferentServiceImpl implements UpdatePointOfSaleRe
 
     PointOfSale updatedPointOfSale = pointOfSaleRepository.save(pointOfSale);
 
-    boolean emailChanged = !StringUtils.equalsIgnoreCase(oldEmail, newEmail);
+    boolean emailChanged = oldEmail == null ? newEmail != null : !oldEmail.equalsIgnoreCase(newEmail);
     boolean referentChanged = emailChanged
-        || !StringUtils.equals(oldName, newName)
-        || !StringUtils.equals(oldSurname, newSurname);
+        || !Objects.equals(oldName, newName)
+        || !Objects.equals(oldSurname, newSurname);
     if (referentChanged) {
       keycloakService.updateReferentUserOnKeycloak(updatedPointOfSale, oldEmail, emailChanged);
     }
