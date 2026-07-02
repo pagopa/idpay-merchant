@@ -94,6 +94,15 @@ public class PointOfSaleValidator {
                 pointOfSaleDTOS.size());
     }
 
+    public void validateEmailFormat(String email) {
+        if (isInvalidFormat(email, REGEX_EMAIL)) {
+            throw new ClientExceptionWithBody(
+                    HttpStatus.BAD_REQUEST,
+                    PointOfSaleConstants.CODE_INVALID_EMAIL,
+                    PointOfSaleConstants.MSG_INVALID_EMAIL);
+        }
+    }
+
     private List<ValidationErrorDetail> validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS) {
         List<ValidationErrorDetail> errors = new ArrayList<>();
         Set<String> emails = new HashSet<>();

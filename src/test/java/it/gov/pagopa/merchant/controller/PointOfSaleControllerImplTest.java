@@ -4,6 +4,9 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
 import it.gov.pagopa.merchant.dto.pointofsales.*;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
@@ -15,6 +18,7 @@ import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
+import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleReferentService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
@@ -71,6 +75,8 @@ class PointOfSaleControllerImplTest {
     private MerchantService merchantService;
     @MockitoBean
     private PointOfSaleWriter pointOfSaleWriterMock;
+    @MockitoBean
+    private UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
 
   @Autowired
   private MockMvc mockMvc;
@@ -499,13 +505,11 @@ class PointOfSaleControllerImplTest {
             .initiatives(List.of(initiativeDTO))
             .build();
 
-    when(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleId(pointOfSaleId, merchantId))
+    when(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleIdAndMerchantId(pointOfSaleId, merchantId))
             .thenReturn(responseDTO);
 
     mockMvc.perform(
-                    MockMvcRequestBuilders.get(BASE_URL + "/point-of-sale/initiatives")
-                            .header("x-point-of-sale-id", pointOfSaleId)
-                            .header("x-merchant-id", merchantId)
+                    MockMvcRequestBuilders.get(BASE_URL + "/" + merchantId + "/point-of-sales/" + pointOfSaleId + "/initiatives")
                             .accept(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -575,6 +579,24 @@ class PointOfSaleControllerImplTest {
 
             .andDo(print())
             .andReturn();
+  }
+
+  @Test
+  void onboardingPointOfSalesMerchantMismatch_shouldReturnForbidden() throws Exception {
+    mockMvc.perform(
+            MockMvcRequestBuilders.post(
+                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/onboarding",
+                    MERCHANT_ID,
+                    "INITIATIVE_1"
+                )
+                .header("x-merchant-id", "DIFFERENT_MERCHANT_ID")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of("POS1")))
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isForbidden());
+
+    verify(pointOfSaleWriterMock, never()).onboardingPointOfSales(any(), any(), any());
   }
 }
 

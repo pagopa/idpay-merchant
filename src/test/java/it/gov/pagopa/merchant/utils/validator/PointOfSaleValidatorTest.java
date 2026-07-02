@@ -335,4 +335,18 @@ class PointOfSaleValidatorTest {
 
         assertDoesNotThrow(() -> pointOfSaleValidator.validatePointOfSales(list));
     }
+
+    @Test
+    void validateEmailFormat_invalidEmail_throwsClientExceptionWithBody() {
+        ClientExceptionWithBody exception = assertThrows(ClientExceptionWithBody.class,
+                () -> pointOfSaleValidator.validateEmailFormat("referent@domain_with_underscore.it"));
+
+        assertEquals(PointOfSaleConstants.CODE_INVALID_EMAIL, exception.getCode());
+        assertEquals(PointOfSaleConstants.MSG_INVALID_EMAIL, exception.getMessage());
+    }
+
+    @Test
+    void validateEmailFormat_validLowercaseEmail_ok() {
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateEmailFormat("referent@example.it"));
+    }
 }
