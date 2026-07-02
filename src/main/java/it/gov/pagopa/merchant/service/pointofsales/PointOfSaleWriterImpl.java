@@ -319,10 +319,6 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
           notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
                   .pointOfSaleId(posId)
-                  .pointOfSaleName("")
-                  .address("")
-                  .city("")
-                  .streetNumber("")
                   .reason(PosOnbordingRejectionReason.NOT_FOUND)
                   .build();
 
@@ -339,6 +335,8 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
                     .address(posOpt.get().getAddress())
                     .city(posOpt.get().getCity())
                     .streetNumber(posOpt.get().getStreetNumber())
+                    .website(posOpt.get().getWebsite())
+                    .type(PointOfSaleTypeEnum.valueOf(posOpt.get().getType()))
                     .build();
 
           } else if (pointOfSalesInitiativeRepository
@@ -353,6 +351,8 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
                     .address(posOpt.get().getAddress())
                     .city(posOpt.get().getCity())
                     .streetNumber(posOpt.get().getStreetNumber())
+                    .website(posOpt.get().getType())
+                    .type(PointOfSaleTypeEnum.valueOf(posOpt.get().getType()))
                     .build();
 
           } else {
@@ -384,11 +384,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
       } catch (Exception ex) {
         notAssociated.add(NotAssociatedPointOfSaleDTO.builder()
                 .pointOfSaleId(posId)
-                .pointOfSaleName("")
                 .reason(PosOnbordingRejectionReason.GENERIC_ERROR)
-                .address("")
-                .city("")
-                .streetNumber("")
                 .build());
       }
     }
