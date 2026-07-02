@@ -351,7 +351,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
                     .address(posOpt.get().getAddress())
                     .city(posOpt.get().getCity())
                     .streetNumber(posOpt.get().getStreetNumber())
-                    .website(posOpt.get().getType())
+                    .website(posOpt.get().getWebsite())
                     .type(PointOfSaleTypeEnum.valueOf(posOpt.get().getType()))
                     .build();
 
