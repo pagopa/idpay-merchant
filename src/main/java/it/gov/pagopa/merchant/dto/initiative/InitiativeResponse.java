@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,4 +19,5 @@ public class InitiativeResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private String onboardStatus;
+    private List<String> atecoCodes;
 }
