@@ -75,7 +75,7 @@ class PointOfSaleControllerImplTest {
     @MockitoBean
     private MerchantService merchantService;
     @MockitoBean
-    private PointOfSaleWriter PointOfSaleWriterMock;
+    private PointOfSaleWriter pointOfSaleWriterMock;
     @MockitoBean
     private UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
 
@@ -506,13 +506,11 @@ class PointOfSaleControllerImplTest {
             .initiatives(List.of(initiativeDTO))
             .build();
 
-    when(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleId(pointOfSaleId, merchantId))
+    when(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleIdAndMerchantId(pointOfSaleId, merchantId))
             .thenReturn(responseDTO);
 
     mockMvc.perform(
-                    MockMvcRequestBuilders.get(BASE_URL + "/point-of-sale/initiatives")
-                            .header("x-point-of-sale-id", pointOfSaleId)
-                            .header("x-merchant-id", merchantId)
+                    MockMvcRequestBuilders.get(BASE_URL + "/" + merchantId + "/point-of-sales/" + pointOfSaleId + "/initiatives")
                             .accept(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
@@ -582,6 +580,24 @@ class PointOfSaleControllerImplTest {
 
             .andDo(print())
             .andReturn();
+  }
+
+  @Test
+  void onboardingPointOfSalesMerchantMismatch_shouldReturnForbidden() throws Exception {
+    mockMvc.perform(
+            MockMvcRequestBuilders.post(
+                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/onboarding",
+                    MERCHANT_ID,
+                    "INITIATIVE_1"
+                )
+                .header("x-merchant-id", "DIFFERENT_MERCHANT_ID")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of("POS1")))
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isForbidden());
+
+    verify(pointOfSaleWriterMock, never()).onboardingPointOfSales(any(), any(), any());
   }
 }
 

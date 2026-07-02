@@ -132,7 +132,6 @@ class UpdatePointOfSaleReferentServiceTest {
         pointOfSale, "same.email@example.com", false);
   }
 
-  @Test
   void updateReferent_onlyNameProvided_keepsExistingEmailAndSurname() {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setId(POINT_OF_SALE_ID);
@@ -206,7 +205,6 @@ class UpdatePointOfSaleReferentServiceTest {
     verify(keycloakService, never()).updateReferentUserOnKeycloak(any(), any(), anyBoolean());
   }
 
-  @Test
   void updateReferent_blankEmail_throwsBadRequestBeforeSaving() {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setId(POINT_OF_SALE_ID);

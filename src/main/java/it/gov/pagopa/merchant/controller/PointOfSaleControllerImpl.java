@@ -198,7 +198,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     String sanitizedInitiativeId = sanitizeString(initiativeId);
     String sanitizedMerchantId = sanitizeString(merchantId);
 
-    validateMerchantAccess(tokenMerchantId,tokenMerchantId);
+    validateMerchantAccess(tokenMerchantId, sanitizedMerchantId);
 
     return ResponseEntity.ok(pointOfSaleWriter.onboardingPointOfSales(
              sanitizedMerchantId,
