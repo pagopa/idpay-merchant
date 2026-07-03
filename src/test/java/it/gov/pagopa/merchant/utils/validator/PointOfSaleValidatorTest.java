@@ -335,4 +335,32 @@ class PointOfSaleValidatorTest {
 
         assertDoesNotThrow(() -> pointOfSaleValidator.validatePointOfSales(list));
     }
+
+    @Test
+    void validateEmailFormat_invalidEmail_throwsClientExceptionWithBody() {
+        ClientExceptionWithBody exception = assertThrows(ClientExceptionWithBody.class,
+                () -> pointOfSaleValidator.validateEmailFormat("referent@domain_with_underscore.it"));
+
+        assertEquals(PointOfSaleConstants.CODE_INVALID_EMAIL, exception.getCode());
+        assertEquals(PointOfSaleConstants.MSG_INVALID_EMAIL, exception.getMessage());
+    }
+
+    @Test
+    void validateEmailFormat_missingDomainDot_throwsClientExceptionWithBody() {
+        ClientExceptionWithBody exception = assertThrows(ClientExceptionWithBody.class,
+                () -> pointOfSaleValidator.validateEmailFormat("acquavivadalila@gmailcomme"));
+
+        assertEquals(PointOfSaleConstants.CODE_INVALID_EMAIL, exception.getCode());
+        assertEquals(PointOfSaleConstants.MSG_INVALID_EMAIL, exception.getMessage());
+    }
+
+    @Test
+    void validateEmailFormat_validLowercaseEmail_ok() {
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateEmailFormat("referent@example.it"));
+    }
+
+    @Test
+    void validateEmailFormat_validEmailWithDomainDot_ok() {
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateEmailFormat("acquavivadalila@gmail.com"));
+    }
 }

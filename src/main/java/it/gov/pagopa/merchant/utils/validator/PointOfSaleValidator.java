@@ -27,7 +27,7 @@ public class PointOfSaleValidator {
 
     private static final String REGEX_PHONE = "^\\+?\\d{7,15}$";
     private static final String REGEX_LINK = "^https:\\/\\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}(?:\\/[^\\s]*)?$";
-    private static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+    private static final String REGEX_EMAIL = "^(?=.{1,255}$)[A-Za-z0-9]([A-Za-z0-9+_-]*(\\.[A-Za-z0-9+_-]+)*)?@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$";
 
     private final int posDefaultMaxSizeRequest;
 
@@ -92,6 +92,15 @@ public class PointOfSaleValidator {
 
         log.info("[POS-VALIDATION] Validation completed successfully: {} PointOfSale entries validated with no errors",
                 pointOfSaleDTOS.size());
+    }
+
+    public void validateEmailFormat(String email) {
+        if (isInvalidFormat(email, REGEX_EMAIL)) {
+            throw new ClientExceptionWithBody(
+                    HttpStatus.BAD_REQUEST,
+                    PointOfSaleConstants.CODE_INVALID_EMAIL,
+                    PointOfSaleConstants.MSG_INVALID_EMAIL);
+        }
     }
 
     private List<ValidationErrorDetail> validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS) {
