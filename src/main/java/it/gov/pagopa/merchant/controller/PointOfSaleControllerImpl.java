@@ -1,21 +1,16 @@
 package it.gov.pagopa.merchant.controller;
 
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.*;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.service.MerchantService;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
 import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleReferentService;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +31,6 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   private final PointOfSaleWriter pointOfSaleWriter;
   private final PointOfSaleFinderService pointOfSaleFinderService;
   private final PointOfSaleInitiativeFinderService pointOfSaleInitiativeFinderService;
-  private final PointOfSaleWriter pointOfSaleWriter;
-  private final PointOfSaleFinderService pointOfSaleFinderService;
-  private final PointOfSaleInitiativeFinderService pointOfSaleInitiativeFinderService;
   private final UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
   private final PointOfSaleValidator pointOfSaleValidator;
   private final PointOfSaleDTOMapper pointOfSaleDTOMapper;
@@ -48,16 +40,10 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   public PointOfSaleControllerImpl(PointOfSaleWriter pointOfSaleWriter,
                                    PointOfSaleFinderService pointOfSaleFinderService,
                                    PointOfSaleInitiativeFinderService pointOfSaleInitiativeFinderService,
-  public PointOfSaleControllerImpl(PointOfSaleWriter pointOfSaleWriter,
-                                   PointOfSaleFinderService pointOfSaleFinderService,
-                                   PointOfSaleInitiativeFinderService pointOfSaleInitiativeFinderService,
                                    UpdatePointOfSaleReferentService updatePointOfSaleReferentService,
                                    PointOfSaleValidator pointOfSaleValidator,
                                    PointOfSaleDTOMapper pointOfSaleDTOMapper,
                                    MerchantService merchantService) {
-    this.pointOfSaleFinderService = pointOfSaleFinderService;
-    this.pointOfSaleInitiativeFinderService = pointOfSaleInitiativeFinderService;
-    this.pointOfSaleWriter = pointOfSaleWriter;
     this.pointOfSaleFinderService = pointOfSaleFinderService;
     this.pointOfSaleInitiativeFinderService = pointOfSaleInitiativeFinderService;
     this.updatePointOfSaleReferentService = updatePointOfSaleReferentService;
@@ -85,7 +71,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
       );
     }
 
-    savePointOfSaleService.savePointOfSales(sanitizedMerchantId,initiativeId, pointOfSales);
+    pointOfSaleWriter.savePointOfSales(sanitizedMerchantId,initiativeId, pointOfSales);
 
     return ResponseEntity.noContent().build();
   }

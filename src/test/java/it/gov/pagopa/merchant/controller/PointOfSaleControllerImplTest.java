@@ -4,9 +4,6 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
 import it.gov.pagopa.merchant.dto.pointofsales.*;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
@@ -18,17 +15,14 @@ import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
-import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
 import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleReferentService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
@@ -80,7 +74,6 @@ class PointOfSaleControllerImplTest {
     private PointOfSaleWriter pointOfSaleWriterMock;
     @MockitoBean
     private UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
-    private PointOfSaleWriter pointOfSaleWriterMock;
 
   @Autowired
   private MockMvc mockMvc;
@@ -516,41 +509,6 @@ class PointOfSaleControllerImplTest {
                     MockMvcRequestBuilders.get(BASE_URL + "/point-of-sale/initiatives")
                             .header("x-point-of-sale-id", pointOfSaleId)
                             .header("x-merchant-id", merchantId)
-                            .accept(MediaType.APPLICATION_JSON)
-            )
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.initiatives").isArray())
-            .andExpect(jsonPath("$.initiatives[0].initiativeId").value("INITIATIVE_1"))
-            .andExpect(jsonPath("$.initiatives[0].initiativeName").value("Initiative Name"))
-            .andExpect(jsonPath("$.initiatives[0].organizationName").value("Organization"))
-            .andExpect(jsonPath("$.initiatives[0].status").value("ACTIVE"))
-            .andDo(print())
-            .andReturn();
-  }
-
-  @Test
-  void getPointOfSaleInitiativesDetail_OK() throws Exception {
-
-    String pointOfSaleId = "POS_ID";
-    String merchantId = MERCHANT_ID;
-
-    PointOfSaleInitiativeDTO initiativeDTO = PointOfSaleInitiativeDTO.builder()
-            .initiativeId("INITIATIVE_1")
-            .initiativeName("Initiative Name")
-            .organizationName("Organization")
-            .status("ACTIVE")
-            .build();
-
-    PointOfSaleInitiativeListDTO responseDTO = PointOfSaleInitiativeListDTO.builder()
-            .initiatives(List.of(initiativeDTO))
-            .build();
-
-    when(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleIdAndMerchantId(pointOfSaleId, merchantId))
-            .thenReturn(responseDTO);
-
-    mockMvc.perform(
-                    MockMvcRequestBuilders.get(BASE_URL + "/" + merchantId + "/point-of-sales/" + pointOfSaleId + "/initiatives")
                             .accept(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())
