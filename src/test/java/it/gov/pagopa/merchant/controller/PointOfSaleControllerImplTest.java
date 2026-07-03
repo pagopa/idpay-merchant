@@ -4,9 +4,6 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
 import it.gov.pagopa.merchant.dto.pointofsales.*;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
@@ -24,8 +21,8 @@ import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
@@ -505,11 +502,13 @@ class PointOfSaleControllerImplTest {
             .initiatives(List.of(initiativeDTO))
             .build();
 
-    when(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleIdAndMerchantId(pointOfSaleId, merchantId))
+    when(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleId(pointOfSaleId, merchantId))
             .thenReturn(responseDTO);
 
     mockMvc.perform(
-                    MockMvcRequestBuilders.get(BASE_URL + "/" + merchantId + "/point-of-sales/" + pointOfSaleId + "/initiatives")
+                    MockMvcRequestBuilders.get(BASE_URL + "/point-of-sale/initiatives")
+                            .header("x-point-of-sale-id", pointOfSaleId)
+                            .header("x-merchant-id", merchantId)
                             .accept(MediaType.APPLICATION_JSON)
             )
             .andExpect(status().isOk())

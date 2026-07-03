@@ -133,6 +133,24 @@ public interface PointOfSaleController {
     );
 
     @Operation(
+            summary = "Retrieve initiatives linked to a point of sale",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"point-of-sales"},
+            description = "Returns the initiatives linked to the specified point of sale for the merchant.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful response with linked initiatives", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PointOfSaleInitiativeListDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "429", description = "Too many Request - Rate limit exceeded", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
+    @GetMapping(value = "/point-of-sale/initiatives")
+    ResponseEntity<PointOfSaleInitiativeListDTO> getPointOfSaleInitiativesDetail(
+            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
+    );
+
+    @Operation(
             summary = "Update point of sale referent",
             security = {@SecurityRequirement(name = "Bearer")},
             tags = {"point-of-sales"},
