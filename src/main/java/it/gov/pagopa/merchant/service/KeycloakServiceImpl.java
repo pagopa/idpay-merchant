@@ -43,6 +43,17 @@ public class KeycloakServiceImpl implements KeycloakService {
 
     @Override
     public void manageReferentUserOnKeycloak(PointOfSale pointOfSale, String oldEmail) {
+        syncReferentUserOnKeycloak(pointOfSale, oldEmail, false, true);
+    }
+
+    @Override
+    public void updateReferentUserOnKeycloak(PointOfSale pointOfSale, String oldEmail,
+                                             boolean sendResetEmail) {
+        syncReferentUserOnKeycloak(pointOfSale, oldEmail, sendResetEmail, sendResetEmail);
+    }
+
+    private void syncReferentUserOnKeycloak(PointOfSale pointOfSale, String oldEmail,
+                                            boolean sendResetEmail, boolean createUserIfMissing) {
         final String contactEmail = pointOfSale.getContactEmail();
 
         if (StringUtils.isEmpty(contactEmail)) {
@@ -56,7 +67,8 @@ public class KeycloakServiceImpl implements KeycloakService {
 
         try {
             deleteOldUser(usersResource, oldEmail, contactEmail);
-            handleNewOrExistingUser(usersResource, pointOfSale, contactEmail);
+            handleNewOrExistingUser(usersResource, pointOfSale, contactEmail, sendResetEmail,
+                    createUserIfMissing);
         } catch (Exception e) {
             log.error(
                     "[KEYCLOAK] Error while creating Keycloak user for Point of Sale with ID {}. Exception: {}",
@@ -80,13 +92,23 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     private void handleNewOrExistingUser(UsersResource usersResource, PointOfSale pointOfSale,
-                                         String contactEmail) {
+                                         String contactEmail, boolean sendResetEmail,
+                                         boolean createUserIfMissing) {
         List<UserRepresentation> existingUsers = usersResource.searchByEmail(contactEmail, true);
 
         if (existingUsers.isEmpty()) {
-            createNewUserAndSendActionsEmail(usersResource, pointOfSale);
+            if (createUserIfMissing) {
+                createNewUserAndSendActionsEmail(usersResource, pointOfSale);
+            } else {
+                log.warn(
+                        "[KEYCLOAK] User with email {} not found while updating Point of Sale ID {}. Skipping user creation and reset email.",
+                        sanitizeForLog(contactEmail), sanitizeForLog(pointOfSale.getId()));
+            }
         } else {
             updateEnabledUsers(usersResource, pointOfSale, contactEmail, existingUsers);
+            if (sendResetEmail) {
+                sendActionsEmail(usersResource, existingUsers.get(0).getId());
+            }
             log.info(
                     "[KEYCLOAK] User already exists and is enabled. The new Point of Sale with ID {} will be associated with the existing user.",
                     sanitizeForLog(pointOfSale.getId()));
@@ -135,10 +157,7 @@ public class KeycloakServiceImpl implements KeycloakService {
                 log.info("[KEYCLOAK] User created successfully with ID {}. Sending password setup email.",
                         userId);
 
-                // The action "UPDATE_PASSWORD" sends an email with a link that will expire after the lifespan to reset the user password
-                usersResource.get(userId)
-                        .executeActionsEmail(keycloakClientId, redirectURI, keycloakUserActionsEmailLifespan,
-                                List.of(REQUIRED_ACTION_UPDATE_PASSWORD));
+                sendActionsEmail(usersResource, userId);
 
             } else {
                 // Handling non-success cases with a log
@@ -149,5 +168,12 @@ public class KeycloakServiceImpl implements KeycloakService {
             log.error("[KEYCLOAK] An exception occurred while creating Keycloak user.", e);
             throw e;
         }
+    }
+
+    private void sendActionsEmail(UsersResource usersResource, String userId) {
+        // The action "UPDATE_PASSWORD" sends an email with a link that will expire after the lifespan to reset the user password
+        usersResource.get(userId)
+                .executeActionsEmail(keycloakClientId, redirectURI, keycloakUserActionsEmailLifespan,
+                        List.of(REQUIRED_ACTION_UPDATE_PASSWORD));
     }
 }

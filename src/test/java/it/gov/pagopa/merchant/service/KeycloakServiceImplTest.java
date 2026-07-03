@@ -129,6 +129,79 @@ class KeycloakServiceImplTest {
     }
 
     @Test
+    void updateReferentUserOnKeycloak_userAlreadyExistsAndResetRequested_sendsEmailOnce() {
+        PointOfSale pos = PointOfSaleFaker.mockInstance();
+        pos.setContactEmail("existing.user@example.com");
+        pos.setContactName("NewName");
+        pos.setContactSurname("NewSurname");
+
+        UserRepresentation existingUser = new UserRepresentation();
+        existingUser.setId("existing-user-id");
+        existingUser.setEmail(pos.getContactEmail());
+        existingUser.setEnabled(true);
+
+        when(keycloakAdminClientMock.realm(REALM)).thenReturn(realmResourceMock);
+        when(realmResourceMock.users()).thenReturn(usersResourceMock);
+        when(usersResourceMock.searchByEmail(pos.getContactEmail(), true))
+                .thenReturn(List.of(existingUser));
+        when(usersResourceMock.get("existing-user-id")).thenReturn(userResourceMock);
+        doNothing().when(userResourceMock).update(any());
+        doNothing().when(userResourceMock)
+                .executeActionsEmail(anyString(), anyString(), anyInt(), any());
+
+        keycloakService.updateReferentUserOnKeycloak(pos, null, true);
+
+        verify(userResourceMock).update(any(UserRepresentation.class));
+        verify(userResourceMock).executeActionsEmail(
+                CLIENT_ID, REDIRECT_URI, LIFESPAN, List.of("UPDATE_PASSWORD"));
+    }
+
+    @Test
+    void updateReferentUserOnKeycloak_userAlreadyExistsWithoutReset_updatesNameSurnameOnly() {
+        PointOfSale pos = PointOfSaleFaker.mockInstance();
+        pos.setContactEmail("same.email@example.com");
+        pos.setContactName("UpdatedName");
+        pos.setContactSurname("UpdatedSurname");
+
+        UserRepresentation existingUser = new UserRepresentation();
+        existingUser.setId("existing-user-id");
+        existingUser.setEmail(pos.getContactEmail());
+
+        when(keycloakAdminClientMock.realm(REALM)).thenReturn(realmResourceMock);
+        when(realmResourceMock.users()).thenReturn(usersResourceMock);
+        when(usersResourceMock.searchByEmail(pos.getContactEmail(), true))
+                .thenReturn(List.of(existingUser));
+        when(usersResourceMock.get("existing-user-id")).thenReturn(userResourceMock);
+        doNothing().when(userResourceMock).update(any());
+
+        keycloakService.updateReferentUserOnKeycloak(pos, pos.getContactEmail(), false);
+
+        verify(userResourceMock).update(argThat(user ->
+                "UpdatedName".equals(user.getFirstName()) &&
+                        "UpdatedSurname".equals(user.getLastName())
+        ));
+        verify(usersResourceMock, never()).create(any(UserRepresentation.class));
+        verify(userResourceMock, never()).executeActionsEmail(anyString(), anyString(), anyInt(), anyList());
+    }
+
+    @Test
+    void updateReferentUserOnKeycloak_userMissingWithoutReset_doesNotCreateAndDoesNotSendEmail() {
+        PointOfSale pos = PointOfSaleFaker.mockInstance();
+        pos.setContactEmail("missing.user@example.com");
+
+        when(keycloakAdminClientMock.realm(REALM)).thenReturn(realmResourceMock);
+        when(realmResourceMock.users()).thenReturn(usersResourceMock);
+        when(usersResourceMock.searchByEmail(pos.getContactEmail(), true))
+                .thenReturn(List.of());
+
+        keycloakService.updateReferentUserOnKeycloak(pos, pos.getContactEmail(), false);
+
+        verify(usersResourceMock, never()).create(any(UserRepresentation.class));
+        verify(usersResourceMock, never()).get(anyString());
+        verify(userResourceMock, never()).executeActionsEmail(anyString(), anyString(), anyInt(), anyList());
+    }
+
+    @Test
     void manageReferentUserOnKeycloak_keycloakCreationFails_logsErrorAndDoesNotSendEmail() {
         PointOfSale pos = PointOfSaleFaker.mockInstance();
         pos.setContactEmail("failed.user@example.com");

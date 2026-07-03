@@ -2,6 +2,8 @@ package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
+import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
+import it.gov.pagopa.merchant.dto.pointofsales.*;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
@@ -16,6 +18,10 @@ import it.gov.pagopa.merchant.service.merchant.MerchantDetailService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
 import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleFinderService;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleInitiativeFinderService;
+import it.gov.pagopa.merchant.service.pointofsales.PointOfSaleWriter;
+import it.gov.pagopa.merchant.service.pointofsales.UpdatePointOfSaleReferentService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
@@ -71,6 +77,9 @@ class PointOfSaleControllerImplTest {
     @MockitoBean
     private MerchantService merchantService;
     @MockitoBean
+    private PointOfSaleWriter pointOfSaleWriterMock;
+    @MockitoBean
+    private UpdatePointOfSaleReferentService updatePointOfSaleReferentService;
     private PointOfSaleWriter pointOfSaleWriterMock;
 
   @Autowired
@@ -518,6 +527,117 @@ class PointOfSaleControllerImplTest {
             .andExpect(jsonPath("$.initiatives[0].status").value("ACTIVE"))
             .andDo(print())
             .andReturn();
+  }
+
+  @Test
+  void getPointOfSaleInitiativesDetail_OK() throws Exception {
+
+    String pointOfSaleId = "POS_ID";
+    String merchantId = MERCHANT_ID;
+
+    PointOfSaleInitiativeDTO initiativeDTO = PointOfSaleInitiativeDTO.builder()
+            .initiativeId("INITIATIVE_1")
+            .initiativeName("Initiative Name")
+            .organizationName("Organization")
+            .status("ACTIVE")
+            .build();
+
+    PointOfSaleInitiativeListDTO responseDTO = PointOfSaleInitiativeListDTO.builder()
+            .initiatives(List.of(initiativeDTO))
+            .build();
+
+    when(pointOfSaleInitiativeFinderService.getInitiativesByPointOfSaleIdAndMerchantId(pointOfSaleId, merchantId))
+            .thenReturn(responseDTO);
+
+    mockMvc.perform(
+                    MockMvcRequestBuilders.get(BASE_URL + "/" + merchantId + "/point-of-sales/" + pointOfSaleId + "/initiatives")
+                            .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.initiatives").isArray())
+            .andExpect(jsonPath("$.initiatives[0].initiativeId").value("INITIATIVE_1"))
+            .andExpect(jsonPath("$.initiatives[0].initiativeName").value("Initiative Name"))
+            .andExpect(jsonPath("$.initiatives[0].organizationName").value("Organization"))
+            .andExpect(jsonPath("$.initiatives[0].status").value("ACTIVE"))
+            .andDo(print())
+            .andReturn();
+  }
+
+  @Test
+  void onboardingPointOfSales_OK() throws Exception {
+
+    String merchantId = MERCHANT_ID;
+    String initiativeId = "INITIATIVE_1";
+
+    List<String> posIds = List.of("POS1", "POS2");
+
+    AssociatedPointOfSaleDTO associated = AssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId("POS1")
+            .pointOfSaleName("Shop 1")
+            .build();
+
+    NotAssociatedPointOfSaleDTO notAssociated = NotAssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId("POS2")
+            .pointOfSaleName("Shop 2")
+            .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
+            .address("ADDR")
+            .city("CITY")
+            .streetNumber("1")
+            .build();
+
+    PointOfSaleOnboardingResultDTO responseDTO = new PointOfSaleOnboardingResultDTO();
+    responseDTO.setAssociated(List.of(associated));
+    responseDTO.setNotAssociated(List.of(notAssociated));
+
+    when(pointOfSaleWriterMock.onboardingPointOfSales(
+            merchantId,
+            initiativeId,
+            posIds
+    )).thenReturn(responseDTO);
+
+    mockMvc.perform(
+                    MockMvcRequestBuilders.post(
+                                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/onboarding",
+                                    merchantId,
+                                    initiativeId
+                            )
+                            .header("x-merchant-id", merchantId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(posIds))
+                            .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+
+            .andExpect(jsonPath("$.associated").isArray())
+            .andExpect(jsonPath("$.associated[0].pointOfSaleId").value("POS1"))
+            .andExpect(jsonPath("$.associated[0].pointOfSaleName").value("Shop 1"))
+
+            .andExpect(jsonPath("$.notAssociated").isArray())
+            .andExpect(jsonPath("$.notAssociated[0].pointOfSaleId").value("POS2"))
+            .andExpect(jsonPath("$.notAssociated[0].reason").value("ALREADY_ASSOCIATED"))
+
+            .andDo(print())
+            .andReturn();
+  }
+
+  @Test
+  void onboardingPointOfSalesMerchantMismatch_shouldReturnForbidden() throws Exception {
+    mockMvc.perform(
+            MockMvcRequestBuilders.post(
+                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/onboarding",
+                    MERCHANT_ID,
+                    "INITIATIVE_1"
+                )
+                .header("x-merchant-id", "DIFFERENT_MERCHANT_ID")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of("POS1")))
+                .accept(MediaType.APPLICATION_JSON)
+        )
+        .andExpect(status().isForbidden());
+
+    verify(pointOfSaleWriterMock, never()).onboardingPointOfSales(any(), any(), any());
   }
 }
 
