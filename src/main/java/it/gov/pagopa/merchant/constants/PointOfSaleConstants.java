@@ -28,6 +28,7 @@ public final class PointOfSaleConstants {
     // ===MERCHANT===
     public static final String MERCHANT_NOT_ALLOWED = "MERCHANT_NOT_ALLOWED";
 
+
   // ===EMAIL===
     public static final String CODE_INVALID_EMAIL = CODE_INVALID_FORMAT;
     public static final String MSG_INVALID_EMAIL = "Email must be a valid email address.";

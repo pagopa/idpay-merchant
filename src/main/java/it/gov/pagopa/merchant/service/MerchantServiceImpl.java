@@ -53,7 +53,6 @@ public class MerchantServiceImpl implements MerchantService {
   private final MerchantRepository merchantRepository;
   private final UploadingMerchantService uploadingMerchantService;
   private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
-  private final List<String> defaultInitiatives;
   private final InitiativeRestConnector initiativeRestConnector;
   private final MerchantCreateDTOMapper merchantCreateDTOMapper;
   private final PointOfSaleRepository pointOfSaleRepository;
@@ -69,7 +68,6 @@ public class MerchantServiceImpl implements MerchantService {
                              MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
                              UploadingMerchantService uploadingMerchantService,
                              Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
-                             @Value("${merchant.default-initiatives}") List<String> defaultInitiatives,
                              InitiativeRestConnector initiativeRestConnector,
                              MerchantCreateDTOMapper merchantCreateDTOMapper, PointOfSaleRepository pointOfSaleRepository,
                              MerchantValidator merchantValidator, Keycloak keycloakAdminClient,
@@ -83,7 +81,6 @@ public class MerchantServiceImpl implements MerchantService {
     this.merchantRepository = merchantRepository;
     this.uploadingMerchantService = uploadingMerchantService;
     this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
-    this.defaultInitiatives = defaultInitiatives;
     this.initiativeRestConnector = initiativeRestConnector;
     this.merchantCreateDTOMapper = merchantCreateDTOMapper;
     this.pointOfSaleRepository = pointOfSaleRepository;
@@ -332,10 +329,6 @@ public class MerchantServiceImpl implements MerchantService {
   private String createNewMerchant(MerchantCreateDTO merchantCreateDTO) {
     String merchantId = Utilities.toUUID(merchantCreateDTO.getFiscalCode().concat("_").concat(merchantCreateDTO.getAcquirerId()));
     List<Initiative> initiatives = new ArrayList<>();
-    for (String initiativeId : defaultInitiatives) {
-      InitiativeBeneficiaryViewDTO dto = getInitiativeInfo(initiativeId);
-      initiatives.add(createMerchantInitiative(dto));
-    }
 
     Merchant merchant = merchantCreateDTOMapper.dtoToEntity(merchantCreateDTO, merchantId);
     merchant.setInitiativeList(initiatives);
@@ -347,31 +340,7 @@ public class MerchantServiceImpl implements MerchantService {
     return merchantId;
   }
 
-  private InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
-    InitiativeBeneficiaryViewDTO initiativeDTO;
-    try {
-      initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
-    } catch (FeignException e) {
-      log.error("[INITIATIVE REST CONNECTOR] - Feign exception: {}", e.getMessage());
-      throw new InitiativeInvocationException(
-          MerchantConstants.ExceptionMessage.INITIATIVE_CONNECTOR_ERROR);
-    }
 
-    if (initiativeDTO == null) {
-      log.error("[INITIATIVE REST CONNECTOR] Initiative returned null for id={}", initiativeId);
-      throw new InitiativeInvocationException("Initiative not found for id=" + initiativeId);
-    }
 
-    return initiativeDTO;
-  }
 
-  private Initiative createMerchantInitiative(InitiativeBeneficiaryViewDTO dto) {
-    return Initiative.builder().initiativeId(dto.getInitiativeId())
-        .initiativeName(dto.getInitiativeName()).organizationId(dto.getOrganizationId())
-        .organizationName(dto.getOrganizationName())
-        .serviceId(dto.getAdditionalInfo().getServiceId())
-        .startDate(dto.getGeneral().getStartDate()).endDate(dto.getGeneral().getEndDate())
-        .status(dto.getStatus()).merchantStatus("UPLOADED").creationDate(LocalDateTime.now())
-        .updateDate(LocalDateTime.now()).enabled(true).build();
-  }
 }

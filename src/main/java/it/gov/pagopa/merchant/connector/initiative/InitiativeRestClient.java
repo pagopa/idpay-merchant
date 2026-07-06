@@ -11,19 +11,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 @FeignClient(
-    name = "${rest-client.initiative.serviceCode}",
-    url = "${rest-client.initiative.baseUrl}")
+        name = "${rest-client.initiative.serviceCode}",
+        url = "${rest-client.initiative.baseUrl}")
 public interface InitiativeRestClient {
 
   @GetMapping(
-      value = "/idpay/initiative/{initiativeId}/beneficiary/view",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+          value = "/idpay/initiative/{initiativeId}/beneficiary/view",
+          produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   InitiativeBeneficiaryViewDTO getInitiativeBeneficiaryView(
-      @PathVariable("initiativeId") String initiativeId);
+          @PathVariable("initiativeId") String initiativeId);
 
   @PostMapping("/initiatives/search")
   ResponseEntity<PageResponse<InitiativeResponse>> searchInitiatives(
           @RequestBody InitiativeSearchRequest request,
           @SpringQueryMap Pageable pageable);
+
+  @GetMapping(
+          value = "/idpay/organization/{organizationId}/initiative/{initiativeId}",
+          produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  ResponseEntity<InitiativeDTO> getInitiativeDetail(
+          @PathVariable("organizationId") String organizationId,
+          @PathVariable("initiativeId") String initiativeId,
+          @RequestParam(required = false) String role);
+
 }

@@ -61,4 +61,8 @@ public interface MerchantPortalMerchantController {
             @RequestParam (required = false) String initiativeName,
             Pageable pageable);
 
+    @PutMapping("/initiatives/{initiativeId}/onboarding")
+    ResponseEntity<OnboardingResponse> onboardMerchantInitiative(
+            @RequestHeader ("x-merchant-id") String merchantId,
+            @PathVariable("initiativeId") String initiativeId);
 }
