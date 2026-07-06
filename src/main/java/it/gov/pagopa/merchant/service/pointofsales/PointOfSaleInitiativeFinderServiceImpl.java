@@ -116,11 +116,10 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
                         Function.identity()
                 ));
 
-
         List<PointOfSalesInitiative> posInitiatives =
                 pointOfSalesInitiativeRepository.findByPointOfSaleId(pointOfSaleId);
 
-        List<PointOfSaleInitiativeDTO> validInitiatives = new ArrayList<>();
+        List<Initiative> validInitiatives = new ArrayList<>();
 
         for (PointOfSalesInitiative posInitiative : posInitiatives) {
             String initiativeId = posInitiative.getInitiativeId();
@@ -128,7 +127,7 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
             Initiative initiative = initiativeMap.get(initiativeId);
 
             if (initiative != null) {
-                validInitiatives.add(pointOfSaleInitiativeDTOMapper.initiativeEntityToDto(initiative));
+                validInitiatives.add(initiative);
             } else {
                 String sanitizedInitiativeId = Utilities.sanitizeString(initiativeId);
                 String sanitizedPointOfSaleId = Utilities.sanitizeString(pointOfSaleId);
@@ -140,8 +139,16 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
             }
         }
 
+        List<PointOfSaleInitiativeDTO> sortedInitiativeDTOs = validInitiatives.stream()
+                .sorted(Comparator.comparing(
+                        Initiative::getInitiativeName,
+                        Comparator.nullsLast(String::compareToIgnoreCase)
+                ))
+                .map(pointOfSaleInitiativeDTOMapper::initiativeEntityToDto)
+                .toList();
+
         return PointOfSaleInitiativeListDTO.builder()
-                .initiatives(validInitiatives)
+                .initiatives(sortedInitiativeDTOs)
                 .build();
     }
 
