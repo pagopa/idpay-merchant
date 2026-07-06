@@ -117,7 +117,7 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
                 ));
 
         List<PointOfSalesInitiative> posInitiatives =
-                pointOfSalesInitiativeRepository.findByPointOfSaleId(pointOfSaleId);
+                pointOfSalesInitiativeRepository.findByPointOfSaleIdAndEnabledTrue(pointOfSaleId);
 
         List<Initiative> validInitiatives = new ArrayList<>();
 
