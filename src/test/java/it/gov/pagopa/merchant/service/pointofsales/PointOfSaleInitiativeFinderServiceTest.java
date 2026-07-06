@@ -256,7 +256,7 @@ class PointOfSaleInitiativeFinderServiceTest {
     when(merchantRepositoryMock.findById(MERCHANT_ID))
             .thenReturn(Optional.of(merchant));
 
-    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleId(posId))
+    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleIdAndEnabledTrue(posId))
             .thenReturn(List.of(relation));
 
 
@@ -269,7 +269,7 @@ class PointOfSaleInitiativeFinderServiceTest {
     Assertions.assertEquals(INITIATIVE_ID, result.getInitiatives().get(0).getInitiativeId());
 
     verify(merchantRepositoryMock).findById(MERCHANT_ID);
-    verify(pointOfSalesInitiativeRepositoryMock).findByPointOfSaleId(posId);
+    verify(pointOfSalesInitiativeRepositoryMock).findByPointOfSaleIdAndEnabledTrue(posId);
   }
 
   @Test
@@ -290,7 +290,7 @@ class PointOfSaleInitiativeFinderServiceTest {
     when(merchantRepositoryMock.findById(MERCHANT_ID))
             .thenReturn(Optional.of(merchant));
 
-    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleId(posId))
+    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleIdAndEnabledTrue(posId))
             .thenReturn(List.of(relation));
 
 
@@ -313,7 +313,7 @@ class PointOfSaleInitiativeFinderServiceTest {
     when(merchantRepositoryMock.findById(MERCHANT_ID))
             .thenReturn(Optional.of(merchant));
 
-    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleId("POS_ID"))
+    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleIdAndEnabledTrue("POS_ID"))
             .thenReturn(List.of());
 
     PointOfSaleInitiativeListDTO result =
