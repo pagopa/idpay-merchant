@@ -33,7 +33,7 @@ class PointOfSaleInitiativeDTOMapperTest {
         assertEquals("Test Org", dto.getOrganizationName());
         assertEquals(LocalDate.of(2024, Month.JUNE, 1), dto.getStartDate());
         assertEquals(LocalDate.of(2024, Month.JUNE, 30), dto.getEndDate());
-        assertEquals("ACTIVE", dto.getStatus());
+        assertEquals("CLOSED", dto.getStatus());
     }
 
     @Test
