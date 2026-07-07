@@ -3,7 +3,7 @@ package it.gov.pagopa.merchant.service.merchant;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
 import it.gov.pagopa.merchant.dto.OnboardingResponse;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyOnboardedException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotEligibleException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -35,7 +35,7 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
         Merchant merchant = merchantRepository.findById(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException(merchantId));
 
-        InitiativeBeneficiaryViewDTO initiative = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
+        InitiativeDTO initiative = initiativeRestConnector.getInitiativeDetail(initiativeId);
 
         boolean alreadyOnboarded = merchant.getInitiativeList().stream()
                 .anyMatch(i -> i.getInitiativeId().equals(initiativeId));
@@ -68,7 +68,7 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
                 .build();
     }
 
-    private boolean isEligible(Merchant merchant, InitiativeBeneficiaryViewDTO initiative) {
+    private boolean isEligible(Merchant merchant, InitiativeDTO initiative) {
 
         List<String> newAtecoCodes = pdndConnector.retrieveAtecoCodes(merchant.getVatNumber());
 
@@ -87,7 +87,7 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
                 .anyMatch(initiativeAtecoCodes::contains);
     }
 
-    private Initiative createMerchantInitiative(InitiativeBeneficiaryViewDTO dto) {
+    private Initiative createMerchantInitiative(InitiativeDTO dto) {
         return Initiative.builder().initiativeId(dto.getInitiativeId())
                 .initiativeName(dto.getInitiativeName()).organizationId(dto.getOrganizationId())
                 .organizationName(dto.getOrganizationName())

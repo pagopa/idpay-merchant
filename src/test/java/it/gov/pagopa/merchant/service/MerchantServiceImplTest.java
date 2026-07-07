@@ -2,12 +2,14 @@ package it.gov.pagopa.merchant.service;
 
 import com.mongodb.MongoException;
 import feign.FeignException;
+import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
+import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.AdditionalInfoDTO;
 import it.gov.pagopa.merchant.dto.initiative.GeneralInfoDTO;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
@@ -78,6 +80,11 @@ class MerchantServiceImplTest {
   @Mock
   private Keycloak keycloakAdminClientMock;
 
+  @Mock
+  private PDNDInfoCamereConnectorImpl pdndConnectorMock;
+  @Mock
+  private InitiativeRestClient initiativeRestClientMock;
+
   private MerchantServiceImpl merchantService;
 
   private MerchantServiceImpl merchantServiceSpy;
@@ -93,7 +100,6 @@ class MerchantServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    List<String> defaultInitiativesMock = List.of("INIT1", "INIT2");
 
     merchantService = new MerchantServiceImpl(
         merchantDetailServiceMock,
@@ -104,16 +110,13 @@ class MerchantServiceImplTest {
         merchantRepositoryMock,
         uploadingMerchantServiceMock,
         initiative2InitiativeDTOMapper,
-        defaultInitiativesMock,
-        initiativeRestConnector,
         merchantCreateDTOMapper,
         pointOfSaleRepositoryMock,
         merchantValidatorMock,
         keycloakAdminClientMock,
         REALM,
-        pdndConnector,
-        initiativeRepository,
-        initiativeRestClient);
+        pdndConnectorMock,
+        initiativeRestClientMock);
     merchantServiceSpy = Mockito.spy(merchantService);
   }
 
@@ -235,7 +238,7 @@ class MerchantServiceImplTest {
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
-    List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
+    List<it.gov.pagopa.merchant.dto.InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
 
     assertEquals(
         merchant.getInitiativeList().stream()
@@ -262,7 +265,7 @@ class MerchantServiceImplTest {
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
-    List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
+    List<it.gov.pagopa.merchant.dto.InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
 
     assertEquals(3, result.size());
     assertEquals("Alpha", result.get(0).getInitiativeName());
@@ -275,7 +278,7 @@ class MerchantServiceImplTest {
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.empty());
 
-    List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
+    List<it.gov.pagopa.merchant.dto.InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
 
     assertEquals(Collections.emptyList(), result);
   }
@@ -407,7 +410,7 @@ class MerchantServiceImplTest {
     FeignException feignException = Mockito.mock(FeignException.class);
     when(feignException.getMessage()).thenReturn("REST error");
 
-    when(initiativeRestConnector.getInitiativeBeneficiaryView("INIT1"))
+    when(initiativeRestConnector.getInitiativeDetail("INIT1"))
         .thenThrow(feignException);
 
     Method method = MerchantServiceImpl.class
@@ -425,7 +428,7 @@ class MerchantServiceImplTest {
 
   @Test
   void getInitiativeInfo_returnsNull_throwsException() throws Exception {
-    when(initiativeRestConnector.getInitiativeBeneficiaryView("INIT1"))
+    when(initiativeRestConnector.getInitiativeDetail("INIT1"))
         .thenReturn(null);
 
     Method method = MerchantServiceImpl.class
@@ -442,19 +445,19 @@ class MerchantServiceImplTest {
 
   @Test
   void getInitiativeInfo_returnsValidDTO() throws Exception {
-    InitiativeBeneficiaryViewDTO dtoMock = new InitiativeBeneficiaryViewDTO();
+    InitiativeDTO dtoMock = new InitiativeDTO();
     dtoMock.setInitiativeId("INIT1");
     dtoMock.setInitiativeName("Test Initiative");
 
-    when(initiativeRestConnector.getInitiativeBeneficiaryView("INIT1"))
+    when(initiativeRestConnector.getInitiativeDetail("INIT1"))
         .thenReturn(dtoMock);
 
     Method method = MerchantServiceImpl.class
         .getDeclaredMethod("getInitiativeInfo", String.class);
     method.setAccessible(true);
 
-    InitiativeBeneficiaryViewDTO result =
-        (InitiativeBeneficiaryViewDTO) method.invoke(merchantServiceSpy, "INIT1");
+    InitiativeDTO result =
+        (InitiativeDTO) method.invoke(merchantServiceSpy, "INIT1");
 
     assertNotNull(result);
     assertEquals("INIT1", result.getInitiativeId());
@@ -463,7 +466,7 @@ class MerchantServiceImplTest {
 
   @Test
   void createMerchantInitiative_returnsInitiative() throws Exception {
-    InitiativeBeneficiaryViewDTO dto = new InitiativeBeneficiaryViewDTO();
+    InitiativeDTO dto = new InitiativeDTO();
     dto.setInitiativeId("INIT1");
     dto.setInitiativeName("Test Initiative");
     dto.setOrganizationId("ORG1");
@@ -480,7 +483,7 @@ class MerchantServiceImplTest {
     dto.setGeneral(general);
 
     Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("createMerchantInitiative", InitiativeBeneficiaryViewDTO.class);
+        .getDeclaredMethod("createMerchantInitiative", InitiativeDTO.class);
     method.setAccessible(true);
 
     Initiative initiative = (Initiative) method.invoke(merchantServiceSpy, dto);
@@ -521,11 +524,11 @@ class MerchantServiceImplTest {
 
     MerchantServiceImpl spyService = Mockito.spy(merchantService);
 
-    when(initiativeRestConnector.getInitiativeBeneficiaryView(anyString()))
+    when(initiativeRestConnector.getInitiativeDetail(anyString()))
         .thenAnswer(invocation -> {
           String initiativeId = invocation.getArgument(0);
 
-          InitiativeBeneficiaryViewDTO dtoIBV = new InitiativeBeneficiaryViewDTO();
+          InitiativeDTO dtoIBV = new InitiativeDTO();
           dtoIBV.setInitiativeId(initiativeId);
           dtoIBV.setInitiativeName("Test Initiative");
           dtoIBV.setOrganizationId("ORG1");
@@ -548,7 +551,7 @@ class MerchantServiceImplTest {
 
     assertEquals(expectedMerchantId, result);
     verify(merchantRepositoryMock).save(any(Merchant.class));
-    verify(initiativeRestConnector, times(2)).getInitiativeBeneficiaryView(anyString());
+    verify(initiativeRestConnector, times(2)).getInitiativeDetail(anyString());
   }
 
   @Test

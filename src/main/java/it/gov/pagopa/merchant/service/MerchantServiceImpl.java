@@ -1,16 +1,11 @@
 package it.gov.pagopa.merchant.service;
 
-import feign.FeignException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
-import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
-import it.gov.pagopa.merchant.connector.pdnd.dto.PDNDBusiness;
 import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
-import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
@@ -53,7 +48,6 @@ public class MerchantServiceImpl implements MerchantService {
   private final MerchantRepository merchantRepository;
   private final UploadingMerchantService uploadingMerchantService;
   private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
-  private final InitiativeRestConnector initiativeRestConnector;
   private final MerchantCreateDTOMapper merchantCreateDTOMapper;
   private final PointOfSaleRepository pointOfSaleRepository;
   private final MerchantValidator merchantValidator;
@@ -65,13 +59,16 @@ public class MerchantServiceImpl implements MerchantService {
                              MerchantListService merchantListService,
                              MerchantProcessOperationService merchantProcessOperationService,
                              MerchantUpdatingInitiativeService merchantUpdatingInitiativeService,
-                             MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
+                             MerchantUpdateIbanService merchantUpdateIbanService,
+                             MerchantRepository merchantRepository,
                              UploadingMerchantService uploadingMerchantService,
                              Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
-                             InitiativeRestConnector initiativeRestConnector,
-                             MerchantCreateDTOMapper merchantCreateDTOMapper, PointOfSaleRepository pointOfSaleRepository,
-                             MerchantValidator merchantValidator, Keycloak keycloakAdminClient,
-                             @Value("${keycloak.admin.realm}") String realm, PDNDInfoCamereConnectorImpl pdndConnector,
+                             MerchantCreateDTOMapper merchantCreateDTOMapper,
+                             PointOfSaleRepository pointOfSaleRepository,
+                             MerchantValidator merchantValidator,
+                             Keycloak keycloakAdminClient,
+                             @Value("${keycloak.admin.realm}") String realm,
+                             PDNDInfoCamereConnectorImpl pdndConnector,
                              InitiativeRestClient initiativeRestClient) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
@@ -81,7 +78,6 @@ public class MerchantServiceImpl implements MerchantService {
     this.merchantRepository = merchantRepository;
     this.uploadingMerchantService = uploadingMerchantService;
     this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
-    this.initiativeRestConnector = initiativeRestConnector;
     this.merchantCreateDTOMapper = merchantCreateDTOMapper;
     this.pointOfSaleRepository = pointOfSaleRepository;
     this.merchantValidator = merchantValidator;

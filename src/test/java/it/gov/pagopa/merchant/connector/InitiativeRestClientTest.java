@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import it.gov.pagopa.merchant.configuration.RestConnectorConfig;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnectorImpl;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,8 +77,8 @@ class InitiativeRestClientTest {
 
     @Test
     void getInitiativeBeneficiaryView() {
-        InitiativeBeneficiaryViewDTO actual =
-                restConnector.getInitiativeBeneficiaryView(INITIATIVE_ID);
+        InitiativeDTO actual =
+                restConnector.getInitiativeDetail(INITIATIVE_ID);
 
         assertNotNull(actual);
         assertEquals(INITIATIVE_ID, actual.getInitiativeId());
@@ -86,8 +86,8 @@ class InitiativeRestClientTest {
 
     @Test
     void getInitiativeNotFound() {
-        InitiativeBeneficiaryViewDTO actual =
-                restConnector.getInitiativeBeneficiaryView(INITIATIVE_ID_NOT_FOUND);
+        InitiativeDTO actual =
+                restConnector.getInitiativeDetail(INITIATIVE_ID_NOT_FOUND);
 
         assertNull(actual);
     }

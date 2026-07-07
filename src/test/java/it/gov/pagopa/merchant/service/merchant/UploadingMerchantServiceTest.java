@@ -12,7 +12,7 @@ import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.merchant.event.producer.CommandsProducer;
 import it.gov.pagopa.merchant.exception.custom.FileOperationException;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -236,7 +236,7 @@ class UploadingMerchantServiceTest {
 
         Mockito.doThrow(new FeignException.BadRequest("", request, new byte[0], null))
                 .when(initiativeRestConnectorMock)
-                .getInitiativeBeneficiaryView(Mockito.anyString());
+                .getInitiativeDetail(Mockito.anyString());
 
         try {
             uploadingMerchantService.execute(buildMessage(storageEventDTOS));
@@ -248,8 +248,8 @@ class UploadingMerchantServiceTest {
 
     @Test
     void ingestionMerchantFile_saveMerchantCheck() throws IOException {
-        InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
-        Mockito.when(initiativeRestConnectorMock.getInitiativeBeneficiaryView(Mockito.anyString())).thenReturn(initiativeBeneficiaryViewDTO);
+        InitiativeDTO initiativeDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
+        Mockito.when(initiativeRestConnectorMock.getInitiativeDetail(Mockito.anyString())).thenReturn(initiativeDTO);
 
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
@@ -284,8 +284,8 @@ class UploadingMerchantServiceTest {
         StreamUtils.copy(inputStream, outputStream);
         Mockito.when(merchantFileStorageConnectorMock.downloadMerchantFile(Mockito.anyString())).thenReturn(outputStream);
 
-        InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
-        Mockito.when(initiativeRestConnectorMock.getInitiativeBeneficiaryView(Mockito.anyString())).thenReturn(initiativeBeneficiaryViewDTO);
+        InitiativeDTO initiativeDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
+        Mockito.when(initiativeRestConnectorMock.getInitiativeDetail(Mockito.anyString())).thenReturn(initiativeDTO);
 
         Merchant merchant = MerchantFaker.mockInstance(1);
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(merchant));
@@ -310,8 +310,8 @@ class UploadingMerchantServiceTest {
 
         configureMerchantFileDownloadMock(PATH_VALID_FILE_2);
 
-        InitiativeBeneficiaryViewDTO initiativeBeneficiaryViewDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
-        Mockito.when(initiativeRestConnectorMock.getInitiativeBeneficiaryView(Mockito.anyString())).thenReturn(initiativeBeneficiaryViewDTO);
+        InitiativeDTO initiativeDTO = InitiativeBeneficiaryViewDTOFaker.mockInstance(1);
+        Mockito.when(initiativeRestConnectorMock.getInitiativeDetail(Mockito.anyString())).thenReturn(initiativeDTO);
 
         Mockito.when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString())).thenReturn(null);
 
@@ -332,7 +332,7 @@ class UploadingMerchantServiceTest {
 
         Mockito.doReturn(null)
                 .when(initiativeRestConnectorMock)
-                .getInitiativeBeneficiaryView(Mockito.anyString());
+                .getInitiativeDetail(Mockito.anyString());
 
         uploadingMerchantService.execute(buildMessage(storageEventDTOS));
 

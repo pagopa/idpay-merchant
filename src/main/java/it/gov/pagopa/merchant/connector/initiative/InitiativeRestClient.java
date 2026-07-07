@@ -2,7 +2,7 @@ package it.gov.pagopa.merchant.connector.initiative;
 
 import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
 import it.gov.pagopa.merchant.dto.InitiativeSearchRequest;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
@@ -16,10 +16,10 @@ import org.springframework.data.domain.Pageable;
 public interface InitiativeRestClient {
 
   @GetMapping(
-          value = "/idpay/initiative/{initiativeId}/beneficiary/view",
+          value = "/idpay/initiative/{initiativeId}",
           produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  InitiativeBeneficiaryViewDTO getInitiativeBeneficiaryView(
+  InitiativeDTO getInitiativeDetail(
           @PathVariable("initiativeId") String initiativeId);
 
   @PostMapping("/initiatives/search")
@@ -27,13 +27,5 @@ public interface InitiativeRestClient {
           @RequestBody InitiativeSearchRequest request,
           @SpringQueryMap Pageable pageable);
 
-  @GetMapping(
-          value = "/idpay/organization/{organizationId}/initiative/{initiativeId}",
-          produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseBody
-  ResponseEntity<InitiativeDTO> getInitiativeDetail(
-          @PathVariable("organizationId") String organizationId,
-          @PathVariable("initiativeId") String initiativeId,
-          @RequestParam(required = false) String role);
 
 }
