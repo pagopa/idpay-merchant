@@ -4,6 +4,7 @@ import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
 import it.gov.pagopa.merchant.dto.OnboardingResponse;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
+import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
 import it.gov.pagopa.merchant.exception.custom.MerchantAlreadyOnboardedException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotEligibleException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -29,18 +30,23 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
     private final MerchantRepository merchantRepository;
     private final InitiativeRestConnector initiativeRestConnector;
     private final PDNDInfoCamereConnectorImpl pdndConnector;
+
     @Override
     public OnboardingResponse onboardMerchant(String merchantId, String initiativeId) {
+        validateInputs(merchantId, initiativeId);
 
         Merchant merchant = merchantRepository.findById(merchantId)
                 .orElseThrow(() -> new MerchantNotFoundException(merchantId));
 
-        InitiativeDTO initiative = initiativeRestConnector.getInitiativeDetail(initiativeId);
+        InitiativeDTO initiative;
+        try {
+            initiative = initiativeRestConnector.getInitiativeDetail(initiativeId);
+        } catch (Exception e) {
+            log.error("[ONBOARDING] Failed to fetch initiative details for initiative [{}]", initiativeId, e);
+            throw new InitiativeInvocationException("Failed to fetch initiative details");
+        }
 
-        boolean alreadyOnboarded = merchant.getInitiativeList().stream()
-                .anyMatch(i -> i.getInitiativeId().equals(initiativeId));
-
-        if (alreadyOnboarded) {
+        if (isAlreadyOnboarded(merchant, initiativeId)) {
             throw new MerchantAlreadyOnboardedException(
                     "Merchant with id [%s] is already onboarded on initiative [%s]"
                             .formatted(merchantId, initiativeId));
@@ -53,10 +59,8 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
         }
 
         LocalDateTime onboardingDate = LocalDateTime.now();
-
         merchant.getInitiativeList().add(createMerchantInitiative(initiative));
-
-        merchantRepository.save(merchant);
+        saveMerchant(merchant);
 
         log.info("[ONBOARDING] Merchant [{}] successfully onboarded on initiative [{}]",
                 merchantId, initiativeId);
@@ -66,6 +70,22 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
                 .status("ONBOARDING_OK")
                 .onboardingDate(onboardingDate)
                 .build();
+    }
+
+    private void validateInputs(String merchantId, String initiativeId) {
+        if (merchantId == null || merchantId.isBlank() || initiativeId == null || initiativeId.isBlank()) {
+            throw new IllegalArgumentException("Merchant ID and Initiative ID must not be null or empty");
+        }
+    }
+
+    private boolean isAlreadyOnboarded(Merchant merchant, String initiativeId) {
+        return merchant.getInitiativeList().stream()
+                .anyMatch(i -> i.getInitiativeId().equals(initiativeId));
+    }
+
+    private void saveMerchant(Merchant merchant) {
+        merchantRepository.save(merchant);
+        log.debug("[ONBOARDING] Merchant [{}] saved successfully", merchant.getMerchantId());
     }
 
     private boolean isEligible(Merchant merchant, InitiativeDTO initiative) {

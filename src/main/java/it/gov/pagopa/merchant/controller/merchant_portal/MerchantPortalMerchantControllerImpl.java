@@ -88,7 +88,13 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
             String initiativeName,
             Pageable pageable) {
 
-        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
+        String sanitizedInitiativeName = sanitizeString(initiativeName);
+        String sanitizedMerchantId = sanitizeString(merchantId);
+
+        log.info("[AVAILABLE_INITIATIVES] Request available initiative for merchant [{}]",
+                sanitizedMerchantId);
+
+        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(sanitizedMerchantId, sanitizedInitiativeName, pageable);
 
         PageResponse<InitiativeResponse> response = new PageResponse<>(
                 page.getContent(),
@@ -107,7 +113,7 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
 
         String sanitizedInitiativeId = sanitizeString(initiativeId);
         String sanitizedMerchantId = sanitizeString(merchantId);
-        log.info("[ONBOARDING] Onboarding request for merchant [{}] on initiative [{}]",
+        log.info("[ONBOARDING_MERCHANT] Onboarding request for merchant [{}] on initiative [{}]",
                 sanitizedMerchantId, sanitizedInitiativeId);
 
         OnboardingResponse response = merchantOnboardingService.onboardMerchant(sanitizedMerchantId, sanitizedInitiativeId);
