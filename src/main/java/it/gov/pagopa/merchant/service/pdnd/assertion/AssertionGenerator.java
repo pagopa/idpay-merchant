@@ -35,7 +35,6 @@ public class AssertionGenerator {
                 .withJWTId(UUID.randomUUID()
                         .toString())
                 .withIssuedAt(now)
-
                 .withClaim("digest", Map.of(
                         "alg", "SHA-256",
                         "value", "abc123"

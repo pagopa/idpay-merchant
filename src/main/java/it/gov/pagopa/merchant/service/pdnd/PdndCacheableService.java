@@ -28,11 +28,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PdndCacheableService {
 
-   /*
-    private final TokenProvider tokenProviderPDND;
-    private final PDNDInfoCamereRestClientConfig pdndInfoCamereRestClientConfig;
-    private final PDNDInfoCamereRestClient pdndInfoCamereRestClient;
-    */
     private final TokenProviderVisura tokenProviderVisura;
     private final PdndVisuraInfoCamereRawRestClient pdndVisuraInfoCamereRawRestClient;
     private final PdndVisuraInfoCamereRestClientConfig pdndVisuraInfoCamereRestClientConfig;
@@ -42,20 +37,10 @@ public class PdndCacheableService {
     public PdndCacheableService(TokenProviderVisura tokenProviderVisura,
                                 PdndVisuraInfoCamereRawRestClient pdndVisuraInfoCamereRawRestClient,
                                 PdndVisuraInfoCamereRestClientConfig pdndVisuraInfoCamereRestClientConfig,
-                                /*
-                                PDNDInfoCamereRestClient pdndInfoCamereRestClient,
-                                TokenProvider tokenProviderPDND,
-                                PDNDInfoCamereRestClientConfig pdndInfoCamereRestClientConfig
-                                */
                                 MerchantBlobClientImpl azureBlobClient) {
         this.tokenProviderVisura = tokenProviderVisura;
         this.pdndVisuraInfoCamereRawRestClient = pdndVisuraInfoCamereRawRestClient;
         this.pdndVisuraInfoCamereRestClientConfig = pdndVisuraInfoCamereRestClientConfig;
-        /*
-        this.pdndInfoCamereRestClient = pdndInfoCamereRestClient;
-        this.tokenProviderPDND = tokenProviderPDND;
-        this.pdndInfoCamereRestClientConfig = pdndInfoCamereRestClientConfig;
-        */
         this.azureBlobClient = azureBlobClient;
     }
 
@@ -111,30 +96,5 @@ public class PdndCacheableService {
                 .collect(Collectors.toList());
     }
 
-    /*
-    @Cacheable(cacheNames = "pdndInfocamere", cacheManager = "redisCacheManager", key = "'retrieveInstitutionPdndByTaxCode:' + #encryptedTaxCode")
-    public String getEncryptedPDNDImpresa(String encryptedTaxCode) {
-        log.info("getEncryptedPDNDImpresa for {} START", encryptedTaxCode);
-        String taxCode = DataEncryptionUtils.decrypt(encryptedTaxCode);
 
-        ClientCredentialsResponse tokenResponse = tokenProviderPDND.getTokenPdnd(pdndInfoCamereRestClientConfig.getPdndSecretValue());
-        String bearer = BEARER + tokenResponse.getAccessToken();
-
-        try {
-            List<PDNDImpresa> imprese = pdndInfoCamereRestClient.retrieveInstitutionPdndByTaxCode(taxCode, bearer);
-            if (Objects.isNull(imprese) || imprese.isEmpty()) {
-                throw new ResourceNotFoundException("No institution found for taxCode: " + taxCode);
-            }
-            int lastUpdatedIndex = imprese.size() - 1;
-            log.info("InfoCamere returned {} records for taxCode {}, selecting last updated index {}", imprese.size(), taxCode, lastUpdatedIndex);
-            PDNDImpresa impresa = imprese.get(lastUpdatedIndex);
-            return DataEncryptionUtils.encrypt(new ObjectMapper().writeValueAsString(impresa));
-        } catch (ResourceNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Unexpected exception occurred while retrieving institution", e);
-            throw new IllegalArgumentException("Unexpected error while retrieving institution", e);
-        }
-    }
-    */
 }
