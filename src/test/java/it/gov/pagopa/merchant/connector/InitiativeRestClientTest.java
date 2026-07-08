@@ -62,7 +62,7 @@ class InitiativeRestClientTest {
     void setupStubs() {
 
         // risposta OK
-        stubFor(get(urlEqualTo("/idpay/initiative/" + INITIATIVE_ID + "/beneficiary/view"))
+        stubFor(get(urlEqualTo("/idpay/initiative/" + INITIATIVE_ID ))
                 .willReturn(okJson("""
                         {
                           "initiativeId": "INITIATIVE_ID"
@@ -76,7 +76,7 @@ class InitiativeRestClientTest {
     }
 
     @Test
-    void getInitiativeBeneficiaryView() {
+    void getInitiativeDetail() {
         InitiativeDTO actual =
                 restConnector.getInitiativeDetail(INITIATIVE_ID);
 

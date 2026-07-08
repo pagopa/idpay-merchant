@@ -1,16 +1,13 @@
 package it.gov.pagopa.merchant.service;
 
 import com.mongodb.MongoException;
-import feign.FeignException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
-import it.gov.pagopa.merchant.dto.initiative.AdditionalInfoDTO;
-import it.gov.pagopa.merchant.dto.initiative.GeneralInfoDTO;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
-import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
@@ -26,7 +23,6 @@ import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.MerchantValidator;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,12 +36,13 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -79,15 +76,12 @@ class MerchantServiceImplTest {
   private MerchantValidator merchantValidatorMock;
   @Mock
   private Keycloak keycloakAdminClientMock;
-
   @Mock
   private PDNDInfoCamereConnectorImpl pdndConnectorMock;
   @Mock
   private InitiativeRestClient initiativeRestClientMock;
 
   private MerchantServiceImpl merchantService;
-
-  private MerchantServiceImpl merchantServiceSpy;
 
   private static final String REALM = "test-realm";
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
@@ -117,7 +111,6 @@ class MerchantServiceImplTest {
         REALM,
         pdndConnectorMock,
         initiativeRestClientMock);
-    merchantServiceSpy = Mockito.spy(merchantService);
   }
 
   @AfterEach
@@ -406,104 +399,6 @@ class MerchantServiceImplTest {
   }
 
   @Test
-  void getInitiativeInfo_connectorThrowsException() throws Exception {
-    FeignException feignException = Mockito.mock(FeignException.class);
-    when(feignException.getMessage()).thenReturn("REST error");
-
-    when(initiativeRestConnector.getInitiativeDetail("INIT1"))
-        .thenThrow(feignException);
-
-    Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("getInitiativeInfo", String.class);
-    method.setAccessible(true);
-
-    InvocationTargetException thrown = assertThrows(InvocationTargetException.class,
-        () -> method.invoke(merchantServiceSpy, "INIT1"));
-
-    Throwable cause = thrown.getCause();
-    assertInstanceOf(InitiativeInvocationException.class, cause);
-    assertTrue(cause.getMessage().contains(
-        MerchantConstants.ExceptionMessage.INITIATIVE_CONNECTOR_ERROR));
-  }
-
-  @Test
-  void getInitiativeInfo_returnsNull_throwsException() throws Exception {
-    when(initiativeRestConnector.getInitiativeDetail("INIT1"))
-        .thenReturn(null);
-
-    Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("getInitiativeInfo", String.class);
-    method.setAccessible(true);
-
-    InvocationTargetException thrown = assertThrows(InvocationTargetException.class,
-        () -> method.invoke(merchantServiceSpy, "INIT1"));
-
-    Throwable cause = thrown.getCause();
-    assertInstanceOf(InitiativeInvocationException.class, cause);
-    assertTrue(cause.getMessage().contains("Initiative not found for id=INIT1"));
-  }
-
-  @Test
-  void getInitiativeInfo_returnsValidDTO() throws Exception {
-    InitiativeDTO dtoMock = new InitiativeDTO();
-    dtoMock.setInitiativeId("INIT1");
-    dtoMock.setInitiativeName("Test Initiative");
-
-    when(initiativeRestConnector.getInitiativeDetail("INIT1"))
-        .thenReturn(dtoMock);
-
-    Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("getInitiativeInfo", String.class);
-    method.setAccessible(true);
-
-    InitiativeDTO result =
-        (InitiativeDTO) method.invoke(merchantServiceSpy, "INIT1");
-
-    assertNotNull(result);
-    assertEquals("INIT1", result.getInitiativeId());
-    assertEquals("Test Initiative", result.getInitiativeName());
-  }
-
-  @Test
-  void createMerchantInitiative_returnsInitiative() throws Exception {
-    InitiativeDTO dto = new InitiativeDTO();
-    dto.setInitiativeId("INIT1");
-    dto.setInitiativeName("Test Initiative");
-    dto.setOrganizationId("ORG1");
-    dto.setOrganizationName("Organization 1");
-    dto.setStatus("ACTIVE");
-
-    AdditionalInfoDTO additionalInfo = new AdditionalInfoDTO();
-    additionalInfo.setServiceId("SERVICE1");
-    dto.setAdditionalInfo(additionalInfo);
-
-    GeneralInfoDTO general = new GeneralInfoDTO();
-    general.setStartDate(LocalDate.now().minusDays(1));
-    general.setEndDate(LocalDate.now().plusDays(1));
-    dto.setGeneral(general);
-
-    Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("createMerchantInitiative", InitiativeDTO.class);
-    method.setAccessible(true);
-
-    Initiative initiative = (Initiative) method.invoke(merchantServiceSpy, dto);
-
-    assertNotNull(initiative);
-    assertEquals("INIT1", initiative.getInitiativeId());
-    assertEquals("Test Initiative", initiative.getInitiativeName());
-    assertEquals("ORG1", initiative.getOrganizationId());
-    assertEquals("Organization 1", initiative.getOrganizationName());
-    assertEquals("SERVICE1", initiative.getServiceId());
-    assertEquals(LocalDate.now().minusDays(1), initiative.getStartDate());
-    assertEquals(LocalDate.now().plusDays(1), initiative.getEndDate());
-    assertEquals("ACTIVE", initiative.getStatus());
-    assertEquals("UPLOADED", initiative.getMerchantStatus());
-    assertTrue(initiative.isEnabled());
-    assertNotNull(initiative.getCreationDate());
-    assertNotNull(initiative.getUpdateDate());
-  }
-
-  @Test
   void createOrRetrieveMerchantIfNotExists_success_withSpy() {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
@@ -524,34 +419,10 @@ class MerchantServiceImplTest {
 
     MerchantServiceImpl spyService = Mockito.spy(merchantService);
 
-    when(initiativeRestConnector.getInitiativeDetail(anyString()))
-        .thenAnswer(invocation -> {
-          String initiativeId = invocation.getArgument(0);
-
-          InitiativeDTO dtoIBV = new InitiativeDTO();
-          dtoIBV.setInitiativeId(initiativeId);
-          dtoIBV.setInitiativeName("Test Initiative");
-          dtoIBV.setOrganizationId("ORG1");
-          dtoIBV.setOrganizationName("Organization 1");
-
-          AdditionalInfoDTO additionalInfo = new AdditionalInfoDTO();
-          additionalInfo.setServiceId("SERVICE1");
-          dtoIBV.setAdditionalInfo(additionalInfo);
-
-          GeneralInfoDTO general = new GeneralInfoDTO();
-          general.setStartDate(LocalDate.now().minusDays(1));
-          general.setEndDate(LocalDate.now().plusDays(1));
-          dtoIBV.setGeneral(general);
-
-          dtoIBV.setStatus("ACTIVE");
-          return dtoIBV;
-        });
-
     String result = spyService.retrieveOrCreateMerchantIfNotExists(dto);
 
     assertEquals(expectedMerchantId, result);
     verify(merchantRepositoryMock).save(any(Merchant.class));
-    verify(initiativeRestConnector, times(2)).getInitiativeDetail(anyString());
   }
 
   @Test
@@ -836,4 +707,50 @@ class MerchantServiceImplTest {
     assertTrue(exception.getMessage().contains(MERCHANT_ID));
     verify(merchantDetailServiceMock).getMerchantDetail(MERCHANT_ID);
   }
+
+  @Test
+  void processMerchantInitiatives_success() {
+    String merchantId = "merchant123";
+    String initiativeName = "Initiative 1";
+    Pageable pageable = Pageable.ofSize(10);
+
+    Merchant merchant = new Merchant();
+    merchant.setMerchantId(merchantId);
+    merchant.setVatNumber("123456789");
+    merchant.setAtecoCodes(List.of("1234"));
+    merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
+
+    List<String> newAtecoCodes = List.of("1234", "5678");
+    PageResponse<InitiativeResponse> mockResponse = new PageResponse<>(
+            List.of(InitiativeResponse.builder().initiativeId("initiative2").status("ACTIVE").build()),
+            0, 10, 1
+    );
+
+    ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
+    when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getVatNumber())).thenReturn(newAtecoCodes);
+    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+
+    Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
+
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    assertEquals("initiative2", result.getContent().get(0).getInitiativeId());
+    verify(merchantRepositoryMock).save(merchant);
+    verify(initiativeRestClientMock).searchInitiatives(any(), eq(pageable));
+  }
+
+  @Test
+  void processMerchantInitiatives_merchantNotFound() {
+    String merchantId = "merchant123";
+    String initiativeName = "Initiative 1";
+    Pageable pageable = Pageable.ofSize(10);
+
+    when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.empty());
+
+    assertThrows(MerchantNotFoundException.class,
+            () -> merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable));
+  }
+
 }
