@@ -4,12 +4,15 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.merchant.configuration.MerchantErrorManagerConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
+import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.ReportedUserService;
+import it.gov.pagopa.merchant.service.merchant.MerchantOnboardingService;
 import it.gov.pagopa.merchant.test.fakers.InitiativeDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import org.junit.jupiter.api.Assertions;
@@ -21,6 +24,9 @@ import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoCon
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,7 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MerchantPortalMerchantControllerImplTest {
     @MockitoBean private MerchantService merchantServiceMock;
     @MockitoBean private ReportedUserService reportedUserService;
-
+    @MockitoBean private MerchantOnboardingService merchantOnboardingService;
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
 
@@ -248,6 +254,74 @@ class MerchantPortalMerchantControllerImplTest {
                         delete("/idpay/merchant/portal/initiatives/{initiativeId}/reported-user/{userId}", INITIATIVE_ID, "USER1")
                 )
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAvailableInitiatives_ok() throws Exception {
+        Page<InitiativeResponse> mockedPage = new PageImpl<>(
+                List.of(
+                        InitiativeResponse.builder()
+                                .initiativeId(INITIATIVE_ID)
+                                .status("ONBOARDING_OK")
+                                .build()
+                ),
+                Pageable.ofSize(10),
+                1
+        );
+
+        Mockito.when(merchantServiceMock.processMerchantInitiatives(anyString(), anyString(), any()))
+                .thenReturn(mockedPage);
+
+        MvcResult result = mockMvc.perform(
+                        get("/idpay/merchant/portal/initiatives/available")
+                                .header("x-merchant-id", MERCHANT_ID)
+                                .param("initiativeName", "Initiative 1")
+                                .param("page", "0")
+                                .param("size", "10")
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        PageResponse<InitiativeResponse> expectedResponse = new PageResponse<>(
+                mockedPage.getContent(),
+                mockedPage.getNumber(),
+                mockedPage.getSize(),
+                mockedPage.getTotalElements()
+        );
+
+        PageResponse<InitiativeResponse> response = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                new TypeReference<>() {}
+        );
+
+        Assertions.assertEquals(expectedResponse, response);
+        Mockito.verify(merchantServiceMock).processMerchantInitiatives(anyString(), anyString(), any());
+    }
+
+    @Test
+    void onboardMerchantInitiative_ok() throws Exception {
+        OnboardingResponse expectedResponse = OnboardingResponse.builder()
+                .initiativeId(INITIATIVE_ID)
+                .status("ONBOARDING_OK")
+                .build();
+
+        Mockito.when(merchantOnboardingService.onboardMerchant(anyString(), anyString()))
+                .thenReturn(expectedResponse);
+
+        MvcResult result = mockMvc.perform(
+                        put("/idpay/merchant/portal/initiatives/{initiativeId}/onboarding", INITIATIVE_ID)
+                                .header("x-merchant-id", MERCHANT_ID)
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        OnboardingResponse response = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                OnboardingResponse.class
+        );
+
+        Assertions.assertEquals(expectedResponse, response);
+        Mockito.verify(merchantOnboardingService).onboardMerchant(anyString(), anyString());
     }
 }
 

@@ -16,10 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -59,6 +56,12 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
         }
 
         LocalDateTime onboardingDate = LocalDateTime.now();
+
+        if (merchant.getInitiativeList() == null || merchant.getInitiativeList().isEmpty()) {
+            merchant.setInitiativeList(new ArrayList<>());
+        } else if (!(merchant.getInitiativeList() instanceof ArrayList)) {
+            merchant.setInitiativeList(new ArrayList<>(merchant.getInitiativeList()));
+        }
         merchant.getInitiativeList().add(createMerchantInitiative(initiative));
         saveMerchant(merchant);
 
@@ -108,12 +111,19 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
     }
 
     private Initiative createMerchantInitiative(InitiativeDTO dto) {
-        return Initiative.builder().initiativeId(dto.getInitiativeId())
-                .initiativeName(dto.getInitiativeName()).organizationId(dto.getOrganizationId())
+        return Initiative.builder()
+                .initiativeId(dto.getInitiativeId())
+                .initiativeName(dto.getInitiativeName())
+                .organizationId(dto.getOrganizationId())
                 .organizationName(dto.getOrganizationName())
                 .serviceId(dto.getAdditionalInfo().getServiceId())
-                .startDate(dto.getGeneral().getStartDate()).endDate(dto.getGeneral().getEndDate())
-                .status(dto.getStatus()).merchantStatus("UPLOADED").creationDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now()).enabled(true).build();
+                .startDate(dto.getGeneral().getStartDate())
+                .endDate(dto.getGeneral().getEndDate())
+                .status(dto.getStatus())
+                .merchantStatus("UPLOADED")
+                .creationDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .enabled(true)
+                .build();
     }
 }
