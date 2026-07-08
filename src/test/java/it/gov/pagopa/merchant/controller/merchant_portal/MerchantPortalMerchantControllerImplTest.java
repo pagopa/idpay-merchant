@@ -4,7 +4,7 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.merchant.configuration.MerchantErrorManagerConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
-import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;

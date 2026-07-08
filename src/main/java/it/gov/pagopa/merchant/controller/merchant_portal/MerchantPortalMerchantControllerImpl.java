@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.controller.merchant_portal;
 
-import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
+import io.micrometer.common.util.StringUtils;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
@@ -88,13 +89,13 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
             String initiativeName,
             Pageable pageable) {
 
-        String sanitizedInitiativeName = sanitizeString(initiativeName);
-        String sanitizedMerchantId = sanitizeString(merchantId);
-
+        if(StringUtils.isNotEmpty(initiativeName)) {
+            initiativeName = sanitizeString(initiativeName);
+        }
         log.info("[AVAILABLE_INITIATIVES] Request available initiative for merchant [{}]",
-                sanitizedMerchantId);
+                merchantId);
 
-        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(sanitizedMerchantId, sanitizedInitiativeName, pageable);
+        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
 
         PageResponse<InitiativeResponse> response = new PageResponse<>(
                 page.getContent(),

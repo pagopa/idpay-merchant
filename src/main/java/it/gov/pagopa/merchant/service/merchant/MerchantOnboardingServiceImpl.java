@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.service.merchant;
 
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
-import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
 import it.gov.pagopa.merchant.dto.OnboardingResponse;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
@@ -26,7 +26,7 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
 
     private final MerchantRepository merchantRepository;
     private final InitiativeRestConnector initiativeRestConnector;
-    private final PDNDInfoCamereConnectorImpl pdndConnector;
+    private final PdndInfoCamereConnectorImpl pdndConnector;
 
     @Override
     public OnboardingResponse onboardMerchant(String merchantId, String initiativeId) {

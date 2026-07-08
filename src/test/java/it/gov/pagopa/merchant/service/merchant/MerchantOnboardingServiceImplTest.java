@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.service.merchant;
 
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
-import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
 import it.gov.pagopa.merchant.dto.OnboardingResponse;
 import it.gov.pagopa.merchant.dto.initiative.AdditionalInfoDTO;
 import it.gov.pagopa.merchant.dto.initiative.GeneralInfoDTO;
@@ -35,7 +35,7 @@ class MerchantOnboardingServiceImplTest {
     private InitiativeRestConnector initiativeRestConnector;
 
     @Mock
-    private PDNDInfoCamereConnectorImpl pdndConnector;
+    private PdndInfoCamereConnectorImpl pdndConnector;
 
     private MerchantOnboardingServiceImpl merchantOnboardingService;
 

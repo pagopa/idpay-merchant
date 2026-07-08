@@ -1,6 +1,6 @@
 package it.gov.pagopa.merchant.connector.initiative;
 
-import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.dto.InitiativeSearchRequest;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;

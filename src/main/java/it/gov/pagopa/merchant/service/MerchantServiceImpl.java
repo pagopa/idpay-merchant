@@ -1,8 +1,8 @@
 package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
-import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
-import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
+import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
@@ -53,7 +53,7 @@ public class MerchantServiceImpl implements MerchantService {
   private final MerchantValidator merchantValidator;
   private final Keycloak keycloakAdminClient;
   private final String realm;
-  private final PDNDInfoCamereConnectorImpl pdndConnector;
+  private final PdndInfoCamereConnectorImpl pdndConnector;
   private final InitiativeRestClient initiativeRestClient;
   public MerchantServiceImpl(MerchantDetailService merchantDetailService,
                              MerchantListService merchantListService,
@@ -68,7 +68,7 @@ public class MerchantServiceImpl implements MerchantService {
                              MerchantValidator merchantValidator,
                              Keycloak keycloakAdminClient,
                              @Value("${keycloak.admin.realm}") String realm,
-                             PDNDInfoCamereConnectorImpl pdndConnector,
+                             PdndInfoCamereConnectorImpl pdndConnector,
                              InitiativeRestClient initiativeRestClient) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;

@@ -1,7 +1,7 @@
 package it.gov.pagopa.merchant.controller.merchant_portal;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import org.springframework.data.domain.Pageable;

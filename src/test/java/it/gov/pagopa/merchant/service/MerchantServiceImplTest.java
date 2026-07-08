@@ -3,8 +3,8 @@ package it.gov.pagopa.merchant.service;
 import com.mongodb.MongoException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
-import it.gov.pagopa.merchant.connector.pdnd.connector.PDNDInfoCamereConnectorImpl;
-import it.gov.pagopa.merchant.connector.pdnd.dto.PageResponse;
+import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
@@ -77,7 +77,7 @@ class MerchantServiceImplTest {
   @Mock
   private Keycloak keycloakAdminClientMock;
   @Mock
-  private PDNDInfoCamereConnectorImpl pdndConnectorMock;
+  private PdndInfoCamereConnectorImpl pdndConnectorMock;
   @Mock
   private InitiativeRestClient initiativeRestClientMock;
 
