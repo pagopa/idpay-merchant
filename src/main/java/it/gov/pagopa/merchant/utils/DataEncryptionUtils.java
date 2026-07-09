@@ -18,12 +18,12 @@ public class DataEncryptionUtils {
 
     private static String defaultKey;
     private static String defaultIv;
-
+    @SuppressWarnings("java:S2696")
     @Value("${encryption.defaultKey}")
     public void setDefaultKey(String defaultKey) {
         DataEncryptionUtils.defaultKey = defaultKey;
     }
-
+    @SuppressWarnings("java:S2696")
     @Value("${encryption.defaultIv}")
     public void setDefaultIv(String defaultIv) {
         DataEncryptionUtils.defaultIv = defaultIv;

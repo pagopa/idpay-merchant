@@ -32,16 +32,22 @@ class XMLCleanerTest {
         String result = new String(cleanedXml, StandardCharsets.UTF_8);
         assertTrue(result.contains("<keepMe>"));
     }
-
     @Test
     void cleanXmlThrowsExceptionForInvalidXml() {
-        String invalidXml = "<root><unclosedTag>";
-        List<String> nodesToRemove = Collections.singletonList("unclosedTag");
 
-        assertThrows(XmlProcessingException.class, () -> 
-            XMLCleaner.cleanXml(invalidXml.getBytes(StandardCharsets.UTF_8), nodesToRemove)
+        String invalidXml = "<root><unclosedTag>";
+        List<String> nodesToRemove =
+                Collections.singletonList("unclosedTag");
+
+        byte[] xmlBytes =
+                invalidXml.getBytes(StandardCharsets.UTF_8);
+
+        assertThrows(
+                XmlProcessingException.class,
+                () -> XMLCleaner.cleanXml(xmlBytes, nodesToRemove)
         );
     }
+
 
 
 }
