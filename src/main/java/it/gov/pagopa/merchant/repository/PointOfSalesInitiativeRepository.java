@@ -14,4 +14,6 @@ public interface PointOfSalesInitiativeRepository
     );
 
     void deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(String merchantId, String initiativeId, List<String> pointOfSaleId);
+
+    List<PointOfSalesInitiative> findByPointOfSaleIdAndEnabledTrue(String pointOfSaleId);
 }

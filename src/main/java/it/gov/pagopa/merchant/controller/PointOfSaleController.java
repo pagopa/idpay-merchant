@@ -8,9 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDetailDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleListDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -61,6 +60,7 @@ public interface PointOfSaleController {
     ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(
             @PathVariable("merchantId") String merchantId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
+            @RequestParam(required = false) String initiativeId,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String address,
@@ -77,6 +77,23 @@ public interface PointOfSaleController {
             @RequestParam(required = false) String address,
             @RequestParam(required = false) String contactName,
             @PageableDefault(size = 8) Pageable pageable);
+
+    @Operation(
+            summary = "Retrieve initiatives linked to a point of sale",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"point-of-sales"},
+            description = "Returns the initiatives linked to the specified point of sale for the merchant.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful response with linked initiatives", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PointOfSaleInitiativeListDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "429", description = "Too many Request - Rate limit exceeded", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
+    @GetMapping(value = "/{merchantId}/point-of-sales/{pointOfSaleId}/initiatives")
+    ResponseEntity<PointOfSaleInitiativeListDTO> getPointOfSaleInitiatives(
+            @PathVariable("merchantId") String merchantId,
+            @PathVariable("pointOfSaleId") @NotBlank String pointOfSaleId);
 
     @Operation(
             summary = "Retrieve point of sale detail",
@@ -114,4 +131,103 @@ public interface PointOfSaleController {
             @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
     );
+
+    @Operation(
+            summary = "Retrieve initiatives linked to a point of sale",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"point-of-sales"},
+            description = "Returns the initiatives linked to the specified point of sale for the merchant.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful response with linked initiatives", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PointOfSaleInitiativeListDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "429", description = "Too many Request - Rate limit exceeded", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))})
+    @GetMapping(value = "/point-of-sale/initiatives")
+    ResponseEntity<PointOfSaleInitiativeListDTO> getPointOfSaleInitiativesDetail(
+            @RequestHeader(name = "x-point-of-sale-id", required = false) String tokenPointOfSaleId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId
+    );
+
+    @Operation(
+            summary = "Update point of sale referent",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"point-of-sales"},
+            description = "Updates contact email, name and surname of the point of sale referent.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful response with updated point of sale",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PointOfSaleDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request - Invalid input data",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationErrorDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Authentication failed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Point of sale or merchant not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "429", description = "Too many Requests - Rate limit exceeded",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server error",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDTO.class)))
+    })
+    @PatchMapping("/{merchantId}/point-of-sales/{pointOfSaleId}/referent")
+    ResponseEntity<PointOfSaleDTO> updatePointOfSaleReferent(
+            @PathVariable("pointOfSaleId") String pointOfSaleId,
+            @PathVariable("merchantId") String merchantId,
+            @Valid @RequestBody PointOfSaleReferentPatchDTO referentPatchDTO
+    );
+
+    @Operation(
+            summary = "Onboarding a list of points of sale",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"point-of-sales"},
+            description = "Onboarding a list of points of sale on the specified merchant"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully onboarded",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PointOfSaleOnboardingResultDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad request - Invalid input data",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Authentication failed",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "429",
+                    description = "Too many Request - Rate limit exceeded",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            )
+    })
+    @PostMapping("/{merchantId}/initiatives/{initiativeId}/point-of-sales/onboarding")
+    ResponseEntity<PointOfSaleOnboardingResultDTO> onboardingPointOfSales(
+            @PathVariable("merchantId") @NotBlank String merchantId,
+            @PathVariable("initiativeId") @NotBlank String initiativeId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
+            @RequestBody List<String> pointOfSaleIds
+    );
+
 }

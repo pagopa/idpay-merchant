@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static it.gov.pagopa.merchant.utils.Utilities.spaceRemover;
+
 @Service
 @Slf4j
 public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService {
@@ -24,8 +26,8 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
 
   // Regex for IBAN format
   private static final Pattern ITALIAN_IBAN_PATTERN = Pattern.compile("^IT\\d{2}[A-Z]\\d{5}\\d{5}[A-Z0-9]{12}$");
-  // Regex for IBAN Holder format: allows letters (including accented), spaces, apostrophes, and hyphens
-  private static final Pattern IBAN_HOLDER_PATTERN = Pattern.compile("^[\\p{L}'\\s-]+$");
+  // Regex for IBAN Holder format: allows letters (including accented), spaces, apostrophes, and hyphens, and a minimum of 3 ch and a maximum of 70 ch
+  private static final Pattern IBAN_HOLDER_PATTERN = Pattern.compile("^.{3,70}$");
 
   public static final Pattern EMAIL_PATTERN = Pattern.compile("^(?=.{1,255}$)[A-Za-z0-9]([A-Za-z0-9+_-]*(\\.[A-Za-z0-9+_-]+)*)?@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$");
 
@@ -64,11 +66,13 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
     }
 
     if (!Objects.isNull(merchantIbanPatchDTO.getIbanHolder())) {
+      String cleanedHolder = spaceRemover(merchantIbanPatchDTO.getIbanHolder());
 
-      if (!IBAN_HOLDER_PATTERN.matcher(merchantIbanPatchDTO.getIbanHolder()).matches()) {
+      if (!IBAN_HOLDER_PATTERN.matcher(cleanedHolder).matches()) {
         throw new MerchantBadRequestException("Invalid IBAN holder format.");
       }
-      merchantInitiative.setIbanHolder(merchantIbanPatchDTO.getIbanHolder());
+
+      merchantInitiative.setIbanHolder(cleanedHolder);
     }
 
     if (!Objects.isNull(merchantIbanPatchDTO.getOperativeEmail())) {

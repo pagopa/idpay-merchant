@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.UUID;
 
 @Slf4j
@@ -43,6 +44,18 @@ public final class Utilities {
                 .replace("http://", "")
                 .replace("www.", "")
                 .split("/")[0] : null;
+    }
+
+    public static String normalizeFranchiseName(String franchiseName) {
+        return StringUtils.isNotBlank(franchiseName)
+                ? franchiseName.trim().replaceAll("\\s+", " ").toUpperCase(Locale.ROOT)
+                : franchiseName;
+    }
+
+    public static String spaceRemover(String name) {
+        return StringUtils.isNotBlank(name)
+                ? name.trim().replaceAll("\\s+", " ")
+                : name;
     }
 
     public static String sanitizeForLog(String input) {

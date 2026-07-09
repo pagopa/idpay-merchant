@@ -26,8 +26,8 @@ public class PointOfSaleValidator {
     private final Validator validator;
 
     private static final String REGEX_PHONE = "^\\+?\\d{7,15}$";
-    private static final String REGEX_LINK = "^(http|https|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-    private static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+    private static final String REGEX_LINK = "^https:\\/\\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}(?:\\/[^\\s]*)?$";
+    private static final String REGEX_EMAIL = "^(?=.{1,255}$)[A-Za-z0-9]([A-Za-z0-9+_-]*(\\.[A-Za-z0-9+_-]+)*)?@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$";
 
     private final int posDefaultMaxSizeRequest;
 
@@ -62,6 +62,9 @@ public class PointOfSaleValidator {
             PointOfSaleDTO dto = pointOfSaleDTOS.get(i);
             log.debug("[POS-VALIDATION] Validating PointOfSale entry at index {}", i);
 
+            dto.setWebsite(StringUtils.lowerCase(StringUtils.trim(dto.getWebsite()), Locale.ROOT));
+            dto.setChannelGeolink(StringUtils.lowerCase(StringUtils.trim(dto.getChannelGeolink()), Locale.ROOT));
+
             errors.addAll(validatePointOfSale(dto, i));
             errors.addAll(validateEmailAndWebsite(dto, i));
             errors.addAll(validateChannels(dto, i));
@@ -89,6 +92,15 @@ public class PointOfSaleValidator {
 
         log.info("[POS-VALIDATION] Validation completed successfully: {} PointOfSale entries validated with no errors",
                 pointOfSaleDTOS.size());
+    }
+
+    public void validateEmailFormat(String email) {
+        if (isInvalidFormat(email, REGEX_EMAIL)) {
+            throw new ClientExceptionWithBody(
+                    HttpStatus.BAD_REQUEST,
+                    PointOfSaleConstants.CODE_INVALID_EMAIL,
+                    PointOfSaleConstants.MSG_INVALID_EMAIL);
+        }
     }
 
     private List<ValidationErrorDetail> validateDuplicates(List<PointOfSaleDTO> pointOfSaleDTOS) {
@@ -127,7 +139,7 @@ public class PointOfSaleValidator {
                 + "|" + pos.getAddress()
                 + "|" + pos.getStreetNumber()
                 + "|" + pos.getCity()
-                + "|" + pos.getFranchiseName();
+                + "|" + Utilities.normalizeFranchiseName(pos.getFranchiseName());
 
         if (!seen.add(key)) {
             errors.add(buildError(index, "type|address|streetNumber|city|franchiseName", key,
@@ -137,9 +149,9 @@ public class PointOfSaleValidator {
     }
 
     private void checkDuplicateOnline(PointOfSaleDTO pos, int index,  Set<String> seen,  List<ValidationErrorDetail> errors) {
-        String key = pos.getType()
+                String key = pos.getType()
                 + "|" + Utilities.sanitizeDomain(pos.getWebsite())
-                + "|" + pos.getFranchiseName();
+                + "|" + Utilities.normalizeFranchiseName(pos.getFranchiseName());
 
         if (!seen.add(key)) {
             errors.add(buildError(index, "type|website|franchiseName", key,

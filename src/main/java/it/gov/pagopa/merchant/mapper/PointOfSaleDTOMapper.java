@@ -5,6 +5,7 @@ import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.utils.Utilities;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -53,8 +54,8 @@ public class PointOfSaleDTOMapper {
         PointOfSale pointOfSale = PointOfSale.builder()
                 .id(StringUtils.isEmpty(pointOfSaleDTO.getId()) ? null : pointOfSaleDTO.getId())
                 .type(pointOfSaleDTO.getType().name())
-                .franchiseName(pointOfSaleDTO.getFranchiseName())
-                .contactEmail(pointOfSaleDTO.getContactEmail())
+                .franchiseName(Utilities.normalizeFranchiseName(pointOfSaleDTO.getFranchiseName()))
+                .contactEmail(pointOfSaleDTO.getContactEmail().toLowerCase())
                 .website(pointOfSaleDTO.getWebsite())
                 .contactName(pointOfSaleDTO.getContactName())
                 .contactSurname(pointOfSaleDTO.getContactSurname())

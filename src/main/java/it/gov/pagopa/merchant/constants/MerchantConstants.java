@@ -64,6 +64,7 @@ public class MerchantConstants {
     public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
     public static final String MERCHANT_ALREDY_ONBORDED = "MERCHANT_ALREDY_ONBORDED";
     public static final String MERCHANT_NOT_ELIGIBLE = "MERCHANT_NOT_ELIGIBLE";
+    public static final String INITIATIVE_NOT_VALID = "INITIATIVE_NOT_VALID";
   }
 
   public static final class ExceptionMessage {
@@ -81,7 +82,7 @@ public class MerchantConstants {
     public static final String VALIDATION_ERROR = "Some fields are invalid. See details for more information.";
   }
 
-  public static final String CODE_MERCHANT_WITHDRAWAL_ERROR = "MERCHANT_WITHDRAWAL_ERROR";
+
   public static final String CODE_CONTRACT_WITHDRAWAL_TOO_LATE = "CONTRACT_WITHDRAWAL_TOO_LATE";
   public static final String CODE_TRANSACTIONS_IN_PROGRESS_PRESENT = "TRANSACTIONS_IN_PROGRESS_PRESENT";
   public static final String CODE_TRANSACTIONS_PROCESSED_PRESENT = "TRANSACTIONS_PROCESSED_PRESENT";
