@@ -17,7 +17,4 @@ public class PdndVisuraImpresa {
 
   @JsonProperty("localizzazioni")
   private Localizzazioni pointOfSales;
-
-
-
-}
+  }
