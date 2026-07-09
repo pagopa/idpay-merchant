@@ -89,13 +89,14 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
             String initiativeName,
             Pageable pageable) {
 
+        String sanitizedMerchantId = sanitizeString(merchantId);
         if(StringUtils.isNotEmpty(initiativeName)) {
             initiativeName = sanitizeString(initiativeName);
         }
         log.info("[AVAILABLE_INITIATIVES] Request available initiative for merchant [{}]",
-                merchantId);
+                sanitizedMerchantId);
 
-        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
+        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(sanitizedMerchantId, initiativeName, pageable);
 
         PageResponse<InitiativeResponse> response = new PageResponse<>(
                 page.getContent(),
