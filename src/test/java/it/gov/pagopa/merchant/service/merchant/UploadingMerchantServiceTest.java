@@ -172,7 +172,7 @@ class UploadingMerchantServiceTest {
         FileInputStream inputStream = new FileInputStream(file1);
         MultipartFile file = new MockMultipartFile("file", FILENAME, "text/csv", inputStream);
 
-        Mockito.doThrow(new BlobStorageException(null, null, null)).when(merchantFileStorageConnectorMock)
+        doThrow(new BlobStorageException(null, null, null)).when(merchantFileStorageConnectorMock)
                 .uploadMerchantFile(any(), Mockito.anyString(), Mockito.anyString());
 
         FileOperationException result = assertThrows(FileOperationException.class,
@@ -191,12 +191,9 @@ class UploadingMerchantServiceTest {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
         storageEventDTO.setSubject(subject);
         List<StorageEventDTO> storageEventDTOS = List.of(storageEventDTO);
-
-        try {
-            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
-        } catch (Exception e) {
-            fail();
-        }
+        assertDoesNotThrow(() ->
+                uploadingMerchantService.execute(buildMessage(storageEventDTOS))
+        );
         verify(merchantFileRepositoryMock, times(0))
                 .setMerchantFileStatus(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     }
@@ -204,14 +201,18 @@ class UploadingMerchantServiceTest {
     @Test
     void ingestionMerchantFile_storageEventDTOEmptyList() {
 
-        try {
-            uploadingMerchantService.execute(buildMessage(null));
-        } catch (Exception e) {
-            fail();
-        }
-        verify(merchantFileRepositoryMock, times(0))
-                .setMerchantFileStatus(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+        assertDoesNotThrow(() ->
+                uploadingMerchantService.execute(buildMessage(null))
+        );
+
+        verify(merchantFileRepositoryMock, never())
+                .setMerchantFileStatus(
+                        anyString(),
+                        anyString(),
+                        anyString()
+                );
     }
+
     @Test
     void ingestionMerchantFile_downloadException() {
         StorageEventDTO storageEventDTO = StorageEventDTOFaker.mockInstance(1);
@@ -235,15 +236,12 @@ class UploadingMerchantServiceTest {
         Request request =
                 Request.create(Request.HttpMethod.PUT, "url", new HashMap<>(), null, new RequestTemplate());
 
-        Mockito.doThrow(new FeignException.BadRequest("", request, new byte[0], null))
+        doThrow(new FeignException.BadRequest("", request, new byte[0], null))
                 .when(initiativeRestConnectorMock)
                 .getInitiativeDetail(Mockito.anyString());
-
-        try {
-            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
-        }catch (FeignException e){
-            fail();
-        }
+        assertDoesNotThrow(() ->
+                uploadingMerchantService.execute(buildMessage(storageEventDTOS))
+        );
         verify(merchantFileStorageConnectorMock, times(1)).downloadMerchantFile(Mockito.anyString());
     }
 
@@ -263,11 +261,9 @@ class UploadingMerchantServiceTest {
 
         when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         when(commandsProducerMock.sendCommand(any())).thenReturn(true);
-        try {
-            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
-        } catch (Exception e) {
-            fail();
-        }
+        assertDoesNotThrow(() ->
+                uploadingMerchantService.execute(buildMessage(storageEventDTOS))
+        );
         verify(repositoryMock, times(3)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
 
         inputStream.close();
@@ -291,12 +287,9 @@ class UploadingMerchantServiceTest {
         Merchant merchant = MerchantFaker.mockInstance(1);
         when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(merchant));
         when(commandsProducerMock.sendCommand(any())).thenReturn(false);
-
-        try {
-            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
-        } catch (Exception e) {
-            fail();
-        }
+        assertDoesNotThrow(() ->
+                uploadingMerchantService.execute(buildMessage(storageEventDTOS))
+        );
         verify(repositoryMock, times(3)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
 
         inputStream.close();
@@ -315,12 +308,9 @@ class UploadingMerchantServiceTest {
         when(initiativeRestConnectorMock.getInitiativeDetail(Mockito.anyString())).thenReturn(initiativeDTO);
 
         when(repositoryMock.findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString())).thenReturn(null);
-
-        try {
-            uploadingMerchantService.execute(buildMessage(storageEventDTOS));
-        } catch (Exception e) {
-            fail();
-        }
+        assertDoesNotThrow(() ->
+                uploadingMerchantService.execute(buildMessage(storageEventDTOS))
+        );
         verify(repositoryMock, times(1)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
     }
 
@@ -331,7 +321,7 @@ class UploadingMerchantServiceTest {
 
         configureMerchantFileDownloadMock(PATH_VALID_FILE);
 
-        Mockito.doReturn(null)
+        doReturn(null)
                 .when(initiativeRestConnectorMock)
                 .getInitiativeDetail(Mockito.anyString());
 
