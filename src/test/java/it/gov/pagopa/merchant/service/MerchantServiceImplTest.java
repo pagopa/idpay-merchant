@@ -34,7 +34,6 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -133,8 +132,8 @@ class MerchantServiceImplTest {
     MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
     MultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv",
         "Content".getBytes());
-    when(uploadingMerchantServiceMock.uploadMerchantFile(any(), Mockito.anyString(),
-        Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(
+    when(uploadingMerchantServiceMock.uploadMerchantFile(any(), anyString(),
+        anyString(), anyString(), anyString())).thenReturn(
         merchantUpdateDTO);
 
     MerchantUpdateDTO result = merchantService.uploadMerchantFile(file, ORGANIZATION_ID,
@@ -145,7 +144,7 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantDetail1() {
     MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
-    when(merchantDetailServiceMock.getMerchantDetail(Mockito.anyString())).thenReturn(dto);
+    when(merchantDetailServiceMock.getMerchantDetail(anyString())).thenReturn(dto);
 
     MerchantDetailDTO result = merchantService.getMerchantDetail(MERCHANT_ID);
     assertNotNull(result);
@@ -155,8 +154,8 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantDetail() {
     MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
-    when(merchantDetailServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString())).thenReturn(dto);
+    when(merchantDetailServiceMock.getMerchantDetail(anyString(), anyString(),
+        anyString())).thenReturn(dto);
 
     MerchantDetailDTO result = merchantService.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID,
         MERCHANT_ID);
@@ -166,8 +165,8 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantDetailByMerchantIdAndInitiativeId() {
     MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
-    when(merchantDetailServiceMock.getMerchantDetail(Mockito.anyString(),
-        Mockito.anyString())).thenReturn(merchantDetailDTO);
+    when(merchantDetailServiceMock.getMerchantDetail(anyString(),
+        anyString())).thenReturn(merchantDetailDTO);
 
     MerchantDetailDTO result = merchantService.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID);
     assertNotNull(result);
@@ -176,8 +175,8 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantList() {
     MerchantListDTO dto = new MerchantListDTO();
-    when(merchantListServiceMock.getMerchantList(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString(), any())).thenReturn(dto);
+    when(merchantListServiceMock.getMerchantList(anyString(), anyString(),
+        anyString(), any())).thenReturn(dto);
 
     MerchantListDTO result = merchantService.getMerchantList(ORGANIZATION_ID, INITIATIVE_ID,
         MERCHANT_ID, null);
@@ -187,7 +186,7 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantListByInitiativeId() {
     MerchantListDTO dto = new MerchantListDTO();
-    when(merchantListServiceMock.getMerchantList(Mockito.anyString(), any())).thenReturn(dto);
+    when(merchantListServiceMock.getMerchantList(anyString(), any())).thenReturn(dto);
 
     MerchantListDTO result = merchantService.getMerchantList(INITIATIVE_ID, null);
     assertNotNull(result);
@@ -197,8 +196,8 @@ class MerchantServiceImplTest {
   void retrieveMerchantId() {
     Merchant merchant = MerchantFaker.mockInstance(1);
 
-    when(merchantRepositoryMock.retrieveByAcquirerIdAndFiscalCode(Mockito.anyString(),
-        Mockito.anyString())).thenReturn(Optional.of(merchant));
+    when(merchantRepositoryMock.retrieveByAcquirerIdAndFiscalCode(anyString(),
+        anyString())).thenReturn(Optional.of(merchant));
 
     String merchantIdOkResult = merchantService.retrieveMerchantId(merchant.getAcquirerId(),
         merchant.getFiscalCode());
@@ -211,14 +210,14 @@ class MerchantServiceImplTest {
   void retrieveMerchantId_NotFound() {
 
     doReturn(Optional.empty()).when(merchantRepositoryMock)
-        .retrieveByAcquirerIdAndFiscalCode(any(), Mockito.eq("DUMMYFISCALCODE"));
+        .retrieveByAcquirerIdAndFiscalCode(any(), eq("DUMMYFISCALCODE"));
 
     String merchantIdNotFoundResult = merchantService.retrieveMerchantId("DUMMYACQUIRERID",
         "DUMMYFISCALCODE");
 
     assertNull(merchantIdNotFoundResult);
-    verify(merchantRepositoryMock).retrieveByAcquirerIdAndFiscalCode(Mockito.anyString(),
-        Mockito.anyString());
+    verify(merchantRepositoryMock).retrieveByAcquirerIdAndFiscalCode(anyString(),
+        anyString());
   }
 
   @Test
@@ -296,7 +295,7 @@ class MerchantServiceImplTest {
         .build();
 
     merchantService.updatingInitiative(queueInitiativeDTO);
-    verify(merchantUpdatingInitiativeService, Mockito.times(1)).updatingInitiative(
+    verify(merchantUpdatingInitiativeService, times(1)).updatingInitiative(
         queueInitiativeDTO);
   }
 
@@ -387,7 +386,7 @@ class MerchantServiceImplTest {
         .ibanHolder(ibanHolder)
         .build();
 
-    MongoException mongoException = Mockito.mock(MongoException.class);
+    MongoException mongoException = mock(MongoException.class);
     when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenThrow(mongoException);
 
@@ -395,7 +394,7 @@ class MerchantServiceImplTest {
         () -> merchantService.retrieveOrCreateMerchantIfNotExists(dto));
 
     verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
-    verify(merchantRepositoryMock, Mockito.never()).save(Mockito.any(Merchant.class));
+    verify(merchantRepositoryMock, never()).save(any(Merchant.class));
   }
 
   @Test
@@ -417,7 +416,7 @@ class MerchantServiceImplTest {
     when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenReturn(Optional.empty());
 
-    MerchantServiceImpl spyService = Mockito.spy(merchantService);
+    MerchantServiceImpl spyService = spy(merchantService);
 
     String result = spyService.retrieveOrCreateMerchantIfNotExists(dto);
 
@@ -456,7 +455,7 @@ class MerchantServiceImplTest {
 
     assertEquals(expectedMerchantId, merchantIDUpdated);
     verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
-    verify(merchantRepositoryMock).save(Mockito.any(Merchant.class));
+    verify(merchantRepositoryMock).save(any(Merchant.class));
   }
 
   @Test

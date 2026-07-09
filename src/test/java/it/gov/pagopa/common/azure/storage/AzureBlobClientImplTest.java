@@ -9,7 +9,6 @@ import com.azure.storage.blob.models.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.mockito.stubbing.Stubber;
 import org.springframework.util.ReflectionUtils;
 
@@ -22,7 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
 
 class AzureBlobClientImplTest {
 
@@ -154,7 +154,7 @@ class AzureBlobClientImplTest {
             Assertions.assertNotNull(clientField);
             clientField.setAccessible(true);
 
-            BlobContainerClient clientMock = Mockito.mock(BlobContainerClient.class, Mockito.RETURNS_DEEP_STUBS);
+            BlobContainerClient clientMock = mock(BlobContainerClient.class, RETURNS_DEEP_STUBS);
 
             mockUploadFileOperation(file, destination, clientMock);
 
@@ -180,7 +180,7 @@ class AzureBlobClientImplTest {
             Assertions.assertNotNull(clientField);
             clientField.setAccessible(true);
 
-            BlobContainerClient clientMock = Mockito.mock(BlobContainerClient.class, Mockito.RETURNS_DEEP_STUBS);
+            BlobContainerClient clientMock = mock(BlobContainerClient.class, RETURNS_DEEP_STUBS);
 
             mockUploadStreamOperation(inputStream, destination, clientMock);
 
@@ -201,31 +201,31 @@ class AzureBlobClientImplTest {
     }
 
     private static void mockUploadFileOperation(File file, String destination, BlobContainerClient clientMock) {
-        @SuppressWarnings("rawtypes") Response responseMock = Mockito.mock(Response.class);
+        @SuppressWarnings("rawtypes") Response responseMock = mock(Response.class);
         when(responseMock.getStatusCode()).thenReturn(201);
 
         //noinspection unchecked
         when(clientMock.getBlobClient(destination)
-                        .uploadFromFileWithResponse(Mockito.argThat(
+                        .uploadFromFileWithResponse(argThat(
                                 opt -> file.getPath().equals(opt.getFilePath())
-                        ), Mockito.any(), Mockito.any()))
+                        ), any(), any()))
                 .thenReturn(responseMock);
     }
 
     private static void mockUploadStreamOperation(InputStream inputStream, String destination, BlobContainerClient clientMock) {
-        @SuppressWarnings("rawtypes") Response responseMock = Mockito.mock(Response.class);
+        @SuppressWarnings("rawtypes") Response responseMock = mock(Response.class);
         when(responseMock.getStatusCode()).thenReturn(201);
 
         //noinspection unchecked
         when(clientMock.getBlobClient(destination)
-                        .uploadWithResponse(Mockito.argThat(
+                        .uploadWithResponse(argThat(
                                 opt -> inputStream == opt.getDataStream()
-                        ), Mockito.any(), Mockito.any()))
+                        ), any(), any()))
                 .thenReturn(responseMock);
     }
 
     private static void mockListFilesOperation(String destination, List<BlobItem> mockedResult, BlobContainerClient clientMock) {
-        @SuppressWarnings("rawtypes") PagedIterable responseMock = Mockito.mock(PagedIterable.class, Mockito.RETURNS_DEEP_STUBS);
+        @SuppressWarnings("rawtypes") PagedIterable responseMock = mock(PagedIterable.class, RETURNS_DEEP_STUBS);
         when(responseMock.stream()).thenReturn(mockedResult.stream());
 
         //noinspection unchecked
@@ -234,12 +234,12 @@ class AzureBlobClientImplTest {
     }
 
     private static void mockDeleteOperation(String destination, BlobContainerClient clientMock) {
-        @SuppressWarnings("rawtypes") Response responseMock = Mockito.mock(Response.class);
+        @SuppressWarnings("rawtypes") Response responseMock = mock(Response.class);
         when(responseMock.getValue()).thenReturn(true);
 
         //noinspection unchecked
         when(clientMock.getBlobClient(destination)
-                        .deleteIfExistsWithResponse(Mockito.eq(DeleteSnapshotsOptionType.INCLUDE), Mockito.isNull(), Mockito.any(), Mockito.any()))
+                        .deleteIfExistsWithResponse(eq(DeleteSnapshotsOptionType.INCLUDE), isNull(), any(), any()))
                 .thenReturn(responseMock);
     }
 
@@ -248,37 +248,37 @@ class AzureBlobClientImplTest {
 
         Stubber stubber;
         if(fileExists) {
-            @SuppressWarnings("rawtypes") Response responseMock = Mockito.mock(Response.class);
+            @SuppressWarnings("rawtypes") Response responseMock = mock(Response.class);
             when(responseMock.getStatusCode()).thenReturn(206);
-            stubber = Mockito.doReturn(responseMock);
+            stubber = doReturn(responseMock);
         } else {
-            HttpResponse responseMock = Mockito.mock(HttpResponse.class);
+            HttpResponse responseMock = mock(HttpResponse.class);
             when(responseMock.getStatusCode()).thenReturn(404);
 
-            stubber = Mockito.doThrow(new BlobStorageException("NOT FOUND", responseMock, null));
+            stubber = doThrow(new BlobStorageException("NOT FOUND", responseMock, null));
         }
         stubber
                 .when(blobClientMock)
-                .downloadToFileWithResponse(Mockito.argThat(opt ->
+                .downloadToFileWithResponse(argThat(opt ->
                                 opt.getFilePath().equals(downloadPath.toString()) && opt.getOpenOptions().equals(Set.of(
                                         StandardOpenOption.CREATE,
                                         StandardOpenOption.TRUNCATE_EXISTING,
                                         StandardOpenOption.READ,
                                         StandardOpenOption.WRITE
                                 ))),
-                        Mockito.any(), Mockito.any());
+                        any(), any());
     }
 
     private void mockDownloadStreamOperation(String destination, boolean fileExists, BlobContainerClient clientMock) {
         if(!fileExists) {
-            HttpResponse responseMock = Mockito.mock(HttpResponse.class);
+            HttpResponse responseMock = mock(HttpResponse.class);
             when(responseMock.getStatusCode()).thenReturn(404);
 
             BlobClient blobClientMock = clientMock.getBlobClient(destination);
 
-            Mockito.doThrow(new BlobStorageException("NOT FOUND", responseMock, null))
+            doThrow(new BlobStorageException("NOT FOUND", responseMock, null))
                     .when(blobClientMock)
-                    .downloadStream(Mockito.any());
+                    .downloadStream(any());
         }
     }
 }
