@@ -174,7 +174,9 @@ spring:
   web:
     pageable:
       max-page-size: ${DATA_WEB_PAGEABLE_MAX_PAGE_SIZE:3000}
-
+  data:
+    redis:
+      url: ${REDIS_CONNECTION_URL:redis://@localhost:6379}
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
@@ -228,8 +230,8 @@ rest-client:
       path: /dettaglio/codicefiscale
     getRea:
       path: /ricerca/nrea
-    privateKey: |
-      -----BEGIN PRIVATE KEY-----
+    privateKey:
+      ${PDND_INFOCAMERE_PRIVATE_KEY:-----BEGIN PRIVATE KEY-----
       MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCsM4kqzDAJop1g
       ltodnPduAQiXvPUCtmk0jnhkZpdxGK2LCOv9b196dbr2YbsgCUhO4+1oi7iKCBdN
       xJG5q6Wt6zYS+4/sqMvS1+jH8+y2poxnMsXzA5h8kTiInx99xAvrssnf9bCfYWFh
@@ -256,7 +258,7 @@ rest-client:
       /Oxu1zTPGZC6SqpdygCjlQ0kQ8Bp0LV7nL06/VCHAHI2lF12xApRnFk7GY3xyqK8
       nYxeRASCj3GGmLupGshtfCtDBeysE2h7kj3Bo0d6g1Ye+j8BUZuZaZm6WNlo7cgE
       NLHn1k0IpmXFOiFa1Y1D6Bc=
-      -----END PRIVATE KEY-----
+      -----END PRIVATE KEY-----}
     clientId: ${PDND_INVITALIA_INFOCAMERE_CLIENT_ID:test}
     kid: ${PDND_INVITALIA_INFOCAMERE_KID:test}
     audience: ${PDND_INFOCAMERE_AUDIENCE:auth.uat.interop.pagopa.it/client-assertion}
