@@ -1,5 +1,8 @@
 package it.gov.pagopa.merchant.utils;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
@@ -7,13 +10,24 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+@Component
 public class DataEncryptionUtils {
     private DataEncryptionUtils() {
         /* This utility class should not be instantiated */
     }
 
-    private static String defaultKey = "1234567890123456";
-    private static String defaultIv  = "123456789012";
+    private static String defaultKey;
+    private static String defaultIv;
+
+    @Value("${encryption.defaultKey}")
+    public void setDefaultKey(String defaultKey) {
+        DataEncryptionUtils.defaultKey = defaultKey;
+    }
+
+    @Value("${encryption.defaultIv}")
+    public void setDefaultIv(String defaultIv) {
+        DataEncryptionUtils.defaultIv = defaultIv;
+    }
 
     private static SecretKey getKey(String key) {
         byte[] raw = key.getBytes(StandardCharsets.UTF_8);
@@ -22,14 +36,6 @@ public class DataEncryptionUtils {
 
     private static byte[] getIv(String iv) {
         return iv.getBytes(StandardCharsets.UTF_8);
-    }
-
-    public static void setDefaultIv(String iv) {
-        defaultIv = iv;
-    }
-
-    public static void setDefaultKey(String key) {
-        defaultKey = key;
     }
 
     public static String encrypt(String plain) {

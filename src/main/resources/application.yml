@@ -200,8 +200,6 @@ logging:
 rest-client:
 
   pdnd-infocamere:
-    serviceCode: ${PDND_INFOCAMERE_SERVICE_CODE:pdnd-infocamere}
-    base-url: ${PDND_INFOCAMERE_URL:https://pdnd.registroimprese.it/rest/pcad/v1/ricerca}
     getDescription:
       path: /denominazione
     getTaxCode:
@@ -339,3 +337,7 @@ server:
 
 point-of-sales:
   defaultMaxSizeRequest: ${POS_DEFAULT_MAX_SIZE_REQUEST:5}
+
+encryption:
+  defaultKey: ${MERCHANT_ENCRYPTION_KEY:1234567890123456}
+  defaultIv: ${MERCHANT_ENCRYPTION_IV:123456789012}
