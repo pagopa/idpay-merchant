@@ -2,11 +2,11 @@ package it.gov.pagopa.merchant.service.pdnd;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import feign.FeignException;
-import it.gov.pagopa.merchant.connector.file_storage.MerchantBlobClientImpl;
 import it.gov.pagopa.merchant.configuration.pdnd.PdndVisuraInfoCamereRestClientConfig;
+import it.gov.pagopa.merchant.connector.file_storage.MerchantBlobClientImpl;
+import it.gov.pagopa.merchant.connector.pdnd.rest.PdndVisuraInfoCamereRawRestClient;
 import it.gov.pagopa.merchant.dto.pdnd.*;
 import it.gov.pagopa.merchant.exception.custom.ResourceNotFoundException;
-import it.gov.pagopa.merchant.connector.pdnd.rest.PdndVisuraInfoCamereRawRestClient;
 import it.gov.pagopa.merchant.service.pdnd.token.TokenProviderVisura;
 import it.gov.pagopa.merchant.utils.DataEncryptionUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -93,7 +92,7 @@ public class PdndCacheableService {
                 .stream()
                 .map(ClassificazioneAteco::getCodiceAttivita)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 

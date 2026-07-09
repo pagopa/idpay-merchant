@@ -10,12 +10,14 @@ import org.springframework.messaging.support.MessageBuilder;
 
 import java.util.Collections;
 
+import static org.mockito.Mockito.when;
+
 class StreamsHealthIndicatorTest {
 
     @Test
     void test() {
         ApplicationContext mockContext = Mockito.mock(ApplicationContext.class);
-        Mockito.when(mockContext.getBeansOfType(DirectWithAttributesChannel.class))
+        when(mockContext.getBeansOfType(DirectWithAttributesChannel.class))
                 .thenReturn(Collections.emptyMap());
 
         StreamsHealthIndicator indicator = new StreamsHealthIndicator(mockContext);

@@ -1,10 +1,8 @@
 package it.gov.pagopa.merchant.exception.custom;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
-import it.gov.pagopa.merchant.constants.MerchantConstants;
 
 import static it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode.MERCHANT_NOT_ELIGIBLE;
-import static it.gov.pagopa.merchant.constants.PointOfSaleConstants.MERCHANT_NOT_ALLOWED;
 
 public class MerchantNotEligibleException extends ServiceException {
 

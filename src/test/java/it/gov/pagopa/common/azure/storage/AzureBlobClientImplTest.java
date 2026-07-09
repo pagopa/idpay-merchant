@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static org.mockito.Mockito.when;
+
 class AzureBlobClientImplTest {
 
     private AzureBlobClient blobClient;
@@ -200,10 +202,10 @@ class AzureBlobClientImplTest {
 
     private static void mockUploadFileOperation(File file, String destination, BlobContainerClient clientMock) {
         @SuppressWarnings("rawtypes") Response responseMock = Mockito.mock(Response.class);
-        Mockito.when(responseMock.getStatusCode()).thenReturn(201);
+        when(responseMock.getStatusCode()).thenReturn(201);
 
         //noinspection unchecked
-        Mockito.when(clientMock.getBlobClient(destination)
+        when(clientMock.getBlobClient(destination)
                         .uploadFromFileWithResponse(Mockito.argThat(
                                 opt -> file.getPath().equals(opt.getFilePath())
                         ), Mockito.any(), Mockito.any()))
@@ -212,10 +214,10 @@ class AzureBlobClientImplTest {
 
     private static void mockUploadStreamOperation(InputStream inputStream, String destination, BlobContainerClient clientMock) {
         @SuppressWarnings("rawtypes") Response responseMock = Mockito.mock(Response.class);
-        Mockito.when(responseMock.getStatusCode()).thenReturn(201);
+        when(responseMock.getStatusCode()).thenReturn(201);
 
         //noinspection unchecked
-        Mockito.when(clientMock.getBlobClient(destination)
+        when(clientMock.getBlobClient(destination)
                         .uploadWithResponse(Mockito.argThat(
                                 opt -> inputStream == opt.getDataStream()
                         ), Mockito.any(), Mockito.any()))
@@ -224,19 +226,19 @@ class AzureBlobClientImplTest {
 
     private static void mockListFilesOperation(String destination, List<BlobItem> mockedResult, BlobContainerClient clientMock) {
         @SuppressWarnings("rawtypes") PagedIterable responseMock = Mockito.mock(PagedIterable.class, Mockito.RETURNS_DEEP_STUBS);
-        Mockito.when(responseMock.stream()).thenReturn(mockedResult.stream());
+        when(responseMock.stream()).thenReturn(mockedResult.stream());
 
         //noinspection unchecked
-        Mockito.when(clientMock.listBlobsByHierarchy(destination))
+        when(clientMock.listBlobsByHierarchy(destination))
                 .thenReturn(responseMock);
     }
 
     private static void mockDeleteOperation(String destination, BlobContainerClient clientMock) {
         @SuppressWarnings("rawtypes") Response responseMock = Mockito.mock(Response.class);
-        Mockito.when(responseMock.getValue()).thenReturn(true);
+        when(responseMock.getValue()).thenReturn(true);
 
         //noinspection unchecked
-        Mockito.when(clientMock.getBlobClient(destination)
+        when(clientMock.getBlobClient(destination)
                         .deleteIfExistsWithResponse(Mockito.eq(DeleteSnapshotsOptionType.INCLUDE), Mockito.isNull(), Mockito.any(), Mockito.any()))
                 .thenReturn(responseMock);
     }
@@ -247,11 +249,11 @@ class AzureBlobClientImplTest {
         Stubber stubber;
         if(fileExists) {
             @SuppressWarnings("rawtypes") Response responseMock = Mockito.mock(Response.class);
-            Mockito.when(responseMock.getStatusCode()).thenReturn(206);
+            when(responseMock.getStatusCode()).thenReturn(206);
             stubber = Mockito.doReturn(responseMock);
         } else {
             HttpResponse responseMock = Mockito.mock(HttpResponse.class);
-            Mockito.when(responseMock.getStatusCode()).thenReturn(404);
+            when(responseMock.getStatusCode()).thenReturn(404);
 
             stubber = Mockito.doThrow(new BlobStorageException("NOT FOUND", responseMock, null));
         }
@@ -270,7 +272,7 @@ class AzureBlobClientImplTest {
     private void mockDownloadStreamOperation(String destination, boolean fileExists, BlobContainerClient clientMock) {
         if(!fileExists) {
             HttpResponse responseMock = Mockito.mock(HttpResponse.class);
-            Mockito.when(responseMock.getStatusCode()).thenReturn(404);
+            when(responseMock.getStatusCode()).thenReturn(404);
 
             BlobClient blobClientMock = clientMock.getBlobClient(destination);
 

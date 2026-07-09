@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -56,7 +57,7 @@ class AcquirerControllerImplTest {
                 InitiativeDTOFaker.mockInstance(1),
                 InitiativeDTOFaker.mockInstance(2));
 
-        Mockito.when(merchantServiceMock.getMerchantInitiativeList(anyString())).thenReturn(expectedResult);
+        when(merchantServiceMock.getMerchantInitiativeList(anyString())).thenReturn(expectedResult);
 
         MvcResult result = mockMvc.perform(
                         get("/idpay/merchant/acquirer/initiatives")
@@ -74,7 +75,7 @@ class AcquirerControllerImplTest {
 
     @Test
     void getMerchantInitiativeList_notFound() throws Exception {
-        Mockito.when(merchantServiceMock.getMerchantInitiativeList(anyString())).thenReturn(null);
+        when(merchantServiceMock.getMerchantInitiativeList(anyString())).thenReturn(null);
 
         mockMvc.perform(
                         get("/idpay/merchant/acquirer/initiatives")
@@ -104,7 +105,7 @@ class AcquirerControllerImplTest {
         MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
         merchantUpdateDTO.setStatus("VALIDATED");
         MockMultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv", "content".getBytes());
-        Mockito.when(merchantServiceMock.uploadMerchantFile(file, ACQUIRER_ID, INITIATIVE_ID, null, ACQUIRER_ID)).thenReturn(merchantUpdateDTO);
+        when(merchantServiceMock.uploadMerchantFile(file, ACQUIRER_ID, INITIATIVE_ID, null, ACQUIRER_ID)).thenReturn(merchantUpdateDTO);
 
         MockMultipartHttpServletRequestBuilder builder = multipart("/idpay/merchant/acquirer/{acquirerId}/initiative/{initiativeId}/upload",
                 ACQUIRER_ID, INITIATIVE_ID);
@@ -120,7 +121,7 @@ class AcquirerControllerImplTest {
                 .andDo(print())
                 .andReturn();
 
-        Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.isNull(), Mockito.anyString());
+        Mockito.verify(merchantServiceMock).uploadMerchantFile(Mockito.any(),anyString(),anyString(), Mockito.isNull(),anyString());
     }
 
 

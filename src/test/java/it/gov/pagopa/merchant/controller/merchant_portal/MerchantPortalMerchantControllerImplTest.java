@@ -40,6 +40,7 @@ import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,7 +65,7 @@ class MerchantPortalMerchantControllerImplTest {
                 InitiativeDTOFaker.mockInstance(1),
                 InitiativeDTOFaker.mockInstance(2));
 
-        Mockito.when(merchantServiceMock.getMerchantInitiativeList(anyString())).thenReturn(expectedResult);
+        when(merchantServiceMock.getMerchantInitiativeList(anyString())).thenReturn(expectedResult);
 
         MvcResult result = mockMvc.perform(
                         get("/idpay/merchant/portal/initiatives")
@@ -86,7 +87,7 @@ class MerchantPortalMerchantControllerImplTest {
         requestDto.setIban("IT60X0542811101000000123456");
 
         MerchantDetailDTO responseDto = MerchantDetailDTOFaker.mockInstance(1);
-        Mockito.when(merchantServiceMock.patchMerchant(
+        when(merchantServiceMock.patchMerchant(
                 anyString(), anyString(), any(MerchantIbanPatchDTO.class))
         ).thenReturn(responseDto);
 
@@ -118,7 +119,7 @@ class MerchantPortalMerchantControllerImplTest {
         MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstanceBuilder(1)
                 .initiativeId(INITIATIVE_ID)
                 .build();
-        Mockito.when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID)).thenReturn(merchantDetailDTO);
+        when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID)).thenReturn(merchantDetailDTO);
 
         MvcResult result = mockMvc.perform(
                 get("/idpay/merchant/portal/initiatives/{initiativeId}", INITIATIVE_ID)
@@ -136,7 +137,7 @@ class MerchantPortalMerchantControllerImplTest {
 
     @Test
     void getMerchantDetailByMerchantIdAndInitiativeId_notFound() throws Exception {
-        Mockito.when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID))
+        when(merchantServiceMock.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID))
                 .thenReturn(null);
 
         MvcResult result = mockMvc.perform(
@@ -162,7 +163,7 @@ class MerchantPortalMerchantControllerImplTest {
         requestDto.setIban("IT60X0542811101000000123456");
 
         MerchantDetailDTO responseDto = MerchantDetailDTOFaker.mockInstance(1);
-        Mockito.when(merchantServiceMock.patchMerchant(
+        when(merchantServiceMock.patchMerchant(
                 anyString(), anyString(), any(MerchantIbanPatchDTO.class))
         ).thenReturn(responseDto);
 
@@ -185,7 +186,7 @@ class MerchantPortalMerchantControllerImplTest {
                 ReportedUserCreateResponseDTO.class
         );
 
-        Mockito.when(reportedUserService.createReportedUser("USER1", MERCHANT_ID, INITIATIVE_ID))
+        when(reportedUserService.createReportedUser("USER1", MERCHANT_ID, INITIATIVE_ID))
                 .thenReturn(expected);
 
         mockMvc.perform(
@@ -204,7 +205,7 @@ class MerchantPortalMerchantControllerImplTest {
         );
         List<ReportedUserDTO> expected = List.of(dto);
 
-        Mockito.when(reportedUserService.searchReportedUser("USER1", MERCHANT_ID, INITIATIVE_ID))
+        when(reportedUserService.searchReportedUser("USER1", MERCHANT_ID, INITIATIVE_ID))
                 .thenReturn(expected);
 
         MvcResult result = mockMvc.perform(
@@ -237,7 +238,7 @@ class MerchantPortalMerchantControllerImplTest {
                 ReportedUserCreateResponseDTO.class
         );
 
-        Mockito.when(reportedUserService.deleteByUserId("USER1", MERCHANT_ID, INITIATIVE_ID))
+        when(reportedUserService.deleteByUserId("USER1", MERCHANT_ID, INITIATIVE_ID))
                 .thenReturn(expected);
 
         mockMvc.perform(
@@ -269,7 +270,7 @@ class MerchantPortalMerchantControllerImplTest {
                 1
         );
 
-        Mockito.when(merchantServiceMock.processMerchantInitiatives(anyString(), anyString(), any()))
+        when(merchantServiceMock.processMerchantInitiatives(anyString(), anyString(), any()))
                 .thenReturn(mockedPage);
 
         MvcResult result = mockMvc.perform(
@@ -305,7 +306,7 @@ class MerchantPortalMerchantControllerImplTest {
                 .status("ONBOARDING_OK")
                 .build();
 
-        Mockito.when(merchantOnboardingService.onboardMerchant(anyString(), anyString()))
+        when(merchantOnboardingService.onboardMerchant(anyString(), anyString()))
                 .thenReturn(expectedResponse);
 
         MvcResult result = mockMvc.perform(

@@ -7,15 +7,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
+
+import static org.mockito.Mockito.when;
+
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ContextConfiguration(classes = MerchantFileRepositoryExtendedImpl.class)
 class MerchantFileRepositoryExtendedImplTest {
@@ -51,7 +54,7 @@ class MerchantFileRepositoryExtendedImplTest {
 
         List<MerchantFile> fileList = List.of(file);
 
-        Mockito.when(mongoTemplate.findAllAndRemove(Mockito.any(Query.class), Mockito.eq(MerchantFile.class)))
+        when(mongoTemplate.findAllAndRemove(Mockito.any(Query.class), Mockito.eq(MerchantFile.class)))
                 .thenReturn(fileList);
 
         List<MerchantFile> deletedGroups = merchantFileRepositoryExtended.deletePaged(initiativeId, pageSize);

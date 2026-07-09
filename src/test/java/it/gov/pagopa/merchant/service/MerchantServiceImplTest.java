@@ -4,10 +4,10 @@ import com.mongodb.MongoException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
-import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
@@ -115,7 +115,7 @@ class MerchantServiceImplTest {
 
   @AfterEach
   void verifyNoMoreMockInteractions() {
-    Mockito.verifyNoMoreInteractions(
+    verifyNoMoreInteractions(
         merchantDetailServiceMock,
         merchantListServiceMock,
         merchantRepositoryMock,
@@ -388,14 +388,14 @@ class MerchantServiceImplTest {
         .build();
 
     MongoException mongoException = Mockito.mock(MongoException.class);
-    Mockito.when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
+    when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenThrow(mongoException);
 
     assertThrows(MongoException.class,
         () -> merchantService.retrieveOrCreateMerchantIfNotExists(dto));
 
-    Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
-    Mockito.verify(merchantRepositoryMock, Mockito.never()).save(Mockito.any(Merchant.class));
+    verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
+    verify(merchantRepositoryMock, Mockito.never()).save(Mockito.any(Merchant.class));
   }
 
   @Test
@@ -447,16 +447,16 @@ class MerchantServiceImplTest {
         .businessName("businessName")
         .build();
 
-    Mockito.when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
+    when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenReturn(Optional.of(merchant));
 
-    Mockito.when(merchantRepositoryMock.save(merchant))
+    when(merchantRepositoryMock.save(merchant))
         .thenReturn(merchant);
     String merchantIDUpdated = merchantService.retrieveOrCreateMerchantIfNotExists(dto);
 
     assertEquals(expectedMerchantId, merchantIDUpdated);
-    Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
-    Mockito.verify(merchantRepositoryMock).save(Mockito.any(Merchant.class));
+    verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
+    verify(merchantRepositoryMock).save(Mockito.any(Merchant.class));
   }
 
   @Test
