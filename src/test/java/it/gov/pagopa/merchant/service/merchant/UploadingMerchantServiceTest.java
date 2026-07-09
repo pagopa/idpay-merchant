@@ -49,7 +49,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UploadingMerchantServiceTest {
@@ -197,7 +197,7 @@ class UploadingMerchantServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Mockito.verify(merchantFileRepositoryMock, Mockito.times(0))
+        verify(merchantFileRepositoryMock, times(0))
                 .setMerchantFileStatus(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     }
 
@@ -209,7 +209,7 @@ class UploadingMerchantServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Mockito.verify(merchantFileRepositoryMock, Mockito.times(0))
+        verify(merchantFileRepositoryMock, times(0))
                 .setMerchantFileStatus(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
     }
     @Test
@@ -223,7 +223,7 @@ class UploadingMerchantServiceTest {
 
         uploadingMerchantService.execute(buildMessage(storageEventDTOS));
 
-        Mockito.verify(merchantFileRepositoryMock, Mockito.times(1)).setMerchantFileStatus(anyString(), anyString(), anyString());
+        verify(merchantFileRepositoryMock, times(1)).setMerchantFileStatus(anyString(), anyString(), anyString());
     }
     @Test
     void ingestionMerchantFile_initiativeException() throws IOException {
@@ -244,7 +244,7 @@ class UploadingMerchantServiceTest {
         }catch (FeignException e){
             fail();
         }
-        Mockito.verify(merchantFileStorageConnectorMock, Mockito.times(1)).downloadMerchantFile(Mockito.anyString());
+        verify(merchantFileStorageConnectorMock, times(1)).downloadMerchantFile(Mockito.anyString());
     }
 
     @Test
@@ -268,7 +268,7 @@ class UploadingMerchantServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Mockito.verify(repositoryMock, Mockito.times(3)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
+        verify(repositoryMock, times(3)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
 
         inputStream.close();
         outputStream.close();
@@ -297,7 +297,7 @@ class UploadingMerchantServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Mockito.verify(repositoryMock, Mockito.times(3)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
+        verify(repositoryMock, times(3)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
 
         inputStream.close();
         outputStream.close();
@@ -321,7 +321,7 @@ class UploadingMerchantServiceTest {
         } catch (Exception e) {
             fail();
         }
-        Mockito.verify(repositoryMock, Mockito.times(1)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
+        verify(repositoryMock, times(1)).findByFiscalCodeAndAcquirerId(Mockito.anyString(),Mockito.anyString());
     }
 
     @Test
@@ -337,15 +337,15 @@ class UploadingMerchantServiceTest {
 
         uploadingMerchantService.execute(buildMessage(storageEventDTOS));
 
-        Mockito.verify(merchantFileStorageConnectorMock).downloadMerchantFile(Mockito.anyString());
-        Mockito.verify(merchantFileRepositoryMock).setMerchantFileStatus("INITIATIVEID1", "test.csv", MerchantConstants.Status.INITIATIVE_NOT_FOUND);
+        verify(merchantFileStorageConnectorMock).downloadMerchantFile(Mockito.anyString());
+        verify(merchantFileRepositoryMock).setMerchantFileStatus("INITIATIVEID1", "test.csv", MerchantConstants.Status.INITIATIVE_NOT_FOUND);
     }
     @Test
     void testOnDeserializationError() {
 
         uploadingMerchantServiceImpl.onDeserializationError(message, exception);
 
-        Mockito.verify(merchantErrorNotifierServiceMock).notifyMerchantFileUpload(
+        verify(merchantErrorNotifierServiceMock).notifyMerchantFileUpload(
                 message,
                 "[MERCHANT_UPLOAD_FILE] Unexpected JSON",
                 true,

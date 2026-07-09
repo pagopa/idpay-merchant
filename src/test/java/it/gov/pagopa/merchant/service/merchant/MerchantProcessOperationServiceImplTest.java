@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -110,9 +111,9 @@ class MerchantProcessOperationServiceImplTest {
 
         merchantProcessOperationService.processOperation(queueCommandOperationDTO);
 
-        verify(repositoryMock, Mockito.times(times)).findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
+        verify(repositoryMock, times(times)).findByInitiativeIdPageable(queueCommandOperationDTO.getEntityId(),
                 PAGE_SIZE);
-        verify(merchantFileRepository, Mockito.times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
+        verify(merchantFileRepository, times(times)).deletePaged(queueCommandOperationDTO.getEntityId(),
                 PAGE_SIZE);
     }
 
