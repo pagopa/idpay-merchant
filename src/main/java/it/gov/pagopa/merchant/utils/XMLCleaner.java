@@ -55,7 +55,7 @@ public class XMLCleaner {
                  | IOException
                  | TransformerException
                  | IllegalArgumentException e) {
-            throw new XmlProcessingException("Error during xml processing and cleaning", e);
+            throw new XmlProcessingException("Error during xml processing and cleaning");
         }
     }
 

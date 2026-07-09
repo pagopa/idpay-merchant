@@ -26,7 +26,7 @@ public class KeyGenerator {
             kf = KeyFactory.getInstance("RSA");
             return (RSAPrivateKey) kf.generatePrivate(keySpec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new InternalException(e);
+            throw new InternalException("Error while get key");
         }
     }
 
