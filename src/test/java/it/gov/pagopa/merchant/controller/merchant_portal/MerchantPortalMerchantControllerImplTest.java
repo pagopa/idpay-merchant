@@ -4,11 +4,11 @@ import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.merchant.configuration.MerchantErrorManagerConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
-import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.ReportedUserService;
@@ -17,7 +17,6 @@ import it.gov.pagopa.merchant.test.fakers.InitiativeDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantDetailDTOFaker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
@@ -40,6 +39,7 @@ import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -99,7 +99,7 @@ class MerchantPortalMerchantControllerImplTest {
                 )
                 .andExpect(status().isOk());
 
-        Mockito.verify(merchantServiceMock)
+        verify(merchantServiceMock)
                 .patchMerchant(anyString(), anyString(), any(MerchantIbanPatchDTO.class));
     }
 
@@ -132,7 +132,7 @@ class MerchantPortalMerchantControllerImplTest {
 
         Assertions.assertNotNull(resultResponse);
         Assertions.assertEquals(merchantDetailDTO,resultResponse);
-        Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
+        verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
     }
 
     @Test
@@ -154,7 +154,7 @@ class MerchantPortalMerchantControllerImplTest {
 
         Assertions.assertEquals(ExceptionCode.MERCHANT_NOT_ONBOARDED, errorDTO.getCode());
         Assertions.assertEquals(String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID),errorDTO.getMessage());
-        Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
+        verify(merchantServiceMock).getMerchantDetail(anyString(), anyString());
     }
 
     @Test
@@ -175,7 +175,7 @@ class MerchantPortalMerchantControllerImplTest {
                 )
                 .andExpect(status().isOk());
 
-        Mockito.verify(merchantServiceMock)
+        verify(merchantServiceMock)
                 .patchMerchant(anyString(), anyString(), any(MerchantIbanPatchDTO.class));
     }
 
@@ -296,7 +296,7 @@ class MerchantPortalMerchantControllerImplTest {
         );
 
         Assertions.assertEquals(expectedResponse, response);
-        Mockito.verify(merchantServiceMock).processMerchantInitiatives(anyString(), anyString(), any());
+        verify(merchantServiceMock).processMerchantInitiatives(anyString(), anyString(), any());
     }
 
     @Test
@@ -322,7 +322,7 @@ class MerchantPortalMerchantControllerImplTest {
         );
 
         Assertions.assertEquals(expectedResponse, response);
-        Mockito.verify(merchantOnboardingService).onboardMerchant(anyString(), anyString());
+        verify(merchantOnboardingService).onboardMerchant(anyString(), anyString());
     }
 }
 

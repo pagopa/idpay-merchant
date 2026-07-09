@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.mockito.Mockito.verify;
+
 @ExtendWith(MockitoExtension.class)
 class MerchantUpdatingInitiativeServiceTest {
 
@@ -31,7 +33,7 @@ class MerchantUpdatingInitiativeServiceTest {
 
     service.updatingInitiative(queueInitiativeDTO);
 
-    Mockito.verify(repositoryMock, Mockito.times(0)).updateInitiativeOnMerchant(INITIATIVE_ID);
+    verify(repositoryMock, Mockito.times(0)).updateInitiativeOnMerchant(INITIATIVE_ID);
   }
   @Test
   void updatingMerchantInitiativeNotPublished() {
@@ -42,7 +44,7 @@ class MerchantUpdatingInitiativeServiceTest {
 
     service.updatingInitiative(queueInitiativeDTO);
 
-    Mockito.verify(repositoryMock, Mockito.times(0)).updateInitiativeOnMerchant(INITIATIVE_ID);
+    verify(repositoryMock, Mockito.times(0)).updateInitiativeOnMerchant(INITIATIVE_ID);
   }
   @Test
   void updatingMerchantInitiativeNotPublishedAndRefundType() {
@@ -53,7 +55,7 @@ class MerchantUpdatingInitiativeServiceTest {
 
     service.updatingInitiative(queueInitiativeDTO);
 
-    Mockito.verify(repositoryMock, Mockito.times(0)).updateInitiativeOnMerchant(INITIATIVE_ID);
+    verify(repositoryMock, Mockito.times(0)).updateInitiativeOnMerchant(INITIATIVE_ID);
   }
   @Test
   void updatingMerchantInitiative() {
@@ -65,6 +67,6 @@ class MerchantUpdatingInitiativeServiceTest {
 
     service.updatingInitiative(queueInitiativeDTO);
 
-    Mockito.verify(repositoryMock, Mockito.times(1)).updateInitiativeOnMerchant(INITIATIVE_ID);
+    verify(repositoryMock, Mockito.times(1)).updateInitiativeOnMerchant(INITIATIVE_ID);
   }
 }

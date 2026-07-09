@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
@@ -42,7 +43,7 @@ class MerchantFileRepositoryExtendedImplTest {
 
         merchantFileRepositoryExtended.setMerchantFileStatus(INITIATIVE_ID,FILENAME,STATUS);
 
-        Mockito.verify(mongoTemplate, Mockito.times(1)).updateFirst(query,update,MerchantFile.class);
+        verify(mongoTemplate, Mockito.times(1)).updateFirst(query,update,MerchantFile.class);
     }
     @Test
     void deletePaged() {
@@ -59,7 +60,7 @@ class MerchantFileRepositoryExtendedImplTest {
 
         List<MerchantFile> deletedGroups = merchantFileRepositoryExtended.deletePaged(initiativeId, pageSize);
 
-        Mockito.verify(mongoTemplate, Mockito.times(1)).findAllAndRemove(Mockito.any(Query.class),Mockito.eq(MerchantFile.class));
+        verify(mongoTemplate, Mockito.times(1)).findAllAndRemove(Mockito.any(Query.class),Mockito.eq(MerchantFile.class));
 
         Assertions.assertEquals(fileList, deletedGroups);
     }
