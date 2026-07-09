@@ -7,12 +7,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class PdndInfoCamereConnectorImplTest {
 
@@ -23,22 +25,36 @@ class PdndInfoCamereConnectorImplTest {
 
     @BeforeEach
     void setUp() {
-        pdndInfoCamereConnector = new PdndInfoCamereConnectorImpl(pdndCacheableService);
+        pdndInfoCamereConnector =
+                new PdndInfoCamereConnectorImpl(pdndCacheableService);
     }
 
     @Test
     void retrieveAtecoCodes_success() {
+
         String taxCode = "tax123";
         String encryptedTaxCode = "encryptedTax123";
-        List<String> mockAtecoCodes = List.of("1234", "5678");
 
-        mockStatic(DataEncryptionUtils.class);
-        when(DataEncryptionUtils.encrypt(taxCode)).thenReturn(encryptedTaxCode);
-        when(pdndCacheableService.getAtecoCodes(encryptedTaxCode)).thenReturn(mockAtecoCodes);
+        List<String> mockAtecoCodes =
+                List.of("1234", "5678");
 
-        List<String> atecoCodes = pdndInfoCamereConnector.retrieveAtecoCodes(taxCode);
+        try (MockedStatic<DataEncryptionUtils> mockedStatic =
+                     mockStatic(DataEncryptionUtils.class)) {
 
-        assertEquals(mockAtecoCodes, atecoCodes);
-        verify(pdndCacheableService).getAtecoCodes(encryptedTaxCode);
+            mockedStatic.when(() ->
+                            DataEncryptionUtils.encrypt(taxCode))
+                    .thenReturn(encryptedTaxCode);
+
+            when(pdndCacheableService.getAtecoCodes(encryptedTaxCode))
+                    .thenReturn(mockAtecoCodes);
+
+            List<String> atecoCodes =
+                    pdndInfoCamereConnector.retrieveAtecoCodes(taxCode);
+
+            assertEquals(mockAtecoCodes, atecoCodes);
+
+            verify(pdndCacheableService)
+                    .getAtecoCodes(encryptedTaxCode);
+        }
     }
 }
