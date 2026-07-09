@@ -22,7 +22,7 @@ public interface InitiativeRestClient {
   InitiativeDTO getInitiativeDetail(
           @PathVariable("initiativeId") String initiativeId);
 
-  @PostMapping("/initiatives/search")
+  @PostMapping("/idpay/initiatives/search")
   ResponseEntity<PageResponse<InitiativeResponse>> searchInitiatives(
           @RequestBody InitiativeSearchRequest request,
           @SpringQueryMap Pageable pageable);
