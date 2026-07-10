@@ -597,5 +597,75 @@ class PointOfSaleControllerImplTest {
 
     verify(pointOfSaleWriterMock, never()).onboardingPointOfSales(any(), any(), any());
   }
+
+  @Test
+  void excludePointsOfSales_OK() throws Exception {
+    List<String> posIds = List.of("POS1", "POS2");
+
+    ExcludedPointOfSaleDetailDTO excludedPos = ExcludedPointOfSaleDetailDTO.builder()
+            .pointOfSaleId("POS1")
+            .franchiseName("Negozio Escluso 1")
+            .build();
+
+    NotExcludedPointOfSaleDTO notExcludedPos = NotExcludedPointOfSaleDTO.builder()
+            .pointOfSaleId("POS2")
+            .reason(it.gov.pagopa.merchant.dto.enums.PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS)
+            .build();
+
+    PointOfSaleExclusionResultDTO responseDTO = PointOfSaleExclusionResultDTO.builder()
+            .excludedPointOfSales(List.of(excludedPos))
+            .notExcludedPointOfSales(List.of(notExcludedPos))
+            .build();
+
+    when(pointOfSaleWriterMock.excludePointsOfSales(
+            MERCHANT_ID,
+            INITIATIVE_ID,
+            posIds
+    )).thenReturn(responseDTO);
+
+    mockMvc.perform(
+                    MockMvcRequestBuilders.post(
+                                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/exclusion",
+                                    MERCHANT_ID,
+                                    INITIATIVE_ID
+                            )
+                            .header("x-merchant-id", MERCHANT_ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(posIds))
+                            .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.excludedPointOfSales").isArray())
+            .andExpect(jsonPath("$.excludedPointOfSales[0].pointOfSaleId").value("POS1"))
+            .andExpect(jsonPath("$.excludedPointOfSales[0].franchiseName").value("Negozio Escluso 1"))
+            .andExpect(jsonPath("$.notExcludedPointOfSales").isArray())
+            .andExpect(jsonPath("$.notExcludedPointOfSales[0].pointOfSaleId").value("POS2"))
+            .andExpect(jsonPath("$.notExcludedPointOfSales[0].reason").value("HAS_TRANSACTIONS"))
+            .andDo(print())
+            .andReturn();
+
+    verify(pointOfSaleWriterMock).excludePointsOfSales(MERCHANT_ID, INITIATIVE_ID, posIds);
+  }
+
+  @Test
+  void excludePointsOfSalesMerchantMismatch_shouldReturnForbidden() throws Exception {
+    List<String> posIds = List.of("POS1");
+
+    mockMvc.perform(
+                    MockMvcRequestBuilders.post(
+                                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/exclusion",
+                                    MERCHANT_ID,
+                                    INITIATIVE_ID
+                            )
+                            .header("x-merchant-id", "DIFFERENT_MERCHANT_ID")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(posIds))
+                            .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden());
+
+    verify(pointOfSaleWriterMock, never()).excludePointsOfSales(any(), any(), any());
+  }
 }
 
