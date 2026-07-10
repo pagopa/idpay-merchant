@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionDTO;
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
@@ -668,9 +669,11 @@ class PointOfSaleWriterTest {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(true, false));
 
-        var transactionsMock = mock(MerchantTransactionsListDTO.class);
+        MerchantTransactionDTO singleTransaction = mock(MerchantTransactionDTO.class);
+        when(singleTransaction.getPointOfSaleId()).thenReturn("P1");
 
-        doReturn(List.of(mock(Object.class))).when(transactionsMock).getContent();
+        MerchantTransactionsListDTO transactionsMock = mock(MerchantTransactionsListDTO.class);
+        doReturn(List.of(singleTransaction)).when(transactionsMock).getContent();
 
         when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
                 .thenReturn(transactionsMock);
