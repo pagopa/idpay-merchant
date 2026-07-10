@@ -437,14 +437,14 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
                   .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(posId, initiativeId, merchantId);
 
           if (associationOpt.isEmpty()) {
-            log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: already excluded", posId);
+            log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: already excluded", sanitizeString(posId));
             notExcluded.add(NotExcludedPointOfSaleDTO.builder()
                     .pointOfSaleId(posId)
                     .reason(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED)
                     .build());
 
           } else if (hasBlockingTransactions(transactions, posId)) {
-            log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: has active transactions", posId);
+            log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: has active transactions", sanitizeString(posId));
             notExcluded.add(NotExcludedPointOfSaleDTO.builder()
                     .pointOfSaleId(posId)
                     .reason(PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS)
@@ -461,12 +461,12 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
                     .franchiseName(pos.getFranchiseName())
                     .build());
 
-            log.info("[POINT-OF-SALE][EXCLUSION] POS {} successfully excluded", posId);
+            log.info("[POINT-OF-SALE][EXCLUSION] POS {} successfully excluded", sanitizeString(posId));
           }
         }
 
       } catch (Exception ex) {
-        log.error("[POINT-OF-SALE][EXCLUSION] Generic error processing POS {}", posId, ex);
+        log.error("[POINT-OF-SALE][EXCLUSION] Generic error processing POS {}", sanitizeString(posId), ex);
         notExcluded.add(NotExcludedPointOfSaleDTO.builder()
                 .pointOfSaleId(posId)
                 .reason(PosOnbordingExclusionRejectionReason.GENERIC_ERROR)
