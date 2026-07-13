@@ -334,9 +334,6 @@ management:
 merchant:
   defaultInitiatives: ${MERCHANT_DEFAULT_INITIATIVES:}
 
-server:
-  port: 8081
-
 point-of-sales:
   defaultMaxSizeRequest: ${POS_DEFAULT_MAX_SIZE_REQUEST:5}
 
