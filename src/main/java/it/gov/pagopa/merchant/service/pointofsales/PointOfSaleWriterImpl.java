@@ -335,7 +335,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
             notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
                     .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .reason(PosOnbordingRejectionReason.INVALID)
                     .address(posOpt.get().getAddress())
                     .city(posOpt.get().getCity())
@@ -351,7 +351,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
             notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
                     .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
                     .address(posOpt.get().getAddress())
                     .city(posOpt.get().getCity())
@@ -375,7 +375,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
             associatedEntry = AssociatedPointOfSaleDTO.builder()
                     .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .build();
           }
         }

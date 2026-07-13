@@ -14,7 +14,7 @@ import lombok.Data;
 public class NotAssociatedPointOfSaleDTO {
 
     private String pointOfSaleId;
-    private String pointOfSaleName;
+    private String franchiseName;
     private PosOnbordingRejectionReason reason;
     private String city;
     private String address;
