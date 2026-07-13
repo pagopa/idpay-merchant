@@ -1,12 +1,18 @@
 package it.gov.pagopa.merchant.controller.merchant_portal;
 
+import io.micrometer.common.util.StringUtils;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionCode;
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.service.ReportedUserService;
+import it.gov.pagopa.merchant.service.merchant.MerchantOnboardingService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +26,12 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
 
     private final MerchantService merchantService;
     private final ReportedUserService reportedUserService;
+    private final MerchantOnboardingService merchantOnboardingService;
 
-    public MerchantPortalMerchantControllerImpl(MerchantService merchantService, ReportedUserService reportedUserService) {
+    public MerchantPortalMerchantControllerImpl(MerchantService merchantService, ReportedUserService reportedUserService, MerchantOnboardingService merchantOnboardingService) {
         this.merchantService = merchantService;
         this.reportedUserService = reportedUserService;
+        this.merchantOnboardingService = merchantOnboardingService;
     }
 
     @Override
@@ -65,13 +73,53 @@ public class MerchantPortalMerchantControllerImpl implements MerchantPortalMerch
     public List<ReportedUserDTO> getReportedUser(String merchantId, String initiativeId, String userId
     ) {
         return reportedUserService.searchReportedUser(userId, merchantId, initiativeId);
-
     }
 
     @Override
     public ReportedUserCreateResponseDTO deleteReportedUser(String merchantId, String initiativeId, String userId) {
 
         return reportedUserService.deleteByUserId(userId, merchantId, initiativeId);
+    }
 
+
+
+    @Override
+    public ResponseEntity<PageResponse<InitiativeResponse>> getAvailableInitiatives(
+            String merchantId,
+            String initiativeName,
+            Pageable pageable) {
+
+        String sanitizedMerchantId = sanitizeString(merchantId);
+        if(StringUtils.isNotEmpty(initiativeName)) {
+            initiativeName = sanitizeString(initiativeName);
+        }
+        log.info("[AVAILABLE_INITIATIVES] Request available initiative for merchant [{}]",
+                sanitizedMerchantId);
+
+        Page<InitiativeResponse> page = merchantService.processMerchantInitiatives(sanitizedMerchantId, initiativeName, pageable);
+
+        PageResponse<InitiativeResponse> response = new PageResponse<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+    @Override
+    public ResponseEntity<OnboardingResponse> onboardMerchantInitiative(
+            String merchantId,
+            String initiativeId) {
+
+
+        String sanitizedInitiativeId = sanitizeString(initiativeId);
+        String sanitizedMerchantId = sanitizeString(merchantId);
+        log.info("[ONBOARDING_MERCHANT] Onboarding request for merchant [{}] on initiative [{}]",
+                sanitizedMerchantId, sanitizedInitiativeId);
+
+        OnboardingResponse response = merchantOnboardingService.onboardMerchant(sanitizedMerchantId, sanitizedInitiativeId);
+
+        return ResponseEntity.ok(response);
     }
 }

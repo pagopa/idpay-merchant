@@ -62,7 +62,12 @@ public class MerchantConstants {
     public static final String TOO_MANY_REQUESTS = "MERCHANT_TOO_MANY_REQUESTS";
     public static final String GENERIC_ERROR = "MERCHANT_GENERIC_ERROR";
     public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
+    public static final String MERCHANT_ALREDY_ONBORDED = "MERCHANT_ALREDY_ONBORDED";
+    public static final String MERCHANT_NOT_ELIGIBLE = "MERCHANT_NOT_ELIGIBLE";
     public static final String INITIATIVE_NOT_VALID = "INITIATIVE_NOT_VALID";
+    public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
+    public static final String RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND";
+    public static final String XML_PROCESSING_ERROR = "XML_PROCESSING_ERROR";
   }
 
   public static final class ExceptionMessage {

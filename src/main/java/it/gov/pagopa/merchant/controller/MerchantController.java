@@ -70,4 +70,5 @@ public interface MerchantController {
       @PathVariable String merchantId,
       @PathVariable String initiativeId,
       @RequestParam(name = "dryRun", defaultValue = "false") boolean dryRun);
+
 }
