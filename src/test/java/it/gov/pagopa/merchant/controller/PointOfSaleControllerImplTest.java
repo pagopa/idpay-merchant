@@ -22,7 +22,6 @@ import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
@@ -235,7 +234,7 @@ class PointOfSaleControllerImplTest {
     @Test
     void getPointOfSaleTestOK() throws Exception {
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-        Merchant merchant = Mockito.mock(Merchant.class);
+        Merchant merchant = mock(Merchant.class);
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
         when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
@@ -254,9 +253,9 @@ class PointOfSaleControllerImplTest {
 
     Assertions.assertNotNull(result);
 
-        Mockito.verify(pointOfSaleFinderService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
+        verify(pointOfSaleFinderService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
         verify(merchantService).getMerchantByMerchantId(MERCHANT_ID);
-        Mockito.verify(mapper).entityToDto(pointOfSale, merchant);
+        verify(mapper).entityToDto(pointOfSale, merchant);
     }
 
   @Test

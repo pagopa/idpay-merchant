@@ -34,6 +34,8 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -63,7 +65,7 @@ class MerchantControllerImplTest {
     merchantUpdateDTO.setStatus("VALIDATED");
     MockMultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv",
         "content".getBytes());
-    Mockito.when(merchantServiceMock.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID,
+    when(merchantServiceMock.uploadMerchantFile(file, ORGANIZATION_ID, INITIATIVE_ID,
         "ORGANIZATION_USER_ID", ACQUIRER_ID)).thenReturn(merchantUpdateDTO);
 
     MockMultipartHttpServletRequestBuilder builder = multipart(
@@ -82,16 +84,16 @@ class MerchantControllerImplTest {
         .andDo(print())
         .andReturn();
 
-    Mockito.verify(merchantServiceMock)
-        .uploadMerchantFile(Mockito.any(), Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyString(), Mockito.anyString());
+    verify(merchantServiceMock)
+        .uploadMerchantFile(Mockito.any(),anyString(),anyString(),
+           anyString(),anyString());
   }
 
   @Test
   void getMerchantDetail() throws Exception {
     MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
-    Mockito.when(merchantServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString())).thenReturn(dto);
+    when(merchantServiceMock.getMerchantDetail(anyString(),anyString(),
+       anyString())).thenReturn(dto);
 
     MvcResult result = mockMvc.perform(
         get("/idpay/merchant/{merchantId}/organization/{organizationId}/initiative/{initiativeId}",
@@ -104,13 +106,13 @@ class MerchantControllerImplTest {
 
     Assertions.assertNotNull(resultResponse);
     Assertions.assertEquals(dto, resultResponse);
-    Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString(), anyString());
+    verify(merchantServiceMock).getMerchantDetail(anyString(), anyString(), anyString());
   }
 
   @Test
   void getMerchantDetail_notFound() throws Exception {
-    Mockito.when(merchantServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyString()))
+    when(merchantServiceMock.getMerchantDetail(Mockito.anyString(),anyString(),
+           anyString()))
         .thenThrow(new MerchantNotFoundException(
             ExceptionCode.MERCHANT_NOT_ONBOARDED,
             String.format(ExceptionMessage.INITIATIVE_AND_MERCHANT_NOT_FOUND, INITIATIVE_ID)));
@@ -123,15 +125,15 @@ class MerchantControllerImplTest {
             res.getResolvedException() instanceof MerchantNotFoundException))
         .andReturn();
 
-    Mockito.verify(merchantServiceMock).getMerchantDetail(anyString(), anyString(), anyString());
+    verify(merchantServiceMock).getMerchantDetail(anyString(), anyString(), anyString());
   }
 
   @Test
   void getMerchantList() throws Exception {
     MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
         .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();
-    Mockito.when(merchantServiceMock.getMerchantList(Mockito.anyString(), Mockito.anyString(),
-            Mockito.anyString(), Mockito.any()))
+    when(merchantServiceMock.getMerchantList(Mockito.anyString(),anyString(),
+           anyString(), Mockito.any()))
         .thenReturn(dto);
 
     MvcResult result = mockMvc.perform(
@@ -148,7 +150,7 @@ class MerchantControllerImplTest {
 
     Assertions.assertNotNull(resultResponse);
     Assertions.assertEquals(dto, resultResponse);
-    Mockito.verify(merchantServiceMock)
+    verify(merchantServiceMock)
         .getMerchantList(anyString(), anyString(), anyString(), any());
   }
 
@@ -156,7 +158,7 @@ class MerchantControllerImplTest {
   void getMerchantListByInitiative() throws Exception {
     MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
             .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();
-    Mockito.when(merchantServiceMock.getMerchantList(Mockito.anyString(), Mockito.any()))
+    when(merchantServiceMock.getMerchantList(Mockito.anyString(), Mockito.any()))
             .thenReturn(dto);
 
     MvcResult result = mockMvc.perform(
@@ -171,7 +173,7 @@ class MerchantControllerImplTest {
 
     Assertions.assertNotNull(resultResponse);
     Assertions.assertEquals(dto, resultResponse);
-    Mockito.verify(merchantServiceMock)
+    verify(merchantServiceMock)
             .getMerchantList(anyString(), any());
   }
 
@@ -179,7 +181,7 @@ class MerchantControllerImplTest {
   void getMerchantListWithoutFiscalCode() throws Exception {
     MerchantListDTO dto = MerchantListDTO.builder().content(Collections.emptyList())
         .pageNo(1).pageSize(1).totalElements(1).totalPages(1).build();
-    Mockito.when(merchantServiceMock.getMerchantList(Mockito.anyString(), Mockito.anyString(),
+    when(merchantServiceMock.getMerchantList(Mockito.anyString(),anyString(),
             Mockito.isNull(), Mockito.any()))
         .thenReturn(dto);
 
@@ -196,14 +198,14 @@ class MerchantControllerImplTest {
 
     Assertions.assertNotNull(resultResponse);
     Assertions.assertEquals(dto, resultResponse);
-    Mockito.verify(merchantServiceMock).getMerchantList(anyString(), anyString(), isNull(), any());
+    verify(merchantServiceMock).getMerchantList(anyString(), anyString(), isNull(), any());
   }
 
   @Test
   void retrieveMerchantIdOK() throws Exception {
     Merchant merchant = MerchantFaker.mockInstance(1);
 
-    Mockito.when(
+    when(
             merchantServiceMock.retrieveMerchantId(merchant.getAcquirerId(), merchant.getFiscalCode()))
         .thenReturn(merchant.getMerchantId());
 
@@ -217,12 +219,12 @@ class MerchantControllerImplTest {
 
     Assertions.assertNotNull(resultResponse);
     Assertions.assertEquals(merchant.getMerchantId(), resultResponse);
-    Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(), anyString());
+    verify(merchantServiceMock).retrieveMerchantId(anyString(), anyString());
   }
 
   @Test
   void retrieveMerchantId_NotFoundException() throws Exception {
-    Mockito.when(merchantServiceMock.retrieveMerchantId("ACQUIRERID", "FISCALCODE"))
+    when(merchantServiceMock.retrieveMerchantId("ACQUIRERID", "FISCALCODE"))
         .thenReturn(null);
 
     MvcResult result = mockMvc.perform(
@@ -240,7 +242,7 @@ class MerchantControllerImplTest {
 
     Assertions.assertEquals(ExceptionCode.MERCHANT_NOT_FOUND, errorDTO.getCode());
     Assertions.assertEquals(ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, errorDTO.getMessage());
-    Mockito.verify(merchantServiceMock).retrieveMerchantId(anyString(), anyString());
+    verify(merchantServiceMock).retrieveMerchantId(anyString(), anyString());
   }
 
 
@@ -261,7 +263,7 @@ class MerchantControllerImplTest {
         .ibanHolder(ibanHolder)
         .build();
 
-    Mockito.when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
+    when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
             dto))
         .thenReturn(expectedMerchantId);
 
@@ -294,7 +296,7 @@ class MerchantControllerImplTest {
         .build();
 
 
-    Mockito.when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
+    when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
             dto))
         .thenReturn(expectedMerchantId);
 
@@ -320,7 +322,7 @@ class MerchantControllerImplTest {
 
     final String genericException = "Generic Exception";
 
-    Mockito.when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
+    when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
             dto))
         .thenThrow(new RuntimeException(genericException));
 
@@ -345,7 +347,7 @@ class MerchantControllerImplTest {
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId).build();
 
-    Mockito.when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
+    when(merchantServiceMock.retrieveOrCreateMerchantIfNotExists(
             dto))
         .thenReturn(expectedMerchantId);
 
@@ -363,7 +365,7 @@ class MerchantControllerImplTest {
         .message("Merchant successfully deactivated")
         .build();
 
-    Mockito.when(merchantServiceMock.deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, false))
+    when(merchantServiceMock.deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, false))
         .thenReturn(mockResponse);
 
     MvcResult result = mockMvc.perform(
@@ -378,12 +380,12 @@ class MerchantControllerImplTest {
     Assertions.assertNotNull(response);
     Assertions.assertEquals("Merchant successfully deactivated", response.getMessage());
 
-    Mockito.verify(merchantServiceMock).deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, false);
+    verify(merchantServiceMock).deactivateMerchant(MERCHANT_ID, INITIATIVE_ID, false);
   }
 
   @Test
   void deactivateMerchant_notFound() throws Exception {
-    Mockito.when(merchantServiceMock.deactivateMerchant(anyString(), anyString(), any(Boolean.class)))
+    when(merchantServiceMock.deactivateMerchant(anyString(), anyString(), any(Boolean.class)))
         .thenThrow(new MerchantNotFoundException(
             ExceptionCode.MERCHANT_NOT_ONBOARDED,
             "Merchant not found"));
@@ -394,7 +396,7 @@ class MerchantControllerImplTest {
         .andExpect(res -> Assertions.assertInstanceOf(MerchantNotFoundException.class,
             res.getResolvedException()));
 
-    Mockito.verify(merchantServiceMock).deactivateMerchant("UNKNOWN", INITIATIVE_ID, false);
+    verify(merchantServiceMock).deactivateMerchant("UNKNOWN", INITIATIVE_ID, false);
   }
 
 }

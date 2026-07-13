@@ -8,7 +8,7 @@ import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.MerchantUpdateDTO;
 import it.gov.pagopa.merchant.dto.QueueCommandOperationDTO;
 import it.gov.pagopa.merchant.dto.StorageEventDTO;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeDTO;
 import it.gov.pagopa.merchant.event.producer.CommandsProducer;
 import it.gov.pagopa.merchant.exception.custom.FileOperationException;
 import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
@@ -266,7 +266,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
     private boolean saveMerchants(ByteArrayOutputStream byteFile, String fileName, String entityId, String initiativeId) {
         long startTime = System.currentTimeMillis();
 
-        InitiativeBeneficiaryViewDTO initiativeDTO = getInitiativeInfo(initiativeId);
+        InitiativeDTO initiativeDTO = getInitiativeInfo(initiativeId);
         if (initiativeDTO == null) {
             log.error("[INITIATIVE REST CONNECTOR] - Initiative not found {}", initiativeId);
             merchantFileRepository.setMerchantFileStatus(initiativeId, fileName, MerchantConstants.Status.INITIATIVE_NOT_FOUND);
@@ -315,10 +315,10 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         }
     }
 
-    private InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
-        InitiativeBeneficiaryViewDTO initiativeDTO;
+    private InitiativeDTO getInitiativeInfo(String initiativeId) {
+        InitiativeDTO initiativeDTO;
         try {
-            initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
+            initiativeDTO = initiativeRestConnector.getInitiativeDetail(initiativeId);
         } catch (Exception e) {
             log.error("[INITIATIVE REST CONNECTOR] - General exception: {}", e.getMessage());
             throw new InitiativeInvocationException(ExceptionMessage.INITIATIVE_CONNECTOR_ERROR);
@@ -344,7 +344,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 .build();
     }
 
-    private Initiative createMerchantInitiative(InitiativeBeneficiaryViewDTO initiativeDTO) {
+    private Initiative createMerchantInitiative(InitiativeDTO initiativeDTO) {
         return Initiative.builder()
                 .initiativeId(initiativeDTO.getInitiativeId())
                 .initiativeName(initiativeDTO.getInitiativeName())
