@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 @Service
@@ -47,6 +48,9 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
   private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
   private final TransactionConnector transactionConnector;
 
+  private static final String ERROR_MERCHANT_NOT_ONBOARDED = "Merchant with id %s not onboarded on initiative %s";
+  private static final String ERROR_INITIATIVE_ENDED = "Initiative %s ended";
+
   @Override
   public void savePointOfSales(String merchantId, String initiativeId, List<PointOfSaleDTO> dtos) {
 
@@ -57,7 +61,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .findFirst()
             .orElseThrow(() -> new MerchantNotAllowedException(
                     String.format(
-                            "Merchant with id %s not onboarded on initiative %s",
+                            ERROR_MERCHANT_NOT_ONBOARDED,
                             merchantId,
                             initiativeId
                     )
@@ -65,7 +69,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
     if (initiative.getEndDate().isBefore(LocalDate.now())) {
       throw new InitiativeNotValidException(
-              String.format("Initiative %s ended", initiativeId)
+              String.format(ERROR_INITIATIVE_ENDED, initiativeId)
       );
     }
 
@@ -291,7 +295,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .findFirst()
             .orElseThrow(() -> new MerchantNotAllowedException(
                     String.format(
-                            "Merchant with id %s not onboarded on initiative %s",
+                            ERROR_MERCHANT_NOT_ONBOARDED,
                             merchantId,
                             initiativeId
                     )
@@ -299,7 +303,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
     if (initiative.getEndDate().isBefore(LocalDate.now())) {
       throw new InitiativeNotValidException(
-              String.format("Initiative %s ended", initiativeId)
+              String.format(ERROR_INITIATIVE_ENDED, initiativeId)
       );
     }
 
@@ -408,11 +412,11 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .filter(i -> initiativeId.equals(i.getInitiativeId()))
             .findFirst()
             .orElseThrow(() -> new MerchantNotAllowedException(
-                    String.format("Merchant with id %s not onboarded on initiative %s", merchantId, initiativeId)
+                    String.format(ERROR_MERCHANT_NOT_ONBOARDED, merchantId, initiativeId)
             ));
 
-    if (initiative.getEndDate().isBefore(LocalDate.now())) {
-      throw new InitiativeNotValidException(String.format("Initiative %s ended", initiativeId));
+    if (initiative.getEndDate().isBefore(LocalDate.now(ZONEID))) {
+      throw new InitiativeNotValidException(String.format(ERROR_INITIATIVE_ENDED, initiativeId));
     }
 
     MerchantTransactionsListDTO transactions =

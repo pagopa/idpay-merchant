@@ -533,8 +533,10 @@ class PointOfSaleWriterTest {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(false, false));
 
+        List<String> pointsOfSaleIds = List.of("P1");
+
         assertThrows(MerchantNotAllowedException.class,
-                () -> service.excludePointsOfSales(M, I, List.of("P1")));
+                () -> service.excludePointsOfSales(M, I, pointsOfSaleIds));
 
         verifyNoInteractions(transactionConnector, repository, initiativeRepository);
     }
@@ -544,8 +546,10 @@ class PointOfSaleWriterTest {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(true, true));
 
+        List<String> pointsOfSaleIds = List.of("P1");
+
         assertThrows(InitiativeNotValidException.class,
-                () -> service.excludePointsOfSales(M, I, List.of("P1")));
+                () -> service.excludePointsOfSales(M, I, pointsOfSaleIds));
 
         verifyNoInteractions(transactionConnector, repository, initiativeRepository);
     }
