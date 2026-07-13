@@ -443,14 +443,26 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
           if (associationOpt.isEmpty()) {
             log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: already excluded", sanitizeString(posId));
             notExcluded.add(NotExcludedPointOfSaleDTO.builder()
-                    .pointOfSaleId(posId)
+                    .pointOfSaleId(pos.getId())
+                    .pointOfSaleName(pos.getFranchiseName())
+                    .type(pos.getType())
+                    .address(pos.getAddress())
+                    .streetNumber(pos.getStreetNumber())
+                    .city(pos.getCity())
+                    .website(pos.getWebsite())
                     .reason(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED)
                     .build());
 
           } else if (hasBlockingTransactions(transactions, posId)) {
             log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: has active transactions", sanitizeString(posId));
             notExcluded.add(NotExcludedPointOfSaleDTO.builder()
-                    .pointOfSaleId(posId)
+                    .pointOfSaleId(pos.getId())
+                    .pointOfSaleName(pos.getFranchiseName())
+                    .type(pos.getType())
+                    .address(pos.getAddress())
+                    .streetNumber(pos.getStreetNumber())
+                    .city(pos.getCity())
+                    .website(pos.getWebsite())
                     .reason(PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS)
                     .build());
 
@@ -462,7 +474,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
             excluded.add(ExcludedPointOfSaleDetailDTO.builder()
                     .pointOfSaleId(posId)
-                    .franchiseName(pos.getFranchiseName())
+                    .pointOfSaleName(pos.getFranchiseName())
                     .build());
 
             log.info("[POINT-OF-SALE][EXCLUSION] POS {} successfully excluded", sanitizeString(posId));

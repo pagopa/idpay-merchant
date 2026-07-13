@@ -604,7 +604,7 @@ class PointOfSaleControllerImplTest {
 
     ExcludedPointOfSaleDetailDTO excludedPos = ExcludedPointOfSaleDetailDTO.builder()
             .pointOfSaleId("POS1")
-            .franchiseName("Negozio Escluso 1")
+            .pointOfSaleName("Negozio Escluso 1")
             .build();
 
     NotExcludedPointOfSaleDTO notExcludedPos = NotExcludedPointOfSaleDTO.builder()
