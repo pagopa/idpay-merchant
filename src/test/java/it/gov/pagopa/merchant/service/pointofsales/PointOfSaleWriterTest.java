@@ -1,8 +1,12 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionDTO;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.dto.enums.PosOnbordingExclusionRejectionReason;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeNotValidException;
@@ -50,6 +54,8 @@ class PointOfSaleWriterTest {
     PointOfSaleDTOMapper mapper;
     @Mock
     PointOfSalesInitiativeRepository initiativeRepository;
+    @Mock
+    TransactionConnector transactionConnector;
 
     PointOfSaleWriterImpl service;
 
@@ -63,7 +69,8 @@ class PointOfSaleWriterTest {
                 repository,
                 keycloakService,
                 mapper,
-                initiativeRepository
+                initiativeRepository,
+                transactionConnector
         );
     }
 
@@ -521,4 +528,170 @@ class PointOfSaleWriterTest {
     }
 
 
+    @Test
+    void excludePointsOfSales_shouldThrow_whenMerchantNotOnboardedOnInitiative() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(false, false));
+
+        List<String> pointsOfSaleIds = List.of("P1");
+
+        assertThrows(MerchantNotAllowedException.class,
+                () -> service.excludePointsOfSales(M, I, pointsOfSaleIds));
+
+        verifyNoInteractions(transactionConnector, repository, initiativeRepository);
+    }
+
+    @Test
+    void excludePointsOfSales_shouldThrow_whenInitiativeEnded() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, true));
+
+        List<String> pointsOfSaleIds = List.of("P1");
+
+        assertThrows(InitiativeNotValidException.class,
+                () -> service.excludePointsOfSales(M, I, pointsOfSaleIds));
+
+        verifyNoInteractions(transactionConnector, repository, initiativeRepository);
+    }
+
+    @Test
+    void excludePointsOfSales_shouldAddNotExcluded_whenPosNotFound() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
+                .thenReturn(new MerchantTransactionsListDTO());
+        when(repository.findById("P1"))
+                .thenReturn(Optional.empty());
+
+        var result = service.excludePointsOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getNotExcludedPointOfSales().size());
+        assertEquals("P1", result.getNotExcludedPointOfSales().get(0).getPointOfSaleId());
+        assertEquals(PosOnbordingExclusionRejectionReason.NOT_FOUND, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertTrue(result.getExcludedPointOfSales().isEmpty());
+        verify(initiativeRepository, never()).save(any());
+    }
+
+    @Test
+    void excludePointsOfSales_shouldAddNotExcluded_whenAlreadyExcludedOrNeverEnabled() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
+                .thenReturn(new MerchantTransactionsListDTO());
+
+        PointOfSale pos = pos();
+        when(repository.findById("P1")).thenReturn(Optional.of(pos));
+        when(initiativeRepository.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .thenReturn(Optional.empty());
+
+        var result = service.excludePointsOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getNotExcludedPointOfSales().size());
+        assertEquals(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertTrue(result.getExcludedPointOfSales().isEmpty());
+        verify(initiativeRepository, never()).save(any());
+    }
+
+    @Test
+    void excludePointsOfSales_shouldExcludeSuccessfully() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
+                .thenReturn(new MerchantTransactionsListDTO());
+
+        PointOfSale pos = pos();
+        when(repository.findById("P1")).thenReturn(Optional.of(pos));
+
+        PointOfSalesInitiative association = new PointOfSalesInitiative();
+        association.setEnabled(true);
+        when(initiativeRepository.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .thenReturn(Optional.of(association));
+
+        var result = service.excludePointsOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getExcludedPointOfSales().size());
+        assertEquals("P1", result.getExcludedPointOfSales().get(0).getPointOfSaleId());
+        assertEquals("SHOP", result.getExcludedPointOfSales().get(0).getFranchiseName());
+        assertTrue(result.getNotExcludedPointOfSales().isEmpty());
+
+        assertFalse(association.getEnabled());
+        assertNotNull(association.getUpdatedAt());
+        verify(initiativeRepository).save(association);
+    }
+
+    @Test
+    void excludePointsOfSales_shouldHandleGenericException_InsideLoop() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
+                .thenReturn(new MerchantTransactionsListDTO());
+
+        when(repository.findById("P1")).thenThrow(new RuntimeException("DB offline"));
+
+        var result = service.excludePointsOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getNotExcludedPointOfSales().size());
+        assertEquals(PosOnbordingExclusionRejectionReason.GENERIC_ERROR, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertTrue(result.getExcludedPointOfSales().isEmpty());
+    }
+
+    @Test
+    void excludePointsOfSales_shouldHandleMixedResults() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
+                .thenReturn(new MerchantTransactionsListDTO());
+
+        PointOfSale p1 = pos();
+        p1.setId("P1");
+        PointOfSalesInitiative assocP1 = new PointOfSalesInitiative();
+        assocP1.setEnabled(true);
+        when(repository.findById("P1")).thenReturn(Optional.of(p1));
+        when(initiativeRepository.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .thenReturn(Optional.of(assocP1));
+
+        PointOfSale p2 = pos();
+        p2.setId("P2");
+        when(repository.findById("P2")).thenReturn(Optional.of(p2));
+        when(initiativeRepository.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P2", I, M))
+                .thenReturn(Optional.empty());
+
+        var result = service.excludePointsOfSales(M, I, List.of("P1", "P2"));
+
+        assertEquals(1, result.getExcludedPointOfSales().size());
+        assertEquals("P1", result.getExcludedPointOfSales().get(0).getPointOfSaleId());
+
+        assertEquals(1, result.getNotExcludedPointOfSales().size());
+        assertEquals("P2", result.getNotExcludedPointOfSales().get(0).getPointOfSaleId());
+        assertEquals(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED, result.getNotExcludedPointOfSales().get(0).getReason());
+
+        verify(initiativeRepository, times(1)).save(any());
+    }
+
+    @Test
+    void excludePointsOfSales_shouldAddNotExcluded_whenHasBlockingTransactions() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        MerchantTransactionDTO singleTransaction = mock(MerchantTransactionDTO.class);
+        when(singleTransaction.getPointOfSaleId()).thenReturn("P1");
+
+        MerchantTransactionsListDTO transactionsMock = mock(MerchantTransactionsListDTO.class);
+        doReturn(List.of(singleTransaction)).when(transactionsMock).getContent();
+
+        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
+                .thenReturn(transactionsMock);
+
+        PointOfSale pos = pos();
+        when(repository.findById("P1")).thenReturn(Optional.of(pos));
+        when(initiativeRepository.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .thenReturn(Optional.of(new PointOfSalesInitiative()));
+
+        var result = service.excludePointsOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getNotExcludedPointOfSales().size());
+        assertEquals(PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertTrue(result.getExcludedPointOfSales().isEmpty());
+        verify(initiativeRepository, never()).save(any());
+    }
 }
