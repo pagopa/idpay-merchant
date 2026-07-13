@@ -531,12 +531,12 @@ class PointOfSaleControllerImplTest {
 
     AssociatedPointOfSaleDTO associated = AssociatedPointOfSaleDTO.builder()
             .pointOfSaleId("POS1")
-            .pointOfSaleName("Shop 1")
+            .franchiseName("Shop 1")
             .build();
 
     NotAssociatedPointOfSaleDTO notAssociated = NotAssociatedPointOfSaleDTO.builder()
             .pointOfSaleId("POS2")
-            .pointOfSaleName("Shop 2")
+            .franchiseName("Shop 2")
             .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
             .address("ADDR")
             .city("CITY")
@@ -569,7 +569,7 @@ class PointOfSaleControllerImplTest {
 
             .andExpect(jsonPath("$.associated").isArray())
             .andExpect(jsonPath("$.associated[0].pointOfSaleId").value("POS1"))
-            .andExpect(jsonPath("$.associated[0].pointOfSaleName").value("Shop 1"))
+            .andExpect(jsonPath("$.associated[0].franchiseName").value("Shop 1"))
 
             .andExpect(jsonPath("$.notAssociated").isArray())
             .andExpect(jsonPath("$.notAssociated[0].pointOfSaleId").value("POS2"))
