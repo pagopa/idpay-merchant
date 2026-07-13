@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NotExcludedPointOfSaleDTO {
     private String pointOfSaleId;
-    private String pointOfSaleName;
+    private String franchiseName;
     private String type;
     private String address;
     private String streetNumber;

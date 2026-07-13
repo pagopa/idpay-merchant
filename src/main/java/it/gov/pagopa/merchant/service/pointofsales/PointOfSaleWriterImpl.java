@@ -444,7 +444,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: already excluded", sanitizeString(posId));
             notExcluded.add(NotExcludedPointOfSaleDTO.builder()
                     .pointOfSaleId(pos.getId())
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .type(pos.getType())
                     .address(pos.getAddress())
                     .streetNumber(pos.getStreetNumber())
@@ -457,7 +457,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: has active transactions", sanitizeString(posId));
             notExcluded.add(NotExcludedPointOfSaleDTO.builder()
                     .pointOfSaleId(pos.getId())
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .type(pos.getType())
                     .address(pos.getAddress())
                     .streetNumber(pos.getStreetNumber())
@@ -474,7 +474,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
             excluded.add(ExcludedPointOfSaleDetailDTO.builder()
                     .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .build());
 
             log.info("[POINT-OF-SALE][EXCLUSION] POS {} successfully excluded", sanitizeString(posId));

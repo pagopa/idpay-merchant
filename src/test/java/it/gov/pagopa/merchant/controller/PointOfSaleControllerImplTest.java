@@ -604,7 +604,7 @@ class PointOfSaleControllerImplTest {
 
     ExcludedPointOfSaleDetailDTO excludedPos = ExcludedPointOfSaleDetailDTO.builder()
             .pointOfSaleId("POS1")
-            .pointOfSaleName("Negozio Escluso 1")
+            .franchiseName("Negozio Escluso 1")
             .build();
 
     NotExcludedPointOfSaleDTO notExcludedPos = NotExcludedPointOfSaleDTO.builder()
@@ -638,7 +638,7 @@ class PointOfSaleControllerImplTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.excludedPointOfSales").isArray())
             .andExpect(jsonPath("$.excludedPointOfSales[0].pointOfSaleId").value("POS1"))
-            .andExpect(jsonPath("$.excludedPointOfSales[0].pointOfSaleName").value("Negozio Escluso 1"))
+            .andExpect(jsonPath("$.excludedPointOfSales[0].franchiseName").value("Negozio Escluso 1"))
             .andExpect(jsonPath("$.notExcludedPointOfSales").isArray())
             .andExpect(jsonPath("$.notExcludedPointOfSales[0].pointOfSaleId").value("POS2"))
             .andExpect(jsonPath("$.notExcludedPointOfSales[0].reason").value("HAS_TRANSACTIONS"))

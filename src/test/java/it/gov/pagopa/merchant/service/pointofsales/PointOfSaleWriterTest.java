@@ -611,7 +611,7 @@ class PointOfSaleWriterTest {
 
         assertEquals(1, result.getExcludedPointOfSales().size());
         assertEquals("P1", result.getExcludedPointOfSales().get(0).getPointOfSaleId());
-        assertEquals("SHOP", result.getExcludedPointOfSales().get(0).getPointOfSaleName());
+        assertEquals("SHOP", result.getExcludedPointOfSales().get(0).getFranchiseName());
         assertTrue(result.getNotExcludedPointOfSales().isEmpty());
 
         assertFalse(association.getEnabled());
