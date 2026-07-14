@@ -427,7 +427,7 @@ class PointOfSaleWriterTest {
 
         assertEquals(1, result.getNotAssociated().size());
         assertEquals(PosOnbordingRejectionReason.NOT_FOUND,
-                result.getNotAssociated().get(0).getReason());
+                result.getNotAssociated().getFirst().getReason());
     }
 
     @Test
@@ -444,7 +444,7 @@ class PointOfSaleWriterTest {
         var result = service.onboardingPointOfSales(M, I, List.of("P1"));
 
         assertEquals(PosOnbordingRejectionReason.INVALID,
-                result.getNotAssociated().get(0).getReason());
+                result.getNotAssociated().getFirst().getReason());
     }
 
     @Test
@@ -466,7 +466,7 @@ class PointOfSaleWriterTest {
         var result = service.onboardingPointOfSales(M, I, List.of("P1"));
 
         assertEquals(PosOnbordingRejectionReason.ALREADY_ASSOCIATED,
-                result.getNotAssociated().get(0).getReason());
+                result.getNotAssociated().getFirst().getReason());
     }
 
     @Test
@@ -527,7 +527,7 @@ class PointOfSaleWriterTest {
 
         assertEquals(1, result.getNotAssociated().size());
         assertEquals(PosOnbordingRejectionReason.GENERIC_ERROR,
-                result.getNotAssociated().get(0).getReason());
+                result.getNotAssociated().getFirst().getReason());
     }
 
     @Test
@@ -592,8 +592,8 @@ class PointOfSaleWriterTest {
         var result = service.excludePointsOfSales(M, I, List.of("P1"));
 
         assertEquals(1, result.getNotExcludedPointOfSales().size());
-        assertEquals("P1", result.getNotExcludedPointOfSales().get(0).getPointOfSaleId());
-        assertEquals(PosOnbordingExclusionRejectionReason.NOT_FOUND, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertEquals("P1", result.getNotExcludedPointOfSales().getFirst().getPointOfSaleId());
+        assertEquals(PosOnbordingExclusionRejectionReason.NOT_FOUND, result.getNotExcludedPointOfSales().getFirst().getReason());
         assertTrue(result.getExcludedPointOfSales().isEmpty());
         verify(initiativeRepository, never()).save(any());
     }
@@ -613,7 +613,7 @@ class PointOfSaleWriterTest {
         var result = service.excludePointsOfSales(M, I, List.of("P1"));
 
         assertEquals(1, result.getNotExcludedPointOfSales().size());
-        assertEquals(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertEquals(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED, result.getNotExcludedPointOfSales().getFirst().getReason());
         assertTrue(result.getExcludedPointOfSales().isEmpty());
         verify(initiativeRepository, never()).save(any());
     }
@@ -636,8 +636,8 @@ class PointOfSaleWriterTest {
         var result = service.excludePointsOfSales(M, I, List.of("P1"));
 
         assertEquals(1, result.getExcludedPointOfSales().size());
-        assertEquals("P1", result.getExcludedPointOfSales().get(0).getPointOfSaleId());
-        assertEquals("SHOP", result.getExcludedPointOfSales().get(0).getFranchiseName());
+        assertEquals("P1", result.getExcludedPointOfSales().getFirst().getPointOfSaleId());
+        assertEquals("SHOP", result.getExcludedPointOfSales().getFirst().getFranchiseName());
         assertTrue(result.getNotExcludedPointOfSales().isEmpty());
 
         assertFalse(association.getEnabled());
@@ -657,7 +657,7 @@ class PointOfSaleWriterTest {
         var result = service.excludePointsOfSales(M, I, List.of("P1"));
 
         assertEquals(1, result.getNotExcludedPointOfSales().size());
-        assertEquals(PosOnbordingExclusionRejectionReason.GENERIC_ERROR, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertEquals(PosOnbordingExclusionRejectionReason.GENERIC_ERROR, result.getNotExcludedPointOfSales().getFirst().getReason());
         assertTrue(result.getExcludedPointOfSales().isEmpty());
     }
 
@@ -685,11 +685,11 @@ class PointOfSaleWriterTest {
         var result = service.excludePointsOfSales(M, I, List.of("P1", "P2"));
 
         assertEquals(1, result.getExcludedPointOfSales().size());
-        assertEquals("P1", result.getExcludedPointOfSales().get(0).getPointOfSaleId());
+        assertEquals("P1", result.getExcludedPointOfSales().getFirst().getPointOfSaleId());
 
         assertEquals(1, result.getNotExcludedPointOfSales().size());
-        assertEquals("P2", result.getNotExcludedPointOfSales().get(0).getPointOfSaleId());
-        assertEquals(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertEquals("P2", result.getNotExcludedPointOfSales().getFirst().getPointOfSaleId());
+        assertEquals(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED, result.getNotExcludedPointOfSales().getFirst().getReason());
 
         verify(initiativeRepository, times(1)).save(any());
     }
@@ -716,7 +716,7 @@ class PointOfSaleWriterTest {
         var result = service.excludePointsOfSales(M, I, List.of("P1"));
 
         assertEquals(1, result.getNotExcludedPointOfSales().size());
-        assertEquals(PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS, result.getNotExcludedPointOfSales().get(0).getReason());
+        assertEquals(PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS, result.getNotExcludedPointOfSales().getFirst().getReason());
         assertTrue(result.getExcludedPointOfSales().isEmpty());
         verify(initiativeRepository, never()).save(any());
     }
