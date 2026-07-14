@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service.pointofsales;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleInitiativeFilter;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -87,6 +88,36 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
 
         Criteria criteria = pointOfSaleRepository.getCriteria(merchantId, pointOfSaleIds, type, city,
                 address, contactName);
+        return getPointOfSalesPage(criteria, pageable);
+    }
+
+    @Override
+    public Page<PointOfSale> getPointOfSalesListByInitiativeFilter(
+            PointOfSaleInitiativeFilter initiativeFilter,
+            String merchantId,
+            String type,
+            String city,
+            String address,
+            String contactName,
+            Pageable pageable) {
+
+        verifyMerchantExists(merchantId);
+
+        List<String> associatedPointOfSaleIds = pointOfSalesInitiativeRepository
+                .findPointOfSaleIdsByMerchantIdAndEnabledTrue(merchantId);
+
+        if (PointOfSaleInitiativeFilter.ALL_INITIATIVES.equals(initiativeFilter)
+                && associatedPointOfSaleIds.isEmpty()) {
+            return PageableExecutionUtils.getPage(
+                    Collections.emptyList(), Utilities.getPageable(pageable), () -> 0L);
+        }
+
+        Criteria criteria = PointOfSaleInitiativeFilter.NO_INITIATIVE.equals(initiativeFilter)
+                ? pointOfSaleRepository.getCriteriaExcludingPointOfSaleIds(merchantId,
+                        associatedPointOfSaleIds, type, city, address, contactName)
+                : pointOfSaleRepository.getCriteria(merchantId, associatedPointOfSaleIds, type,
+                        city, address, contactName);
+
         return getPointOfSalesPage(criteria, pageable);
     }
 
