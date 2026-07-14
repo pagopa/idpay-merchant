@@ -344,39 +344,51 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
                     .type(PointOfSaleTypeEnum.valueOf(posOpt.get().getType()))
                     .build();
 
-          } else if (pointOfSalesInitiativeRepository
-                  .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(
-                          posId, initiativeId, merchantId)
-                  .isPresent()) {
-
-            notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
-                    .pointOfSaleId(posId)
-                    .franchiseName(pos.getFranchiseName())
-                    .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
-                    .address(posOpt.get().getAddress())
-                    .city(posOpt.get().getCity())
-                    .streetNumber(posOpt.get().getStreetNumber())
-                    .website(posOpt.get().getWebsite())
-                    .type(PointOfSaleTypeEnum.valueOf(posOpt.get().getType()))
-                    .build();
-
           } else {
 
-            pointOfSalesInitiativeRepository.save(
-                    PointOfSalesInitiative.builder()
-                            .pointOfSaleId(posId)
-                            .initiativeId(initiativeId)
-                            .merchantId(merchantId)
-                            .createdAt(Instant.now())
-                            .updatedAt(Instant.now())
-                            .enabled(true)
-                            .build()
-            );
+            Optional<PointOfSalesInitiative> existingAssociationOpt =
+                    pointOfSalesInitiativeRepository
+                            .findByPointOfSaleIdAndInitiativeIdAndMerchantId(
+                                    posId, initiativeId, merchantId);
 
-            associatedEntry = AssociatedPointOfSaleDTO.builder()
-                    .pointOfSaleId(posId)
-                    .franchiseName(pos.getFranchiseName())
-                    .build();
+            if (existingAssociationOpt.isPresent() && Boolean.TRUE.equals(existingAssociationOpt.get().getEnabled())) {
+
+              notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
+                      .pointOfSaleId(posId)
+                      .franchiseName(pos.getFranchiseName())
+                      .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
+                      .address(pos.getAddress())
+                      .city(pos.getCity())
+                      .streetNumber(pos.getStreetNumber())
+                      .website(pos.getWebsite())
+                      .type(PointOfSaleTypeEnum.valueOf(pos.getType()))
+                      .build();
+
+            } else {
+
+              if (existingAssociationOpt.isPresent()) {
+                PointOfSalesInitiative existing = existingAssociationOpt.get();
+                existing.setEnabled(true);
+                existing.setUpdatedAt(Instant.now());
+                pointOfSalesInitiativeRepository.save(existing);
+              } else {
+                pointOfSalesInitiativeRepository.save(
+                        PointOfSalesInitiative.builder()
+                                .pointOfSaleId(posId)
+                                .initiativeId(initiativeId)
+                                .merchantId(merchantId)
+                                .createdAt(Instant.now())
+                                .updatedAt(Instant.now())
+                                .enabled(true)
+                                .build()
+                );
+              }
+
+              associatedEntry = AssociatedPointOfSaleDTO.builder()
+                      .pointOfSaleId(posId)
+                      .franchiseName(pos.getFranchiseName())
+                      .build();
+            }
           }
         }
 
