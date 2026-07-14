@@ -14,6 +14,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MerchantTransactionDTO {
   String trxId;
+  String pointOfSaleId;
   String fiscalCode;
   Long effectiveAmountCents;
   Long rewardAmountCents;

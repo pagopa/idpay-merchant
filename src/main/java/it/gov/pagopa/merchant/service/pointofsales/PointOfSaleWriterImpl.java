@@ -2,13 +2,13 @@ package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.dto.enums.PosOnbordingExclusionRejectionReason;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
-import it.gov.pagopa.merchant.dto.pointofsales.AssociatedPointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.NotAssociatedPointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleOnboardingResultDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.*;
 import it.gov.pagopa.merchant.exception.custom.InitiativeNotValidException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 @Service
@@ -45,6 +46,10 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
   private final KeycloakService keycloakService;
   private final PointOfSaleDTOMapper mapper;
   private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
+  private final TransactionConnector transactionConnector;
+
+  private static final String ERROR_MERCHANT_NOT_ONBOARDED = "Merchant with id %s not onboarded on initiative %s";
+  private static final String ERROR_INITIATIVE_ENDED = "Initiative %s ended";
 
   @Override
   public void savePointOfSales(String merchantId, String initiativeId, List<PointOfSaleDTO> dtos) {
@@ -56,7 +61,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .findFirst()
             .orElseThrow(() -> new MerchantNotAllowedException(
                     String.format(
-                            "Merchant with id %s not onboarded on initiative %s",
+                            ERROR_MERCHANT_NOT_ONBOARDED,
                             merchantId,
                             initiativeId
                     )
@@ -64,7 +69,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
     if (initiative.getEndDate().isBefore(LocalDate.now())) {
       throw new InitiativeNotValidException(
-              String.format("Initiative %s ended", initiativeId)
+              String.format(ERROR_INITIATIVE_ENDED, initiativeId)
       );
     }
 
@@ -290,7 +295,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .findFirst()
             .orElseThrow(() -> new MerchantNotAllowedException(
                     String.format(
-                            "Merchant with id %s not onboarded on initiative %s",
+                            ERROR_MERCHANT_NOT_ONBOARDED,
                             merchantId,
                             initiativeId
                     )
@@ -298,7 +303,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
     if (initiative.getEndDate().isBefore(LocalDate.now())) {
       throw new InitiativeNotValidException(
-              String.format("Initiative %s ended", initiativeId)
+              String.format(ERROR_INITIATIVE_ENDED, initiativeId)
       );
     }
 
@@ -330,7 +335,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
             notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
                     .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .reason(PosOnbordingRejectionReason.INVALID)
                     .address(posOpt.get().getAddress())
                     .city(posOpt.get().getCity())
@@ -346,7 +351,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
             notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
                     .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
                     .address(posOpt.get().getAddress())
                     .city(posOpt.get().getCity())
@@ -370,7 +375,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
             associatedEntry = AssociatedPointOfSaleDTO.builder()
                     .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
+                    .franchiseName(pos.getFranchiseName())
                     .build();
           }
         }
@@ -395,5 +400,108 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
     result.setNotAssociated(notAssociated);
 
     return result;
+  }
+
+  @Override
+  public PointOfSaleExclusionResultDTO excludePointsOfSales(String merchantId, String initiativeId, List<String> pointOfSaleIds) {
+    log.info("[POINT-OF-SALE][EXCLUSION] Processing rich partial exclusion for merchantId={} on initiativeId={}",
+            merchantId, initiativeId);
+
+    Merchant merchant = merchantService.getMerchantByMerchantId(merchantId);
+    Initiative initiative = merchant.getInitiativeList().stream()
+            .filter(i -> initiativeId.equals(i.getInitiativeId()))
+            .findFirst()
+            .orElseThrow(() -> new MerchantNotAllowedException(
+                    String.format(ERROR_MERCHANT_NOT_ONBOARDED, merchantId, initiativeId)
+            ));
+
+    if (initiative.getEndDate().isBefore(LocalDate.now(ZONEID))) {
+      throw new InitiativeNotValidException(String.format(ERROR_INITIATIVE_ENDED, initiativeId));
+    }
+
+    MerchantTransactionsListDTO transactions =
+            transactionConnector.getMerchantTransactions(merchantId, initiativeId, null, null, null);
+
+    List<ExcludedPointOfSaleDetailDTO> excluded = new ArrayList<>();
+    List<NotExcludedPointOfSaleDTO> notExcluded = new ArrayList<>();
+
+    for (String posId : pointOfSaleIds) {
+      try {
+        Optional<PointOfSale> posOpt = pointOfSaleRepository.findById(posId);
+
+        if (posOpt.isEmpty()) {
+          notExcluded.add(NotExcludedPointOfSaleDTO.builder()
+                  .pointOfSaleId(posId)
+                  .reason(PosOnbordingExclusionRejectionReason.NOT_FOUND)
+                  .build());
+        } else {
+          PointOfSale pos = posOpt.get();
+
+          Optional<PointOfSalesInitiative> associationOpt = pointOfSalesInitiativeRepository
+                  .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(posId, initiativeId, merchantId);
+
+          if (associationOpt.isEmpty()) {
+            log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: already excluded", sanitizeString(posId));
+            notExcluded.add(NotExcludedPointOfSaleDTO.builder()
+                    .pointOfSaleId(pos.getId())
+                    .franchiseName(pos.getFranchiseName())
+                    .type(pos.getType())
+                    .address(pos.getAddress())
+                    .streetNumber(pos.getStreetNumber())
+                    .city(pos.getCity())
+                    .website(pos.getWebsite())
+                    .reason(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED)
+                    .build());
+
+          } else if (hasBlockingTransactions(transactions, posId)) {
+            log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: has active transactions", sanitizeString(posId));
+            notExcluded.add(NotExcludedPointOfSaleDTO.builder()
+                    .pointOfSaleId(pos.getId())
+                    .franchiseName(pos.getFranchiseName())
+                    .type(pos.getType())
+                    .address(pos.getAddress())
+                    .streetNumber(pos.getStreetNumber())
+                    .city(pos.getCity())
+                    .website(pos.getWebsite())
+                    .reason(PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS)
+                    .build());
+
+          } else {
+            PointOfSalesInitiative association = associationOpt.get();
+            association.setEnabled(false);
+            association.setUpdatedAt(Instant.now());
+            pointOfSalesInitiativeRepository.save(association);
+
+            excluded.add(ExcludedPointOfSaleDetailDTO.builder()
+                    .pointOfSaleId(posId)
+                    .franchiseName(pos.getFranchiseName())
+                    .build());
+
+            log.info("[POINT-OF-SALE][EXCLUSION] POS {} successfully excluded", sanitizeString(posId));
+          }
+        }
+
+      } catch (Exception ex) {
+        log.error("[POINT-OF-SALE][EXCLUSION] Generic error processing POS {}", sanitizeString(posId), ex);
+        notExcluded.add(NotExcludedPointOfSaleDTO.builder()
+                .pointOfSaleId(posId)
+                .reason(PosOnbordingExclusionRejectionReason.GENERIC_ERROR)
+                .build());
+      }
+    }
+
+    return PointOfSaleExclusionResultDTO.builder()
+            .excludedPointOfSales(excluded)
+            .notExcludedPointOfSales(notExcluded)
+            .build();
+  }
+
+  private boolean hasBlockingTransactions(MerchantTransactionsListDTO transactions, String posId) {
+    if (transactions == null || transactions.getContent() == null) {
+      return false;
+    }
+
+    return transactions.getContent().stream()
+            .anyMatch(t -> posId.equals(t.getPointOfSaleId()));
   }
 }

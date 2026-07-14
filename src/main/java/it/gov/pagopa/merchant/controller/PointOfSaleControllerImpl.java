@@ -242,4 +242,19 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     return ResponseEntity.ok(dto);
   }
 
+  @Override
+  public ResponseEntity<PointOfSaleExclusionResultDTO> excludePointsOfSales(String merchantId, String initiativeId, String tokenMerchantId, List<String> pointOfSaleIds) {
+    String sanitizedInitiativeId = sanitizeString(initiativeId);
+    String sanitizedMerchantId = sanitizeString(merchantId);
+
+    log.info("[POINT-OF-SALE][EXCLUSION] Request to exclude {} point(s) of sale for merchantId={} from initiativeId={}",
+            pointOfSaleIds.size(), sanitizedMerchantId, sanitizedInitiativeId);
+
+    validateMerchantAccess(tokenMerchantId, sanitizedMerchantId);
+
+    PointOfSaleExclusionResultDTO result = pointOfSaleWriter.excludePointsOfSales(sanitizedMerchantId, sanitizedInitiativeId, pointOfSaleIds);
+
+    return ResponseEntity.ok(result);
+  }
+
 }
