@@ -457,14 +457,40 @@ class PointOfSaleWriterTest {
         when(repository.findById("P1"))
                 .thenReturn(Optional.of(pos));
 
+        PointOfSalesInitiative enabledAssoc = new PointOfSalesInitiative();
+        enabledAssoc.setEnabled(true);
         when(initiativeRepository
-                .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
-                .thenReturn(Optional.of(new PointOfSalesInitiative()));
+                .findByPointOfSaleIdAndInitiativeIdAndMerchantId("P1", I, M))
+                .thenReturn(Optional.of(enabledAssoc));
 
         var result = service.onboardingPointOfSales(M, I, List.of("P1"));
 
         assertEquals(PosOnbordingRejectionReason.ALREADY_ASSOCIATED,
                 result.getNotAssociated().get(0).getReason());
+    }
+
+    @Test
+    void shouldReEnable_whenAssociationExistsButDisabled() {
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        PointOfSale pos = pos();
+        when(repository.findById("P1"))
+                .thenReturn(Optional.of(pos));
+
+        PointOfSalesInitiative disabledAssoc = new PointOfSalesInitiative();
+        disabledAssoc.setEnabled(false);
+        when(initiativeRepository
+                .findByPointOfSaleIdAndInitiativeIdAndMerchantId("P1", I, M))
+                .thenReturn(Optional.of(disabledAssoc));
+
+        var result = service.onboardingPointOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getAssociated().size());
+        assertTrue(result.getNotAssociated().isEmpty());
+        assertTrue(disabledAssoc.getEnabled());
+        assertNotNull(disabledAssoc.getUpdatedAt());
+        verify(initiativeRepository).save(disabledAssoc);
     }
 
     @Test
@@ -478,7 +504,7 @@ class PointOfSaleWriterTest {
                 .thenReturn(Optional.of(pos));
 
         when(initiativeRepository
-                .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .findByPointOfSaleIdAndInitiativeIdAndMerchantId("P1", I, M))
                 .thenReturn(Optional.empty());
 
         var result = service.onboardingPointOfSales(M, I, List.of("P1"));
@@ -518,7 +544,7 @@ class PointOfSaleWriterTest {
                 .thenReturn(Optional.empty());
 
         when(initiativeRepository
-                .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .findByPointOfSaleIdAndInitiativeIdAndMerchantId("P1", I, M))
                 .thenReturn(Optional.empty());
 
         var result = service.onboardingPointOfSales(M, I, List.of("P1", "P2"));
