@@ -34,6 +34,7 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -735,9 +736,76 @@ class MerchantServiceImplTest {
 
     assertNotNull(result);
     assertEquals(1, result.getTotalElements());
-    assertEquals("initiative2", result.getContent().get(0).getInitiativeId());
+    assertEquals("initiative2", result.getContent().getFirst().getInitiativeId());
     verify(merchantRepositoryMock).save(merchant);
     verify(initiativeRestClientMock).searchInitiatives(any(), eq(pageable));
+  }
+
+  @Test
+  void processMerchantInitiatives_nullMerchantAtecoCodes_success() {
+    String merchantId = "merchant123";
+    String initiativeName = "Initiative 1";
+    Pageable pageable = Pageable.ofSize(10);
+
+    Merchant merchant = new Merchant();
+    merchant.setMerchantId(merchantId);
+    merchant.setVatNumber("123456789");
+    merchant.setAtecoCodes(null);
+    merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
+
+    List<String> newAtecoCodes = List.of("1234", "5678");
+    PageResponse<InitiativeResponse> mockResponse = new PageResponse<>(
+            List.of(InitiativeResponse.builder().initiativeId("initiative2").status("ACTIVE").build()),
+            0, 10, 1
+    );
+
+    ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
+    when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getVatNumber())).thenReturn(newAtecoCodes);
+    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+
+    Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    assertEquals("initiative2", result.getContent().getFirst().getInitiativeId());
+    verify(merchantRepositoryMock).save(merchant);
+    verify(initiativeRestClientMock).searchInitiatives(any(), eq(pageable));
+  }
+
+  @Test
+  void processMerchantInitiatives_nullPdndAtecoCodes_success() {
+    String merchantId = "merchant123";
+    String initiativeName = "Initiative 1";
+    Pageable pageable = Pageable.ofSize(10);
+
+    Merchant merchant = new Merchant();
+    merchant.setMerchantId(merchantId);
+    merchant.setVatNumber("123456789");
+    merchant.setAtecoCodes(null);
+    merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
+
+    PageResponse<InitiativeResponse> mockResponse = new PageResponse<>(
+            List.of(InitiativeResponse.builder().initiativeId("initiative2").status("ACTIVE").build()),
+            0, 10, 1
+    );
+
+    ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
+    when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getVatNumber())).thenReturn(null);
+    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+
+    Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
+
+    ArgumentCaptor<InitiativeSearchRequest> requestCaptor = ArgumentCaptor.forClass(InitiativeSearchRequest.class);
+    verify(initiativeRestClientMock).searchInitiatives(requestCaptor.capture(), eq(pageable));
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    assertEquals("initiative2", result.getContent().getFirst().getInitiativeId());
+    assertNotNull(requestCaptor.getValue());
+    assertEquals(Collections.emptyList(), requestCaptor.getValue().getAtecoCodes());
+    verify(merchantRepositoryMock, never()).save(merchant);
   }
 
   @Test

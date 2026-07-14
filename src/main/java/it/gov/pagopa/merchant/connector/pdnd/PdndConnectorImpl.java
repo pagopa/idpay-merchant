@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import static it.gov.pagopa.merchant.constants.PdndConst.PDND_TOKEN_CACHE;
+import static it.gov.pagopa.merchant.constants.PdndConst.REDIS_CACHE_MANAGER;
 
 @Slf4j
 @Service
@@ -18,7 +19,7 @@ public class PdndConnectorImpl {
         this.pdndRestClient = pdndRestClient;
     }
 
-    @Cacheable(value = PDND_TOKEN_CACHE, key = "#clientId", cacheManager = PDND_TOKEN_CACHE)
+    @Cacheable(value = PDND_TOKEN_CACHE, key = "#clientId", cacheManager = REDIS_CACHE_MANAGER)
     public ClientCredentialsResponse createToken(String clientAssertion, String clientAssertionType, String grantType, String clientId) {
         log.debug("clientAssertionType = {}, grantType = {}, clientId = {}", clientAssertionType, grantType, clientId);
         PdndTokenForm form = PdndTokenForm.builder()

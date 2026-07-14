@@ -13,6 +13,10 @@ public interface PointOfSalesInitiativeRepository
             String pointOfSaleId, String initiativeId, String merchantId
     );
 
+    Optional<PointOfSalesInitiative> findByPointOfSaleIdAndInitiativeIdAndMerchantId(
+            String pointOfSaleId, String initiativeId, String merchantId
+    );
+
     void deleteByMerchantIdAndInitiativeIdAndPointOfSaleIdIn(String merchantId, String initiativeId, List<String> pointOfSaleId);
 
     List<PointOfSalesInitiative> findByPointOfSaleIdAndEnabledTrue(String pointOfSaleId);

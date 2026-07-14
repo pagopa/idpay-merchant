@@ -150,9 +150,13 @@ public class MerchantServiceImpl implements MerchantService {
     Merchant merchant = merchantRepository.findById(merchantId)
             .orElseThrow(() -> new MerchantNotFoundException(merchantId));
 
-    List<String> newAtecoCodes = pdndConnector.retrieveAtecoCodes(merchant.getVatNumber());
+    List<String> newAtecoCodes = Optional.ofNullable(pdndConnector.retrieveAtecoCodes(merchant.getVatNumber()))
+            .orElse(Collections.emptyList());
+    Set<String> currentAtecoCodes = new HashSet<>(Optional.ofNullable(merchant.getAtecoCodes())
+            .orElse(Collections.emptyList()));
+    Set<String> retrievedAtecoCodes = new HashSet<>(newAtecoCodes);
 
-    if (!new HashSet<>(newAtecoCodes).equals(new HashSet<>(merchant.getAtecoCodes()))) {
+    if (!retrievedAtecoCodes.equals(currentAtecoCodes)) {
       merchant.setAtecoCodes(newAtecoCodes);
       merchant.setUpdateDate(LocalDateTime.now());
       merchantRepository.save(merchant);
