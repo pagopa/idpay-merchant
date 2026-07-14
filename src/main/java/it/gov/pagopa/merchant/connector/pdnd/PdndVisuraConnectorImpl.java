@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.connector.pdnd;
 
 import static it.gov.pagopa.merchant.constants.PdndConst.PDND_VISURA_TOKEN_CACHE;
+import static it.gov.pagopa.merchant.constants.PdndConst.REDIS_CACHE_MANAGER;
 
 import it.gov.pagopa.merchant.connector.pdnd.rest.PdndRestClient;
 import it.gov.pagopa.merchant.dto.pdnd.PdndTokenForm;
@@ -18,7 +19,7 @@ public class PdndVisuraConnectorImpl {
         this.pdndRestClient = pdndRestClient;
     }
 
-    @Cacheable(value = PDND_VISURA_TOKEN_CACHE, key = "#clientId", cacheManager = PDND_VISURA_TOKEN_CACHE)
+    @Cacheable(value = PDND_VISURA_TOKEN_CACHE, key = "#clientId", cacheManager = REDIS_CACHE_MANAGER)
     public ClientCredentialsResponse createToken(String clientAssertion, String clientAssertionType, String grantType, String clientId) {
         log.debug(" clientAssertionType = {}, grantType = {}, clientId = {}", clientAssertionType, grantType, clientId);
         PdndTokenForm form = PdndTokenForm.builder()

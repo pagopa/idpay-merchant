@@ -177,6 +177,8 @@ spring:
   data:
     redis:
       url: ${REDIS_CONNECTION_URL:redis://@localhost:6379}
+  redis:
+    enabled: ${REDIS_CACHE_ENABLED:true}
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
@@ -317,6 +319,7 @@ keycloak:
 
 management:
   health:
+    redis.enabled: ${REDIS_CACHE_ENABLED:true}
     mongo.enabled: ${HEALTH_MONGO_ENABLED:true}
   endpoint:
     health:
@@ -340,3 +343,9 @@ point-of-sales:
 encryption:
   defaultKey: ${MERCHANT_ENCRYPTION_KEY:1234567890123456}
   defaultIv: ${MERCHANT_ENCRYPTION_IV:123456789012}
+
+cache:
+  pdnd-token-ttl-seconds: ${CACHE_PDND_TOKEN_TTL_SECONDS:60}
+  pdnd-client-assertion-ttl-seconds: ${CACHE_PDND_CLIENT_ASSERTION_TTL_SECONDS:3300}
+  pdnd-ateco-codes-ttl-seconds: ${CACHE_PDND_ATECO_CODES_TTL_SECONDS:28800}
+
