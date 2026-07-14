@@ -14,11 +14,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import static it.gov.pagopa.merchant.constants.PdndConst.PDND_VISURA_CLIENT_ASSERTION_CACHE;
+import static it.gov.pagopa.merchant.constants.PdndConst.REDIS_CACHE_MANAGER;
 
 @Slf4j
 @Component
 public class AssertionGeneratorVisura {
-    @Cacheable(value = PDND_VISURA_CLIENT_ASSERTION_CACHE, key = "#jwtCfg.kid", cacheManager = PDND_VISURA_CLIENT_ASSERTION_CACHE)
+    @Cacheable(value = PDND_VISURA_CLIENT_ASSERTION_CACHE, key = "#jwtCfg.kid", cacheManager = REDIS_CACHE_MANAGER)
     public String generateClientAssertion(JwtConfig jwtCfg, String privateKey) {
         log.info("START - AssertionGenerator.generateClientAssertion");
         long startTime = System.currentTimeMillis();
