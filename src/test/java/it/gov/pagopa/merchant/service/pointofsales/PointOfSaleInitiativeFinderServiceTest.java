@@ -231,10 +231,12 @@ class PointOfSaleInitiativeFinderServiceTest {
 
     verifyNoInteractions(pointOfSalesInitiativeRepositoryMock);
   }
+
   @Test
   void getInitiativesByPointOfSaleId_OK() {
 
     String posId = "POS_ID";
+    Instant expectedCreatedAt = Instant.parse("2026-07-15T10:15:30.00Z");
 
     Initiative initiative = Initiative.builder()
             .initiativeId(INITIATIVE_ID)
@@ -251,6 +253,7 @@ class PointOfSaleInitiativeFinderServiceTest {
     PointOfSalesInitiative relation = PointOfSalesInitiative.builder()
             .pointOfSaleId(posId)
             .initiativeId(INITIATIVE_ID)
+            .createdAt(expectedCreatedAt)
             .build();
 
     when(merchantRepositoryMock.findById(MERCHANT_ID))
@@ -267,6 +270,90 @@ class PointOfSaleInitiativeFinderServiceTest {
     Assertions.assertNotNull(result);
     Assertions.assertEquals(1, result.getInitiatives().size());
     Assertions.assertEquals(INITIATIVE_ID, result.getInitiatives().get(0).getInitiativeId());
+    Assertions.assertEquals(expectedCreatedAt, result.getInitiatives().get(0).getCreatedAt());
+
+    verify(merchantRepositoryMock).findById(MERCHANT_ID);
+    verify(pointOfSalesInitiativeRepositoryMock).findByPointOfSaleIdAndEnabledTrue(posId);
+  }
+
+  @Test
+  void getInitiativesByPointOfSaleId_withNullRelation_shouldMapNullCreatedAt() {
+    String posId = "POS_ID";
+
+    Initiative initiative = Initiative.builder()
+            .initiativeId(INITIATIVE_ID)
+            .initiativeName("Test initiative")
+            .organizationName("Org")
+            .status("ACTIVE")
+            .build();
+
+    Merchant merchant = Merchant.builder()
+            .merchantId(MERCHANT_ID)
+            .initiativeList(List.of(initiative))
+            .build();
+
+    PointOfSalesInitiative relation = PointOfSalesInitiative.builder()
+            .pointOfSaleId(posId)
+            .initiativeId("ANOTHER_INITIATIVE_ID")
+            .build();
+
+    when(merchantRepositoryMock.findById(MERCHANT_ID))
+            .thenReturn(Optional.of(merchant));
+
+    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleIdAndEnabledTrue(posId))
+            .thenReturn(List.of(relation));
+
+    PointOfSaleInitiativeListDTO result =
+            service.getInitiativesByPointOfSaleId(posId, MERCHANT_ID);
+
+    Assertions.assertNotNull(result);
+    Assertions.assertTrue(result.getInitiatives().isEmpty());
+  }
+
+  @Test
+  void getInitiativesByPointOfSaleId_withDuplicateRelations_shouldMergeWithoutThrowingException() {
+    String posId = "POS_ID";
+    Instant firstCreatedAt = Instant.parse("2026-07-15T10:15:30.00Z");
+    Instant secondCreatedAt = Instant.parse("2026-07-15T11:15:30.00Z");
+
+    Initiative initiative = Initiative.builder()
+            .initiativeId(INITIATIVE_ID)
+            .initiativeName("Test initiative")
+            .organizationName("Org")
+            .status("ACTIVE")
+            .build();
+
+    Merchant merchant = Merchant.builder()
+            .merchantId(MERCHANT_ID)
+            .initiativeList(List.of(initiative))
+            .build();
+
+    PointOfSalesInitiative relation1 = PointOfSalesInitiative.builder()
+            .pointOfSaleId(posId)
+            .initiativeId(INITIATIVE_ID)
+            .createdAt(firstCreatedAt)
+            .build();
+
+    PointOfSalesInitiative relation2 = PointOfSalesInitiative.builder()
+            .pointOfSaleId(posId)
+            .initiativeId(INITIATIVE_ID)
+            .createdAt(secondCreatedAt)
+            .build();
+
+    when(merchantRepositoryMock.findById(MERCHANT_ID))
+            .thenReturn(Optional.of(merchant));
+
+    when(pointOfSalesInitiativeRepositoryMock.findByPointOfSaleIdAndEnabledTrue(posId))
+            .thenReturn(List.of(relation1, relation2));
+
+    PointOfSaleInitiativeListDTO result =
+            service.getInitiativesByPointOfSaleId(posId, MERCHANT_ID);
+
+    Assertions.assertNotNull(result);
+
+    Assertions.assertEquals(1, result.getInitiatives().size());
+
+    Assertions.assertEquals(firstCreatedAt, result.getInitiatives().get(0).getCreatedAt());
 
     verify(merchantRepositoryMock).findById(MERCHANT_ID);
     verify(pointOfSalesInitiativeRepositoryMock).findByPointOfSaleIdAndEnabledTrue(posId);
