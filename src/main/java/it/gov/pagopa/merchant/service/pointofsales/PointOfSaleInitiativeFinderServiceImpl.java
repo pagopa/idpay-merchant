@@ -119,9 +119,16 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
         List<PointOfSalesInitiative> posInitiatives =
                 pointOfSalesInitiativeRepository.findByPointOfSaleIdAndEnabledTrue(pointOfSaleId);
 
+        Map<String, PointOfSalesInitiative> posInitiativeMap = posInitiatives.stream()
+                .collect(Collectors.toMap(
+                        PointOfSalesInitiative::getInitiativeId,
+                        Function.identity(),
+                        (existing, replacement) -> existing
+                ));
+
         List<Initiative> validInitiatives = new ArrayList<>();
 
-        for (PointOfSalesInitiative posInitiative : posInitiatives) {
+        for (PointOfSalesInitiative posInitiative : posInitiativeMap.values()) {
             String initiativeId = posInitiative.getInitiativeId();
 
             Initiative initiative = initiativeMap.get(initiativeId);
@@ -144,7 +151,10 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
                         Initiative::getInitiativeName,
                         Comparator.nullsLast(String::compareToIgnoreCase)
                 ))
-                .map(pointOfSaleInitiativeDTOMapper::initiativeEntityToDto)
+                .map(initiative -> {
+                    PointOfSalesInitiative posInitiative = posInitiativeMap.get(initiative.getInitiativeId());
+                    return pointOfSaleInitiativeDTOMapper.initiativeEntityToDto(initiative, posInitiative);
+                })
                 .toList();
 
         return PointOfSaleInitiativeListDTO.builder()
