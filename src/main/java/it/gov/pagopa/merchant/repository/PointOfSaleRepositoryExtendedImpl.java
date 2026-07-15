@@ -47,7 +47,7 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
                             Aggregation.addFields().addFieldWithValue("typeOrder", switchExpr).build(),
 
-                            Aggregation.sort(Sort.by(direction, "typeOrder")),
+                            Aggregation.sort(direction, "typeOrder"),
 
                             Aggregation.skip(pageable.getOffset()),
                             Aggregation.limit(pageable.getPageSize())
