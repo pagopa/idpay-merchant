@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service.pointofsales;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleInitiativeFilter;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -91,6 +92,36 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
     }
 
     @Override
+    public Page<PointOfSale> getPointOfSalesListByInitiativeFilter(
+            PointOfSaleInitiativeFilter initiativeFilter,
+            String merchantId,
+            String type,
+            String city,
+            String address,
+            String contactName,
+            Pageable pageable) {
+
+        verifyMerchantExists(merchantId);
+
+        List<String> associatedPointOfSaleIds = pointOfSalesInitiativeRepository
+                .findPointOfSaleIdsByMerchantIdAndEnabledTrue(merchantId);
+
+        if (PointOfSaleInitiativeFilter.ALL_INITIATIVES.equals(initiativeFilter)
+                && associatedPointOfSaleIds.isEmpty()) {
+            return PageableExecutionUtils.getPage(
+                    Collections.emptyList(), Utilities.getPageable(pageable), () -> 0L);
+        }
+
+        Criteria criteria = PointOfSaleInitiativeFilter.NO_INITIATIVE.equals(initiativeFilter)
+                ? pointOfSaleRepository.getCriteriaExcludingPointOfSaleIds(merchantId,
+                        associatedPointOfSaleIds, type, city, address, contactName)
+                : pointOfSaleRepository.getCriteria(merchantId, associatedPointOfSaleIds, type,
+                        city, address, contactName);
+
+        return getPointOfSalesPage(criteria, pageable);
+    }
+
+    @Override
     public PointOfSaleInitiativeListDTO getInitiativesByPointOfSaleIdAndMerchantId(
             String pointOfSaleId, String merchantId) {
         verifyMerchantExists(merchantId);
@@ -119,9 +150,16 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
         List<PointOfSalesInitiative> posInitiatives =
                 pointOfSalesInitiativeRepository.findByPointOfSaleIdAndEnabledTrue(pointOfSaleId);
 
+        Map<String, PointOfSalesInitiative> posInitiativeMap = posInitiatives.stream()
+                .collect(Collectors.toMap(
+                        PointOfSalesInitiative::getInitiativeId,
+                        Function.identity(),
+                        (existing, replacement) -> existing
+                ));
+
         List<Initiative> validInitiatives = new ArrayList<>();
 
-        for (PointOfSalesInitiative posInitiative : posInitiatives) {
+        for (PointOfSalesInitiative posInitiative : posInitiativeMap.values()) {
             String initiativeId = posInitiative.getInitiativeId();
 
             Initiative initiative = initiativeMap.get(initiativeId);
@@ -144,7 +182,10 @@ public class PointOfSaleInitiativeFinderServiceImpl implements PointOfSaleInitia
                         Initiative::getInitiativeName,
                         Comparator.nullsLast(String::compareToIgnoreCase)
                 ))
-                .map(pointOfSaleInitiativeDTOMapper::initiativeEntityToDto)
+                .map(initiative -> {
+                    PointOfSalesInitiative posInitiative = posInitiativeMap.get(initiative.getInitiativeId());
+                    return pointOfSaleInitiativeDTOMapper.initiativeEntityToDto(initiative, posInitiative);
+                })
                 .toList();
 
         return PointOfSaleInitiativeListDTO.builder()

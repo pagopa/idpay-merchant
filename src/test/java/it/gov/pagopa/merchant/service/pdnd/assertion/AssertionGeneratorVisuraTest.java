@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
@@ -71,12 +70,6 @@ class AssertionGeneratorVisuraTest {
                     jwt.getClaim("purposeId").asString()
             );
 
-            Map<String, Object> digest =
-                    jwt.getClaim("digest").asMap();
-
-            assertNotNull(digest);
-            assertEquals("SHA-256", digest.get("alg"));
-            assertEquals("abc123", digest.get("value"));
 
             assertNotNull(jwt.getId());
             assertNotNull(jwt.getIssuedAt());

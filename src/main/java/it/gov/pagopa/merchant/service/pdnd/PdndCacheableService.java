@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static it.gov.pagopa.merchant.utils.DataEncryptionUtils.decrypt;
+import static it.gov.pagopa.merchant.utils.DataEncryptionUtils.encrypt;
+
 @Service
 @Slf4j
 public class PdndCacheableService {
@@ -44,23 +47,23 @@ public class PdndCacheableService {
     }
 
     @Cacheable(cacheNames = "pdndAtecoCodes", cacheManager = "redisCacheManager",
-            key = "'atecoCodes:' + #encryptedTaxCode")
-    public List<String> getAtecoCodes(String encryptedTaxCode) {
-        log.info("getAtecoCodes for {} START", encryptedTaxCode);
+            key = "'atecoCodes:' + #encryptedFiscalCode")
+    public List<String> getAtecoCodes(String encFiscalCode) {
+        log.info("getAtecoCodes for {} START", encFiscalCode);
         ClientCredentialsResponse tokenResponse = tokenProviderVisura.getTokenPdnd(pdndVisuraInfoCamereRestClientConfig.getPdndSecretValue());
         String bearer = BEARER + tokenResponse.getAccessToken();
-        var taxCode = DataEncryptionUtils.decrypt(encryptedTaxCode);
+        var fiscalCode = decrypt(encFiscalCode);
         try {
-            byte[] document = pdndVisuraInfoCamereRawRestClient.getRawInstitutionDetail(taxCode, bearer);
-            String decDocument = new String(document, StandardCharsets.UTF_8);
-            saveVisuraToStorage(decDocument, taxCode);
+            byte[] document = pdndVisuraInfoCamereRawRestClient.getRawInstitutionDetail(fiscalCode, bearer);
+            String decDocument = encrypt(new String(document, StandardCharsets.UTF_8));
+            saveVisuraToStorage(decDocument, fiscalCode, encFiscalCode);
             PdndVisuraImpresa parsed = xmlToVisuraImpresa(document);
 
-            log.info("getAtecoCodes for {} END", encryptedTaxCode);
+            log.info("getAtecoCodes for {} END", encFiscalCode);
             return extractAtecoCodes(parsed);
         } catch (FeignException e) {
             if (e instanceof FeignException.BadRequest) {
-                throw new ResourceNotFoundException("No institution found for taxCode: " + encryptedTaxCode);
+                throw new ResourceNotFoundException("No institution found for fiscalCode: " + encFiscalCode);
             }
             log.error("FeignException occurred while retrieving institution detail", e);
             throw e;
@@ -70,11 +73,11 @@ public class PdndCacheableService {
         }
     }
 
-    private void saveVisuraToStorage(String decDocument, String taxCode) {
+    private void saveVisuraToStorage(String decDocument, String fiscalCode, String encFiscalCode) {
         try (InputStream is = new ByteArrayInputStream(decDocument.getBytes(StandardCharsets.UTF_8))) {
-            azureBlobClient.upload(is, "visura_" + taxCode + "_" + LocalDateTime.now() + ".xml", "application/xml");
+            azureBlobClient.upload(is, "visura_" + fiscalCode + "_" + LocalDateTime.now() + ".xml", "application/xml");
         } catch (IOException e) {
-            log.error("Unable to save visura to storage for taxCode {}", taxCode, e);
+            log.error("Unable to save visura to storage for taxCode {}", encFiscalCode, e);
         }
     }
 

@@ -716,7 +716,7 @@ class MerchantServiceImplTest {
 
     Merchant merchant = new Merchant();
     merchant.setMerchantId(merchantId);
-    merchant.setVatNumber("123456789");
+    merchant.setFiscalCode("123456789");
     merchant.setAtecoCodes(List.of("1234"));
     merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
 
@@ -728,7 +728,7 @@ class MerchantServiceImplTest {
 
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
-    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getVatNumber())).thenReturn(newAtecoCodes);
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode())).thenReturn(newAtecoCodes);
     when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
@@ -749,7 +749,7 @@ class MerchantServiceImplTest {
 
     Merchant merchant = new Merchant();
     merchant.setMerchantId(merchantId);
-    merchant.setVatNumber("123456789");
+    merchant.setFiscalCode("123456789");
     merchant.setAtecoCodes(null);
     merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
 
@@ -761,7 +761,7 @@ class MerchantServiceImplTest {
 
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
-    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getVatNumber())).thenReturn(newAtecoCodes);
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode())).thenReturn(newAtecoCodes);
     when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
@@ -781,7 +781,7 @@ class MerchantServiceImplTest {
 
     Merchant merchant = new Merchant();
     merchant.setMerchantId(merchantId);
-    merchant.setVatNumber("123456789");
+    merchant.setFiscalCode("123456789");
     merchant.setAtecoCodes(null);
     merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
 
@@ -792,7 +792,7 @@ class MerchantServiceImplTest {
 
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
-    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getVatNumber())).thenReturn(null);
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode())).thenReturn(null);
     when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
