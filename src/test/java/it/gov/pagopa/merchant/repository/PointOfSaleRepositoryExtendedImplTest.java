@@ -13,7 +13,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import org.springframework.data.mongodb.core.query.Query;
@@ -67,8 +70,46 @@ class PointOfSaleRepositoryExtendedImplTest {
   void findByFilter() {
     Criteria criteria = new Criteria();
     Pageable paging = PageRequest.of(0, 20);
-    repositoryExtended.findByFilter(criteria, paging);
-    verify(mongoTemplate, times(1)).find(Mockito.any(), Mockito.any());
+
+    when(mongoTemplate.find(any(Query.class), eq(PointOfSale.class)))
+            .thenReturn(List.of());
+
+    List<PointOfSale> result = repositoryExtended.findByFilter(criteria, paging);
+
+    assertNotNull(result);
+    verify(mongoTemplate, times(1)).find(any(Query.class), eq(PointOfSale.class));
+  }
+
+  @Test
+  void findByFilter_sortByType() {
+    Criteria criteria = new Criteria();
+    Pageable paging = PageRequest.of(0, 20, Sort.by(Sort.Direction.ASC, "type"));
+    AggregationResults<PointOfSale> aggregationResults = mock(AggregationResults.class);
+    when(aggregationResults.getMappedResults()).thenReturn(List.of());
+
+    when(mongoTemplate.aggregate(
+            any(Aggregation.class),
+            eq(PointOfSale.class),
+            eq(PointOfSale.class)))
+            .thenReturn(aggregationResults);
+
+    List<PointOfSale> result = repositoryExtended.findByFilter(criteria, paging);
+
+    assertNotNull(result);
+
+    ArgumentCaptor<Aggregation> aggCaptor = ArgumentCaptor.forClass(Aggregation.class);
+    verify(mongoTemplate, times(1)).aggregate(aggCaptor.capture(), eq(PointOfSale.class), eq(PointOfSale.class));
+
+    Aggregation capturedAggregation = aggCaptor.getValue();
+    Document aggDoc = capturedAggregation.toDocument("pointOfSale", Aggregation.DEFAULT_CONTEXT);
+    List<Document> pipeline = aggDoc.getList("pipeline", Document.class);
+
+    assertEquals(5, pipeline.size(), "La pipeline di aggregazione deve contenere esattamente 5 stadi");
+    assertTrue(pipeline.get(0).containsKey("$match"));
+    assertTrue(pipeline.get(1).containsKey("$addFields"));
+    assertTrue(pipeline.get(2).containsKey("$sort"));
+    assertTrue(pipeline.get(3).containsKey("$skip"));
+    assertTrue(pipeline.get(4).containsKey("$limit"));
   }
 
   @Test

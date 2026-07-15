@@ -2,8 +2,11 @@ package it.gov.pagopa.merchant.repository;
 
 import it.gov.pagopa.merchant.model.PointOfSale;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -25,6 +28,34 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
     @Override
     public List<PointOfSale> findByFilter(Criteria criteria, Pageable pageable) {
+        Sort.Order typeOrder = pageable.getSort().getOrderFor("type");
+
+        if (typeOrder != null) {
+            Sort.Direction direction = typeOrder.getDirection();
+
+            Document switchExpr = new Document("$switch", new Document()
+                    .append("branches", java.util.Arrays.asList(
+                            new Document("case", new Document("$eq", java.util.Arrays.asList("$type", "PHYSICAL"))).append("then", 1),
+                            new Document("case", new Document("$eq", java.util.Arrays.asList("$type", "ONLINE"))).append("then", 2)
+                    ))
+                    .append("default", 3)
+            );
+
+            Aggregation aggregation =
+                    Aggregation.newAggregation(
+                            Aggregation.match(criteria),
+
+                            Aggregation.addFields().addFieldWithValue("typeOrder", switchExpr).build(),
+
+                            Aggregation.sort(Sort.by(direction, "typeOrder")),
+
+                            Aggregation.skip(pageable.getOffset()),
+                            Aggregation.limit(pageable.getPageSize())
+                    );
+
+            return mongoTemplate.aggregate(aggregation, PointOfSale.class, PointOfSale.class).getMappedResults();
+        }
+
         Query query = Query.query(criteria).with(pageable);
         return mongoTemplate.find(query, PointOfSale.class);
     }
