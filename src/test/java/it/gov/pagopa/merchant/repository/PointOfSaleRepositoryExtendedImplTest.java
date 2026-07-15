@@ -162,6 +162,18 @@ class PointOfSaleRepositoryExtendedImplTest {
   }
 
   @Test
+  void getCriteriaExcludingPointOfSaleIds_usesNinFilter() {
+    Criteria criteria = repositoryExtended.getCriteriaExcludingPointOfSaleIds(
+        "MERCHANT-ID", List.of("POS-1", "POS-2"), null, null, null, null);
+
+    String criteriaJson = criteria.getCriteriaObject().toJson();
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("_id"));
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("$nin"));
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("POS-1"));
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("POS-2"));
+  }
+
+  @Test
   void getCriteria_withEmptyPointOfSaleIds_doesNotAddIdFilter() {
     Criteria criteria = repositoryExtended.getCriteria(
         "MERCHANT-ID", List.of(), null, null, null, null);
