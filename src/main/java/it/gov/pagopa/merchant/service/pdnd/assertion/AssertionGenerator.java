@@ -36,6 +36,11 @@ public class AssertionGenerator {
                 .withJWTId(UUID.randomUUID()
                         .toString())
                 .withIssuedAt(now)
+                .withClaim("digest", Map.of(
+                        "alg", "SHA-256",
+                        "value", "abc123"
+                ))
+
                 .sign(alg);
 
         log.info("END - AssertionGenerator.generateClientAssertion Timelapse: {} ms", System.currentTimeMillis() - startTime);

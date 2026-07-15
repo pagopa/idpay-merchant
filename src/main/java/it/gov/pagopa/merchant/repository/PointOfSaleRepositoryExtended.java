@@ -11,7 +11,6 @@ public interface PointOfSaleRepositoryExtended {
     List<PointOfSale> findByFilter(Criteria criteria, Pageable pageable);
     Criteria getCriteria(String merchantId, String type, String city, String address, String contactName);
     Criteria getCriteria(String merchantId, List<String> pointOfSaleIds, String type, String city, String address, String contactName);
-    Criteria getCriteriaExcludingPointOfSaleIds(String merchantId, List<String> pointOfSaleIds, String type, String city, String address, String contactName);
     long getCount(Criteria criteria);
     Optional<PointOfSale> findDuplicate(PointOfSale pointOfSale);
 }

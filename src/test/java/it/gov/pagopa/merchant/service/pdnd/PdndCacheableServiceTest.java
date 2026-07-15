@@ -89,12 +89,8 @@ class PdndCacheableServiceTest {
                      mockStatic(DataEncryptionUtils.class)) {
 
             mockedStatic.when(() ->
-                            DataEncryptionUtils.decrypt("encryptedFiscalCode"))
+                            DataEncryptionUtils.decrypt("encryptedTaxCode"))
                     .thenReturn("12345678901");
-
-            mockedStatic.when(() ->
-                            DataEncryptionUtils.encrypt(anyString()))
-                    .thenReturn("encryptedXml");
 
             when(pdndVisuraInfoCamereRawRestClient.getRawInstitutionDetail(
                     ("12345678901"),
@@ -102,7 +98,7 @@ class PdndCacheableServiceTest {
                     .thenReturn(xml.getBytes(StandardCharsets.UTF_8));
 
             List<String> result =
-                    service.getAtecoCodes("encryptedFiscalCode");
+                    service.getAtecoCodes("encryptedTaxCode");
 
             assertNotNull(result);
             assertEquals(2, result.size());
@@ -137,12 +133,8 @@ class PdndCacheableServiceTest {
                      mockStatic(DataEncryptionUtils.class)) {
 
             mockedStatic.when(() ->
-                            DataEncryptionUtils.decrypt("encryptedFiscalCode"))
+                            DataEncryptionUtils.decrypt("encryptedTaxCode"))
                     .thenReturn("12345678901");
-
-            mockedStatic.when(() ->
-                            DataEncryptionUtils.encrypt(anyString()))
-                    .thenReturn("encryptedXml");
 
             when(pdndVisuraInfoCamereRawRestClient.getRawInstitutionDetail(
                     anyString(),
@@ -150,7 +142,7 @@ class PdndCacheableServiceTest {
                     .thenReturn(xml.getBytes(StandardCharsets.UTF_8));
 
             List<String> result =
-                    service.getAtecoCodes("encryptedFiscalCode");
+                    service.getAtecoCodes("encryptedTaxCode");
 
             assertNotNull(result);
             assertTrue(result.isEmpty());
@@ -200,7 +192,7 @@ class PdndCacheableServiceTest {
 
             assertThrows(
                     ResourceNotFoundException.class,
-                    () -> service.getAtecoCodes("encryptedFiscalCode")
+                    () -> service.getAtecoCodes("encryptedTaxCode")
             );
         }
     }
@@ -271,10 +263,6 @@ class PdndCacheableServiceTest {
             mockedStatic.when(() ->
                             DataEncryptionUtils.decrypt(anyString()))
                     .thenReturn("12345678901");
-
-            mockedStatic.when(() ->
-                            DataEncryptionUtils.encrypt(anyString()))
-                    .thenReturn("encryptedXml");
 
             when(pdndVisuraInfoCamereRawRestClient.getRawInstitutionDetail(
                     anyString(),

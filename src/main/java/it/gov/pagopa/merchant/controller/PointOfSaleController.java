@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import it.gov.pagopa.common.web.dto.ErrorDTO;
 import it.gov.pagopa.common.web.dto.ValidationErrorDTO;
-import it.gov.pagopa.merchant.dto.enums.PointOfSaleInitiativeFilter;
 import it.gov.pagopa.merchant.dto.pointofsales.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -61,13 +60,12 @@ public interface PointOfSaleController {
     ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(
             @PathVariable("merchantId") String merchantId,
             @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
-            @RequestParam(required = false) PointOfSaleInitiativeFilter initiativeFilter,
             @RequestParam(required = false) String initiativeId,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String address,
             @RequestParam(required = false) String contactName,
-            @PageableDefault(size = 10) Pageable pageable);
+            @PageableDefault(size = 8) Pageable pageable);
 
     @GetMapping(value = "/{merchantId}/initiatives/{initiativeId}/point-of-sales")
     ResponseEntity<PointOfSaleListDTO> getPointOfSalesListByInitiative(
