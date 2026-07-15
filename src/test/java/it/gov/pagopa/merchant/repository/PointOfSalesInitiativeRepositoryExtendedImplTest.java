@@ -96,37 +96,4 @@ class PointOfSalesInitiativeRepositoryExtendedImplTest {
     Assertions.assertEquals(1, fieldsObject.get("updatedAt"));
     Assertions.assertEquals(0, fieldsObject.get("_id"));
   }
-
-  @Test
-  void findPointOfSaleIdsByMerchantIdAndEnabledTrue_returnsDistinctIds() {
-    PointOfSalesInitiative relation1 = PointOfSalesInitiative.builder()
-        .pointOfSaleId("POS_ID_1")
-        .build();
-    PointOfSalesInitiative relation2 = PointOfSalesInitiative.builder()
-        .pointOfSaleId("POS_ID_1")
-        .build();
-    PointOfSalesInitiative relation3 = PointOfSalesInitiative.builder()
-        .pointOfSaleId("POS_ID_2")
-        .build();
-
-    when(mongoTemplate.find(org.mockito.ArgumentMatchers.any(Query.class),
-        org.mockito.ArgumentMatchers.eq(PointOfSalesInitiative.class)))
-        .thenReturn(List.of(relation1, relation2, relation3));
-
-    List<String> result = repository.findPointOfSaleIdsByMerchantIdAndEnabledTrue("MERCHANT_ID");
-
-    Assertions.assertEquals(List.of("POS_ID_1", "POS_ID_2"), result);
-
-    ArgumentCaptor<Query> queryCaptor = ArgumentCaptor.forClass(Query.class);
-    verify(mongoTemplate).find(queryCaptor.capture(),
-        org.mockito.ArgumentMatchers.eq(PointOfSalesInitiative.class));
-
-    Document queryObject = queryCaptor.getValue().getQueryObject();
-    Assertions.assertEquals("MERCHANT_ID", queryObject.get("merchantId"));
-    Assertions.assertEquals(true, queryObject.get("enabled"));
-
-    Document fieldsObject = queryCaptor.getValue().getFieldsObject();
-    Assertions.assertEquals(1, fieldsObject.get("pointOfSaleId"));
-    Assertions.assertEquals(0, fieldsObject.get("_id"));
-  }
 }

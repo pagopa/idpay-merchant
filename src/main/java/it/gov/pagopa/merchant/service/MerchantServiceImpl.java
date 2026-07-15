@@ -150,7 +150,7 @@ public class MerchantServiceImpl implements MerchantService {
     Merchant merchant = merchantRepository.findById(merchantId)
             .orElseThrow(() -> new MerchantNotFoundException(merchantId));
 
-    List<String> newAtecoCodes = Optional.ofNullable(pdndConnector.retrieveAtecoCodes(merchant.getFiscalCode()))
+    List<String> newAtecoCodes = Optional.ofNullable(pdndConnector.retrieveAtecoCodes(merchant.getVatNumber()))
             .orElse(Collections.emptyList());
     Set<String> currentAtecoCodes = new HashSet<>(Optional.ofNullable(merchant.getAtecoCodes())
             .orElse(Collections.emptyList()));

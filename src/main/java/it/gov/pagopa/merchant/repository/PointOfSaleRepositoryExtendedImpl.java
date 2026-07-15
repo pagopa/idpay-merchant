@@ -67,22 +67,12 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
     @Override
     public Criteria getCriteria(String merchantId, List<String> pointOfSaleIds, String type, String city, String address, String contactName) {
-        return getCriteria(merchantId, pointOfSaleIds, false, type, city, address, contactName);
-    }
-
-    @Override
-    public Criteria getCriteriaExcludingPointOfSaleIds(String merchantId, List<String> pointOfSaleIds, String type, String city, String address, String contactName) {
-        return getCriteria(merchantId, pointOfSaleIds, true, type, city, address, contactName);
-    }
-
-    private Criteria getCriteria(String merchantId, List<String> pointOfSaleIds, boolean excludePointOfSaleIds, String type, String city, String address, String contactName) {
         List<Criteria> criteriaList = new ArrayList<>();
 
         criteriaList.add(Criteria.where(PointOfSale.Fields.merchantId).is(merchantId));
 
         if(pointOfSaleIds != null && !pointOfSaleIds.isEmpty()){
-            Criteria idCriteria = Criteria.where("_id");
-            criteriaList.add(excludePointOfSaleIds ? idCriteria.nin(pointOfSaleIds) : idCriteria.in(pointOfSaleIds));
+            criteriaList.add(Criteria.where("_id").in(pointOfSaleIds));
         }
 
         if(StringUtils.isNotBlank(type)){

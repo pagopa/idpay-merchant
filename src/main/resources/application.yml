@@ -203,6 +203,18 @@ logging:
 
 rest-client:
 
+  pdnd-infocamere:
+    getDescription:
+      path: /denominazione
+    getTaxCode:
+      path: /codicefiscale
+    privateKey: ${PDND_INFOCAMERE_PRIVATE_KEY:test}
+    clientId: ${PDND_INFOCAMERE_CLIENT_ID:test}
+    kid: ${PDND_INFOCAMERE_KID:test}
+    audience: ${PDND_INFOCAMERE_AUDIENCE:test}
+    purposeId: ${PDND_INFOCAMERE_PURPOSE_ID:test}
+
+
   pdnd:
     base-url: ${PDND_BASE_URL:http://localhost:8080/idpay/mock/pdnd}
     grant-type: client_credentials

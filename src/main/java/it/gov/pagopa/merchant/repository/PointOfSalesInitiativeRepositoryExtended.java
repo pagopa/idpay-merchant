@@ -9,8 +9,6 @@ public interface PointOfSalesInitiativeRepositoryExtended {
             String initiativeId, String merchantId
     );
 
-    List<String> findPointOfSaleIdsByMerchantIdAndEnabledTrue(String merchantId);
-
     List<PointOfSalesInitiative> findInitiativesByPointOfSaleIdAndMerchantIdAndEnabledTrue(
             String pointOfSaleId, String merchantId
     );

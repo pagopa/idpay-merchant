@@ -54,7 +54,7 @@ class MerchantOnboardingServiceImplTest {
 
         Merchant merchant = new Merchant();
         merchant.setMerchantId(merchantId);
-        merchant.setFiscalCode("123");
+        merchant.setVatNumber("123");
         merchant.setInitiativeList(List.of());
 
         InitiativeDTO initiativeDTO = new InitiativeDTO();
@@ -112,7 +112,7 @@ class MerchantOnboardingServiceImplTest {
 
         Merchant merchant = new Merchant();
         merchant.setMerchantId(merchantId);
-        merchant.setFiscalCode("123");
+        merchant.setVatNumber("123");
         merchant.setInitiativeList(List.of());
 
         InitiativeDTO initiativeDTO = new InitiativeDTO();

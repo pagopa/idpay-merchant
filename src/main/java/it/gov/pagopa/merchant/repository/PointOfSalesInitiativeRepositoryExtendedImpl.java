@@ -28,21 +28,6 @@ public class PointOfSalesInitiativeRepositoryExtendedImpl implements PointOfSale
 
         return mongoTemplate.find(query, PointOfSalesInitiative.class).stream()
                 .map(PointOfSalesInitiative::getPointOfSaleId)
-                .distinct()
-                .toList();
-    }
-
-    @Override
-    public List<String> findPointOfSaleIdsByMerchantIdAndEnabledTrue(String merchantId) {
-        Query query = Query.query(Criteria.where(PointOfSalesInitiative.Fields.merchantId).is(merchantId)
-                .and(PointOfSalesInitiative.Fields.enabled).is(true));
-        query.fields()
-                .include(PointOfSalesInitiative.Fields.pointOfSaleId)
-                .exclude("_id");
-
-        return mongoTemplate.find(query, PointOfSalesInitiative.class).stream()
-                .map(PointOfSalesInitiative::getPointOfSaleId)
-                .distinct()
                 .toList();
     }
 
