@@ -232,4 +232,56 @@ public interface PointOfSaleController {
             @RequestBody List<String> pointOfSaleIds
     );
 
+    @Operation(
+            summary = "Exclude a list of points of sale from an initiative",
+            security = {@SecurityRequirement(name = "Bearer")},
+            tags = {"point-of-sales"},
+            description = "Exclude a list of previously registered points of sale from the specified initiative"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully processed exclusion request (partial or total)",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PointOfSaleExclusionResultDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad request - Invalid input data or transactions presence",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized - Authentication failed",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "429",
+                    description = "Too many Requests - Rate limit exceeded",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class))
+            )
+    })
+    @PostMapping("/{merchantId}/initiatives/{initiativeId}/point-of-sales/exclusion")
+    ResponseEntity<PointOfSaleExclusionResultDTO> excludePointsOfSales(
+            @PathVariable("merchantId") @NotBlank String merchantId,
+            @PathVariable("initiativeId") @NotBlank String initiativeId,
+            @RequestHeader(name = "x-merchant-id", required = false) String tokenMerchantId,
+            @RequestBody List<String> pointOfSaleIds
+    );
+
 }

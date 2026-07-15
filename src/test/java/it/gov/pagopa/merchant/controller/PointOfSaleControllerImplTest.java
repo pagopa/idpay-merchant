@@ -23,7 +23,6 @@ import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
@@ -271,7 +270,7 @@ class PointOfSaleControllerImplTest {
     @Test
     void getPointOfSaleTestOK() throws Exception {
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
-        Merchant merchant = Mockito.mock(Merchant.class);
+        Merchant merchant = mock(Merchant.class);
         PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
 
         when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(anyString(), anyString()))
@@ -290,9 +289,9 @@ class PointOfSaleControllerImplTest {
 
     Assertions.assertNotNull(result);
 
-        Mockito.verify(pointOfSaleFinderService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
+        verify(pointOfSaleFinderService).getPointOfSaleByIdAndMerchantId(anyString(), anyString());
         verify(merchantService).getMerchantByMerchantId(MERCHANT_ID);
-        Mockito.verify(mapper).entityToDto(pointOfSale, merchant);
+        verify(mapper).entityToDto(pointOfSale, merchant);
     }
 
   @Test
@@ -568,12 +567,12 @@ class PointOfSaleControllerImplTest {
 
     AssociatedPointOfSaleDTO associated = AssociatedPointOfSaleDTO.builder()
             .pointOfSaleId("POS1")
-            .pointOfSaleName("Shop 1")
+            .franchiseName("Shop 1")
             .build();
 
     NotAssociatedPointOfSaleDTO notAssociated = NotAssociatedPointOfSaleDTO.builder()
             .pointOfSaleId("POS2")
-            .pointOfSaleName("Shop 2")
+            .franchiseName("Shop 2")
             .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
             .address("ADDR")
             .city("CITY")
@@ -606,7 +605,7 @@ class PointOfSaleControllerImplTest {
 
             .andExpect(jsonPath("$.associated").isArray())
             .andExpect(jsonPath("$.associated[0].pointOfSaleId").value("POS1"))
-            .andExpect(jsonPath("$.associated[0].pointOfSaleName").value("Shop 1"))
+            .andExpect(jsonPath("$.associated[0].franchiseName").value("Shop 1"))
 
             .andExpect(jsonPath("$.notAssociated").isArray())
             .andExpect(jsonPath("$.notAssociated[0].pointOfSaleId").value("POS2"))
@@ -632,6 +631,76 @@ class PointOfSaleControllerImplTest {
         .andExpect(status().isForbidden());
 
     verify(pointOfSaleWriterMock, never()).onboardingPointOfSales(any(), any(), any());
+  }
+
+  @Test
+  void excludePointsOfSales_OK() throws Exception {
+    List<String> posIds = List.of("POS1", "POS2");
+
+    ExcludedPointOfSaleDetailDTO excludedPos = ExcludedPointOfSaleDetailDTO.builder()
+            .pointOfSaleId("POS1")
+            .franchiseName("Negozio Escluso 1")
+            .build();
+
+    NotExcludedPointOfSaleDTO notExcludedPos = NotExcludedPointOfSaleDTO.builder()
+            .pointOfSaleId("POS2")
+            .reason(it.gov.pagopa.merchant.dto.enums.PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS)
+            .build();
+
+    PointOfSaleExclusionResultDTO responseDTO = PointOfSaleExclusionResultDTO.builder()
+            .excludedPointOfSales(List.of(excludedPos))
+            .notExcludedPointOfSales(List.of(notExcludedPos))
+            .build();
+
+    when(pointOfSaleWriterMock.excludePointsOfSales(
+            MERCHANT_ID,
+            INITIATIVE_ID,
+            posIds
+    )).thenReturn(responseDTO);
+
+    mockMvc.perform(
+                    MockMvcRequestBuilders.post(
+                                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/exclusion",
+                                    MERCHANT_ID,
+                                    INITIATIVE_ID
+                            )
+                            .header("x-merchant-id", MERCHANT_ID)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(posIds))
+                            .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.excludedPointOfSales").isArray())
+            .andExpect(jsonPath("$.excludedPointOfSales[0].pointOfSaleId").value("POS1"))
+            .andExpect(jsonPath("$.excludedPointOfSales[0].franchiseName").value("Negozio Escluso 1"))
+            .andExpect(jsonPath("$.notExcludedPointOfSales").isArray())
+            .andExpect(jsonPath("$.notExcludedPointOfSales[0].pointOfSaleId").value("POS2"))
+            .andExpect(jsonPath("$.notExcludedPointOfSales[0].reason").value("HAS_TRANSACTIONS"))
+            .andDo(print())
+            .andReturn();
+
+    verify(pointOfSaleWriterMock).excludePointsOfSales(MERCHANT_ID, INITIATIVE_ID, posIds);
+  }
+
+  @Test
+  void excludePointsOfSalesMerchantMismatch_shouldReturnForbidden() throws Exception {
+    List<String> posIds = List.of("POS1");
+
+    mockMvc.perform(
+                    MockMvcRequestBuilders.post(
+                                    BASE_URL + "/{merchantId}/initiatives/{initiativeId}/point-of-sales/exclusion",
+                                    MERCHANT_ID,
+                                    INITIATIVE_ID
+                            )
+                            .header("x-merchant-id", "DIFFERENT_MERCHANT_ID")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(posIds))
+                            .accept(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isForbidden());
+
+    verify(pointOfSaleWriterMock, never()).excludePointsOfSales(any(), any(), any());
   }
 }
 

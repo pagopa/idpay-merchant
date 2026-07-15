@@ -33,6 +33,7 @@ public class Merchant {
     private String iban;
     private String ibanHolder; // intestatario iban
     private List<Initiative> initiativeList;
+    private List<String> atecoCodes;
     private boolean enabled;
     private LocalDateTime activationDate;
     private LocalDateTime lastLogin;

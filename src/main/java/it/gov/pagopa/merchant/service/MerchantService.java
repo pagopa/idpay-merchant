@@ -1,7 +1,9 @@
 package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.model.Merchant;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,5 +42,8 @@ public interface MerchantService {
   Merchant getMerchantByMerchantId(String merchantId);
 
   MerchantListDTO getMerchantList(String initiativeId, Pageable pageable);
+
   void verifyMerchantExists(String merchantId);
+
+  Page<InitiativeResponse> processMerchantInitiatives(String merchantId, String initiativeName, Pageable pageable);
 }

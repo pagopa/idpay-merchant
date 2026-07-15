@@ -2,13 +2,13 @@ package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
+import it.gov.pagopa.merchant.dto.enums.PosOnbordingExclusionRejectionReason;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
-import it.gov.pagopa.merchant.dto.pointofsales.AssociatedPointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.NotAssociatedPointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
-import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleOnboardingResultDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.*;
 import it.gov.pagopa.merchant.exception.custom.InitiativeNotValidException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 @Service
@@ -45,28 +46,14 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
   private final KeycloakService keycloakService;
   private final PointOfSaleDTOMapper mapper;
   private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
+  private final TransactionConnector transactionConnector;
+
+  private static final String ERROR_MERCHANT_NOT_ONBOARDED = "Merchant with id %s not onboarded on initiative %s";
+  private static final String ERROR_INITIATIVE_ENDED = "Initiative %s ended";
 
   @Override
   public void savePointOfSales(String merchantId, String initiativeId, List<PointOfSaleDTO> dtos) {
-
-    Merchant merchant = merchantService.getMerchantByMerchantId(merchantId);
-
-    Initiative initiative = merchant.getInitiativeList().stream()
-            .filter(i -> initiativeId.equals(i.getInitiativeId()))
-            .findFirst()
-            .orElseThrow(() -> new MerchantNotAllowedException(
-                    String.format(
-                            "Merchant with id %s not onboarded on initiative %s",
-                            merchantId,
-                            initiativeId
-                    )
-            ));
-
-    if (initiative.getEndDate().isBefore(LocalDate.now())) {
-      throw new InitiativeNotValidException(
-              String.format("Initiative %s ended", initiativeId)
-      );
-    }
+    validateMerchantInitiative(merchantId, initiativeId, LocalDate.now());
 
     List<PointOfSale> entities = dtos.stream()
             .map(dto -> mapper.dtoToEntity(dto, merchantId))
@@ -282,118 +269,265 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
           String merchantId,
           String initiativeId,
           List<String> pointOfSaleIds) {
+    validateMerchantInitiative(merchantId, initiativeId, LocalDate.now());
 
+    List<AssociatedPointOfSaleDTO> associated = new ArrayList<>();
+    List<NotAssociatedPointOfSaleDTO> notAssociated = new ArrayList<>();
+
+    for (String posId : pointOfSaleIds) {
+      processSingleOnboarding(merchantId, initiativeId, posId, associated, notAssociated);
+    }
+
+    return buildOnboardingResult(associated, notAssociated);
+  }
+
+  private void processSingleOnboarding(
+          String merchantId,
+          String initiativeId,
+          String posId,
+          List<AssociatedPointOfSaleDTO> associated,
+          List<NotAssociatedPointOfSaleDTO> notAssociated) {
+
+    try {
+      Optional<PointOfSale> posOpt = pointOfSaleRepository.findById(posId);
+
+      if (posOpt.isEmpty()) {
+        notAssociated.add(buildNotFoundOnboardingEntry(posId));
+        return;
+      }
+
+      PointOfSale pos = posOpt.get();
+
+      if (!merchantId.equals(pos.getMerchantId())) {
+        notAssociated.add(buildInvalidOnboardingEntry(pos));
+        return;
+      }
+
+      Optional<PointOfSalesInitiative> existingAssociationOpt =
+              pointOfSalesInitiativeRepository.findByPointOfSaleIdAndInitiativeIdAndMerchantId(
+                      posId,
+                      initiativeId,
+                      merchantId
+              );
+
+      if (isAlreadyAssociated(existingAssociationOpt)) {
+        notAssociated.add(buildAlreadyAssociatedOnboardingEntry(pos));
+        return;
+      }
+
+      upsertAssociation(existingAssociationOpt, posId, merchantId, initiativeId);
+      associated.add(buildAssociatedOnboardingEntry(pos));
+    } catch (Exception _) {
+      notAssociated.add(buildGenericErrorOnboardingEntry(posId));
+    }
+  }
+
+  private PointOfSaleOnboardingResultDTO buildOnboardingResult(
+          List<AssociatedPointOfSaleDTO> associated,
+          List<NotAssociatedPointOfSaleDTO> notAssociated) {
+
+    PointOfSaleOnboardingResultDTO result = new PointOfSaleOnboardingResultDTO();
+    result.setAssociated(associated);
+    result.setNotAssociated(notAssociated);
+    return result;
+  }
+
+  private NotAssociatedPointOfSaleDTO buildNotFoundOnboardingEntry(String posId) {
+    return NotAssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId(posId)
+            .reason(PosOnbordingRejectionReason.NOT_FOUND)
+            .build();
+  }
+
+  private NotAssociatedPointOfSaleDTO buildInvalidOnboardingEntry(PointOfSale pos) {
+    return NotAssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId(pos.getId())
+            .franchiseName(pos.getFranchiseName())
+            .reason(PosOnbordingRejectionReason.INVALID)
+            .address(pos.getAddress())
+            .city(pos.getCity())
+            .streetNumber(pos.getStreetNumber())
+            .website(pos.getWebsite())
+            .type(PointOfSaleTypeEnum.valueOf(pos.getType()))
+            .build();
+  }
+
+  private NotAssociatedPointOfSaleDTO buildAlreadyAssociatedOnboardingEntry(PointOfSale pos) {
+    return NotAssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId(pos.getId())
+            .franchiseName(pos.getFranchiseName())
+            .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
+            .address(pos.getAddress())
+            .city(pos.getCity())
+            .streetNumber(pos.getStreetNumber())
+            .website(pos.getWebsite())
+            .type(PointOfSaleTypeEnum.valueOf(pos.getType()))
+            .build();
+  }
+
+  private NotAssociatedPointOfSaleDTO buildGenericErrorOnboardingEntry(String posId) {
+    return NotAssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId(posId)
+            .reason(PosOnbordingRejectionReason.GENERIC_ERROR)
+            .build();
+  }
+
+  private AssociatedPointOfSaleDTO buildAssociatedOnboardingEntry(PointOfSale pos) {
+    return AssociatedPointOfSaleDTO.builder()
+            .pointOfSaleId(pos.getId())
+            .franchiseName(pos.getFranchiseName())
+            .build();
+  }
+
+  private boolean isAlreadyAssociated(Optional<PointOfSalesInitiative> existingAssociationOpt) {
+    return existingAssociationOpt.isPresent() && Boolean.TRUE.equals(existingAssociationOpt.get().getEnabled());
+  }
+
+  private void upsertAssociation(
+          Optional<PointOfSalesInitiative> existingAssociationOpt,
+          String posId,
+          String merchantId,
+          String initiativeId) {
+
+    if (existingAssociationOpt.isPresent()) {
+      PointOfSalesInitiative existing = existingAssociationOpt.get();
+      existing.setEnabled(true);
+      existing.setUpdatedAt(Instant.now());
+      pointOfSalesInitiativeRepository.save(existing);
+      return;
+    }
+
+    pointOfSalesInitiativeRepository.save(buildAssociation(posId, merchantId, initiativeId));
+  }
+
+  @Override
+  public PointOfSaleExclusionResultDTO excludePointsOfSales(String merchantId, String initiativeId, List<String> pointOfSaleIds) {
+    log.info("[POINT-OF-SALE][EXCLUSION] Processing rich partial exclusion for merchantId={} on initiativeId={}",
+            merchantId, initiativeId);
+
+    validateMerchantInitiative(merchantId, initiativeId, LocalDate.now(ZONEID));
+
+    MerchantTransactionsListDTO transactions =
+            transactionConnector.getMerchantTransactions(merchantId, initiativeId, null, null, null);
+
+    List<ExcludedPointOfSaleDetailDTO> excluded = new ArrayList<>();
+    List<NotExcludedPointOfSaleDTO> notExcluded = new ArrayList<>();
+
+    for (String posId : pointOfSaleIds) {
+      processSingleExclusion(merchantId, initiativeId, transactions, posId, excluded, notExcluded);
+    }
+
+    return PointOfSaleExclusionResultDTO.builder()
+            .excludedPointOfSales(excluded)
+            .notExcludedPointOfSales(notExcluded)
+            .build();
+  }
+
+  private void validateMerchantInitiative(String merchantId, String initiativeId, LocalDate currentDate) {
     Merchant merchant = merchantService.getMerchantByMerchantId(merchantId);
 
     Initiative initiative = merchant.getInitiativeList().stream()
             .filter(i -> initiativeId.equals(i.getInitiativeId()))
             .findFirst()
             .orElseThrow(() -> new MerchantNotAllowedException(
-                    String.format(
-                            "Merchant with id %s not onboarded on initiative %s",
-                            merchantId,
-                            initiativeId
-                    )
+                    String.format(ERROR_MERCHANT_NOT_ONBOARDED, merchantId, initiativeId)
             ));
 
-    if (initiative.getEndDate().isBefore(LocalDate.now())) {
-      throw new InitiativeNotValidException(
-              String.format("Initiative %s ended", initiativeId)
-      );
+    if (initiative.getEndDate().isBefore(currentDate)) {
+      throw new InitiativeNotValidException(String.format(ERROR_INITIATIVE_ENDED, initiativeId));
     }
 
-    List<AssociatedPointOfSaleDTO> associated = new ArrayList<>();
-    List<NotAssociatedPointOfSaleDTO> notAssociated = new ArrayList<>();
+  }
 
+  private void processSingleExclusion(
+          String merchantId,
+          String initiativeId,
+          MerchantTransactionsListDTO transactions,
+          String posId,
+          List<ExcludedPointOfSaleDetailDTO> excluded,
+          List<NotExcludedPointOfSaleDTO> notExcluded) {
 
-    for (String posId : pointOfSaleIds) {
-
-      try {
-
-        AssociatedPointOfSaleDTO associatedEntry = null;
-        NotAssociatedPointOfSaleDTO notAssociatedEntry = null;
-
-        Optional<PointOfSale> posOpt = pointOfSaleRepository.findById(posId);
-
-        if (posOpt.isEmpty()) {
-
-          notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
-                  .pointOfSaleId(posId)
-                  .reason(PosOnbordingRejectionReason.NOT_FOUND)
-                  .build();
-
-        } else {
-
-          PointOfSale pos = posOpt.get();
-
-          if (!merchantId.equals(pos.getMerchantId())) {
-
-            notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
-                    .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
-                    .reason(PosOnbordingRejectionReason.INVALID)
-                    .address(posOpt.get().getAddress())
-                    .city(posOpt.get().getCity())
-                    .streetNumber(posOpt.get().getStreetNumber())
-                    .website(posOpt.get().getWebsite())
-                    .type(PointOfSaleTypeEnum.valueOf(posOpt.get().getType()))
-                    .build();
-
-          } else if (pointOfSalesInitiativeRepository
-                  .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(
-                          posId, initiativeId, merchantId)
-                  .isPresent()) {
-
-            notAssociatedEntry = NotAssociatedPointOfSaleDTO.builder()
-                    .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
-                    .reason(PosOnbordingRejectionReason.ALREADY_ASSOCIATED)
-                    .address(posOpt.get().getAddress())
-                    .city(posOpt.get().getCity())
-                    .streetNumber(posOpt.get().getStreetNumber())
-                    .website(posOpt.get().getWebsite())
-                    .type(PointOfSaleTypeEnum.valueOf(posOpt.get().getType()))
-                    .build();
-
-          } else {
-
-            pointOfSalesInitiativeRepository.save(
-                    PointOfSalesInitiative.builder()
-                            .pointOfSaleId(posId)
-                            .initiativeId(initiativeId)
-                            .merchantId(merchantId)
-                            .createdAt(Instant.now())
-                            .updatedAt(Instant.now())
-                            .enabled(true)
-                            .build()
-            );
-
-            associatedEntry = AssociatedPointOfSaleDTO.builder()
-                    .pointOfSaleId(posId)
-                    .pointOfSaleName(pos.getFranchiseName())
-                    .build();
-          }
-        }
-
-        if (associatedEntry != null) {
-          associated.add(associatedEntry);
-        } else {
-          notAssociated.add(notAssociatedEntry);
-        }
-
-      } catch (Exception ex) {
-        notAssociated.add(NotAssociatedPointOfSaleDTO.builder()
-                .pointOfSaleId(posId)
-                .reason(PosOnbordingRejectionReason.GENERIC_ERROR)
-                .build());
+    try {
+      Optional<PointOfSale> posOpt = pointOfSaleRepository.findById(posId);
+      if (posOpt.isEmpty()) {
+        notExcluded.add(buildNotFoundExclusionEntry(posId));
+        return;
       }
+
+      PointOfSale pos = posOpt.get();
+      Optional<PointOfSalesInitiative> associationOpt = pointOfSalesInitiativeRepository
+              .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(posId, initiativeId, merchantId);
+
+      if (associationOpt.isEmpty()) {
+        log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: already excluded", sanitizeString(posId));
+        notExcluded.add(buildNotExcludedExclusionEntry(pos, PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED));
+        return;
+      }
+
+      if (hasBlockingTransactions(transactions, posId)) {
+        log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: has active transactions", sanitizeString(posId));
+        notExcluded.add(buildNotExcludedExclusionEntry(pos, PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS));
+        return;
+      }
+
+      disableAssociation(associationOpt.get());
+      excluded.add(buildExcludedDetail(pos));
+      log.info("[POINT-OF-SALE][EXCLUSION] POS {} successfully excluded", sanitizeString(posId));
+    } catch (Exception ex) {
+      log.error("[POINT-OF-SALE][EXCLUSION] Generic error processing POS {}", sanitizeString(posId), ex);
+      notExcluded.add(buildGenericErrorExclusionEntry(posId));
+    }
+  }
+
+  private NotExcludedPointOfSaleDTO buildNotFoundExclusionEntry(String posId) {
+    return NotExcludedPointOfSaleDTO.builder()
+            .pointOfSaleId(posId)
+            .reason(PosOnbordingExclusionRejectionReason.NOT_FOUND)
+            .build();
+  }
+
+  private NotExcludedPointOfSaleDTO buildNotExcludedExclusionEntry(
+          PointOfSale pos,
+          PosOnbordingExclusionRejectionReason reason) {
+
+    return NotExcludedPointOfSaleDTO.builder()
+            .pointOfSaleId(pos.getId())
+            .franchiseName(pos.getFranchiseName())
+            .type(pos.getType())
+            .address(pos.getAddress())
+            .streetNumber(pos.getStreetNumber())
+            .city(pos.getCity())
+            .website(pos.getWebsite())
+            .reason(reason)
+            .build();
+  }
+
+  private NotExcludedPointOfSaleDTO buildGenericErrorExclusionEntry(String posId) {
+    return NotExcludedPointOfSaleDTO.builder()
+            .pointOfSaleId(posId)
+            .reason(PosOnbordingExclusionRejectionReason.GENERIC_ERROR)
+            .build();
+  }
+
+  private ExcludedPointOfSaleDetailDTO buildExcludedDetail(PointOfSale pos) {
+    return ExcludedPointOfSaleDetailDTO.builder()
+            .pointOfSaleId(pos.getId())
+            .franchiseName(pos.getFranchiseName())
+            .build();
+  }
+
+  private void disableAssociation(PointOfSalesInitiative association) {
+    association.setEnabled(false);
+    association.setUpdatedAt(Instant.now());
+    pointOfSalesInitiativeRepository.save(association);
+  }
+
+  private boolean hasBlockingTransactions(MerchantTransactionsListDTO transactions, String posId) {
+    if (transactions == null || transactions.getContent() == null) {
+      return false;
     }
 
-
-    PointOfSaleOnboardingResultDTO result = new PointOfSaleOnboardingResultDTO();
-    result.setAssociated(associated);
-    result.setNotAssociated(notAssociated);
-
-    return result;
+    return transactions.getContent().stream()
+            .anyMatch(t -> posId.equals(t.getPointOfSaleId()));
   }
 }

@@ -8,6 +8,6 @@ import lombok.Data;
 public class AssociatedPointOfSaleDTO {
 
     private String pointOfSaleId;
-    private String pointOfSaleName;
+    private String franchiseName;
 
 }

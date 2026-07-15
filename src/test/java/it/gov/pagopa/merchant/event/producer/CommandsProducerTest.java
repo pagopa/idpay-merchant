@@ -5,11 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.stream.function.StreamBridge;
 
 import java.time.LocalDateTime;
+
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CommandsProducerTest {
@@ -30,7 +31,7 @@ class CommandsProducerTest {
 
         commandsProducer.sendCommand(commandDTO);
 
-        Mockito.verify(streamBridge).send(COMMANDS_QUEUE_OUT_0, commandDTO);
+        verify(streamBridge).send(COMMANDS_QUEUE_OUT_0, commandDTO);
     }
 
 }
