@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.merchant.dto.pointofsales.*;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleInitiativeFilter;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotAllowedException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
@@ -78,7 +79,8 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
 
   @Override
   public ResponseEntity<PointOfSaleListDTO> getPointOfSalesList(String merchantId, String tokenMerchantId,
-      String initiativeId, String type, String city, String address, String contactName, Pageable pageable) {
+      PointOfSaleInitiativeFilter initiativeFilter, String initiativeId, String type, String city, String address,
+      String contactName, Pageable pageable) {
     String sanitizedMerchantId = sanitizeString(merchantId);
     log.info("[POINT-OF-SALE][GET] Fetching points of sale for merchantId={}", sanitizedMerchantId);
 
@@ -90,6 +92,9 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
       String sanitizedInitiativeId = sanitizeString(initiativeId);
       pagePointOfSales = pointOfSaleInitiativeFinderService.getPointOfSalesListByInitiative(
           sanitizedInitiativeId, sanitizedMerchantId, type, city, address, contactName, pageable);
+    } else if (initiativeFilter != null) {
+      pagePointOfSales = pointOfSaleInitiativeFinderService.getPointOfSalesListByInitiativeFilter(
+          initiativeFilter, sanitizedMerchantId, type, city, address, contactName, pageable);
     } else {
       pagePointOfSales = pointOfSaleFinderService.getPointOfSalesList(sanitizedMerchantId,
           type, city, address, contactName, pageable);

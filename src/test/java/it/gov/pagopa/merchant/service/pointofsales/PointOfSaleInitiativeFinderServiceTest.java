@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleInitiativeListDTO;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleInitiativeFilter;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleInitiativeDTOMapper;
@@ -111,6 +112,104 @@ class PointOfSaleInitiativeFinderServiceTest {
 
     Assertions.assertTrue(pointOfSalePage.isEmpty());
     verify(repositoryMock, never()).findByFilter(any(), any());
+  }
+
+  @Test
+  void getPointOfSalesListByInitiativeFilter_allInitiatives_filtersByAssociatedIds() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId("POS_ID");
+
+    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
+        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
+    when(pointOfSalesInitiativeRepositoryMock.findPointOfSaleIdsByMerchantIdAndEnabledTrue(
+        MERCHANT_ID))
+        .thenReturn(List.of("POS_ID"));
+
+    Criteria criteria = new Criteria();
+    when(repositoryMock.getCriteria(eq(MERCHANT_ID), eq(List.of("POS_ID")), any(), any(), any(),
+        any())).thenReturn(criteria);
+    when(repositoryMock.findByFilter(eq(criteria), any())).thenReturn(List.of(pointOfSale));
+
+    Pageable paging = PageRequest.of(0, 20, Sort.by("franchiseName"));
+    Page<PointOfSale> pointOfSalePage = service.getPointOfSalesListByInitiativeFilter(
+        PointOfSaleInitiativeFilter.ALL_INITIATIVES, MERCHANT_ID, null, null, null, null, paging);
+
+    assertNotNull(pointOfSalePage);
+    Assertions.assertEquals(1, pointOfSalePage.getTotalElements());
+    verify(repositoryMock).getCriteria(eq(MERCHANT_ID), eq(List.of("POS_ID")), any(), any(), any(),
+        any());
+    verify(repositoryMock).getCount(criteria);
+  }
+
+  @Test
+  void getPointOfSalesListByInitiativeFilter_allInitiativesWithNoRelations_returnsEmptyPage() {
+    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
+        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
+    when(pointOfSalesInitiativeRepositoryMock.findPointOfSaleIdsByMerchantIdAndEnabledTrue(
+        MERCHANT_ID))
+        .thenReturn(List.of());
+
+    Pageable paging = PageRequest.of(0, 20, Sort.by("franchiseName"));
+    Page<PointOfSale> pointOfSalePage = service.getPointOfSalesListByInitiativeFilter(
+        PointOfSaleInitiativeFilter.ALL_INITIATIVES, MERCHANT_ID, null, null, null, null, paging);
+
+    Assertions.assertTrue(pointOfSalePage.isEmpty());
+    verify(repositoryMock, never()).findByFilter(any(), any());
+    verify(repositoryMock, never()).getCount(any());
+  }
+
+  @Test
+  void getPointOfSalesListByInitiativeFilter_noInitiative_excludesAssociatedIds() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId("POS_ID");
+
+    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
+        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
+    when(pointOfSalesInitiativeRepositoryMock.findPointOfSaleIdsByMerchantIdAndEnabledTrue(
+        MERCHANT_ID))
+        .thenReturn(List.of("ASSOCIATED_POS_ID"));
+
+    Criteria criteria = new Criteria();
+    when(repositoryMock.getCriteriaExcludingPointOfSaleIds(eq(MERCHANT_ID),
+        eq(List.of("ASSOCIATED_POS_ID")), any(), any(), any(), any())).thenReturn(criteria);
+    when(repositoryMock.findByFilter(eq(criteria), any())).thenReturn(List.of(pointOfSale));
+
+    Pageable paging = PageRequest.of(0, 20, Sort.by("franchiseName"));
+    Page<PointOfSale> pointOfSalePage = service.getPointOfSalesListByInitiativeFilter(
+        PointOfSaleInitiativeFilter.NO_INITIATIVE, MERCHANT_ID, null, null, null, null, paging);
+
+    assertNotNull(pointOfSalePage);
+    Assertions.assertEquals(1, pointOfSalePage.getTotalElements());
+    verify(repositoryMock).getCriteriaExcludingPointOfSaleIds(eq(MERCHANT_ID),
+        eq(List.of("ASSOCIATED_POS_ID")), any(), any(), any(), any());
+    verify(repositoryMock).getCount(criteria);
+  }
+
+  @Test
+  void getPointOfSalesListByInitiativeFilter_noInitiativeWithNoRelations_usesPagedMerchantCriteria() {
+    PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
+    pointOfSale.setId("POS_ID");
+
+    when(merchantServiceMock.getMerchantDetail(MERCHANT_ID))
+        .thenReturn(MerchantDetailDTOFaker.mockInstance(1));
+    when(pointOfSalesInitiativeRepositoryMock.findPointOfSaleIdsByMerchantIdAndEnabledTrue(
+        MERCHANT_ID))
+        .thenReturn(List.of());
+
+    Criteria criteria = new Criteria();
+    when(repositoryMock.getCriteriaExcludingPointOfSaleIds(eq(MERCHANT_ID), eq(List.of()), any(),
+        any(), any(), any())).thenReturn(criteria);
+    when(repositoryMock.findByFilter(eq(criteria), any())).thenReturn(List.of(pointOfSale));
+
+    Pageable paging = PageRequest.of(2, 8, Sort.by("franchiseName"));
+    Page<PointOfSale> pointOfSalePage = service.getPointOfSalesListByInitiativeFilter(
+        PointOfSaleInitiativeFilter.NO_INITIATIVE, MERCHANT_ID, null, null, null, null, paging);
+
+    assertNotNull(pointOfSalePage);
+    Assertions.assertEquals(2, pointOfSalePage.getNumber());
+    Assertions.assertEquals(8, pointOfSalePage.getSize());
+    verify(repositoryMock).findByFilter(criteria, paging);
+    verify(repositoryMock).getCount(criteria);
   }
 
   @Test

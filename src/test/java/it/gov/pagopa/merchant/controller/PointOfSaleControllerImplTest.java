@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.controller;
 
 import it.gov.pagopa.common.config.JsonConfig;
 import it.gov.pagopa.merchant.configuration.ServiceExceptionConfig;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleInitiativeFilter;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
 import it.gov.pagopa.merchant.dto.pointofsales.*;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
@@ -147,6 +148,41 @@ class PointOfSaleControllerImplTest {
 
     verify(pointOfSaleFinderService).getPointOfSalesList(eq(MERCHANT_ID), any(), any(), any(), any(),
         any());
+    verifyNoInteractions(pointOfSaleInitiativeFinderService);
+  }
+
+  @Test
+  void getPointOfSalesListWithAllInitiativesFilter_shouldUseAllInitiativesFilter() throws Exception {
+    when(pointOfSaleInitiativeFinderService.getPointOfSalesListByInitiativeFilter(any(), any(),
+        any(), any(), any(), any(), any()))
+        .thenReturn(Page.empty());
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + String.format(GET_POINT_OF_SALES, MERCHANT_ID))
+                .param("initiativeFilter", "ALL_INITIATIVES"))
+        .andExpect(status().isOk());
+
+    verify(pointOfSaleInitiativeFinderService).getPointOfSalesListByInitiativeFilter(
+        eq(PointOfSaleInitiativeFilter.ALL_INITIATIVES), eq(MERCHANT_ID), any(), any(), any(),
+        any(), any());
+    verifyNoInteractions(pointOfSaleFinderService);
+  }
+
+  @Test
+  void getPointOfSalesListWithNoInitiativeFilter_shouldUseNoInitiativeFilter() throws Exception {
+    when(pointOfSaleInitiativeFinderService.getPointOfSalesListByInitiativeFilter(any(), any(),
+        any(), any(), any(), any(), any()))
+        .thenReturn(Page.empty());
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.get(BASE_URL + String.format(GET_POINT_OF_SALES, MERCHANT_ID))
+                .param("initiativeFilter", "NO_INITIATIVE"))
+        .andExpect(status().isOk());
+
+    verify(pointOfSaleInitiativeFinderService).getPointOfSalesListByInitiativeFilter(
+        eq(PointOfSaleInitiativeFilter.NO_INITIATIVE), eq(MERCHANT_ID), any(), any(), any(),
+        any(), any());
+    verifyNoInteractions(pointOfSaleFinderService);
   }
 
   @Test
