@@ -31,7 +31,7 @@ public class MerchantListServiceImpl implements MerchantListService {
     @Override
     public MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode, Pageable pageable) {
         long startTime = System.currentTimeMillis();
-        log.info("[{}}] Get merchant list for initiative {}",LOG_GET_MERCHANT_LIST_FLOW, initiativeId);
+        log.info("[{}] Get merchant list for initiative {}", LOG_GET_MERCHANT_LIST_FLOW, initiativeId);
 
         Criteria criteria = merchantRepository.getCriteria(initiativeId, organizationId, fiscalCode);
         return getMerchantListDTO(initiativeId, pageable, criteria, startTime, LOG_GET_MERCHANT_LIST_FLOW);

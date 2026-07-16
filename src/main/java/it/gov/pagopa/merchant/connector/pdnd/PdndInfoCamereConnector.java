@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface PdndInfoCamereConnector {
 
-    List<String> retrieveAtecoCodes(String taxCode);
+    List<String> retrieveAtecoCodes(String taxCode, List<String> currentAtecoCodes);
 }

@@ -31,7 +31,7 @@ public class TokenProviderPDND implements TokenProvider {
 
     @Override
     public ClientCredentialsResponse getTokenPdnd(PdndSecretValue pdndSecretValue) {
-        log.info("START - TokenProvider.getTokenPdnd");
+        log.info("[PDND-TOKEN] getTokenPdnd START");
         String clientAssertion = assertionGenerator.generateClientAssertion(pdndSecretValue.getJwtConfig(), pdndSecretValue.getSecretKey());
         return pdndClient.createToken(clientAssertion, clientAssertionType, grantType, pdndSecretValue.getClientId());
     }

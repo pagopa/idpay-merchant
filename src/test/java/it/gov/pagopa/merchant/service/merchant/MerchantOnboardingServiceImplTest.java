@@ -69,7 +69,7 @@ class MerchantOnboardingServiceImplTest {
 
         when(merchantRepository.findById(merchantId)).thenReturn(Optional.of(merchant));
         when(initiativeRestConnector.getInitiativeDetail(initiativeId)).thenReturn(initiativeDTO);
-        when(pdndConnector.retrieveAtecoCodes(anyString())).thenReturn(List.of("1234"));
+        when(pdndConnector.retrieveAtecoCodes(anyString(), any())).thenReturn(List.of("1234"));
 
         OnboardingResponse response = merchantOnboardingService.onboardMerchant(merchantId, initiativeId);
 
@@ -121,7 +121,7 @@ class MerchantOnboardingServiceImplTest {
 
         when(merchantRepository.findById(merchantId)).thenReturn(Optional.of(merchant));
         when(initiativeRestConnector.getInitiativeDetail(initiativeId)).thenReturn(initiativeDTO);
-        when(pdndConnector.retrieveAtecoCodes(anyString())).thenReturn(List.of("1234"));
+        when(pdndConnector.retrieveAtecoCodes(anyString(), any())).thenReturn(List.of("1234"));
 
         assertThrows(MerchantNotEligibleException.class,
                 () -> merchantOnboardingService.onboardMerchant(merchantId, initiativeId));

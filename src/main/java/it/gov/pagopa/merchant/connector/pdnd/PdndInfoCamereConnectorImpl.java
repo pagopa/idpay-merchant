@@ -20,10 +20,10 @@ public class PdndInfoCamereConnectorImpl implements PdndInfoCamereConnector {
   }
 
   @Override
-  public List<String> retrieveAtecoCodes(String fiscalCode) {
+  public List<String> retrieveAtecoCodes(String fiscalCode, List<String> currentAtecoCodes) {
     Assert.hasText(fiscalCode, TAX_CODE_REQUIRED_MESSAGE);
     String encFiscalCode = DataEncryptionUtils.encrypt(fiscalCode);
-    return pdndCacheableService.getAtecoCodes(encFiscalCode);
+    return pdndCacheableService.getAtecoCodes(encFiscalCode, currentAtecoCodes);
   }
 
 }

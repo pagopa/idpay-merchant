@@ -728,7 +728,7 @@ class MerchantServiceImplTest {
 
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
-    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode())).thenReturn(newAtecoCodes);
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(newAtecoCodes);
     when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
@@ -761,7 +761,7 @@ class MerchantServiceImplTest {
 
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
-    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode())).thenReturn(newAtecoCodes);
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(newAtecoCodes);
     when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
@@ -792,7 +792,7 @@ class MerchantServiceImplTest {
 
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
-    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode())).thenReturn(null);
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(null);
     when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);

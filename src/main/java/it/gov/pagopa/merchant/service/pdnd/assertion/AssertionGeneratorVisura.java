@@ -20,7 +20,7 @@ import static it.gov.pagopa.merchant.constants.PdndConst.REDIS_CACHE_MANAGER;
 public class AssertionGeneratorVisura {
     @Cacheable(value = PDND_VISURA_CLIENT_ASSERTION_CACHE, key = "#jwtCfg.kid", cacheManager = REDIS_CACHE_MANAGER)
     public String generateClientAssertion(JwtConfig jwtCfg, String privateKey) {
-        log.info("START - AssertionGenerator.generateClientAssertion");
+        log.info("[PDND-ASSERTION-VISURA] generateClientAssertion START");
         long startTime = System.currentTimeMillis();
         Instant now = Instant.now();
         Algorithm alg = Algorithm.RSA256(KeyGenerator.getPrivateKey(privateKey));
@@ -36,7 +36,7 @@ public class AssertionGeneratorVisura {
                 .withIssuedAt(now)
                 .sign(alg);
 
-        log.info("END - AssertionGenerator.generateClientAssertion Timelapse: {} ms", System.currentTimeMillis() - startTime);
+        log.info("[PDND-ASSERTION-VISURA] generateClientAssertion END - elapsed [{}] ms", System.currentTimeMillis() - startTime);
         return jwtToken;
     }
 }
