@@ -31,7 +31,7 @@ public class TokenProviderVisura implements TokenProvider {
 
     @Override
     public ClientCredentialsResponse getTokenPdnd(PdndSecretValue pdndSecretValue) {
-        log.info("START - TokenProviderVisura.getTokenPdnd");
+        log.info("[PDND-TOKEN-VISURA] getTokenPdnd START");
         String clientAssertion = assertionGeneratorVisura.generateClientAssertion(pdndSecretValue.getJwtConfig(), pdndSecretValue.getSecretKey());
         return pdndVisuraClient.createToken(clientAssertion, clientAssertionType, grantType, pdndSecretValue.getClientId());
     }

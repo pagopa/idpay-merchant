@@ -73,7 +73,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    log.error("An error has occurred while waiting {}", e.getMessage());
+                    log.error("[DELETE_INITIATIVE] An error has occurred while waiting: {}", e.getMessage());
                 }
             }
 
@@ -102,7 +102,7 @@ public class MerchantProcessOperationServiceImpl implements MerchantProcessOpera
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    log.error("An error has occurred while waiting {}", e.getMessage());
+                    log.error("[DELETE_INITIATIVE] An error has occurred while waiting: {}", e.getMessage());
                 }
             }
 

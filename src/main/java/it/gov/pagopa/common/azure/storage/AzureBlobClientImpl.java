@@ -41,7 +41,7 @@ public class AzureBlobClientImpl implements AzureBlobClient {
 
     @Override
     public Response<BlockBlobItem> uploadFile(File file, String destination, String contentType) {
-        log.info("Uploading file {} (contentType={}) into azure blob at destination {}", file.getName(), contentType, destination);
+        log.info("[AZURE-BLOB] Uploading file [{}] (contentType=[{}]) to destination [{}]", file.getName(), contentType, destination);
 
         return blobContainerClient.getBlobClient(destination)
                 .uploadFromFileWithResponse(new BlobUploadFromFileOptions(file.getPath()), null, null);
@@ -49,7 +49,7 @@ public class AzureBlobClientImpl implements AzureBlobClient {
 
     @Override
     public Response<BlockBlobItem> upload(InputStream inputStream, String destination, String contentType) {
-        log.info("Uploading (contentType={}) into azure blob at destination {}", contentType, destination);
+        log.info("[AZURE-BLOB] Uploading stream (contentType=[{}]) to destination [{}]", contentType, destination);
 
         return blobContainerClient.getBlobClient(destination)
                 .uploadWithResponse(new BlobParallelUploadOptions(inputStream), null, null);
@@ -57,7 +57,7 @@ public class AzureBlobClientImpl implements AzureBlobClient {
 
     @Override
     public Response<Boolean> deleteFile(String destination) {
-        log.info("Deleting file {} from azure blob container", destination);
+        log.info("[AZURE-BLOB] Deleting file [{}] from blob container", destination);
 
         return blobContainerClient.getBlobClient(destination)
                 .deleteIfExistsWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, null);
@@ -70,7 +70,7 @@ public class AzureBlobClientImpl implements AzureBlobClient {
 
     @Override
     public Response<BlobProperties> download(String filePath, Path destination) {
-        log.info("Downloading file {} from azure blob container", filePath);
+        log.info("[AZURE-BLOB] Downloading file [{}] from blob container", filePath);
 
         createDirectoryIfNotExists(destination);
 
@@ -96,7 +96,7 @@ public class AzureBlobClientImpl implements AzureBlobClient {
 
     @Override
     public ByteArrayOutputStream download(String filePath) {
-        log.info("Downloading file {} from azure blob container", filePath);
+        log.info("[AZURE-BLOB] Downloading file [{}] from blob container", filePath);
 
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

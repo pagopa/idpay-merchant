@@ -45,16 +45,16 @@ class PdndInfoCamereConnectorImplTest {
                             DataEncryptionUtils.encrypt(taxCode))
                     .thenReturn(encryptedTaxCode);
 
-            when(pdndCacheableService.getAtecoCodes(encryptedTaxCode))
+            when(pdndCacheableService.getAtecoCodes(encryptedTaxCode, null))
                     .thenReturn(mockAtecoCodes);
 
             List<String> atecoCodes =
-                    pdndInfoCamereConnector.retrieveAtecoCodes(taxCode);
+                    pdndInfoCamereConnector.retrieveAtecoCodes(taxCode, null);
 
             assertEquals(mockAtecoCodes, atecoCodes);
 
             verify(pdndCacheableService)
-                    .getAtecoCodes(encryptedTaxCode);
+                    .getAtecoCodes(encryptedTaxCode, null);
         }
     }
 }
