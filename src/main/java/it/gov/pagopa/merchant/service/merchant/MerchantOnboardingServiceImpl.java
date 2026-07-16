@@ -93,7 +93,7 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
 
     private boolean isEligible(Merchant merchant, InitiativeDTO initiative) {
 
-        List<String> newAtecoCodes = pdndConnector.retrieveAtecoCodes(merchant.getFiscalCode());
+        List<String> newAtecoCodes = pdndConnector.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes());
 
         Set<String> currentAteco = merchant.getAtecoCodes() == null
                 ? Collections.emptySet()

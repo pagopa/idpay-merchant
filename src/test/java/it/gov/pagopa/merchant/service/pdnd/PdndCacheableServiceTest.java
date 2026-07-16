@@ -102,7 +102,7 @@ class PdndCacheableServiceTest {
                     .thenReturn(xml.getBytes(StandardCharsets.UTF_8));
 
             List<String> result =
-                    service.getAtecoCodes("encryptedFiscalCode");
+                    service.getAtecoCodes("encryptedFiscalCode", null);
 
             assertNotNull(result);
             assertEquals(2, result.size());
@@ -150,10 +150,64 @@ class PdndCacheableServiceTest {
                     .thenReturn(xml.getBytes(StandardCharsets.UTF_8));
 
             List<String> result =
-                    service.getAtecoCodes("encryptedFiscalCode");
+                    service.getAtecoCodes("encryptedFiscalCode", null);
 
             assertNotNull(result);
             assertTrue(result.isEmpty());
+            verifyNoInteractions(azureBlobClient);
+        }
+    }
+
+    @Test
+    void getAtecoCodes_shouldNotSaveVisuraWhenAtecoCodesUnchanged() {
+
+        ClientCredentialsResponse tokenResponse = new ClientCredentialsResponse();
+        tokenResponse.setAccessToken("accessToken");
+
+        when(pdndVisuraInfoCamereRestClientConfig.getPdndSecretValue())
+                .thenReturn(pdndSecretValue);
+
+        when(tokenProviderVisura.getTokenPdnd(pdndSecretValue))
+                .thenReturn(tokenResponse);
+
+        String xml = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <VisuraImpresa>
+                    <info-attivita>
+                        <classificazioni-ateco>
+                            <classificazione-ateco
+                                c-attivita="47.11.10"
+                                attivita="Commercio al dettaglio"
+                                c-importanza="1"/>
+                        </classificazioni-ateco>
+                    </info-attivita>
+                </VisuraImpresa>
+                """;
+
+        List<String> currentAtecoCodes = List.of("47.11.10");
+
+        try (MockedStatic<DataEncryptionUtils> mockedStatic =
+                     mockStatic(DataEncryptionUtils.class)) {
+
+            mockedStatic.when(() ->
+                            DataEncryptionUtils.decrypt("encryptedFiscalCode"))
+                    .thenReturn("12345678901");
+
+            mockedStatic.when(() ->
+                            DataEncryptionUtils.encrypt(anyString()))
+                    .thenReturn("encryptedXml");
+
+            when(pdndVisuraInfoCamereRawRestClient.getRawInstitutionDetail(
+                    anyString(), anyString()))
+                    .thenReturn(xml.getBytes(StandardCharsets.UTF_8));
+
+            List<String> result =
+                    service.getAtecoCodes("encryptedFiscalCode", currentAtecoCodes);
+
+            assertNotNull(result);
+            assertEquals(1, result.size());
+            assertEquals("47.11.10", result.get(0));
+            verifyNoInteractions(azureBlobClient);
         }
     }
 
@@ -200,7 +254,7 @@ class PdndCacheableServiceTest {
 
             assertThrows(
                     ResourceNotFoundException.class,
-                    () -> service.getAtecoCodes("encryptedFiscalCode")
+                    () -> service.getAtecoCodes("encryptedFiscalCode", null)
             );
         }
     }
@@ -248,7 +302,7 @@ class PdndCacheableServiceTest {
 
             assertThrows(
                     FeignException.class,
-                    () -> service.getAtecoCodes("encryptedTaxCode")
+                    () -> service.getAtecoCodes("encryptedTaxCode", null)
             );
         }
     }
@@ -284,7 +338,7 @@ class PdndCacheableServiceTest {
             IllegalArgumentException exception =
                     assertThrows(
                             IllegalArgumentException.class,
-                            () -> service.getAtecoCodes("encryptedTaxCode")
+                            () -> service.getAtecoCodes("encryptedTaxCode", null)
                     );
 
             assertTrue(
