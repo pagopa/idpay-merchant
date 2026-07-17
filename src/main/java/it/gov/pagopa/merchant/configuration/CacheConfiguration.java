@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
 import java.util.Map;
@@ -18,17 +19,19 @@ import static it.gov.pagopa.merchant.constants.PdndConst.*;
 
 @Configuration
 @EnableCaching
+@Slf4j
 public class CacheConfiguration {
 
     @Bean(REDIS_CACHE_MANAGER)
     public CacheManager redisCacheManager(
             ObjectProvider<RedisConnectionFactory> connectionFactoryProvider,
-            @Value("${spring.redis.enabled:${redis.cache.enabled:true}}") boolean redisCacheEnabled,
+            @Value("${spring.redis.enabled:true}") boolean redisCacheEnabled,
             @Value("${cache.pdnd-token-ttl-seconds:60}") long tokenTtlSeconds,
             @Value("${cache.pdnd-client-assertion-ttl-seconds:3300}") long assertionTtlSeconds,
             @Value("${cache.pdnd-ateco-codes-ttl-seconds:28800}") long atecoCodesTtlSeconds
     ) {
         if (!redisCacheEnabled) {
+            log.warn("[CACHE] Redis cache disabled (spring.redis.enabled=false). Using NoOpCacheManager.");
             return new NoOpCacheManager();
         }
 
@@ -36,6 +39,9 @@ public class CacheConfiguration {
         if (connectionFactory == null) {
             throw new IllegalStateException("RedisConnectionFactory not available while spring.redis.enabled=true");
         }
+
+        log.info("[CACHE] Redis cache enabled. TTLs -> token: {}s, assertion: {}s, atecoCodes: {}s",
+                tokenTtlSeconds, assertionTtlSeconds, atecoCodesTtlSeconds);
 
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues();
@@ -53,7 +59,7 @@ public class CacheConfiguration {
                 PDND_VISURA_CLIENT_ASSERTION_CACHE,
                 defaultConfig.entryTtl(Duration.ofSeconds(assertionTtlSeconds)),
 
-                "pdndAtecoCodes",
+                PDND_ATECO_CODES,
                 defaultConfig.entryTtl(Duration.ofSeconds(atecoCodesTtlSeconds))
         );
 
