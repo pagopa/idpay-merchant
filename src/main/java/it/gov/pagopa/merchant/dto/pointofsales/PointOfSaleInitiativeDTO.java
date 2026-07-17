@@ -24,4 +24,5 @@ public class PointOfSaleInitiativeDTO {
     private String status;
     private Instant createdAt;
     private Instant updatedAt;
+    private Instant onboardingDate;
 }

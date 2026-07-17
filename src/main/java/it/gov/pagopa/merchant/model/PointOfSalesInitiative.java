@@ -26,5 +26,6 @@ public class PointOfSalesInitiative {
     private String merchantId;
     private Boolean enabled;
     private Instant createdAt;
+    private Instant onboardingDate;
     private Instant updatedAt;
 }

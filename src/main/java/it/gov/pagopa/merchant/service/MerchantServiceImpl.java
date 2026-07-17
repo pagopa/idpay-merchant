@@ -154,7 +154,7 @@ public class MerchantServiceImpl implements MerchantService {
             .orElseThrow(() -> new MerchantNotFoundException(merchantId));
 
     log.info("[AVAILABLE_INITIATIVES] Retrieving initiatives for merchant [{}]",
-            merchantId);
+            sanitizeString(merchantId));
 
     List<String> newAtecoCodes = Optional.ofNullable(
                     pdndConnector.retrieveAtecoCodes(
@@ -170,7 +170,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     log.info("[AVAILABLE_INITIATIVES] Retrieved {} ATECO codes from PDND for merchant [{}]",
             newAtecoCodes.size(),
-            merchantId);
+            sanitizeString(merchantId));
 
     if (!retrievedAtecoCodes.equals(currentAtecoCodes)) {
       merchant.setAtecoCodes(newAtecoCodes);
@@ -178,7 +178,7 @@ public class MerchantServiceImpl implements MerchantService {
       merchantRepository.save(merchant);
 
       log.info("[AVAILABLE_INITIATIVES] Updated ATECO codes for merchant [{}]",
-              merchantId);
+              sanitizeString(merchantId));
     }
 
     Set<String> existingIds = Optional.ofNullable(merchant.getInitiativeList())
@@ -192,9 +192,9 @@ public class MerchantServiceImpl implements MerchantService {
 
     log.info(
             "[AVAILABLE_INITIATIVES] Searching initiatives for merchant [{}] (excluded initiatives: {}, initiativeName: {})",
-            merchantId,
+            sanitizeString(merchantId),
             existingIds.size(),
-            initiativeName);
+            sanitizeString(initiativeName));
 
     PageResponse<InitiativeResponse> remoteResponse =
             initiativeRestClient.searchInitiatives(request, pageable).getBody();
@@ -210,7 +210,7 @@ public class MerchantServiceImpl implements MerchantService {
     log.info(
             "[AVAILABLE_INITIATIVES] Found {} initiatives for merchant [{}]",
             totalElements,
-            merchantId);
+            sanitizeString(merchantId));
 
     return new PageImpl<>(content, pageable, totalElements);
   }
