@@ -259,6 +259,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .merchantId(merchantId)
             .initiativeId(initiativeId)
             .enabled(true)
+            .onboardingDate(now)
             .createdAt(now)
             .updatedAt(now)
             .build();
@@ -392,6 +393,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
     if (existingAssociationOpt.isPresent()) {
       PointOfSalesInitiative existing = existingAssociationOpt.get();
       existing.setEnabled(true);
+      existing.setOnboardingDate(Instant.now());
       existing.setUpdatedAt(Instant.now());
       pointOfSalesInitiativeRepository.save(existing);
       return;

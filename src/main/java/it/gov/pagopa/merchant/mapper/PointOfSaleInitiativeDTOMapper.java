@@ -27,6 +27,7 @@ public class PointOfSaleInitiativeDTOMapper {
                 .status(status)
                 .createdAt(posInitiative != null ? posInitiative.getCreatedAt() : null)
                 .updatedAt(posInitiative != null ? posInitiative.getUpdatedAt() : null)
+                .onboardingDate(posInitiative != null ? posInitiative.getOnboardingDate() : null)
                 .build();
     }
 
