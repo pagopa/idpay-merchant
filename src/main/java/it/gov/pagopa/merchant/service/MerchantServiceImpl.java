@@ -145,21 +145,40 @@ public class MerchantServiceImpl implements MerchantService {
 
 
   @Override
-  public Page<InitiativeResponse> processMerchantInitiatives(String merchantId, String initiativeName, Pageable pageable) {
+  public Page<InitiativeResponse> processMerchantInitiatives(
+          String merchantId,
+          String initiativeName,
+          Pageable pageable) {
 
     Merchant merchant = merchantRepository.findById(merchantId)
             .orElseThrow(() -> new MerchantNotFoundException(merchantId));
 
-    List<String> newAtecoCodes = Optional.ofNullable(pdndConnector.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes()))
+    log.info("[AVAILABLE_INITIATIVES] Retrieving initiatives for merchant [{}]",
+            merchantId);
+
+    List<String> newAtecoCodes = Optional.ofNullable(
+                    pdndConnector.retrieveAtecoCodes(
+                            merchant.getFiscalCode(),
+                            merchant.getAtecoCodes()))
             .orElse(Collections.emptyList());
-    Set<String> currentAtecoCodes = new HashSet<>(Optional.ofNullable(merchant.getAtecoCodes())
-            .orElse(Collections.emptyList()));
+
+    Set<String> currentAtecoCodes = new HashSet<>(
+            Optional.ofNullable(merchant.getAtecoCodes())
+                    .orElse(Collections.emptyList()));
+
     Set<String> retrievedAtecoCodes = new HashSet<>(newAtecoCodes);
+
+    log.info("[AVAILABLE_INITIATIVES] Retrieved {} ATECO codes from PDND for merchant [{}]",
+            newAtecoCodes.size(),
+            merchantId);
 
     if (!retrievedAtecoCodes.equals(currentAtecoCodes)) {
       merchant.setAtecoCodes(newAtecoCodes);
       merchant.setUpdateDate(LocalDateTime.now());
       merchantRepository.save(merchant);
+
+      log.info("[AVAILABLE_INITIATIVES] Updated ATECO codes for merchant [{}]",
+              merchantId);
     }
 
     Set<String> existingIds = Optional.ofNullable(merchant.getInitiativeList())
@@ -168,7 +187,14 @@ public class MerchantServiceImpl implements MerchantService {
             .map(Initiative::getInitiativeId)
             .collect(Collectors.toSet());
 
-    InitiativeSearchRequest request = new InitiativeSearchRequest(existingIds, newAtecoCodes, initiativeName);
+    InitiativeSearchRequest request =
+            new InitiativeSearchRequest(existingIds, newAtecoCodes, initiativeName);
+
+    log.info(
+            "[AVAILABLE_INITIATIVES] Searching initiatives for merchant [{}] (excluded initiatives: {}, initiativeName: {})",
+            merchantId,
+            existingIds.size(),
+            initiativeName);
 
     PageResponse<InitiativeResponse> remoteResponse =
             initiativeRestClient.searchInitiatives(request, pageable).getBody();
@@ -176,13 +202,18 @@ public class MerchantServiceImpl implements MerchantService {
     List<InitiativeResponse> content = remoteResponse != null
             ? remoteResponse.getContent()
             : Collections.emptyList();
+
     long totalElements = remoteResponse != null
             ? remoteResponse.getTotalElements()
             : 0L;
 
+    log.info(
+            "[AVAILABLE_INITIATIVES] Found {} initiatives for merchant [{}]",
+            totalElements,
+            merchantId);
+
     return new PageImpl<>(content, pageable, totalElements);
   }
-
 
     @Override
   public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
