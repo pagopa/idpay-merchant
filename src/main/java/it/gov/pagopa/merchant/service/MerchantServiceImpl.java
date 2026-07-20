@@ -194,7 +194,7 @@ public class MerchantServiceImpl implements MerchantService {
             "[AVAILABLE_INITIATIVES] Searching initiatives for merchant [{}] (excluded initiatives: {}, initiativeName: {})",
             sanitizeString(merchantId),
             existingIds.size(),
-            sanitizeString(initiativeName));
+            initiativeName != null ? sanitizeString(initiativeName) : "");
 
     PageResponse<InitiativeResponse> remoteResponse =
             initiativeRestClient.searchInitiatives(request, pageable).getBody();
