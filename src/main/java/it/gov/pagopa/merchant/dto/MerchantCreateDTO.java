@@ -20,6 +20,9 @@ public class MerchantCreateDTO {
   private String businessName;
 
   @NotBlank
+  private String vatNumber;
+
+  @NotBlank
   private String fiscalCode;
 
   private String iban;
