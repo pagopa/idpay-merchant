@@ -2,6 +2,8 @@ package it.gov.pagopa.merchant.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +21,7 @@ public class MerchantCreateDTO {
   @NotBlank
   private String businessName;
 
-  @NotBlank
+  @NotNull
   private String vatNumber;
 
   @NotBlank
