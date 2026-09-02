@@ -16,7 +16,7 @@ public class MerchantCreateDTOMapper {
     return Merchant.builder()
         .merchantId(merchantId)
         .fiscalCode(dto.getFiscalCode())
-        .vatNumber(dto.getVatNumber() != null ? dto.getVatNumber() : dto.getFiscalCode())
+        .vatNumber(dto.getVatNumber())
         .acquirerId(dto.getAcquirerId())
         .businessName(dto.getBusinessName())
         .iban(dto.getIban())
