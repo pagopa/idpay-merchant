@@ -251,12 +251,14 @@ class MerchantControllerImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
     String expectedMerchantId = "MERCHANT123";
 
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId)
         .iban(iban)
@@ -281,6 +283,7 @@ class MerchantControllerImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
     String expectedMerchantId = "MERCHANT123";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
@@ -288,6 +291,7 @@ class MerchantControllerImplTest {
 
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId)
         .iban(iban)
@@ -314,9 +318,11 @@ class MerchantControllerImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
 
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId).build();
 

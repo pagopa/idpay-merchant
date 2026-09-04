@@ -376,11 +376,13 @@ class MerchantServiceImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
 
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId)
         .iban(iban)
@@ -403,11 +405,13 @@ class MerchantServiceImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
     String expectedMerchantId = Utilities.toUUID(fiscalCode + "_" + acquirerId);
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId)
         .iban(iban)
@@ -430,11 +434,13 @@ class MerchantServiceImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
     String expectedMerchantId = Utilities.toUUID(fiscalCode + "_" + acquirerId);
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId)
         .iban(iban)
@@ -463,10 +469,12 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesFieldsCorrectly() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    String fiscalCode = "ABCDEF12G34H567I";
     LocalDateTime existingActivationDate = LocalDateTime.now().minusDays(1);
     LocalDateTime newActivationDate = LocalDateTime.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
+        .fiscalCode(fiscalCode)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
@@ -474,6 +482,8 @@ class MerchantServiceImplTest {
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .fiscalCode(fiscalCode)
+        .vatNumber("12345678901")
         .iban("NEW_IBAN")
         .businessName("New Business Name")
         .ibanHolder("New Iban Holder")
@@ -499,9 +509,11 @@ class MerchantServiceImplTest {
   void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    String fiscalCode = "ABCDEF12G34H567I";
     LocalDateTime activationDate = LocalDateTime.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
+        .fiscalCode(fiscalCode)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
@@ -509,6 +521,8 @@ class MerchantServiceImplTest {
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .fiscalCode(fiscalCode)
+        .vatNumber("12345678901")
         .iban("") // Blank
         .businessName(null) // Null
         .ibanHolder("") // Blank
@@ -533,10 +547,12 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesOnlyProvidedFields() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    String fiscalCode = "ABCDEF12G34H567I";
     LocalDateTime activationDate = LocalDateTime.now();
     LocalDateTime activatioDateTimeNew =LocalDateTime.now().plusDays(2);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
+        .fiscalCode(fiscalCode)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
@@ -544,6 +560,8 @@ class MerchantServiceImplTest {
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .fiscalCode(fiscalCode)
+        .vatNumber("12345678901")
         .iban("NEW_IBAN") // Only updating IBAN
         .activationDate(activatioDateTimeNew)
         .build();
