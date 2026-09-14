@@ -16,3 +16,9 @@ ignore:
   - vulnerability: CVE-2022-41881 # solved in netty 4.1.86
   - vulnerability: CVE-2023-34462 # solved in netty 4.1.94
   - vulnerability: CVE-2023-44487 # solved in netty 4.1.100
+  # Apache Tomcat security-constraint bypass: resolved at build time via -Dtomcat.version=11.0.22 in the Dockerfile
+  - vulnerability: CVE-2026-43515   # tomcat-embed-core fixed in 11.0.22
+  - vulnerability: GHSA-5m62-pw8w-7w9f # same advisory as CVE-2026-43515 (tomcat-embed-core)
+  # OpenSSL (Alpine libssl3/libcrypto3): resolved at build time via `apk --no-cache upgrade` to openssl 3.5.8-r0
+  - vulnerability: CVE-2026-18798   # openssl fixed in 3.5.8-r0 (Alpine 3.24)
+  - vulnerability: CVE-2026-63076   # openssl fixed in 3.5.8-r0 (Alpine 3.24)

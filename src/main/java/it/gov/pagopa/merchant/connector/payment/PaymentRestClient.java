@@ -24,5 +24,6 @@ public interface PaymentRestClient {
         @PathVariable("initiativeId") String initiativeId,
         @RequestParam(required = false) String fiscalCode,
         @RequestParam(required = false) String status,
+        @RequestParam(required = false) String pointOfSaleId,
         Pageable pageable);
 }
