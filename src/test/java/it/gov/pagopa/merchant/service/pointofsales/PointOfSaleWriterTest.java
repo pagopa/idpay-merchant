@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.merchant.connector.payment.PaymentConnector;
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionDTO;
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
@@ -31,6 +32,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.PageRequest;
 
 
 import java.time.LocalDate;
@@ -56,6 +58,8 @@ class PointOfSaleWriterTest {
     PointOfSalesInitiativeRepository initiativeRepository;
     @Mock
     TransactionConnector transactionConnector;
+    @Mock
+    PaymentConnector paymentConnector;
 
     PointOfSaleWriterImpl service;
 
@@ -70,7 +74,8 @@ class PointOfSaleWriterTest {
                 keycloakService,
                 mapper,
                 initiativeRepository,
-                transactionConnector
+                transactionConnector,
+                paymentConnector
         );
     }
 
@@ -564,7 +569,7 @@ class PointOfSaleWriterTest {
         assertThrows(MerchantNotAllowedException.class,
                 () -> service.excludePointsOfSales(M, I, pointsOfSaleIds));
 
-        verifyNoInteractions(transactionConnector, repository, initiativeRepository);
+        verifyNoInteractions(paymentConnector, transactionConnector, repository, initiativeRepository);
     }
 
     @Test
@@ -577,15 +582,13 @@ class PointOfSaleWriterTest {
         assertThrows(InitiativeNotValidException.class,
                 () -> service.excludePointsOfSales(M, I, pointsOfSaleIds));
 
-        verifyNoInteractions(transactionConnector, repository, initiativeRepository);
+        verifyNoInteractions(paymentConnector, transactionConnector, repository, initiativeRepository);
     }
 
     @Test
     void excludePointsOfSales_shouldAddNotExcluded_whenPosNotFound() {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(true, false));
-        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
-                .thenReturn(new MerchantTransactionsListDTO());
         when(repository.findById("P1"))
                 .thenReturn(Optional.empty());
 
@@ -596,14 +599,14 @@ class PointOfSaleWriterTest {
         assertEquals(PosOnbordingExclusionRejectionReason.NOT_FOUND, result.getNotExcludedPointOfSales().getFirst().getReason());
         assertTrue(result.getExcludedPointOfSales().isEmpty());
         verify(initiativeRepository, never()).save(any());
+        // No transaction lookup is performed when the POS does not exist
+        verifyNoInteractions(paymentConnector, transactionConnector);
     }
 
     @Test
     void excludePointsOfSales_shouldAddNotExcluded_whenAlreadyExcludedOrNeverEnabled() {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(true, false));
-        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
-                .thenReturn(new MerchantTransactionsListDTO());
 
         PointOfSale pos = pos();
         when(repository.findById("P1")).thenReturn(Optional.of(pos));
@@ -616,13 +619,19 @@ class PointOfSaleWriterTest {
         assertEquals(PosOnbordingExclusionRejectionReason.ALREADY_EXCLUDED, result.getNotExcludedPointOfSales().getFirst().getReason());
         assertTrue(result.getExcludedPointOfSales().isEmpty());
         verify(initiativeRepository, never()).save(any());
+        // No transaction lookup is performed when the POS is already excluded
+        verifyNoInteractions(paymentConnector, transactionConnector);
     }
 
     @Test
     void excludePointsOfSales_shouldExcludeSuccessfully() {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(true, false));
-        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
+
+        // No blocking transactions on either source for this POS
+        when(paymentConnector.getMerchantTransactions(eq(M), eq(I), isNull(), isNull(), eq("P1"), any()))
+                .thenReturn(new it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionsListDTO());
+        when(transactionConnector.getMerchantTransactions(eq(M), eq(I), isNull(), isNull(), eq("P1"), any()))
                 .thenReturn(new MerchantTransactionsListDTO());
 
         PointOfSale pos = pos();
@@ -649,8 +658,6 @@ class PointOfSaleWriterTest {
     void excludePointsOfSales_shouldHandleGenericException_InsideLoop() {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(true, false));
-        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
-                .thenReturn(new MerchantTransactionsListDTO());
 
         when(repository.findById("P1")).thenThrow(new RuntimeException("DB offline"));
 
@@ -665,7 +672,11 @@ class PointOfSaleWriterTest {
     void excludePointsOfSales_shouldHandleMixedResults() {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(true, false));
-        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
+
+        // P1 is excludable: no blocking transactions
+        when(paymentConnector.getMerchantTransactions(eq(M), eq(I), isNull(), isNull(), eq("P1"), any()))
+                .thenReturn(new it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionsListDTO());
+        when(transactionConnector.getMerchantTransactions(eq(M), eq(I), isNull(), isNull(), eq("P1"), any()))
                 .thenReturn(new MerchantTransactionsListDTO());
 
         PointOfSale p1 = pos();
@@ -695,18 +706,20 @@ class PointOfSaleWriterTest {
     }
 
     @Test
-    void excludePointsOfSales_shouldAddNotExcluded_whenHasBlockingTransactions() {
+    void excludePointsOfSales_shouldAddNotExcluded_whenHasProcessedTransactions() {
         when(merchantService.getMerchantByMerchantId(M))
                 .thenReturn(buildMerchant(true, false));
 
-        MerchantTransactionDTO singleTransaction = mock(MerchantTransactionDTO.class);
-        when(singleTransaction.getPointOfSaleId()).thenReturn("P1");
+        // No in-progress transactions, but a processed one exists for this POS
+        when(paymentConnector.getMerchantTransactions(eq(M), eq(I), isNull(), isNull(), eq("P1"), any()))
+                .thenReturn(new it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionsListDTO());
 
-        MerchantTransactionsListDTO transactionsMock = mock(MerchantTransactionsListDTO.class);
-        doReturn(List.of(singleTransaction)).when(transactionsMock).getContent();
-
-        when(transactionConnector.getMerchantTransactions(M, I, null, null, null))
-                .thenReturn(transactionsMock);
+        MerchantTransactionDTO processedTrx = MerchantTransactionDTO.builder().pointOfSaleId("P1").build();
+        MerchantTransactionsListDTO processedList = MerchantTransactionsListDTO.builder()
+                .content(List.of(processedTrx))
+                .build();
+        when(transactionConnector.getMerchantTransactions(eq(M), eq(I), isNull(), isNull(), eq("P1"), eq(PageRequest.of(0, 1))))
+                .thenReturn(processedList);
 
         PointOfSale pos = pos();
         when(repository.findById("P1")).thenReturn(Optional.of(pos));
@@ -719,5 +732,41 @@ class PointOfSaleWriterTest {
         assertEquals(PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS, result.getNotExcludedPointOfSales().getFirst().getReason());
         assertTrue(result.getExcludedPointOfSales().isEmpty());
         verify(initiativeRepository, never()).save(any());
+        // Existence check is scoped to the single POS and asks for one row only
+        verify(transactionConnector).getMerchantTransactions(eq(M), eq(I), isNull(), isNull(), eq("P1"), eq(PageRequest.of(0, 1)));
+    }
+
+    @Test
+    void excludePointsOfSales_shouldAddNotExcluded_whenHasInProgressPaymentTransactions() {
+        // Reproduces bug: POS with only in-progress payment transactions ("Da autorizzare" / "Fattura da caricare")
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+
+        // In-progress transactions (idpay-payment) reference the POS -> must block exclusion.
+        // Payment is checked first and short-circuits, so the processed source is not queried.
+        it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionDTO inProgressTrx =
+                it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionDTO.builder()
+                        .pointOfSaleId("P1")
+                        .status(it.gov.pagopa.merchant.connector.payment.dto.SyncTrxStatus.AUTHORIZED)
+                        .build();
+        it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionsListDTO paymentList =
+                it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionsListDTO.builder()
+                        .content(List.of(inProgressTrx))
+                        .build();
+        when(paymentConnector.getMerchantTransactions(eq(M), eq(I), isNull(), isNull(), eq("P1"), any()))
+                .thenReturn(paymentList);
+
+        PointOfSale pos = pos();
+        when(repository.findById("P1")).thenReturn(Optional.of(pos));
+        when(initiativeRepository.findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue("P1", I, M))
+                .thenReturn(Optional.of(new PointOfSalesInitiative()));
+
+        var result = service.excludePointsOfSales(M, I, List.of("P1"));
+
+        assertEquals(1, result.getNotExcludedPointOfSales().size());
+        assertEquals(PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS, result.getNotExcludedPointOfSales().getFirst().getReason());
+        assertTrue(result.getExcludedPointOfSales().isEmpty());
+        verify(initiativeRepository, never()).save(any());
+        verify(transactionConnector, never()).getMerchantTransactions(any(), any(), any(), any(), any(), any());
     }
 }

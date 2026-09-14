@@ -18,6 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class MerchantTransactionDTO {
   private String trxCode;
   private String trxId;
+  private String pointOfSaleId;
   private String fiscalCode;
   @NotNull
   private Long effectiveAmountCents;

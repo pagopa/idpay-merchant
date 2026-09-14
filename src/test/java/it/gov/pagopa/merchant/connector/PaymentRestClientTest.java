@@ -88,6 +88,7 @@ class PaymentRestClientTest {
             INITIATIVE_ID,
             null,
             null,
+            null,
             pageable
     );
 
@@ -102,6 +103,7 @@ class PaymentRestClientTest {
             restConnector.getMerchantTransactions(
                     MERCHANT_ID,
                     INITIATIVE_ID_ERROR,
+                    null,
                     null,
                     null,
                     pageable
