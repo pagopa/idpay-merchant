@@ -6,14 +6,15 @@ FROM maven:3.9.16-amazoncorretto-25-alpine@sha256:a80b0474d68f8ebc05f6bb09e73810
 WORKDIR /build
 COPY . .
 
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dtomcat.version=11.0.22
 
 #
 # Docker RUNTIME
 #
 FROM amazoncorretto:25-alpine3.24@sha256:2ad5f5cf03a3970f2478b130dc28f51b179ce13c58154fe3ec1a6fdeb3b86e3a AS runtime
 
-RUN apk --no-cache add shadow \
+RUN apk --no-cache upgrade \
+&& apk --no-cache add shadow \
 && useradd --uid 10000 runner
 
 VOLUME /tmp
