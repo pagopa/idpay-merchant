@@ -43,6 +43,8 @@ jobs:
       - name: Run the Anchore Grype scan action
         uses: anchore/scan-action@f6601287cdb1efc985d6b765bbf99cb4c0ac29d8 #v7.0.0
         id: scan
+        env:
+          GRYPE_CONFIG: ${{ github.workspace }}/.grype.yaml
         with:
           image: "localbuild/testimage:latest"
           fail-build: true
