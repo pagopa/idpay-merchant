@@ -11,7 +11,7 @@ import java.util.List;
 public interface TransactionConnector {
 
   MerchantTransactionsListDTO getMerchantTransactions(String merchantId, String initiativeId,
-      String fiscalCode, String status, Pageable pageable);
+      String fiscalCode, String status, String pointOfSaleId, Pageable pageable);
 
   List<RewardTransaction> findAll(String idTrxIssuer, String userId, LocalDateTime trxDateStart, LocalDateTime trxDateEnd, Long amountCents, Pageable pageable);
 }

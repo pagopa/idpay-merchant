@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.service.pointofsales;
 
 import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ServiceException;
+import it.gov.pagopa.merchant.connector.payment.PaymentConnector;
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
@@ -27,6 +28,7 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -47,6 +49,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
   private final PointOfSaleDTOMapper mapper;
   private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
   private final TransactionConnector transactionConnector;
+  private final PaymentConnector paymentConnector;
 
   private static final String ERROR_MERCHANT_NOT_ONBOARDED = "Merchant with id %s not onboarded on initiative %s";
   private static final String ERROR_INITIATIVE_ENDED = "Initiative %s ended";
@@ -409,14 +412,11 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
     validateMerchantInitiative(merchantId, initiativeId, LocalDate.now(ZONEID));
 
-    MerchantTransactionsListDTO transactions =
-            transactionConnector.getMerchantTransactions(merchantId, initiativeId, null, null, null);
-
     List<ExcludedPointOfSaleDetailDTO> excluded = new ArrayList<>();
     List<NotExcludedPointOfSaleDTO> notExcluded = new ArrayList<>();
 
     for (String posId : pointOfSaleIds) {
-      processSingleExclusion(merchantId, initiativeId, transactions, posId, excluded, notExcluded);
+      processSingleExclusion(merchantId, initiativeId, posId, excluded, notExcluded);
     }
 
     return PointOfSaleExclusionResultDTO.builder()
@@ -444,7 +444,6 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
   private void processSingleExclusion(
           String merchantId,
           String initiativeId,
-          MerchantTransactionsListDTO transactions,
           String posId,
           List<ExcludedPointOfSaleDetailDTO> excluded,
           List<NotExcludedPointOfSaleDTO> notExcluded) {
@@ -466,7 +465,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
         return;
       }
 
-      if (hasBlockingTransactions(transactions, posId)) {
+      if (hasBlockingTransactions(merchantId, initiativeId, posId)) {
         log.info("[POINT-OF-SALE][EXCLUSION] POS {} skipped: has active transactions", sanitizeString(posId));
         notExcluded.add(buildNotExcludedExclusionEntry(pos, PosOnbordingExclusionRejectionReason.HAS_TRANSACTIONS));
         return;
@@ -524,12 +523,34 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
     pointOfSalesInitiativeRepository.save(association);
   }
 
-  private boolean hasBlockingTransactions(MerchantTransactionsListDTO transactions, String posId) {
-    if (transactions == null || transactions.getContent() == null) {
-      return false;
-    }
+  /**
+   * A POS cannot be excluded from an initiative while it still has active transactions.
+   * The existence check is scoped to the single POS and asks for one row only (size = 1),
+   * so no client-side pagination/aggregation is required.
+   * Two sources are inspected:
+   * - idpay-payment: in-progress transactions (e.g. "Da autorizzare", "Fattura da caricare");
+   * - idpay-transactions: processed transactions (reward batch).
+   */
+  private boolean hasBlockingTransactions(String merchantId, String initiativeId, String posId) {
+    return hasInProgressTransactions(merchantId, initiativeId, posId)
+            || hasProcessedTransactions(merchantId, initiativeId, posId);
+  }
 
-    return transactions.getContent().stream()
-            .anyMatch(t -> posId.equals(t.getPointOfSaleId()));
+  private boolean hasInProgressTransactions(String merchantId, String initiativeId, String posId) {
+    it.gov.pagopa.merchant.connector.payment.dto.MerchantTransactionsListDTO inProgress =
+            paymentConnector.getMerchantTransactions(
+                    merchantId, initiativeId, null, null, posId, PageRequest.of(0, 1));
+    return hasContent(inProgress != null ? inProgress.getContent() : null);
+  }
+
+  private boolean hasProcessedTransactions(String merchantId, String initiativeId, String posId) {
+    MerchantTransactionsListDTO processed =
+            transactionConnector.getMerchantTransactions(
+                    merchantId, initiativeId, null, null, posId, PageRequest.of(0, 1));
+    return hasContent(processed != null ? processed.getContent() : null);
+  }
+
+  private boolean hasContent(List<?> content) {
+    return content != null && !content.isEmpty();
   }
 }
