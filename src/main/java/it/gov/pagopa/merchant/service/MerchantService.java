@@ -43,6 +43,8 @@ public interface MerchantService {
 
   MerchantListDTO getMerchantList(String initiativeId, Pageable pageable);
 
+  MerchantRefundBatchHistoryDTO getMerchantRefundBatchesHistory(String merchantFiscalCodeOrVatNumber);
+
   void verifyMerchantExists(String merchantId);
 
   Page<InitiativeResponse> processMerchantInitiatives(String merchantId, String initiativeName, Pageable pageable);

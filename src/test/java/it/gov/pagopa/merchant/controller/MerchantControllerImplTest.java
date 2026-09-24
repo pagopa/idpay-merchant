@@ -245,6 +245,32 @@ class MerchantControllerImplTest {
     verify(merchantServiceMock).retrieveMerchantId(anyString(), anyString());
   }
 
+  @Test
+  void getMerchantRefundBatchesHistory() throws Exception {
+    MerchantRefundBatchHistoryDTO dto = MerchantRefundBatchHistoryDTO.builder()
+        .merchantId(MERCHANT_ID)
+        .fiscalCode(FISCAL_CODE)
+        .vatNumber("12345678901")
+        .rewardBatches(Collections.emptyList())
+        .build();
+
+    when(merchantServiceMock.getMerchantRefundBatchesHistory(anyString())).thenReturn(dto);
+
+    MvcResult result = mockMvc.perform(
+            get("/idpay/merchant/merchants/refund-batches/history")
+                .param("merchantFiscalCodeOrVatNumber", FISCAL_CODE)
+        ).andExpect(status().is2xxSuccessful())
+        .andReturn();
+
+    MerchantRefundBatchHistoryDTO resultResponse = objectMapper.readValue(
+        result.getResponse().getContentAsString(),
+        MerchantRefundBatchHistoryDTO.class);
+
+    Assertions.assertNotNull(resultResponse);
+    Assertions.assertEquals(dto, resultResponse);
+    verify(merchantServiceMock).getMerchantRefundBatchesHistory(anyString());
+  }
+
 
   @Test
   void createOrUpdateMerchant_ok() throws Exception {
