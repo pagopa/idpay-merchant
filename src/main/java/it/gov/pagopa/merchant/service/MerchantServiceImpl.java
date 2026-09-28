@@ -2,10 +2,12 @@ package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
 import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
-import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
+import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchListDTO;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
@@ -25,6 +27,7 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,6 +58,10 @@ public class MerchantServiceImpl implements MerchantService {
   private final String realm;
   private final PdndInfoCamereConnectorImpl pdndConnector;
   private final InitiativeRestClient initiativeRestClient;
+  private final TransactionConnector transactionConnector;
+
+  private static final int REWARD_BATCH_PAGE_SIZE = 100;
+
   public MerchantServiceImpl(MerchantDetailService merchantDetailService,
                              MerchantListService merchantListService,
                              MerchantProcessOperationService merchantProcessOperationService,
@@ -69,7 +76,8 @@ public class MerchantServiceImpl implements MerchantService {
                              Keycloak keycloakAdminClient,
                              @Value("${keycloak.admin.realm}") String realm,
                              PdndInfoCamereConnectorImpl pdndConnector,
-                             InitiativeRestClient initiativeRestClient) {
+                              InitiativeRestClient initiativeRestClient,
+                              TransactionConnector transactionConnector) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
     this.merchantProcessOperationService = merchantProcessOperationService;
@@ -85,6 +93,7 @@ public class MerchantServiceImpl implements MerchantService {
     this.realm = realm;
     this.pdndConnector = pdndConnector;
     this.initiativeRestClient = initiativeRestClient;
+    this.transactionConnector = transactionConnector;
   }
 
   @Override
@@ -141,6 +150,35 @@ public class MerchantServiceImpl implements MerchantService {
   @Override
   public MerchantListDTO getMerchantList(String initiativeId, Pageable pageable) {
     return merchantListService.getMerchantList(initiativeId, pageable);
+  }
+
+  @Override
+  public MerchantRefundBatchHistoryDTO getMerchantRefundBatchesHistory(
+      String merchantFiscalCodeOrVatNumber) {
+    Merchant merchant = merchantRepository
+        .findByFiscalCodeOrVatNumber(merchantFiscalCodeOrVatNumber, merchantFiscalCodeOrVatNumber)
+        .orElseThrow(() -> new MerchantNotFoundException(
+            String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,
+                merchantFiscalCodeOrVatNumber)));
+
+    List<MerchantRefundBatchDTO> rewardBatches = Optional.ofNullable(merchant.getInitiativeList())
+        .orElse(Collections.emptyList())
+        .stream()
+        .map(Initiative::getInitiativeId)
+        .filter(Objects::nonNull)
+        .distinct()
+        .flatMap(initiativeId -> getAllRewardBatchesForInitiative(merchant.getMerchantId(), initiativeId)
+            .stream())
+        .sorted(Comparator.comparing(MerchantRefundBatchDTO::getMonth,
+            Comparator.nullsLast(String::compareTo)).reversed())
+        .toList();
+
+    return MerchantRefundBatchHistoryDTO.builder()
+        .merchantId(merchant.getMerchantId())
+        .fiscalCode(merchant.getFiscalCode())
+        .vatNumber(merchant.getVatNumber())
+        .rewardBatches(rewardBatches)
+        .build();
   }
 
 
@@ -304,6 +342,47 @@ public class MerchantServiceImpl implements MerchantService {
       throw new MerchantNotFoundException(
               String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, merchantId));
     }
+  }
+
+  private List<MerchantRefundBatchDTO> getAllRewardBatchesForInitiative(String merchantId,
+      String initiativeId) {
+    int page = 0;
+    List<MerchantRefundBatchDTO> result = new ArrayList<>();
+
+    while (true) {
+      MerchantRewardBatchListDTO response = transactionConnector.getRewardBatches(
+          merchantId,
+          initiativeId,
+          PageRequest.of(page, REWARD_BATCH_PAGE_SIZE)
+      );
+
+      if (response == null || response.getContent() == null || response.getContent().isEmpty()) {
+        break;
+      }
+
+      response.getContent().forEach(batch -> result.add(MerchantRefundBatchDTO.builder()
+          .rewardBatchId(batch.getId())
+          .initiativeId(batch.getInitiativeId())
+          .month(batch.getMonth())
+          .status(batch.getStatus())
+          .approvedAmountCents(batch.getApprovedAmountCents())
+          .suspendedAmountCents(batch.getSuspendedAmountCents())
+          .initialAmountCents(batch.getInitialAmountCents())
+          .currentAmountCents(batch.getCurrentAmountCents())
+          .excludedAmountCents(batch.getExcludedAmountCents())
+          .numberOfTransactions(batch.getNumberOfTransactions())
+          .numberOfTransactionsSuspended(batch.getNumberOfTransactionsSuspended())
+          .numberOfTransactionsRejected(batch.getNumberOfTransactionsRejected())
+          .numberOfTransactionsElaborated(batch.getNumberOfTransactionsElaborated())
+          .build()));
+
+      page++;
+      if (page >= response.getTotalPages()) {
+        break;
+      }
+    }
+
+    return result;
   }
 
   private void deleteKeycloakUsers(List<PointOfSale> pointsOfSale) {

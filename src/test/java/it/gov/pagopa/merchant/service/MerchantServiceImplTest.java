@@ -4,6 +4,9 @@ import com.mongodb.MongoException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchDTO;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchListDTO;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
@@ -37,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -80,6 +84,8 @@ class MerchantServiceImplTest {
   private PdndInfoCamereConnectorImpl pdndConnectorMock;
   @Mock
   private InitiativeRestClient initiativeRestClientMock;
+  @Mock
+  private TransactionConnector transactionConnectorMock;
 
   private MerchantServiceImpl merchantService;
 
@@ -110,7 +116,8 @@ class MerchantServiceImplTest {
         keycloakAdminClientMock,
         REALM,
         pdndConnectorMock,
-        initiativeRestClientMock);
+        initiativeRestClientMock,
+        transactionConnectorMock);
   }
 
   @AfterEach
@@ -125,7 +132,8 @@ class MerchantServiceImplTest {
         merchantUpdateIbanService,
         pointOfSaleRepositoryMock,
         merchantValidatorMock,
-        keycloakAdminClientMock);
+        keycloakAdminClientMock,
+        transactionConnectorMock);
   }
 
   @Test
@@ -836,6 +844,104 @@ class MerchantServiceImplTest {
 
     assertThrows(MerchantNotFoundException.class,
             () -> merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable));
+  }
+
+  @Test
+  void getMerchantRefundBatchesHistory() {
+    String merchantIdentifier = "ABCDEF12G34H567I";
+
+    Merchant merchant = Merchant.builder()
+        .merchantId(MERCHANT_ID)
+        .fiscalCode(merchantIdentifier)
+        .vatNumber("12345678901")
+        .initiativeList(List.of(
+            Initiative.builder().initiativeId("INITIATIVE_1").build(),
+            Initiative.builder().initiativeId("INITIATIVE_2").build()))
+        .build();
+
+    MerchantRewardBatchListDTO initiative1Page = MerchantRewardBatchListDTO.builder()
+        .content(List.of(MerchantRewardBatchDTO.builder()
+            .id("RB-1")
+            .initiativeId("INITIATIVE_1")
+            .month("2026-08")
+            .status("APPROVED")
+            .numberOfTransactions(10L)
+            .numberOfTransactionsElaborated(8L)
+            .build()))
+        .pageNo(0)
+        .pageSize(100)
+        .totalElements(1)
+        .totalPages(1)
+        .build();
+
+    MerchantRewardBatchListDTO initiative2Page0 = MerchantRewardBatchListDTO.builder()
+        .content(List.of(MerchantRewardBatchDTO.builder()
+            .id("RB-2")
+            .initiativeId("INITIATIVE_2")
+            .month("2026-09")
+            .status("SENT")
+            .numberOfTransactions(5L)
+            .numberOfTransactionsElaborated(5L)
+            .build()))
+        .pageNo(0)
+        .pageSize(100)
+        .totalElements(2)
+        .totalPages(2)
+        .build();
+
+    MerchantRewardBatchListDTO initiative2Page1 = MerchantRewardBatchListDTO.builder()
+        .content(List.of(MerchantRewardBatchDTO.builder()
+            .id("RB-3")
+            .initiativeId("INITIATIVE_2")
+            .month("2026-07")
+            .status("REJECTED")
+            .numberOfTransactions(3L)
+            .numberOfTransactionsRejected(3L)
+            .build()))
+        .pageNo(1)
+        .pageSize(100)
+        .totalElements(2)
+        .totalPages(2)
+        .build();
+
+    when(merchantRepositoryMock.findByFiscalCodeOrVatNumber(merchantIdentifier, merchantIdentifier))
+        .thenReturn(Optional.of(merchant));
+    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_1"), any(PageRequest.class)))
+        .thenReturn(initiative1Page);
+    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"), eq(PageRequest.of(0, 100))))
+        .thenReturn(initiative2Page0);
+    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"), eq(PageRequest.of(1, 100))))
+        .thenReturn(initiative2Page1);
+
+    MerchantRefundBatchHistoryDTO result = merchantService.getMerchantRefundBatchesHistory(
+        merchantIdentifier);
+
+    assertNotNull(result);
+    assertEquals(MERCHANT_ID, result.getMerchantId());
+    assertEquals(3, result.getRewardBatches().size());
+    assertEquals("RB-2", result.getRewardBatches().getFirst().getRewardBatchId());
+
+    verify(merchantRepositoryMock).findByFiscalCodeOrVatNumber(merchantIdentifier,
+        merchantIdentifier);
+    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_1"),
+        eq(PageRequest.of(0, 100)));
+    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"),
+        eq(PageRequest.of(0, 100)));
+    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"),
+        eq(PageRequest.of(1, 100)));
+  }
+
+  @Test
+  void getMerchantRefundBatchesHistory_notFound() {
+    String merchantIdentifier = "NOT_FOUND";
+    when(merchantRepositoryMock.findByFiscalCodeOrVatNumber(merchantIdentifier, merchantIdentifier))
+        .thenReturn(Optional.empty());
+
+    assertThrows(MerchantNotFoundException.class,
+        () -> merchantService.getMerchantRefundBatchesHistory(merchantIdentifier));
+
+    verify(merchantRepositoryMock).findByFiscalCodeOrVatNumber(merchantIdentifier,
+        merchantIdentifier);
   }
 
 }

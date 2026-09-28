@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.connector.transaction;
 
 
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchListDTO;
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,9 @@ public interface TransactionConnector {
 
   MerchantTransactionsListDTO getMerchantTransactions(String merchantId, String initiativeId,
       String fiscalCode, String status, String pointOfSaleId, Pageable pageable);
+
+  MerchantRewardBatchListDTO getRewardBatches(String merchantId, String initiativeId,
+      Pageable pageable);
 
   List<RewardTransaction> findAll(String idTrxIssuer, String userId, LocalDateTime trxDateStart, LocalDateTime trxDateEnd, Long amountCents, Pageable pageable);
 }
