@@ -4,9 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# IntelliJ run configurations locali (possono contenere connection string dev)
-.run/
-
 ### STS ###
 .apt_generated
 .classpath
