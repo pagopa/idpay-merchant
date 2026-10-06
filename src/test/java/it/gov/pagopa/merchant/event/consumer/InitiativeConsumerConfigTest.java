@@ -8,11 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.function.Consumer;
+
+import static org.mockito.Mockito.verify;
+
 @ExtendWith(MockitoExtension.class)
 class InitiativeConsumerConfigTest {
     @Mock
@@ -39,7 +41,7 @@ class InitiativeConsumerConfigTest {
 
         initiativeConsumer.accept(initiativeDTO);
 
-        Mockito.verify(merchantService).updatingInitiative(initiativeDTO);
+        verify(merchantService).updatingInitiative(initiativeDTO);
     }
 
 }

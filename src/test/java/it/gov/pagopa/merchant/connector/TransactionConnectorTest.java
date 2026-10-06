@@ -59,12 +59,12 @@ class TransactionConnectorTest {
 
     when(restClientMock.getMerchantTransactions(
         MERCHANT_ID, INITIATIVE_ID,
-        null, null, PageRequest.of(0, 1)))
+        null, null, null, PageRequest.of(0, 1)))
         .thenThrow(exception);
 
     Runnable call = () -> transactionConnector.getMerchantTransactions(
         MERCHANT_ID, INITIATIVE_ID,
-        null, null, PageRequest.of(0, 1)
+        null, null, null, PageRequest.of(0, 1)
     );
 
     assertThrows(TransactionInvocationException.class, call::run);

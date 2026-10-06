@@ -27,11 +27,13 @@ public class Merchant {
     private String legalOfficeProvince;
     private String legalOfficeZipCode;
     private String certifiedEmail;
+    private String operativeEmail;
     private String fiscalCode;
     private String vatNumber;
     private String iban;
     private String ibanHolder; // intestatario iban
     private List<Initiative> initiativeList;
+    private List<String> atecoCodes;
     private boolean enabled;
     private LocalDateTime activationDate;
     private LocalDateTime lastLogin;

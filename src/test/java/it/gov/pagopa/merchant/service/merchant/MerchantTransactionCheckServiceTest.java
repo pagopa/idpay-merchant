@@ -41,7 +41,7 @@ class MerchantTransactionCheckServiceTest {
   @Test
   void hasInProgressTransactions_nullResult_returnsFalse() {
     when(paymentConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
-        any(), any(), any(PageRequest.class)))
+        any(), any(), any(), any(PageRequest.class)))
         .thenReturn(null);
 
     assertFalse(service.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID));
@@ -53,7 +53,7 @@ class MerchantTransactionCheckServiceTest {
     dto.setContent(null);
 
     when(paymentConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
-        any(), any(), any(PageRequest.class)))
+        any(), any(), any(), any(PageRequest.class)))
         .thenReturn(dto);
 
     assertFalse(service.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID));
@@ -66,7 +66,7 @@ class MerchantTransactionCheckServiceTest {
     dto.setContent(List.of(trx));
 
     when(paymentConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
-        any(), any(), any(PageRequest.class)))
+        any(), any(), any(), any(PageRequest.class)))
         .thenReturn(dto);
 
     assertTrue(service.hasInProgressTransactions(MERCHANT_ID, INITIATIVE_ID));
@@ -79,7 +79,7 @@ class MerchantTransactionCheckServiceTest {
     dto.setContent(List.of(trx));
 
     when(transactionConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
-        any(), any(), any(PageRequest.class)))
+        any(), any(), any(), any(PageRequest.class)))
         .thenReturn(dto);
 
     assertTrue(service.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID));
@@ -88,7 +88,7 @@ class MerchantTransactionCheckServiceTest {
   @Test
   void hasProcessedTransactions_nullResult_returnsFalse() {
     when(transactionConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
-        any(), any(), any(PageRequest.class)))
+        any(), any(), any(), any(PageRequest.class)))
         .thenReturn(null);
 
     assertFalse(service.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID));
@@ -100,7 +100,7 @@ class MerchantTransactionCheckServiceTest {
     dto.setContent(null);
 
     when(transactionConnector.getMerchantTransactions(eq(MERCHANT_ID), eq(INITIATIVE_ID),
-        any(), any(), any(PageRequest.class)))
+        any(), any(), any(), any(PageRequest.class)))
         .thenReturn(dto);
 
     assertFalse(service.hasProcessedTransactions(MERCHANT_ID, INITIATIVE_ID));

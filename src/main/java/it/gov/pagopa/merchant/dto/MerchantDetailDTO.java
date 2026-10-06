@@ -31,6 +31,8 @@ public class MerchantDetailDTO {
 
   private String certifiedEmail;
 
+  private String operativeEmail;
+
   private String fiscalCode;
 
   private String vatNumber;

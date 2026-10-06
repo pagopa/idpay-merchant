@@ -18,11 +18,11 @@ public class PaymentConnectorImpl implements PaymentConnector {
 
   @Override
   public MerchantTransactionsListDTO getMerchantTransactions(String merchantId,
-      String initiativeId, String fiscalCode, String status, Pageable pageable) {
+      String initiativeId, String fiscalCode, String status, String pointOfSaleId, Pageable pageable) {
 
     try {
      return restClient.getMerchantTransactions(merchantId,
-          initiativeId, fiscalCode, status, pageable);
+          initiativeId, fiscalCode, status, pointOfSaleId, pageable);
     } catch (FeignException e) {
       throw new PaymentInvocationException(
           "An error occurred in the microservice merchant", true, e);

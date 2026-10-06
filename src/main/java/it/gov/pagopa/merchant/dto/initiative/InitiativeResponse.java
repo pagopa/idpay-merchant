@@ -5,16 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class InitiativeBeneficiaryViewDTO {
+@Builder
+public class InitiativeResponse {
     private String initiativeId;
     private String initiativeName;
-    private String organizationId;
     private String organizationName;
-    private AdditionalInfoDTO additionalInfo;
-    private GeneralInfoDTO general;
     private String status;
+    private String onboardStatus;
+    private List<String> atecoCodes;
 }

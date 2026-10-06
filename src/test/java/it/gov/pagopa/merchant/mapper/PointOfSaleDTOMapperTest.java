@@ -93,6 +93,16 @@ class PointOfSaleDTOMapperTest {
     }
 
     @Test
+    void pointOfSaleDTOtoPointOfSaleEntity_normalizesFranchiseName(){
+        PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+        pointOfSaleDTO.setFranchiseName("  Trony   SPA  ");
+
+        PointOfSale result = pointOfSaleDTOMapper.dtoToEntity(pointOfSaleDTO,"merchant-id");
+
+        assertEquals("TRONY SPA", result.getFranchiseName());
+    }
+
+    @Test
     void entityToDto_withMerchantIsNull() {
         PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
 

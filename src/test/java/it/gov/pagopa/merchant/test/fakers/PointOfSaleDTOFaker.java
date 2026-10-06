@@ -18,6 +18,7 @@ public class PointOfSaleDTOFaker {
                 .city("CITY")
                 .zipCode("ZIPCODE")
                 .address("ADDRESS")
+                .streetNumber("SNC")
                 .website("https://localhost.it")
                 .contactEmail("EMAIL@email.it")
                 .contactName("NAME")

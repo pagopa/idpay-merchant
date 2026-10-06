@@ -1,11 +1,13 @@
 package it.gov.pagopa.merchant.service;
 
-import feign.FeignException;
-import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
+import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
+import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchListDTO;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
-import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
@@ -23,15 +25,16 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
@@ -48,26 +51,33 @@ public class MerchantServiceImpl implements MerchantService {
   private final MerchantRepository merchantRepository;
   private final UploadingMerchantService uploadingMerchantService;
   private final Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper;
-  private final List<String> defaultInitiatives;
-  private final InitiativeRestConnector initiativeRestConnector;
   private final MerchantCreateDTOMapper merchantCreateDTOMapper;
   private final PointOfSaleRepository pointOfSaleRepository;
   private final MerchantValidator merchantValidator;
   private final Keycloak keycloakAdminClient;
   private final String realm;
+  private final PdndInfoCamereConnectorImpl pdndConnector;
+  private final InitiativeRestClient initiativeRestClient;
+  private final TransactionConnector transactionConnector;
+
+  private static final int REWARD_BATCH_PAGE_SIZE = 100;
 
   public MerchantServiceImpl(MerchantDetailService merchantDetailService,
-      MerchantListService merchantListService,
-      MerchantProcessOperationService merchantProcessOperationService,
-      MerchantUpdatingInitiativeService merchantUpdatingInitiativeService,
-      MerchantUpdateIbanService merchantUpdateIbanService, MerchantRepository merchantRepository,
-      UploadingMerchantService uploadingMerchantService,
-      Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
-      @Value("${merchant.default-initiatives}") List<String> defaultInitiatives,
-      InitiativeRestConnector initiativeRestConnector,
-      MerchantCreateDTOMapper merchantCreateDTOMapper, PointOfSaleRepository pointOfSaleRepository,
-      MerchantValidator merchantValidator, Keycloak keycloakAdminClient,
-      @Value("${keycloak.admin.realm}") String realm) {
+                             MerchantListService merchantListService,
+                             MerchantProcessOperationService merchantProcessOperationService,
+                             MerchantUpdatingInitiativeService merchantUpdatingInitiativeService,
+                             MerchantUpdateIbanService merchantUpdateIbanService,
+                             MerchantRepository merchantRepository,
+                             UploadingMerchantService uploadingMerchantService,
+                             Initiative2InitiativeDTOMapper initiative2InitiativeDTOMapper,
+                             MerchantCreateDTOMapper merchantCreateDTOMapper,
+                             PointOfSaleRepository pointOfSaleRepository,
+                             MerchantValidator merchantValidator,
+                             Keycloak keycloakAdminClient,
+                             @Value("${keycloak.admin.realm}") String realm,
+                             PdndInfoCamereConnectorImpl pdndConnector,
+                              InitiativeRestClient initiativeRestClient,
+                              TransactionConnector transactionConnector) {
     this.merchantDetailService = merchantDetailService;
     this.merchantListService = merchantListService;
     this.merchantProcessOperationService = merchantProcessOperationService;
@@ -76,13 +86,14 @@ public class MerchantServiceImpl implements MerchantService {
     this.merchantRepository = merchantRepository;
     this.uploadingMerchantService = uploadingMerchantService;
     this.initiative2InitiativeDTOMapper = initiative2InitiativeDTOMapper;
-    this.defaultInitiatives = defaultInitiatives;
-    this.initiativeRestConnector = initiativeRestConnector;
     this.merchantCreateDTOMapper = merchantCreateDTOMapper;
     this.pointOfSaleRepository = pointOfSaleRepository;
     this.merchantValidator = merchantValidator;
     this.keycloakAdminClient = keycloakAdminClient;
     this.realm = realm;
+    this.pdndConnector = pdndConnector;
+    this.initiativeRestClient = initiativeRestClient;
+    this.transactionConnector = transactionConnector;
   }
 
   @Override
@@ -122,9 +133,9 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
-  public MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId,
+  public MerchantDetailDTO patchMerchant(String merchantId, String initiativeId,
       MerchantIbanPatchDTO merchantIbanPatchDTO) {
-    return merchantUpdateIbanService.updateIban(merchantId, organizationId, initiativeId,
+    return merchantUpdateIbanService.patchMerchant(merchantId, initiativeId,
         merchantIbanPatchDTO);
   }
 
@@ -142,11 +153,113 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
+  public MerchantRefundBatchHistoryDTO getMerchantRefundBatchesHistory(
+      String merchantFiscalCodeOrVatNumber) {
+    Merchant merchant = merchantRepository
+        .findByFiscalCodeOrVatNumber(merchantFiscalCodeOrVatNumber, merchantFiscalCodeOrVatNumber)
+        .orElseThrow(() -> new MerchantNotFoundException(
+            String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE,
+                merchantFiscalCodeOrVatNumber)));
+
+    List<MerchantRefundBatchDTO> rewardBatches = Optional.ofNullable(merchant.getInitiativeList())
+        .orElse(Collections.emptyList())
+        .stream()
+        .map(Initiative::getInitiativeId)
+        .filter(Objects::nonNull)
+        .distinct()
+        .flatMap(initiativeId -> getAllRewardBatchesForInitiative(merchant.getMerchantId(), initiativeId)
+            .stream())
+        .sorted(Comparator.comparing(MerchantRefundBatchDTO::getMonth,
+            Comparator.nullsLast(String::compareTo)).reversed())
+        .toList();
+
+    return MerchantRefundBatchHistoryDTO.builder()
+        .merchantId(merchant.getMerchantId())
+        .fiscalCode(merchant.getFiscalCode())
+        .vatNumber(merchant.getVatNumber())
+        .rewardBatches(rewardBatches)
+        .build();
+  }
+
+
+  @Override
+  public Page<InitiativeResponse> processMerchantInitiatives(
+          String merchantId,
+          String initiativeName,
+          Pageable pageable) {
+
+    Merchant merchant = merchantRepository.findById(merchantId)
+            .orElseThrow(() -> new MerchantNotFoundException(merchantId));
+
+    log.info("[AVAILABLE_INITIATIVES] Retrieving initiatives for merchant [{}]",
+            sanitizeString(merchantId));
+
+    List<String> newAtecoCodes = Optional.ofNullable(
+                    pdndConnector.retrieveAtecoCodes(
+                            merchant.getFiscalCode(),
+                            merchant.getAtecoCodes()))
+            .orElse(Collections.emptyList());
+
+    Set<String> currentAtecoCodes = new HashSet<>(
+            Optional.ofNullable(merchant.getAtecoCodes())
+                    .orElse(Collections.emptyList()));
+
+    Set<String> retrievedAtecoCodes = new HashSet<>(newAtecoCodes);
+
+    log.info("[AVAILABLE_INITIATIVES] Retrieved {} ATECO codes from PDND for merchant [{}]",
+            newAtecoCodes.size(),
+            sanitizeString(merchantId));
+
+    if (!retrievedAtecoCodes.equals(currentAtecoCodes)) {
+      merchant.setAtecoCodes(newAtecoCodes);
+      merchant.setUpdateDate(LocalDateTime.now());
+      merchantRepository.save(merchant);
+
+      log.info("[AVAILABLE_INITIATIVES] Updated ATECO codes for merchant [{}]",
+              sanitizeString(merchantId));
+    }
+
+    Set<String> existingIds = Optional.ofNullable(merchant.getInitiativeList())
+            .orElse(Collections.emptyList())
+            .stream()
+            .map(Initiative::getInitiativeId)
+            .collect(Collectors.toSet());
+
+    InitiativeSearchRequest request =
+            new InitiativeSearchRequest(existingIds, newAtecoCodes, initiativeName);
+
+    log.info(
+            "[AVAILABLE_INITIATIVES] Searching initiatives for merchant [{}] (excluded initiatives: {}, initiativeName: {})",
+            sanitizeString(merchantId),
+            existingIds.size(),
+            initiativeName != null ? sanitizeString(initiativeName) : "");
+
+    PageResponse<InitiativeResponse> remoteResponse =
+            initiativeRestClient.searchInitiatives(request, pageable).getBody();
+
+    List<InitiativeResponse> content = remoteResponse != null
+            ? remoteResponse.getContent()
+            : Collections.emptyList();
+
+    long totalElements = remoteResponse != null
+            ? remoteResponse.getTotalElements()
+            : 0L;
+
+    log.info(
+            "[AVAILABLE_INITIATIVES] Found {} initiatives for merchant [{}]",
+            totalElements,
+            sanitizeString(merchantId));
+
+    return new PageImpl<>(content, pageable, totalElements);
+  }
+
+    @Override
   public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
     Optional<Merchant> merchant = merchantRepository.findById(merchantId);
 
     return merchant.map(value -> value.getInitiativeList().stream()
         .filter(i -> MerchantConstants.INITIATIVE_PUBLISHED.equals(i.getStatus()))
+        .sorted(Comparator.comparing(Initiative::getInitiativeName))
         .map(initiative2InitiativeDTOMapper::apply).toList()).orElse(Collections.emptyList());
   }
 
@@ -216,6 +329,62 @@ public class MerchantServiceImpl implements MerchantService {
     }
   }
 
+  /**
+   * Verifies if the merchant exists in the system.
+   *
+   * @param merchantId the ID of the merchant to check
+   * @throws MerchantNotFoundException if the merchant does not exist
+   */
+  @Override
+  public void verifyMerchantExists(String merchantId) {
+    MerchantDetailDTO merchantDetail = getMerchantDetail(merchantId);
+    if (merchantDetail == null) {
+      throw new MerchantNotFoundException(
+              String.format(MerchantConstants.ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE, merchantId));
+    }
+  }
+
+  private List<MerchantRefundBatchDTO> getAllRewardBatchesForInitiative(String merchantId,
+      String initiativeId) {
+    int page = 0;
+    List<MerchantRefundBatchDTO> result = new ArrayList<>();
+
+    while (true) {
+      MerchantRewardBatchListDTO response = transactionConnector.getRewardBatches(
+          merchantId,
+          initiativeId,
+          PageRequest.of(page, REWARD_BATCH_PAGE_SIZE)
+      );
+
+      if (response == null || response.getContent() == null || response.getContent().isEmpty()) {
+        break;
+      }
+
+      response.getContent().forEach(batch -> result.add(MerchantRefundBatchDTO.builder()
+          .rewardBatchId(batch.getId())
+          .initiativeId(batch.getInitiativeId())
+          .month(batch.getMonth())
+          .status(batch.getStatus())
+          .approvedAmountCents(batch.getApprovedAmountCents())
+          .suspendedAmountCents(batch.getSuspendedAmountCents())
+          .initialAmountCents(batch.getInitialAmountCents())
+          .currentAmountCents(batch.getCurrentAmountCents())
+          .excludedAmountCents(batch.getExcludedAmountCents())
+          .numberOfTransactions(batch.getNumberOfTransactions())
+          .numberOfTransactionsSuspended(batch.getNumberOfTransactionsSuspended())
+          .numberOfTransactionsRejected(batch.getNumberOfTransactionsRejected())
+          .numberOfTransactionsElaborated(batch.getNumberOfTransactionsElaborated())
+          .build()));
+
+      page++;
+      if (page >= response.getTotalPages()) {
+        break;
+      }
+    }
+
+    return result;
+  }
+
   private void deleteKeycloakUsers(List<PointOfSale> pointsOfSale) {
     UsersResource usersResource = keycloakAdminClient.realm(realm).users();
 
@@ -270,10 +439,6 @@ public class MerchantServiceImpl implements MerchantService {
   private String createNewMerchant(MerchantCreateDTO merchantCreateDTO) {
     String merchantId = Utilities.toUUID(merchantCreateDTO.getFiscalCode().concat("_").concat(merchantCreateDTO.getAcquirerId()));
     List<Initiative> initiatives = new ArrayList<>();
-    for (String initiativeId : defaultInitiatives) {
-      InitiativeBeneficiaryViewDTO dto = getInitiativeInfo(initiativeId);
-      initiatives.add(createMerchantInitiative(dto));
-    }
 
     Merchant merchant = merchantCreateDTOMapper.dtoToEntity(merchantCreateDTO, merchantId);
     merchant.setInitiativeList(initiatives);
@@ -285,31 +450,7 @@ public class MerchantServiceImpl implements MerchantService {
     return merchantId;
   }
 
-  private InitiativeBeneficiaryViewDTO getInitiativeInfo(String initiativeId) {
-    InitiativeBeneficiaryViewDTO initiativeDTO;
-    try {
-      initiativeDTO = initiativeRestConnector.getInitiativeBeneficiaryView(initiativeId);
-    } catch (FeignException e) {
-      log.error("[INITIATIVE REST CONNECTOR] - Feign exception: {}", e.getMessage());
-      throw new InitiativeInvocationException(
-          MerchantConstants.ExceptionMessage.INITIATIVE_CONNECTOR_ERROR);
-    }
 
-    if (initiativeDTO == null) {
-      log.error("[INITIATIVE REST CONNECTOR] Initiative returned null for id={}", initiativeId);
-      throw new InitiativeInvocationException("Initiative not found for id=" + initiativeId);
-    }
 
-    return initiativeDTO;
-  }
 
-  private Initiative createMerchantInitiative(InitiativeBeneficiaryViewDTO dto) {
-    return Initiative.builder().initiativeId(dto.getInitiativeId())
-        .initiativeName(dto.getInitiativeName()).organizationId(dto.getOrganizationId())
-        .organizationName(dto.getOrganizationName())
-        .serviceId(dto.getAdditionalInfo().getServiceId())
-        .startDate(dto.getGeneral().getStartDate()).endDate(dto.getGeneral().getEndDate())
-        .status(dto.getStatus()).merchantStatus("UPLOADED").creationDate(LocalDateTime.now())
-        .updateDate(LocalDateTime.now()).enabled(true).build();
-  }
 }

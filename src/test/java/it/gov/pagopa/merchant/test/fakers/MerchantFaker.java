@@ -4,6 +4,7 @@ import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 
 public class MerchantFaker {
@@ -21,8 +22,8 @@ public class MerchantFaker {
                 .organizationId("ORGANIZATION_ID_%d".formatted(bias))
                 .enabled(true)
                 .merchantStatus("STATUS")
-                .creationDate(LocalDateTime.of(2023,5,22,10, 0))
-                .updateDate(LocalDateTime.of(2023,5,22,10, 0)).build();
+                .creationDate(LocalDateTime.of(2023, Month.MAY,22,10, 0))
+                .updateDate(LocalDateTime.of(2023,Month.MAY,22,10, 0)).build();
         ArrayList<Initiative> initiatives = new ArrayList<>();
         initiatives.add(initiative);
         return Merchant.builder()
@@ -35,11 +36,12 @@ public class MerchantFaker {
                 .legalOfficeProvince("PROVINCE")
                 .legalOfficeZipCode("ZIP_CODE")
                 .certifiedEmail("MAIL")
+                .operativeEmail("operative.mail@test.it")
                 .fiscalCode("FISCAL_CODE")
                 .vatNumber("VAT_NUMBER_%d".formatted(bias))
                 .iban("IT60X0542811101000000123456")
                 .ibanHolder("Nome Cognome")
-                .activationDate(LocalDateTime.now())
+                .activationDate(LocalDateTime.of(2026, Month.MAY, 22, 10, 0))
                 .enabled(true);
     }
 }

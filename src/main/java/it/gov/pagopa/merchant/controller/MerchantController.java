@@ -2,7 +2,6 @@ package it.gov.pagopa.merchant.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import it.gov.pagopa.merchant.dto.*;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
@@ -22,18 +21,18 @@ public interface MerchantController {
   @PutMapping("/organization/{organizationId}/initiative/{initiativeId}/upload")
   @ResponseStatus(code = HttpStatus.OK)
   ResponseEntity<MerchantUpdateDTO> uploadMerchantFile(
-      @RequestParam("file") MultipartFile file,
-      @PathVariable("organizationId") String organizationId,
-      @PathVariable("initiativeId") String initiativeId,
-      @RequestHeader("organization-user-id") String organizationUserId);
+          @RequestParam("file") MultipartFile file,
+          @PathVariable("organizationId") String organizationId,
+          @PathVariable("initiativeId") String initiativeId,
+          @RequestHeader("organization-user-id") String organizationUserId);
 
   @Operation(summary = "Returns the merchants list")
   @GetMapping("/organization/{organizationId}/initiative/{initiativeId}/merchants")
   ResponseEntity<MerchantListDTO> getMerchantList(
-      @PathVariable("organizationId") String organizationId,
-      @PathVariable("initiativeId") String initiativeId,
-      @RequestParam(required = false) String fiscalCode,
-      @PageableDefault(size = 15) Pageable pageable
+          @PathVariable("organizationId") String organizationId,
+          @PathVariable("initiativeId") String initiativeId,
+          @RequestParam(required = false) String fiscalCode,
+          @PageableDefault(size = 15) Pageable pageable
   );
 
   @Operation(summary = "Returns the merchants list by initiative")
@@ -46,37 +45,34 @@ public interface MerchantController {
   @Operation(summary = "Returns the merchant detail page on initiative")
   @GetMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
   ResponseEntity<MerchantDetailDTO> getMerchantDetail(
-      @PathVariable("organizationId") String organizationId,
-      @PathVariable("initiativeId") String initiativeId,
-      @PathVariable("merchantId") String merchantId
-  );
-
-  @Operation(summary = "Patches the iban and/or the holder of a merchant")
-  @PatchMapping("/{merchantId}/organization/{organizationId}/initiative/{initiativeId}")
-  ResponseEntity<MerchantDetailDTO> updateIban(
-      @PathVariable("merchantId") String merchantId,
-      @PathVariable("organizationId") String organizationId,
-      @PathVariable("initiativeId") String initiativeId,
-      @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
+          @PathVariable("organizationId") String organizationId,
+          @PathVariable("initiativeId") String initiativeId,
+          @PathVariable("merchantId") String merchantId
   );
 
   @Operation(summary = "Returns the merchant id")
   @GetMapping("/acquirer/{acquirerId}/merchant-fiscalcode/{fiscalCode}/id")
   @ResponseStatus(code = HttpStatus.OK)
   String retrieveMerchantId(@PathVariable("acquirerId") String acquirerId,
-      @PathVariable("fiscalCode") String fiscalCode);
+                            @PathVariable("fiscalCode") String fiscalCode);
+
+  @Operation(summary = "Returns refund batches history by merchant fiscal code or vat number")
+  @GetMapping("/merchants/refund-batches/history")
+  ResponseEntity<MerchantRefundBatchHistoryDTO> getMerchantRefundBatchesHistory(
+          @RequestParam("merchantFiscalCodeOrVatNumber") String merchantFiscalCodeOrVatNumber);
 
   @Operation(summary = "Creates a new merchant or retrieves the existing one",
-      description = "This endpoint creates a new merchant with the provided details if the merchant does not already exist. " +
-          "If a merchant with the given fiscal code already exists, the endpoint returns the internal ID of the existing merchant. " +
-          "The request body must include the acquirer ID, business name, and fiscal code.")
+          description = "This endpoint creates a new merchant with the provided details if the merchant does not already exist. " +
+                  "If a merchant with the given fiscal code already exists, the endpoint returns the internal ID of the existing merchant. " +
+                  "The request body must include the acquirer ID, business name, and fiscal code.")
   @PutMapping
   ResponseEntity<String> createOrUpdateMerchant(
-      @RequestBody @NotNull @Valid MerchantCreateDTO merchantCreateDTO);
+          @RequestBody @NotNull @Valid MerchantCreateDTO merchantCreateDTO);
 
   @DeleteMapping("/{merchantId}/initiatives/{initiativeId}")
   ResponseEntity<MerchantWithdrawalResponse> deactivateMerchant(
-      @PathVariable String merchantId,
-      @PathVariable String initiativeId,
-      @RequestParam(name = "dryRun", defaultValue = "false") boolean dryRun);
+          @PathVariable String merchantId,
+          @PathVariable String initiativeId,
+          @RequestParam(name = "dryRun", defaultValue = "false") boolean dryRun);
+
 }

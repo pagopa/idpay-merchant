@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import it.gov.pagopa.common.kafka.utils.KafkaConstants;
 import it.gov.pagopa.common.stream.service.ErrorPublisher;
-import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,6 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ErrorNotifierServiceTest {
@@ -81,7 +84,7 @@ class ErrorNotifierServiceTest {
 
     private void test(Message<?> message, boolean expectedResult, boolean expectedRetryable, boolean expectedResend, String expectedKeyValue, Throwable expectedException) {
         // Given
-        Mockito.when(errorPublisherMock.send(Mockito.argThat(m -> assertErrorMessage(m, expectedRetryable, expectedResend, expectedKeyValue, expectedException)
+        when(errorPublisherMock.send(Mockito.argThat(m -> assertErrorMessage(m, expectedRetryable, expectedResend, expectedKeyValue, expectedException)
         ))).thenReturn(expectedResult);
 
         // When

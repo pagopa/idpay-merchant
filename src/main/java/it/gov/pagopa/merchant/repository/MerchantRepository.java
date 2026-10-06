@@ -10,34 +10,34 @@ import java.util.Optional;
 
 @Repository
 public interface MerchantRepository extends MongoRepository<Merchant, String>,
-    MerchantRepositoryExtended {
+        MerchantRepositoryExtended {
 
   @Query(
-      value = "{'initiativeList.initiativeId' : ?0, 'initiativeList.organizationId' : ?1, merchantId : ?2}",
-      fields = "{merchantId : 1, " +
-          "businessName : 1, " +
-          "legalOfficeAddress : 1, " +
-          "legalOfficeMunicipality : 1, " +
-          "legalOfficeProvince : 1, " +
-          "legalOfficeZipCode : 1, " +
-          "certifiedEmail : 1, " +
-          "fiscalCode : 1, " +
-          "vatNumber : 1, " +
-          "iban : 1, " +
-          "ibanHolder : 1, " +
-          "activationDate : 1, " +
-          "'initiativeList.initiativeId' : 1, " +
-          "'initiativeList.initiativeName' : 1, " +
-          "'initiativeList.merchantStatus' : 1, " +
-          "'initiativeList.updateDate' : 1 }"
+          value = "{'initiativeList.initiativeId' : ?0, 'initiativeList.organizationId' : ?1, merchantId : ?2}",
+          fields = "{merchantId : 1, " +
+                  "businessName : 1, " +
+                  "legalOfficeAddress : 1, " +
+                  "legalOfficeMunicipality : 1, " +
+                  "legalOfficeProvince : 1, " +
+                  "legalOfficeZipCode : 1, " +
+                  "certifiedEmail : 1, " +
+                  "fiscalCode : 1, " +
+                  "vatNumber : 1, " +
+                  "iban : 1, " +
+                  "ibanHolder : 1, " +
+                  "activationDate : 1, " +
+                  "'initiativeList.initiativeId' : 1, " +
+                  "'initiativeList.initiativeName' : 1, " +
+                  "'initiativeList.merchantStatus' : 1, " +
+                  "'initiativeList.updateDate' : 1 }"
 
   )
   Optional<Merchant> retrieveByInitiativeIdAndOrganizationIdAndMerchantId(String initiativeId,
-      String organizationId, String merchantId);
+                                                                          String organizationId, String merchantId);
 
   @Query(
-      value = "{'acquirerId' : ?0, 'fiscalCode' : ?1}",
-      fields = "{merchantId : 1}"
+          value = "{'acquirerId' : ?0, 'fiscalCode' : ?1}",
+          fields = "{merchantId : 1}"
   )
   Optional<Merchant> retrieveByAcquirerIdAndFiscalCode(String acquirerId, String fiscalCode);
 
@@ -50,4 +50,6 @@ public interface MerchantRepository extends MongoRepository<Merchant, String>,
   List<Merchant> deleteByInitiativeId(String initiativeId);
 
   Optional<Merchant> findByFiscalCode(String fiscalCode);
+
+  Optional<Merchant> findByFiscalCodeOrVatNumber(String fiscalCode, String vatNumber);
 }

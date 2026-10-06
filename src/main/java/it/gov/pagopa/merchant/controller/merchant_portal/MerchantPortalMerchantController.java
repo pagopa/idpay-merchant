@@ -1,11 +1,12 @@
 package it.gov.pagopa.merchant.controller.merchant_portal;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.gov.pagopa.merchant.dto.InitiativeDTO;
-import it.gov.pagopa.merchant.dto.MerchantDetailDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserCreateResponseDTO;
-import it.gov.pagopa.merchant.dto.ReportedUserDTO;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
+import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,22 +27,42 @@ public interface MerchantPortalMerchantController {
             @PathVariable("initiativeId") String initiativeId
     );
 
+    @Operation(summary = "Patches the iban and/or the holder of a merchant")
+    @PatchMapping("/initiatives/{initiativeId}")
+    ResponseEntity<MerchantDetailDTO> patchMerchant(
+            @RequestHeader("x-merchant-id") String merchantId,
+            @PathVariable("initiativeId") String initiativeId,
+            @RequestBody MerchantIbanPatchDTO merchantIbanPatchDTO
+    );
+
     @Operation(summary = "Create a new reported user")
-    @PostMapping("/reported-user/{userId}")
-    ReportedUserCreateResponseDTO createReportedUser(@RequestHeader ("x-merchant-id")String merchantId,
-                                                     @RequestHeader ("initiative-id")String initiativeId,
+    @PostMapping("/initiatives/{initiativeId}/reported-user/{userId}")
+    ReportedUserCreateResponseDTO createReportedUser(@RequestHeader ("x-merchant-id") String merchantId,
+                                                     @PathVariable ("initiativeId") String initiativeId,
                                                      @PathVariable String userId);
 
     @Operation(summary = "Returns the reported user")
-    @GetMapping("/reported-user/{userId}")
+    @GetMapping("/initiatives/{initiativeId}/reported-user/{userId}")
     List<ReportedUserDTO> getReportedUser(
-            @RequestHeader ("x-merchant-id")String merchantId,
-            @RequestHeader ("initiative-id")String initiativeId,
+            @RequestHeader ("x-merchant-id") String merchantId,
+            @PathVariable ("initiativeId") String initiativeId,
             @PathVariable String userId);
 
     @Operation(summary = "Delete the reported user")
-    @DeleteMapping("/reported-user/{userId}")
-    ReportedUserCreateResponseDTO deleteReportedUser(@RequestHeader ("x-merchant-id")String merchantId,
-                                                     @RequestHeader ("initiative-id")String initiativeId,
+    @DeleteMapping("/initiatives/{initiativeId}/reported-user/{userId}")
+    ReportedUserCreateResponseDTO deleteReportedUser(@RequestHeader ("x-merchant-id") String merchantId,
+                                                     @PathVariable ("initiativeId") String initiativeId,
                                                      @PathVariable String userId);
+
+
+    @GetMapping("/initiatives/available")
+    ResponseEntity<PageResponse<InitiativeResponse>> getAvailableInitiatives(
+            @RequestHeader ("x-merchant-id") String merchantId,
+            @RequestParam (required = false) String initiativeName,
+            Pageable pageable);
+
+    @PutMapping("/initiatives/{initiativeId}/onboarding")
+    ResponseEntity<OnboardingResponse> onboardMerchantInitiative(
+            @RequestHeader ("x-merchant-id") String merchantId,
+            @PathVariable("initiativeId") String initiativeId);
 }

@@ -1,7 +1,5 @@
 package it.gov.pagopa.merchant.controller;
 
-import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
-
 import it.gov.pagopa.merchant.constants.MerchantConstants.ExceptionMessage;
 import it.gov.pagopa.merchant.dto.*;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
@@ -11,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 
 @Slf4j
@@ -66,20 +66,6 @@ public class MerchantControllerImpl implements MerchantController {
             sanitizedMerchantId));
   }
 
-  @Override
-  public ResponseEntity<MerchantDetailDTO> updateIban(String merchantId, String organizationId,
-      String initiativeId, MerchantIbanPatchDTO merchantIbanPatchDTO) {
-    String sanitizedMerchantId = sanitizeString(merchantId);
-    String sanitizedOrganizationId = sanitizeString(organizationId);
-    String sanitizedInitiativeId = sanitizeString(initiativeId);
-
-    log.info("[UPDATE_IBAN] Request to update iban for merchant {} on initiative {}",
-        sanitizedMerchantId, sanitizedInitiativeId);
-    MerchantDetailDTO merchantDetailDTO = merchantService.updateIban(sanitizedMerchantId,
-        sanitizedOrganizationId, sanitizedInitiativeId, merchantIbanPatchDTO);
-    return ResponseEntity.ok(merchantDetailDTO);
-  }
-
   public String retrieveMerchantId(String acquirerId, String fiscalCode) {
     String sanitizedAcquirerId = sanitizeString(acquirerId);
     String sanitizedFiscalCode = sanitizeString(fiscalCode);
@@ -92,6 +78,13 @@ public class MerchantControllerImpl implements MerchantController {
       throw new MerchantNotFoundException(ExceptionMessage.MERCHANT_NOT_FOUND_MESSAGE);
     }
     return merchantId;
+  }
+
+  @Override
+  public ResponseEntity<MerchantRefundBatchHistoryDTO> getMerchantRefundBatchesHistory(
+      String merchantFiscalCodeOrVatNumber) {
+    String sanitizedMerchantIdentifier = sanitizeString(merchantFiscalCodeOrVatNumber);
+    return ResponseEntity.ok(merchantService.getMerchantRefundBatchesHistory(sanitizedMerchantIdentifier));
   }
 
   @Override

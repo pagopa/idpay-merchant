@@ -1,7 +1,9 @@
 package it.gov.pagopa.merchant.service;
 
 import it.gov.pagopa.merchant.dto.*;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
 import it.gov.pagopa.merchant.model.Merchant;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,7 +24,7 @@ public interface MerchantService {
   MerchantListDTO getMerchantList(String organizationId, String initiativeId, String fiscalCode,
       Pageable pageable);
 
-  MerchantDetailDTO updateIban(String merchantId, String organizationId, String initiativeId,
+  MerchantDetailDTO patchMerchant(String merchantId, String initiativeId,
       MerchantIbanPatchDTO merchantIbanPatchDTO);
 
   String retrieveOrCreateMerchantIfNotExists(MerchantCreateDTO merchantCreateDTO);
@@ -40,4 +42,10 @@ public interface MerchantService {
   Merchant getMerchantByMerchantId(String merchantId);
 
   MerchantListDTO getMerchantList(String initiativeId, Pageable pageable);
+
+  MerchantRefundBatchHistoryDTO getMerchantRefundBatchesHistory(String merchantFiscalCodeOrVatNumber);
+
+  void verifyMerchantExists(String merchantId);
+
+  Page<InitiativeResponse> processMerchantInitiatives(String merchantId, String initiativeName, Pageable pageable);
 }

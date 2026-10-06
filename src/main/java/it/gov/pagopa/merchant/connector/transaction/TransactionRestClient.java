@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.connector.transaction;
 
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchListDTO;
 import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,16 @@ public interface TransactionRestClient {
       @PathVariable String initiativeId,
       @RequestParam(required = false) String fiscalCode,
       @RequestParam(required = false) String status,
+      @RequestParam(required = false) String pointOfSaleId,
+      Pageable pageable
+  );
+
+  @GetMapping(value = "/idpay/merchant/portal/initiatives/{initiativeId}/reward-batches",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  MerchantRewardBatchListDTO getRewardBatches(
+      @RequestHeader("x-merchant-id") String merchantId,
+      @PathVariable String initiativeId,
       Pageable pageable
   );
 

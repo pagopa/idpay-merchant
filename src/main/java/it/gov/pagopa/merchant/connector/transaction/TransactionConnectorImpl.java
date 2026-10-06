@@ -2,6 +2,7 @@ package it.gov.pagopa.merchant.connector.transaction;
 
 import feign.FeignException;
 
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchListDTO;
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO;
 import it.gov.pagopa.merchant.dto.transaction.RewardTransaction;
 import it.gov.pagopa.merchant.exception.custom.TransactionInvocationException;
@@ -24,16 +25,28 @@ public class TransactionConnectorImpl implements TransactionConnector {
   @Override
   public MerchantTransactionsListDTO getMerchantTransactions(String merchantId,
       String initiativeId, String fiscalCode,
-      String status, Pageable pageable) {
+      String status, String pointOfSaleId, Pageable pageable) {
 
     try {
       return restClient.getMerchantTransactions(merchantId,
-          initiativeId, fiscalCode, status, pageable);
+          initiativeId, fiscalCode, status, pointOfSaleId, pageable);
     } catch (FeignException e) {
       throw new TransactionInvocationException(
           "An error occurred in the microservice merchant", true, e);
     }
   }
+
+  @Override
+  public MerchantRewardBatchListDTO getRewardBatches(String merchantId, String initiativeId,
+      Pageable pageable) {
+    try {
+      return restClient.getRewardBatches(merchantId, initiativeId, pageable);
+    } catch (FeignException e) {
+      throw new TransactionInvocationException(
+          "An error occurred in the microservice transaction", true, e);
+    }
+  }
+
   @Override
   public List<RewardTransaction> findAll(String idTrxIssuer,
                                          String userId,

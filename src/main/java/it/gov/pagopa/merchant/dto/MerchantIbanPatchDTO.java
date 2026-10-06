@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MerchantIbanPatchDTO {
+  private String operativeEmail;
   private String iban;
   private String ibanHolder; // intestatario iban
 }

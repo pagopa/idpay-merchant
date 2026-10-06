@@ -1,14 +1,16 @@
 package it.gov.pagopa.merchant.service;
 
 import com.mongodb.MongoException;
-import feign.FeignException;
+import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
+import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
+import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchDTO;
+import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchListDTO;
 import it.gov.pagopa.merchant.constants.MerchantConstants;
 import it.gov.pagopa.merchant.dto.*;
-import it.gov.pagopa.merchant.dto.initiative.AdditionalInfoDTO;
-import it.gov.pagopa.merchant.dto.initiative.GeneralInfoDTO;
-import it.gov.pagopa.merchant.dto.initiative.InitiativeBeneficiaryViewDTO;
-import it.gov.pagopa.merchant.exception.custom.InitiativeInvocationException;
+import it.gov.pagopa.merchant.dto.initiative.InitiativeResponse;
+import it.gov.pagopa.merchant.dto.pdnd.PageResponse;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotFoundException;
 import it.gov.pagopa.merchant.mapper.Initiative2InitiativeDTOMapper;
 import it.gov.pagopa.merchant.mapper.MerchantCreateDTOMapper;
@@ -24,7 +26,6 @@ import it.gov.pagopa.merchant.test.fakers.MerchantFaker;
 import it.gov.pagopa.merchant.test.fakers.MerchantUpdateDTOFaker;
 import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.MerchantValidator;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,14 +37,16 @@ import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -77,10 +80,14 @@ class MerchantServiceImplTest {
   private MerchantValidator merchantValidatorMock;
   @Mock
   private Keycloak keycloakAdminClientMock;
+  @Mock
+  private PdndInfoCamereConnectorImpl pdndConnectorMock;
+  @Mock
+  private InitiativeRestClient initiativeRestClientMock;
+  @Mock
+  private TransactionConnector transactionConnectorMock;
 
   private MerchantServiceImpl merchantService;
-
-  private MerchantServiceImpl merchantServiceSpy;
 
   private static final String REALM = "test-realm";
   private static final String INITIATIVE_ID = "INITIATIVE_ID";
@@ -93,7 +100,6 @@ class MerchantServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    List<String> defaultInitiativesMock = List.of("INIT1", "INIT2");
 
     merchantService = new MerchantServiceImpl(
         merchantDetailServiceMock,
@@ -104,20 +110,19 @@ class MerchantServiceImplTest {
         merchantRepositoryMock,
         uploadingMerchantServiceMock,
         initiative2InitiativeDTOMapper,
-        defaultInitiativesMock,
-        initiativeRestConnector,
         merchantCreateDTOMapper,
         pointOfSaleRepositoryMock,
         merchantValidatorMock,
         keycloakAdminClientMock,
-        REALM
-    );
-    merchantServiceSpy = Mockito.spy(merchantService);
+        REALM,
+        pdndConnectorMock,
+        initiativeRestClientMock,
+        transactionConnectorMock);
   }
 
   @AfterEach
   void verifyNoMoreMockInteractions() {
-    Mockito.verifyNoMoreInteractions(
+    verifyNoMoreInteractions(
         merchantDetailServiceMock,
         merchantListServiceMock,
         merchantRepositoryMock,
@@ -127,7 +132,8 @@ class MerchantServiceImplTest {
         merchantUpdateIbanService,
         pointOfSaleRepositoryMock,
         merchantValidatorMock,
-        keycloakAdminClientMock);
+        keycloakAdminClientMock,
+        transactionConnectorMock);
   }
 
   @Test
@@ -135,8 +141,8 @@ class MerchantServiceImplTest {
     MerchantUpdateDTO merchantUpdateDTO = MerchantUpdateDTOFaker.mockInstance(1);
     MultipartFile file = new MockMultipartFile("file", "test.csv", "text/csv",
         "Content".getBytes());
-    when(uploadingMerchantServiceMock.uploadMerchantFile(any(), Mockito.anyString(),
-        Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(
+    when(uploadingMerchantServiceMock.uploadMerchantFile(any(), anyString(),
+        anyString(), anyString(), anyString())).thenReturn(
         merchantUpdateDTO);
 
     MerchantUpdateDTO result = merchantService.uploadMerchantFile(file, ORGANIZATION_ID,
@@ -147,7 +153,7 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantDetail1() {
     MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
-    when(merchantDetailServiceMock.getMerchantDetail(Mockito.anyString())).thenReturn(dto);
+    when(merchantDetailServiceMock.getMerchantDetail(anyString())).thenReturn(dto);
 
     MerchantDetailDTO result = merchantService.getMerchantDetail(MERCHANT_ID);
     assertNotNull(result);
@@ -157,8 +163,8 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantDetail() {
     MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
-    when(merchantDetailServiceMock.getMerchantDetail(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString())).thenReturn(dto);
+    when(merchantDetailServiceMock.getMerchantDetail(anyString(), anyString(),
+        anyString())).thenReturn(dto);
 
     MerchantDetailDTO result = merchantService.getMerchantDetail(ORGANIZATION_ID, INITIATIVE_ID,
         MERCHANT_ID);
@@ -168,8 +174,8 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantDetailByMerchantIdAndInitiativeId() {
     MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
-    when(merchantDetailServiceMock.getMerchantDetail(Mockito.anyString(),
-        Mockito.anyString())).thenReturn(merchantDetailDTO);
+    when(merchantDetailServiceMock.getMerchantDetail(anyString(),
+        anyString())).thenReturn(merchantDetailDTO);
 
     MerchantDetailDTO result = merchantService.getMerchantDetail(MERCHANT_ID, INITIATIVE_ID);
     assertNotNull(result);
@@ -178,8 +184,8 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantList() {
     MerchantListDTO dto = new MerchantListDTO();
-    when(merchantListServiceMock.getMerchantList(Mockito.anyString(), Mockito.anyString(),
-        Mockito.anyString(), any())).thenReturn(dto);
+    when(merchantListServiceMock.getMerchantList(anyString(), anyString(),
+        anyString(), any())).thenReturn(dto);
 
     MerchantListDTO result = merchantService.getMerchantList(ORGANIZATION_ID, INITIATIVE_ID,
         MERCHANT_ID, null);
@@ -189,7 +195,7 @@ class MerchantServiceImplTest {
   @Test
   void getMerchantListByInitiativeId() {
     MerchantListDTO dto = new MerchantListDTO();
-    when(merchantListServiceMock.getMerchantList(Mockito.anyString(), any())).thenReturn(dto);
+    when(merchantListServiceMock.getMerchantList(anyString(), any())).thenReturn(dto);
 
     MerchantListDTO result = merchantService.getMerchantList(INITIATIVE_ID, null);
     assertNotNull(result);
@@ -199,8 +205,8 @@ class MerchantServiceImplTest {
   void retrieveMerchantId() {
     Merchant merchant = MerchantFaker.mockInstance(1);
 
-    when(merchantRepositoryMock.retrieveByAcquirerIdAndFiscalCode(Mockito.anyString(),
-        Mockito.anyString())).thenReturn(Optional.of(merchant));
+    when(merchantRepositoryMock.retrieveByAcquirerIdAndFiscalCode(anyString(),
+        anyString())).thenReturn(Optional.of(merchant));
 
     String merchantIdOkResult = merchantService.retrieveMerchantId(merchant.getAcquirerId(),
         merchant.getFiscalCode());
@@ -213,14 +219,14 @@ class MerchantServiceImplTest {
   void retrieveMerchantId_NotFound() {
 
     doReturn(Optional.empty()).when(merchantRepositoryMock)
-        .retrieveByAcquirerIdAndFiscalCode(any(), Mockito.eq("DUMMYFISCALCODE"));
+        .retrieveByAcquirerIdAndFiscalCode(any(), eq("DUMMYFISCALCODE"));
 
     String merchantIdNotFoundResult = merchantService.retrieveMerchantId("DUMMYACQUIRERID",
         "DUMMYFISCALCODE");
 
     assertNull(merchantIdNotFoundResult);
-    verify(merchantRepositoryMock).retrieveByAcquirerIdAndFiscalCode(Mockito.anyString(),
-        Mockito.anyString());
+    verify(merchantRepositoryMock).retrieveByAcquirerIdAndFiscalCode(anyString(),
+        anyString());
   }
 
   @Test
@@ -233,7 +239,7 @@ class MerchantServiceImplTest {
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
 
-    List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
+    List<it.gov.pagopa.merchant.dto.InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
 
     assertEquals(
         merchant.getInitiativeList().stream()
@@ -243,11 +249,37 @@ class MerchantServiceImplTest {
   }
 
   @Test
+  void getMerchantInitiativeList_sortedAlphabeticallyByInitiativeName() {
+    Initiative initiativeC = Initiative.builder()
+        .initiativeId("ID_C").initiativeName("Charlie")
+        .status(MerchantConstants.INITIATIVE_PUBLISHED).build();
+    Initiative initiativeA = Initiative.builder()
+        .initiativeId("ID_A").initiativeName("Alpha")
+        .status(MerchantConstants.INITIATIVE_PUBLISHED).build();
+    Initiative initiativeB = Initiative.builder()
+        .initiativeId("ID_B").initiativeName("Bravo")
+        .status(MerchantConstants.INITIATIVE_PUBLISHED).build();
+
+    Merchant merchant = MerchantFaker.mockInstanceBuilder(1)
+        .initiativeList(List.of(initiativeC, initiativeA, initiativeB))
+        .build();
+
+    when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.of(merchant));
+
+    List<it.gov.pagopa.merchant.dto.InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
+
+    assertEquals(3, result.size());
+    assertEquals("Alpha", result.get(0).getInitiativeName());
+    assertEquals("Bravo", result.get(1).getInitiativeName());
+    assertEquals("Charlie", result.get(2).getInitiativeName());
+  }
+
+  @Test
   void getMerchantInitiativeList_emptyList() {
 
     when(merchantRepositoryMock.findById(MERCHANT_ID)).thenReturn(Optional.empty());
 
-    List<InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
+    List<it.gov.pagopa.merchant.dto.InitiativeDTO> result = merchantService.getMerchantInitiativeList(MERCHANT_ID);
 
     assertEquals(Collections.emptyList(), result);
   }
@@ -272,7 +304,7 @@ class MerchantServiceImplTest {
         .build();
 
     merchantService.updatingInitiative(queueInitiativeDTO);
-    verify(merchantUpdatingInitiativeService, Mockito.times(1)).updatingInitiative(
+    verify(merchantUpdatingInitiativeService, times(1)).updatingInitiative(
         queueInitiativeDTO);
   }
 
@@ -280,15 +312,15 @@ class MerchantServiceImplTest {
   void updateIban_delegatesCallAndReturnsResult() {
     // Given
     MerchantIbanPatchDTO merchantIbanPatchDTO = new MerchantIbanPatchDTO(
-        "IT60X0542811101000000123456", "New Holder");
+        "test@mail.com","IT60X0542811101000000123456", "New Holder");
     MerchantDetailDTO expectedDto = MerchantDetailDTOFaker.mockInstance(1);
 
-    when(merchantUpdateIbanService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+    when(merchantUpdateIbanService.patchMerchant(MERCHANT_ID, INITIATIVE_ID,
         merchantIbanPatchDTO))
         .thenReturn(expectedDto);
 
     // When
-    MerchantDetailDTO result = merchantService.updateIban(MERCHANT_ID, ORGANIZATION_ID,
+    MerchantDetailDTO result = merchantService.patchMerchant(MERCHANT_ID,
         INITIATIVE_ID,
         merchantIbanPatchDTO);
 
@@ -297,53 +329,53 @@ class MerchantServiceImplTest {
     assertEquals(expectedDto, result);
 
     // Verify that the call was delegated to the correct service
-    verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+    verify(merchantUpdateIbanService).patchMerchant(MERCHANT_ID, INITIATIVE_ID,
         merchantIbanPatchDTO);
   }
 
   @Test
   void updateIban_whenServiceThrowsIllegalArgumentException_propagatesException() {
     // Given
-    MerchantIbanPatchDTO merchantIbanPatchDTO = new MerchantIbanPatchDTO("INVALID_IBAN", null);
+    MerchantIbanPatchDTO merchantIbanPatchDTO = new MerchantIbanPatchDTO("TEST","INVALID_IBAN", null);
 
     // Mock the underlying service to throw an exception
-    when(merchantUpdateIbanService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+    when(merchantUpdateIbanService.patchMerchant(MERCHANT_ID, INITIATIVE_ID,
         merchantIbanPatchDTO))
         .thenThrow(new IllegalArgumentException("Invalid IBAN format."));
 
     // When & Then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> merchantService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+        () -> merchantService.patchMerchant(MERCHANT_ID, INITIATIVE_ID,
             merchantIbanPatchDTO));
 
     assertEquals("Invalid IBAN format.", exception.getMessage());
 
     // Verify the call was still made
-    verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+    verify(merchantUpdateIbanService).patchMerchant(MERCHANT_ID, INITIATIVE_ID,
         merchantIbanPatchDTO);
   }
 
   @Test
   void updateIban_whenServiceThrowsMerchantNotFoundException_propagatesException() {
     // Given
-    MerchantIbanPatchDTO merchantIbanPatchDTO = new MerchantIbanPatchDTO(
+    MerchantIbanPatchDTO merchantIbanPatchDTO = new MerchantIbanPatchDTO("test@mail.com",
         "IT60X0542811101000000123456", null);
     String expectedExceptionMessage = String.format("Merchant with id %s not found.", MERCHANT_ID);
 
     // Mock the underlying service to throw an exception
-    when(merchantUpdateIbanService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+    when(merchantUpdateIbanService.patchMerchant(MERCHANT_ID, INITIATIVE_ID,
         merchantIbanPatchDTO))
         .thenThrow(new MerchantNotFoundException(expectedExceptionMessage));
 
     // When & Then
     MerchantNotFoundException exception = assertThrows(MerchantNotFoundException.class,
-        () -> merchantService.updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+        () -> merchantService.patchMerchant(MERCHANT_ID, INITIATIVE_ID,
             merchantIbanPatchDTO));
 
     assertEquals(expectedExceptionMessage, exception.getMessage());
 
     // Verify the call was still made
-    verify(merchantUpdateIbanService).updateIban(MERCHANT_ID, ORGANIZATION_ID, INITIATIVE_ID,
+    verify(merchantUpdateIbanService).patchMerchant(MERCHANT_ID, INITIATIVE_ID,
         merchantIbanPatchDTO);
   }
 
@@ -352,124 +384,28 @@ class MerchantServiceImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
 
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId)
         .iban(iban)
         .ibanHolder(ibanHolder)
         .build();
 
-    MongoException mongoException = Mockito.mock(MongoException.class);
-    Mockito.when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
+    MongoException mongoException = mock(MongoException.class);
+    when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenThrow(mongoException);
 
     assertThrows(MongoException.class,
         () -> merchantService.retrieveOrCreateMerchantIfNotExists(dto));
 
-    Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
-    Mockito.verify(merchantRepositoryMock, Mockito.never()).save(Mockito.any(Merchant.class));
-  }
-
-  @Test
-  void getInitiativeInfo_connectorThrowsException() throws Exception {
-    FeignException feignException = Mockito.mock(FeignException.class);
-    when(feignException.getMessage()).thenReturn("REST error");
-
-    when(initiativeRestConnector.getInitiativeBeneficiaryView("INIT1"))
-        .thenThrow(feignException);
-
-    Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("getInitiativeInfo", String.class);
-    method.setAccessible(true);
-
-    InvocationTargetException thrown = assertThrows(InvocationTargetException.class,
-        () -> method.invoke(merchantServiceSpy, "INIT1"));
-
-    Throwable cause = thrown.getCause();
-    assertInstanceOf(InitiativeInvocationException.class, cause);
-    assertTrue(cause.getMessage().contains(
-        MerchantConstants.ExceptionMessage.INITIATIVE_CONNECTOR_ERROR));
-  }
-
-  @Test
-  void getInitiativeInfo_returnsNull_throwsException() throws Exception {
-    when(initiativeRestConnector.getInitiativeBeneficiaryView("INIT1"))
-        .thenReturn(null);
-
-    Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("getInitiativeInfo", String.class);
-    method.setAccessible(true);
-
-    InvocationTargetException thrown = assertThrows(InvocationTargetException.class,
-        () -> method.invoke(merchantServiceSpy, "INIT1"));
-
-    Throwable cause = thrown.getCause();
-    assertInstanceOf(InitiativeInvocationException.class, cause);
-    assertTrue(cause.getMessage().contains("Initiative not found for id=INIT1"));
-  }
-
-  @Test
-  void getInitiativeInfo_returnsValidDTO() throws Exception {
-    InitiativeBeneficiaryViewDTO dtoMock = new InitiativeBeneficiaryViewDTO();
-    dtoMock.setInitiativeId("INIT1");
-    dtoMock.setInitiativeName("Test Initiative");
-
-    when(initiativeRestConnector.getInitiativeBeneficiaryView("INIT1"))
-        .thenReturn(dtoMock);
-
-    Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("getInitiativeInfo", String.class);
-    method.setAccessible(true);
-
-    InitiativeBeneficiaryViewDTO result =
-        (InitiativeBeneficiaryViewDTO) method.invoke(merchantServiceSpy, "INIT1");
-
-    assertNotNull(result);
-    assertEquals("INIT1", result.getInitiativeId());
-    assertEquals("Test Initiative", result.getInitiativeName());
-  }
-
-  @Test
-  void createMerchantInitiative_returnsInitiative() throws Exception {
-    InitiativeBeneficiaryViewDTO dto = new InitiativeBeneficiaryViewDTO();
-    dto.setInitiativeId("INIT1");
-    dto.setInitiativeName("Test Initiative");
-    dto.setOrganizationId("ORG1");
-    dto.setOrganizationName("Organization 1");
-    dto.setStatus("ACTIVE");
-
-    AdditionalInfoDTO additionalInfo = new AdditionalInfoDTO();
-    additionalInfo.setServiceId("SERVICE1");
-    dto.setAdditionalInfo(additionalInfo);
-
-    GeneralInfoDTO general = new GeneralInfoDTO();
-    general.setStartDate(LocalDate.now().minusDays(1));
-    general.setEndDate(LocalDate.now().plusDays(1));
-    dto.setGeneral(general);
-
-    Method method = MerchantServiceImpl.class
-        .getDeclaredMethod("createMerchantInitiative", InitiativeBeneficiaryViewDTO.class);
-    method.setAccessible(true);
-
-    Initiative initiative = (Initiative) method.invoke(merchantServiceSpy, dto);
-
-    assertNotNull(initiative);
-    assertEquals("INIT1", initiative.getInitiativeId());
-    assertEquals("Test Initiative", initiative.getInitiativeName());
-    assertEquals("ORG1", initiative.getOrganizationId());
-    assertEquals("Organization 1", initiative.getOrganizationName());
-    assertEquals("SERVICE1", initiative.getServiceId());
-    assertEquals(LocalDate.now().minusDays(1), initiative.getStartDate());
-    assertEquals(LocalDate.now().plusDays(1), initiative.getEndDate());
-    assertEquals("ACTIVE", initiative.getStatus());
-    assertEquals("UPLOADED", initiative.getMerchantStatus());
-    assertTrue(initiative.isEnabled());
-    assertNotNull(initiative.getCreationDate());
-    assertNotNull(initiative.getUpdateDate());
+    verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
+    verify(merchantRepositoryMock, never()).save(any(Merchant.class));
   }
 
   @Test
@@ -477,11 +413,13 @@ class MerchantServiceImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
     String expectedMerchantId = Utilities.toUUID(fiscalCode + "_" + acquirerId);
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId)
         .iban(iban)
@@ -491,36 +429,12 @@ class MerchantServiceImplTest {
     when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenReturn(Optional.empty());
 
-    MerchantServiceImpl spyService = Mockito.spy(merchantService);
-
-    when(initiativeRestConnector.getInitiativeBeneficiaryView(anyString()))
-        .thenAnswer(invocation -> {
-          String initiativeId = invocation.getArgument(0);
-
-          InitiativeBeneficiaryViewDTO dtoIBV = new InitiativeBeneficiaryViewDTO();
-          dtoIBV.setInitiativeId(initiativeId);
-          dtoIBV.setInitiativeName("Test Initiative");
-          dtoIBV.setOrganizationId("ORG1");
-          dtoIBV.setOrganizationName("Organization 1");
-
-          AdditionalInfoDTO additionalInfo = new AdditionalInfoDTO();
-          additionalInfo.setServiceId("SERVICE1");
-          dtoIBV.setAdditionalInfo(additionalInfo);
-
-          GeneralInfoDTO general = new GeneralInfoDTO();
-          general.setStartDate(LocalDate.now().minusDays(1));
-          general.setEndDate(LocalDate.now().plusDays(1));
-          dtoIBV.setGeneral(general);
-
-          dtoIBV.setStatus("ACTIVE");
-          return dtoIBV;
-        });
+    MerchantServiceImpl spyService = spy(merchantService);
 
     String result = spyService.retrieveOrCreateMerchantIfNotExists(dto);
 
     assertEquals(expectedMerchantId, result);
     verify(merchantRepositoryMock).save(any(Merchant.class));
-    verify(initiativeRestConnector, times(2)).getInitiativeBeneficiaryView(anyString());
   }
 
   @Test
@@ -528,11 +442,13 @@ class MerchantServiceImplTest {
     String acquirerId = "ACQ123";
     String businessName = "Test Business";
     String fiscalCode = "ABCDEF12G34H567I";
+    String vatNumber = "12345678901";
     String iban = "IT60X0542811101000000123456";
     String ibanHolder = "Test Iban Holder";
     String expectedMerchantId = Utilities.toUUID(fiscalCode + "_" + acquirerId);
     MerchantCreateDTO dto = MerchantCreateDTO.builder()
         .businessName(businessName)
+        .vatNumber(vatNumber)
         .fiscalCode(fiscalCode)
         .acquirerId(acquirerId)
         .iban(iban)
@@ -545,26 +461,28 @@ class MerchantServiceImplTest {
         .businessName("businessName")
         .build();
 
-    Mockito.when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
+    when(merchantRepositoryMock.findByFiscalCode(fiscalCode))
         .thenReturn(Optional.of(merchant));
 
-    Mockito.when(merchantRepositoryMock.save(merchant))
+    when(merchantRepositoryMock.save(merchant))
         .thenReturn(merchant);
     String merchantIDUpdated = merchantService.retrieveOrCreateMerchantIfNotExists(dto);
 
     assertEquals(expectedMerchantId, merchantIDUpdated);
-    Mockito.verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
-    Mockito.verify(merchantRepositoryMock).save(Mockito.any(Merchant.class));
+    verify(merchantRepositoryMock).findByFiscalCode(fiscalCode);
+    verify(merchantRepositoryMock).save(any(Merchant.class));
   }
 
   @Test
   void updateMerchant_updatesFieldsCorrectly() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    String fiscalCode = "ABCDEF12G34H567I";
     LocalDateTime existingActivationDate = LocalDateTime.now().minusDays(1);
     LocalDateTime newActivationDate = LocalDateTime.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
+        .fiscalCode(fiscalCode)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
@@ -572,6 +490,8 @@ class MerchantServiceImplTest {
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .fiscalCode(fiscalCode)
+        .vatNumber("12345678901")
         .iban("NEW_IBAN")
         .businessName("New Business Name")
         .ibanHolder("New Iban Holder")
@@ -597,9 +517,11 @@ class MerchantServiceImplTest {
   void updateMerchant_doesNotUpdateWhenFieldsAreBlank() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    String fiscalCode = "ABCDEF12G34H567I";
     LocalDateTime activationDate = LocalDateTime.now();
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
+        .fiscalCode(fiscalCode)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
@@ -607,6 +529,8 @@ class MerchantServiceImplTest {
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .fiscalCode(fiscalCode)
+        .vatNumber("12345678901")
         .iban("") // Blank
         .businessName(null) // Null
         .ibanHolder("") // Blank
@@ -631,10 +555,12 @@ class MerchantServiceImplTest {
   void updateMerchant_updatesOnlyProvidedFields() {
     // Given
     String existingMerchantId = "EXISTING_MERCHANT_ID";
+    String fiscalCode = "ABCDEF12G34H567I";
     LocalDateTime activationDate = LocalDateTime.now();
     LocalDateTime activatioDateTimeNew =LocalDateTime.now().plusDays(2);
     Merchant existingMerchant = Merchant.builder()
         .merchantId(existingMerchantId)
+        .fiscalCode(fiscalCode)
         .iban("OLD_IBAN")
         .businessName("Old Business Name")
         .ibanHolder("Old Iban Holder")
@@ -642,6 +568,8 @@ class MerchantServiceImplTest {
         .build();
 
     MerchantCreateDTO updateDTO = MerchantCreateDTO.builder()
+        .fiscalCode(fiscalCode)
+        .vatNumber("12345678901")
         .iban("NEW_IBAN") // Only updating IBAN
         .activationDate(activatioDateTimeNew)
         .build();
@@ -784,4 +712,236 @@ class MerchantServiceImplTest {
 
     verify(merchantRepositoryMock).findById(MERCHANT_ID);
   }
+
+  @Test
+  void verifyMerchantExists_merchantFound_doesNotThrow() {
+    MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
+    when(merchantDetailServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(dto);
+
+    assertDoesNotThrow(() -> merchantService.verifyMerchantExists(MERCHANT_ID));
+
+    verify(merchantDetailServiceMock).getMerchantDetail(MERCHANT_ID);
+  }
+
+  @Test
+  void verifyMerchantExists_merchantNotFound_throwsMerchantNotFoundException() {
+    when(merchantDetailServiceMock.getMerchantDetail(MERCHANT_ID)).thenReturn(null);
+
+    MerchantNotFoundException exception = assertThrows(MerchantNotFoundException.class,
+            () -> merchantService.verifyMerchantExists(MERCHANT_ID));
+
+    assertTrue(exception.getMessage().contains(MERCHANT_ID));
+    verify(merchantDetailServiceMock).getMerchantDetail(MERCHANT_ID);
+  }
+
+  @Test
+  void processMerchantInitiatives_success() {
+    String merchantId = "merchant123";
+    String initiativeName = "Initiative 1";
+    Pageable pageable = Pageable.ofSize(10);
+
+    Merchant merchant = new Merchant();
+    merchant.setMerchantId(merchantId);
+    merchant.setFiscalCode("123456789");
+    merchant.setAtecoCodes(List.of("1234"));
+    merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
+
+    List<String> newAtecoCodes = List.of("1234", "5678");
+    PageResponse<InitiativeResponse> mockResponse = new PageResponse<>(
+            List.of(InitiativeResponse.builder().initiativeId("initiative2").status("ACTIVE").build()),
+            0, 10, 1
+    );
+
+    ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
+    when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(newAtecoCodes);
+    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+
+    Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
+
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    assertEquals("initiative2", result.getContent().getFirst().getInitiativeId());
+    verify(merchantRepositoryMock).save(merchant);
+    verify(initiativeRestClientMock).searchInitiatives(any(), eq(pageable));
+  }
+
+  @Test
+  void processMerchantInitiatives_nullMerchantAtecoCodes_success() {
+    String merchantId = "merchant123";
+    String initiativeName = "Initiative 1";
+    Pageable pageable = Pageable.ofSize(10);
+
+    Merchant merchant = new Merchant();
+    merchant.setMerchantId(merchantId);
+    merchant.setFiscalCode("123456789");
+    merchant.setAtecoCodes(null);
+    merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
+
+    List<String> newAtecoCodes = List.of("1234", "5678");
+    PageResponse<InitiativeResponse> mockResponse = new PageResponse<>(
+            List.of(InitiativeResponse.builder().initiativeId("initiative2").status("ACTIVE").build()),
+            0, 10, 1
+    );
+
+    ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
+    when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(newAtecoCodes);
+    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+
+    Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    assertEquals("initiative2", result.getContent().getFirst().getInitiativeId());
+    verify(merchantRepositoryMock).save(merchant);
+    verify(initiativeRestClientMock).searchInitiatives(any(), eq(pageable));
+  }
+
+  @Test
+  void processMerchantInitiatives_nullPdndAtecoCodes_success() {
+    String merchantId = "merchant123";
+    String initiativeName = "Initiative 1";
+    Pageable pageable = Pageable.ofSize(10);
+
+    Merchant merchant = new Merchant();
+    merchant.setMerchantId(merchantId);
+    merchant.setFiscalCode("123456789");
+    merchant.setAtecoCodes(null);
+    merchant.setInitiativeList(List.of(Initiative.builder().initiativeId("initiative1").build()));
+
+    PageResponse<InitiativeResponse> mockResponse = new PageResponse<>(
+            List.of(InitiativeResponse.builder().initiativeId("initiative2").status("ACTIVE").build()),
+            0, 10, 1
+    );
+
+    ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
+    when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
+    when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(null);
+    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+
+    Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
+
+    ArgumentCaptor<InitiativeSearchRequest> requestCaptor = ArgumentCaptor.forClass(InitiativeSearchRequest.class);
+    verify(initiativeRestClientMock).searchInitiatives(requestCaptor.capture(), eq(pageable));
+
+    assertNotNull(result);
+    assertEquals(1, result.getTotalElements());
+    assertEquals("initiative2", result.getContent().getFirst().getInitiativeId());
+    assertNotNull(requestCaptor.getValue());
+    assertEquals(Collections.emptyList(), requestCaptor.getValue().getAtecoCodes());
+    verify(merchantRepositoryMock, never()).save(merchant);
+  }
+
+  @Test
+  void processMerchantInitiatives_merchantNotFound() {
+    String merchantId = "merchant123";
+    String initiativeName = "Initiative 1";
+    Pageable pageable = Pageable.ofSize(10);
+
+    when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.empty());
+
+    assertThrows(MerchantNotFoundException.class,
+            () -> merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable));
+  }
+
+  @Test
+  void getMerchantRefundBatchesHistory() {
+    String merchantIdentifier = "ABCDEF12G34H567I";
+
+    Merchant merchant = Merchant.builder()
+        .merchantId(MERCHANT_ID)
+        .fiscalCode(merchantIdentifier)
+        .vatNumber("12345678901")
+        .initiativeList(List.of(
+            Initiative.builder().initiativeId("INITIATIVE_1").build(),
+            Initiative.builder().initiativeId("INITIATIVE_2").build()))
+        .build();
+
+    MerchantRewardBatchListDTO initiative1Page = MerchantRewardBatchListDTO.builder()
+        .content(List.of(MerchantRewardBatchDTO.builder()
+            .id("RB-1")
+            .initiativeId("INITIATIVE_1")
+            .month("2026-08")
+            .status("APPROVED")
+            .numberOfTransactions(10L)
+            .numberOfTransactionsElaborated(8L)
+            .build()))
+        .pageNo(0)
+        .pageSize(100)
+        .totalElements(1)
+        .totalPages(1)
+        .build();
+
+    MerchantRewardBatchListDTO initiative2Page0 = MerchantRewardBatchListDTO.builder()
+        .content(List.of(MerchantRewardBatchDTO.builder()
+            .id("RB-2")
+            .initiativeId("INITIATIVE_2")
+            .month("2026-09")
+            .status("SENT")
+            .numberOfTransactions(5L)
+            .numberOfTransactionsElaborated(5L)
+            .build()))
+        .pageNo(0)
+        .pageSize(100)
+        .totalElements(2)
+        .totalPages(2)
+        .build();
+
+    MerchantRewardBatchListDTO initiative2Page1 = MerchantRewardBatchListDTO.builder()
+        .content(List.of(MerchantRewardBatchDTO.builder()
+            .id("RB-3")
+            .initiativeId("INITIATIVE_2")
+            .month("2026-07")
+            .status("REJECTED")
+            .numberOfTransactions(3L)
+            .numberOfTransactionsRejected(3L)
+            .build()))
+        .pageNo(1)
+        .pageSize(100)
+        .totalElements(2)
+        .totalPages(2)
+        .build();
+
+    when(merchantRepositoryMock.findByFiscalCodeOrVatNumber(merchantIdentifier, merchantIdentifier))
+        .thenReturn(Optional.of(merchant));
+    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_1"), any(PageRequest.class)))
+        .thenReturn(initiative1Page);
+    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"), eq(PageRequest.of(0, 100))))
+        .thenReturn(initiative2Page0);
+    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"), eq(PageRequest.of(1, 100))))
+        .thenReturn(initiative2Page1);
+
+    MerchantRefundBatchHistoryDTO result = merchantService.getMerchantRefundBatchesHistory(
+        merchantIdentifier);
+
+    assertNotNull(result);
+    assertEquals(MERCHANT_ID, result.getMerchantId());
+    assertEquals(3, result.getRewardBatches().size());
+    assertEquals("RB-2", result.getRewardBatches().getFirst().getRewardBatchId());
+
+    verify(merchantRepositoryMock).findByFiscalCodeOrVatNumber(merchantIdentifier,
+        merchantIdentifier);
+    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_1"),
+        eq(PageRequest.of(0, 100)));
+    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"),
+        eq(PageRequest.of(0, 100)));
+    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"),
+        eq(PageRequest.of(1, 100)));
+  }
+
+  @Test
+  void getMerchantRefundBatchesHistory_notFound() {
+    String merchantIdentifier = "NOT_FOUND";
+    when(merchantRepositoryMock.findByFiscalCodeOrVatNumber(merchantIdentifier, merchantIdentifier))
+        .thenReturn(Optional.empty());
+
+    assertThrows(MerchantNotFoundException.class,
+        () -> merchantService.getMerchantRefundBatchesHistory(merchantIdentifier));
+
+    verify(merchantRepositoryMock).findByFiscalCodeOrVatNumber(merchantIdentifier,
+        merchantIdentifier);
+  }
+
 }

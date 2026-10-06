@@ -25,7 +25,7 @@ public class MerchantTransactionCheckServiceImpl implements MerchantTransactionC
   public boolean hasInProgressTransactions(String merchantId, String initiativeId) {
 
       try {
-        MerchantTransactionsListDTO inProgressTrx = paymentConnector.getMerchantTransactions(merchantId, initiativeId, null, null, PageRequest.of(0,1));
+        MerchantTransactionsListDTO inProgressTrx = paymentConnector.getMerchantTransactions(merchantId, initiativeId, null, null, null, PageRequest.of(0,1));
 
         if (inProgressTrx != null && inProgressTrx.getContent() != null && !inProgressTrx.getContent().isEmpty()) {
           log.info("[TRANSACTION-IN-PROGRESS-CHECK] Found in-progress transactions for merchant {}", merchantId);
@@ -42,7 +42,7 @@ public class MerchantTransactionCheckServiceImpl implements MerchantTransactionC
   public boolean hasProcessedTransactions(String merchantId, String initiativeId) {
 
       try {
-        it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO processedTrx = transactionConnector.getMerchantTransactions(merchantId, initiativeId, null, null, PageRequest.of(0, 1));
+        it.gov.pagopa.merchant.connector.transaction.dto.MerchantTransactionsListDTO processedTrx = transactionConnector.getMerchantTransactions(merchantId, initiativeId, null, null, null, PageRequest.of(0, 1));
 
         if (processedTrx != null && processedTrx.getContent() != null && !processedTrx.getContent().isEmpty()) {
           log.info("[TRANSACTION-PROCESSED-CHECK] Found processed transactions for merchant {}", merchantId);

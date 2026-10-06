@@ -44,6 +44,7 @@ class MerchantDetailServiceTest {
   @Test
   void getMerchantDetail() {
     MerchantDetailDTO dto = MerchantDetailDTOFaker.mockInstance(1);
+    dto.setOperativeEmail("test@example.com");
     Merchant merchant = MerchantFaker.mockInstance(1);
 
     when(repositoryMock.retrieveByInitiativeIdAndOrganizationIdAndMerchantId(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -73,6 +74,7 @@ class MerchantDetailServiceTest {
   void getMerchantDetailByMerchantIdAndInitiativeId() {
     Merchant merchant = MerchantFaker.mockInstance(1);
     MerchantDetailDTO merchantDetailDTO = MerchantDetailDTOFaker.mockInstance(1);
+    merchantDetailDTO.setOperativeEmail("test@example.com");
 
     when(repositoryMock.retrieveByMerchantIdAndInitiativeId(MERCHANT_ID, INITIATIVE_ID))
             .thenReturn(Optional.of(merchant));

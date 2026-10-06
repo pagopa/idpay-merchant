@@ -38,6 +38,7 @@ class MerchantCreateDTOMapperTest {
     MerchantCreateDTO dto = new MerchantCreateDTO();
     LocalDateTime activationDate = LocalDateTime.now();
     dto.setFiscalCode("ABC12345678");
+    dto.setVatNumber("12345678901");
     dto.setAcquirerId("Acquirer123");
     dto.setBusinessName("Test Business");
     dto.setIban("IT60X0542811101000000123456");
@@ -49,6 +50,7 @@ class MerchantCreateDTOMapperTest {
     assertNotNull(result, "Expected non-null Merchant entity");
     assertEquals("merchantId", result.getMerchantId());
     assertEquals("ABC12345678", result.getFiscalCode());
+    assertEquals("12345678901", result.getVatNumber());
     assertEquals("Acquirer123", result.getAcquirerId());
     assertEquals("Test Business", result.getBusinessName());
     assertEquals("IT60X0542811101000000123456", result.getIban());

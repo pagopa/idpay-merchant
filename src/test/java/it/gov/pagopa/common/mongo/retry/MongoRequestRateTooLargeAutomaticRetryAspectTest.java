@@ -8,11 +8,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MongoRequestRateTooLargeAutomaticRetryAspectTest {
@@ -26,16 +27,16 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
     @BeforeEach
     void configureRetryMock() throws Throwable {
         int[] counter= {0};
-        Mockito.doAnswer(i -> {
+        doAnswer(i -> {
             if (counter[0]++ < maxRetry){
                 throw MongoRequestRateTooLargeRetryerTest.buildRequestRateTooLargeMongodbException_whenReading();
             }
             return expectedResult;
         }).when(pjpMock).proceed();
 
-        Signature signatureMock = Mockito.mock(Signature.class);
-        Mockito.lenient().when(signatureMock.toShortString()).thenReturn("ClassName.jointPointName(..)");
-        Mockito.lenient().when(pjpMock.getSignature()).thenReturn(signatureMock);
+        Signature signatureMock = mock(Signature.class);
+        lenient().when(signatureMock.toShortString()).thenReturn("ClassName.jointPointName(..)");
+        lenient().when(pjpMock.getSignature()).thenReturn(signatureMock);
     }
 
     @AfterEach
@@ -100,10 +101,10 @@ class MongoRequestRateTooLargeAutomaticRetryAspectTest {
         Object result = aspect.decorateRepositoryMethods(pjpMock);
 
         Assertions.assertEquals(expectedResult, result);
-        Mockito.verify(pjpMock, Mockito.times(maxRetry+1)).proceed();
+        verify(pjpMock, times(maxRetry+1)).proceed();
     }
     private static void configureExecutionContext(boolean isBatch) {
-        RequestContextHolder.setRequestAttributes(isBatch ? null : Mockito.mock(RequestAttributes.class));
+        RequestContextHolder.setRequestAttributes(isBatch ? null : mock(RequestAttributes.class));
     }
 
     private void checkException(MongoRequestRateTooLargeAutomaticRetryAspect aspect) {
