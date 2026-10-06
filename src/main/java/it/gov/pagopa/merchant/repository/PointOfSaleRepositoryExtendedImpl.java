@@ -12,12 +12,16 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Repository
 public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryExtended {
+
+    // info is stored apart from address; a trailing token with a digit is treated as streetNumber
+    private static final Pattern STREET_NUMBER_PATTERN = Pattern.compile(".*\\d.*");
 
     private final MongoTemplate mongoTemplate;
 
@@ -112,16 +116,47 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
     }
 
     private Criteria buildAddressCriteria(String address){
-        Pattern inputPattern = Pattern.compile(Pattern.quote(address.trim()), Pattern.CASE_INSENSITIVE);
+        String trimmedAddress = address.trim();
+        Pattern fullPattern = Pattern.compile(Pattern.quote(trimmedAddress), Pattern.CASE_INSENSITIVE);
 
         List<Criteria> addressCriterias = new ArrayList<>();
 
-        addressCriterias.add(Criteria.where(PointOfSale.Fields.website).regex(inputPattern));
+        // keep legacy single-field matches so existing searches keep working
+        addressCriterias.add(Criteria.where(PointOfSale.Fields.website).regex(fullPattern));
+        addressCriterias.add(Criteria.where(PointOfSale.Fields.address).regex(fullPattern));
 
-        Pattern addressPattern = Pattern.compile(Pattern.quote(address), Pattern.CASE_INSENSITIVE);
-        addressCriterias.add(Criteria.where(PointOfSale.Fields.address).regex(addressPattern));
+        // match "<address> <streetNumber>" when the input carries a trailing civico
+        Criteria addressWithStreetNumber = buildAddressWithStreetNumberCriteria(trimmedAddress);
+        if (addressWithStreetNumber != null) {
+            addressCriterias.add(addressWithStreetNumber);
+        }
 
         return new Criteria().orOperator(addressCriterias.toArray(new Criteria[0]));
+    }
+
+    private Criteria buildAddressWithStreetNumberCriteria(String trimmedAddress){
+        String[] tokens = trimmedAddress.split("[,\\s]+");
+        if (tokens.length < 2) {
+            return null;
+        }
+
+        String streetNumberPart = tokens[tokens.length - 1];
+        if (!STREET_NUMBER_PATTERN.matcher(streetNumberPart).matches()) {
+            return null;
+        }
+
+        String streetPart = String.join(" ", Arrays.copyOf(tokens, tokens.length - 1)).trim();
+        if (streetPart.isEmpty()) {
+            return null;
+        }
+
+        Pattern streetPattern = Pattern.compile(Pattern.quote(streetPart), Pattern.CASE_INSENSITIVE);
+        Pattern streetNumberPattern = Pattern.compile(Pattern.quote(streetNumberPart), Pattern.CASE_INSENSITIVE);
+
+        return new Criteria().andOperator(
+                Criteria.where(PointOfSale.Fields.address).regex(streetPattern),
+                Criteria.where(PointOfSale.Fields.streetNumber).regex(streetNumberPattern)
+        );
     }
 
     @Override
