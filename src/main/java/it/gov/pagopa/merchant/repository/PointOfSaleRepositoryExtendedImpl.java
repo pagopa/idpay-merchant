@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryExtended {
 
     // info is stored apart from address; a trailing token with a digit is treated as streetNumber
-    private static final Pattern STREET_NUMBER_PATTERN = Pattern.compile(".*\\d.*");
+    private static final Pattern STREET_NUMBER_PATTERN = Pattern.compile("\\d");
     //max 18 digits so the value always fits a long
     private static final Pattern NUMERIC_STREET_NUMBER_PATTERN = Pattern.compile("\\d{1,18}");
 
@@ -143,7 +143,7 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         }
 
         String streetNumberPart = tokens[tokens.length - 1];
-        if (!STREET_NUMBER_PATTERN.matcher(streetNumberPart).matches()) {
+        if (!STREET_NUMBER_PATTERN.matcher(streetNumberPart).find()) {
             return null;
         }
 
