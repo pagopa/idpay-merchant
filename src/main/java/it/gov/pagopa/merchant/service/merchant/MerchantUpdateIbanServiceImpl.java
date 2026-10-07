@@ -31,7 +31,7 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
   // Holder cannot be blank and must have a bounded length.
   private static final Pattern IBAN_HOLDER_PATTERN = Pattern.compile("^(?=.{3,70}$)\\S(?:.*\\S)?$");
 
-  public static final Pattern EMAIL_PATTERN = Pattern.compile("^(?=.{1,255}$)[A-Za-z0-9][A-Za-z0-9+_.-]*@[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+$");
+  public static final Pattern EMAIL_PATTERN = Pattern.compile("^(?=.{1,255}$)[A-Za-z0-9][A-Za-z0-9+_.-]*+@[A-Za-z0-9-]++(?:\\.[A-Za-z0-9-]++)++$");
 
 
   public MerchantUpdateIbanServiceImpl(MerchantRepository merchantRepository,
