@@ -192,9 +192,10 @@ class PointOfSaleRepositoryExtendedImplTest {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Giulio Petroni 1", null);
 
     List<Object> streetNumberValues = collectValues(criteria.getCriteriaObject(), PointOfSale.Fields.streetNumber);
-    assertThat(streetNumberValues).hasSize(2);
-    assertThat(streetNumberValues).anyMatch(java.util.regex.Pattern.class::isInstance);
-    assertThat(streetNumberValues).contains(1L);
+    assertThat(streetNumberValues)
+        .hasSize(2)
+        .anyMatch(java.util.regex.Pattern.class::isInstance)
+        .contains(1L);
   }
 
   @Test
