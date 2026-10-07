@@ -9,6 +9,7 @@ import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.repository.MerchantRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import static it.gov.pagopa.merchant.utils.Utilities.spaceRemover;
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
 
 @Service
 @Slf4j
@@ -26,10 +28,10 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
 
   // Regex for IBAN format
   private static final Pattern ITALIAN_IBAN_PATTERN = Pattern.compile("^IT\\d{2}[A-Z]\\d{5}\\d{5}[A-Z0-9]{12}$");
-  // Regex for IBAN Holder format: allows letters (including accented), spaces, apostrophes, and hyphens, and a minimum of 3 ch and a maximum of 70 ch
-  private static final Pattern IBAN_HOLDER_PATTERN = Pattern.compile("^.{3,70}$");
+  // Holder cannot be blank and must have a bounded length.
+  private static final Pattern IBAN_HOLDER_PATTERN = Pattern.compile("^(?=.{3,70}$)\\S(?:.*\\S)?$");
 
-  public static final Pattern EMAIL_PATTERN = Pattern.compile("^(?=.{1,255}$)[A-Za-z0-9]([A-Za-z0-9+_-]*(\\.[A-Za-z0-9+_-]+)*)?@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$");
+  public static final Pattern EMAIL_PATTERN = Pattern.compile("^(?=.{1,255}$)[A-Za-z0-9][A-Za-z0-9+_.-]*@[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+$");
 
 
   public MerchantUpdateIbanServiceImpl(MerchantRepository merchantRepository,
@@ -45,7 +47,9 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
             String.format("Merchant with id %s not found.", merchantId)
         ));
 
-    Optional<Initiative> optionalMerchantInitiative = merchant.getInitiativeList().stream()
+    Optional<Initiative> optionalMerchantInitiative = Optional.ofNullable(merchant.getInitiativeList())
+        .orElse(Collections.emptyList())
+        .stream()
         .filter(i -> i.getInitiativeId().equals(initiativeId))
         .findFirst();
 
@@ -82,7 +86,7 @@ public class MerchantUpdateIbanServiceImpl implements MerchantUpdateIbanService 
       }
       merchant.setOperativeEmail(merchantIbanPatchDTO.getOperativeEmail());
     }
-    merchant.setUpdateDate(LocalDateTime.now());
+    merchant.setUpdateDate(LocalDateTime.now(ZONEID));
     merchantRepository.save(merchant);
 
     return merchantDetailService.getMerchantDetail(initiativeId, merchantId);

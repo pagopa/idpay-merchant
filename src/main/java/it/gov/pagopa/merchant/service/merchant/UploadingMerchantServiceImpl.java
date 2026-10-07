@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
+
 @Slf4j
 @Service
 public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<StorageEventDTO>> implements UploadingMerchantService {
@@ -173,7 +175,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
         auditUtilities.logValidationMerchantOK(initiativeId, entityId, file.getName());
         return MerchantUpdateDTO.builder()
                 .status(MerchantConstants.Status.VALIDATED)
-                .elabTimeStamp(LocalDateTime.now()).build();
+                .elabTimeStamp(LocalDateTime.now(ZONEID)).build();
     }
 
 
@@ -203,7 +205,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                         .entityId(organizationId)
                         .organizationUserId(organizationUserId)
                         .status(status)
-                        .uploadDate(LocalDateTime.now())
+                        .uploadDate(LocalDateTime.now(ZONEID))
                         .enabled(true).build();
 
         merchantFileRepository.save(merchantFile);
@@ -282,6 +284,10 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 Merchant merchant = merchantRepository.findByFiscalCodeAndAcquirerId(splitStr[FISCAL_CODE_INDEX], splitStr[ACQUIRER_INDEX])
                         .orElse(createNewMerchant(splitStr));
 
+                if (merchant.getInitiativeList() == null) {
+                    merchant.setInitiativeList(new ArrayList<>());
+                }
+
                 String ibanNew = splitStr[IBAN_INDEX];
                 String ibanOld = merchant.getIban();
                 boolean existsMerchantInitiative = merchant.getInitiativeList().stream().anyMatch(i -> i.getInitiativeId().equals(initiativeId));
@@ -299,7 +305,7 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                     merchant.setIban(splitStr[IBAN_INDEX]);
                     merchant.setEnabled(true);
                 }
-                merchant.setUpdateDate(LocalDateTime.now());
+                merchant.setUpdateDate(LocalDateTime.now(ZONEID));
                 merchantRepository.save(merchant);
                 initializeMerchantStatistics(initiativeId, merchant.getMerchantId());
             });
@@ -355,8 +361,8 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 .endDate(initiativeDTO.getGeneral().getEndDate())
                 .status(initiativeDTO.getStatus())
                 .merchantStatus("UPLOADED")
-                .creationDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now(ZONEID))
+                .updateDate(LocalDateTime.now(ZONEID))
                 .enabled(true).build();
     }
 
@@ -365,14 +371,14 @@ public class UploadingMerchantServiceImpl extends BaseKafkaConsumer<List<Storage
                 .status(MerchantConstants.Status.KO)
                 .errorKey(errorKey)
                 .errorRow(errorRow)
-                .elabTimeStamp(LocalDateTime.now()).build();
+                .elabTimeStamp(LocalDateTime.now(ZONEID)).build();
     }
 
     private void initializeMerchantStatistics(String initiativeId, String merchantId) {
         QueueCommandOperationDTO createMerchantStatistics = QueueCommandOperationDTO.builder()
                 .entityId(initiativeId.concat("_").concat(merchantId))
                 .operationType(MerchantConstants.OPERATION_TYPE_CREATE_MERCHANT_STATISTICS)
-                .operationTime(LocalDateTime.now())
+                .operationTime(LocalDateTime.now(ZONEID))
                 .build();
         if (!commandsProducer.sendCommand(createMerchantStatistics)) {
             log.error("[CREATE_MERCHANT_STATISTICS] - Initiative: {}. Something went wrong while sending the message on Commands Queue", initiativeId);

@@ -29,6 +29,8 @@ public class UpdatePointOfSaleReferentServiceImpl implements UpdatePointOfSaleRe
   @Override
   public PointOfSale updateReferent(String merchantId, String pointOfSaleId,
       PointOfSaleReferentPatchDTO referentPatchDTO) {
+    Objects.requireNonNull(referentPatchDTO, "referentPatchDTO must not be null");
+
     PointOfSale pointOfSale = pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(
         pointOfSaleId, merchantId);
 
@@ -100,7 +102,7 @@ public class UpdatePointOfSaleReferentServiceImpl implements UpdatePointOfSaleRe
   private void validateEmailUniqueness(String pointOfSaleId, String newEmail) {
     pointOfSaleRepository.findByContactEmail(newEmail)
         .filter(existing -> !pointOfSaleId.equals(existing.getId()))
-        .ifPresent(existing -> {
+        .ifPresent(_ -> {
           throw new PointOfSaleDuplicateException(PointOfSaleConstants.MSG_ALREADY_REGISTERED);
         });
   }
