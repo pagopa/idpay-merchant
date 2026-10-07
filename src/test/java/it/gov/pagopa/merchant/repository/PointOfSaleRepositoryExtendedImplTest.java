@@ -188,6 +188,65 @@ class PointOfSaleRepositoryExtendedImplTest {
   }
 
   @Test
+  void getCriteria_withNumericStreetNumber_shouldMatchTextAndNumericStoredValue() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Giulio Petroni 1", null);
+
+    List<Object> streetNumberValues = collectValues(criteria.getCriteriaObject(), PointOfSale.Fields.streetNumber);
+    assertThat(streetNumberValues)
+        .hasSize(2)
+        .anyMatch(java.util.regex.Pattern.class::isInstance)
+        .contains(1L);
+  }
+
+  @Test
+  void getCriteria_withCommaAndSpacesAroundNumericStreetNumber_shouldMatchNumericStoredValue() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "  Via Giulio Petroni, 1 ", null);
+
+    assertThat(collectValues(criteria.getCriteriaObject(), PointOfSale.Fields.streetNumber)).contains(1L);
+  }
+
+  @Test
+  void getCriteria_withLeadingZerosStreetNumber_shouldMatchNumericStoredValue() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Roma 01", null);
+
+    assertThat(collectValues(criteria.getCriteriaObject(), PointOfSale.Fields.streetNumber)).contains(1L);
+  }
+
+  @Test
+  void getCriteria_withAlphanumericStreetNumber_shouldMatchOnlyAsText() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Roma 12/A", null);
+
+    List<Object> streetNumberValues = collectValues(criteria.getCriteriaObject(), PointOfSale.Fields.streetNumber);
+    assertThat(streetNumberValues).hasSize(1);
+    assertThat(streetNumberValues.getFirst()).isInstanceOf(java.util.regex.Pattern.class);
+  }
+
+  @Test
+  void getCriteria_withStreetNumberTooLongForLong_shouldMatchOnlyAsText() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Roma 1234567890123456789", null);
+
+    List<Object> streetNumberValues = collectValues(criteria.getCriteriaObject(), PointOfSale.Fields.streetNumber);
+    assertThat(streetNumberValues).hasSize(1);
+    assertThat(streetNumberValues.getFirst()).isInstanceOf(java.util.regex.Pattern.class);
+  }
+
+  private static List<Object> collectValues(Object node, String key) {
+    List<Object> values = new java.util.ArrayList<>();
+    if (node instanceof java.util.Map<?, ?> map) {
+      map.forEach((k, v) -> {
+        if (key.equals(k)) {
+          values.add(v);
+        } else {
+          values.addAll(collectValues(v, key));
+        }
+      });
+    } else if (node instanceof java.util.Collection<?> collection) {
+      collection.forEach(item -> values.addAll(collectValues(item, key)));
+    }
+    return values;
+  }
+
+  @Test
   void getCriteria_withAddressNullAndContactNameNull() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY",null,null);
     assertEquals(1, criteria.getCriteriaObject().size());
