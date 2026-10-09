@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
+
 @Component
 public class PointOfSaleInitiativeDTOMapper {
 
@@ -15,7 +17,7 @@ public class PointOfSaleInitiativeDTOMapper {
         if(initiative == null){
             return null;
         }
-        String status = initiative.getEndDate() != null && LocalDate.now().isAfter(initiative.getEndDate()) ?
+        String status = initiative.getEndDate() != null && LocalDate.now(ZONEID).isAfter(initiative.getEndDate()) ?
                 MerchantConstants.INITIATIVE_CLOSED : initiative.getStatus();
 
         return PointOfSaleInitiativeDTO.builder()

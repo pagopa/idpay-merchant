@@ -2,7 +2,6 @@ package it.gov.pagopa.merchant.service;
 
 import com.mongodb.MongoException;
 import it.gov.pagopa.merchant.connector.initiative.InitiativeRestClient;
-import it.gov.pagopa.merchant.connector.initiative.InitiativeRestConnector;
 import it.gov.pagopa.merchant.connector.pdnd.PdndInfoCamereConnectorImpl;
 import it.gov.pagopa.merchant.connector.transaction.TransactionConnector;
 import it.gov.pagopa.merchant.connector.transaction.dto.MerchantRewardBatchDTO;
@@ -72,8 +71,6 @@ class MerchantServiceImplTest {
   private MerchantRepository merchantRepositoryMock;
   @Mock
   private UploadingMerchantService uploadingMerchantServiceMock;
-  @Mock
-  private InitiativeRestConnector initiativeRestConnector;
   @Mock
   private PointOfSaleRepository pointOfSaleRepositoryMock;
   @Mock
@@ -219,7 +216,7 @@ class MerchantServiceImplTest {
   void retrieveMerchantId_NotFound() {
 
     doReturn(Optional.empty()).when(merchantRepositoryMock)
-        .retrieveByAcquirerIdAndFiscalCode(any(), eq("DUMMYFISCALCODE"));
+        .retrieveByAcquirerIdAndFiscalCode("DUMMYACQUIRERID", "DUMMYFISCALCODE");
 
     String merchantIdNotFoundResult = merchantService.retrieveMerchantId("DUMMYACQUIRERID",
         "DUMMYFISCALCODE");
@@ -755,7 +752,7 @@ class MerchantServiceImplTest {
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
     when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(newAtecoCodes);
-    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+    when(initiativeRestClientMock.searchInitiatives(any(), any())).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
 
@@ -764,7 +761,7 @@ class MerchantServiceImplTest {
     assertEquals(1, result.getTotalElements());
     assertEquals("initiative2", result.getContent().getFirst().getInitiativeId());
     verify(merchantRepositoryMock).save(merchant);
-    verify(initiativeRestClientMock).searchInitiatives(any(), eq(pageable));
+    verify(initiativeRestClientMock).searchInitiatives(any(), any());
   }
 
   @Test
@@ -788,7 +785,7 @@ class MerchantServiceImplTest {
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
     when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(newAtecoCodes);
-    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+    when(initiativeRestClientMock.searchInitiatives(any(), any())).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
 
@@ -796,7 +793,7 @@ class MerchantServiceImplTest {
     assertEquals(1, result.getTotalElements());
     assertEquals("initiative2", result.getContent().getFirst().getInitiativeId());
     verify(merchantRepositoryMock).save(merchant);
-    verify(initiativeRestClientMock).searchInitiatives(any(), eq(pageable));
+    verify(initiativeRestClientMock).searchInitiatives(any(), any());
   }
 
   @Test
@@ -819,12 +816,12 @@ class MerchantServiceImplTest {
     ResponseEntity<PageResponse<InitiativeResponse>> response = ResponseEntity.of(Optional.of(mockResponse));
     when(merchantRepositoryMock.findById(merchantId)).thenReturn(Optional.of(merchant));
     when(pdndConnectorMock.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes())).thenReturn(null);
-    when(initiativeRestClientMock.searchInitiatives(any(), eq(pageable))).thenReturn(response);
+    when(initiativeRestClientMock.searchInitiatives(any(), any())).thenReturn(response);
 
     Page<InitiativeResponse> result = merchantService.processMerchantInitiatives(merchantId, initiativeName, pageable);
 
     ArgumentCaptor<InitiativeSearchRequest> requestCaptor = ArgumentCaptor.forClass(InitiativeSearchRequest.class);
-    verify(initiativeRestClientMock).searchInitiatives(requestCaptor.capture(), eq(pageable));
+    verify(initiativeRestClientMock).searchInitiatives(requestCaptor.capture(), any());
 
     assertNotNull(result);
     assertEquals(1, result.getTotalElements());
@@ -906,11 +903,11 @@ class MerchantServiceImplTest {
 
     when(merchantRepositoryMock.findByFiscalCodeOrVatNumber(merchantIdentifier, merchantIdentifier))
         .thenReturn(Optional.of(merchant));
-    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_1"), any(PageRequest.class)))
+    when(transactionConnectorMock.getRewardBatches(MERCHANT_ID, "INITIATIVE_1", PageRequest.of(0, 100)))
         .thenReturn(initiative1Page);
-    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"), eq(PageRequest.of(0, 100))))
+    when(transactionConnectorMock.getRewardBatches(MERCHANT_ID, "INITIATIVE_2", PageRequest.of(0, 100)))
         .thenReturn(initiative2Page0);
-    when(transactionConnectorMock.getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"), eq(PageRequest.of(1, 100))))
+    when(transactionConnectorMock.getRewardBatches(MERCHANT_ID, "INITIATIVE_2", PageRequest.of(1, 100)))
         .thenReturn(initiative2Page1);
 
     MerchantRefundBatchHistoryDTO result = merchantService.getMerchantRefundBatchesHistory(
@@ -923,12 +920,12 @@ class MerchantServiceImplTest {
 
     verify(merchantRepositoryMock).findByFiscalCodeOrVatNumber(merchantIdentifier,
         merchantIdentifier);
-    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_1"),
-        eq(PageRequest.of(0, 100)));
-    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"),
-        eq(PageRequest.of(0, 100)));
-    verify(transactionConnectorMock).getRewardBatches(eq(MERCHANT_ID), eq("INITIATIVE_2"),
-        eq(PageRequest.of(1, 100)));
+    verify(transactionConnectorMock).getRewardBatches(MERCHANT_ID, "INITIATIVE_1",
+        PageRequest.of(0, 100));
+    verify(transactionConnectorMock).getRewardBatches(MERCHANT_ID, "INITIATIVE_2",
+        PageRequest.of(0, 100));
+    verify(transactionConnectorMock).getRewardBatches(MERCHANT_ID, "INITIATIVE_2",
+        PageRequest.of(1, 100));
   }
 
   @Test

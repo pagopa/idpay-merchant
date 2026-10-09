@@ -23,6 +23,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 class UpdatePointOfSaleReferentServiceTest {
@@ -132,6 +133,7 @@ class UpdatePointOfSaleReferentServiceTest {
         pointOfSale, "same.email@example.com", false);
   }
 
+  @Test
   void updateReferent_onlyNameProvided_keepsExistingEmailAndSurname() {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setId(POINT_OF_SALE_ID);
@@ -205,6 +207,7 @@ class UpdatePointOfSaleReferentServiceTest {
     verify(keycloakService, never()).updateReferentUserOnKeycloak(any(), any(), anyBoolean());
   }
 
+  @Test
   void updateReferent_blankEmail_throwsBadRequestBeforeSaving() {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     pointOfSale.setId(POINT_OF_SALE_ID);
@@ -270,7 +273,7 @@ class UpdatePointOfSaleReferentServiceTest {
 
     when(pointOfSaleFinderService.getPointOfSaleByIdAndMerchantId(POINT_OF_SALE_ID, MERCHANT_ID))
         .thenReturn(pointOfSale);
-    org.mockito.Mockito.doThrow(new ClientExceptionWithBody(
+    doThrow(new ClientExceptionWithBody(
             org.springframework.http.HttpStatus.BAD_REQUEST,
             "POINT_OF_SALE_INVALID_FORMAT",
             "Email must be a valid email address."))

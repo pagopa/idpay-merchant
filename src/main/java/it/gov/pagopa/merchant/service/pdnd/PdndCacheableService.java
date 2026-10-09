@@ -8,7 +8,6 @@ import it.gov.pagopa.merchant.connector.pdnd.rest.PdndVisuraInfoCamereRawRestCli
 import it.gov.pagopa.merchant.dto.pdnd.*;
 import it.gov.pagopa.merchant.exception.custom.ResourceNotFoundException;
 import it.gov.pagopa.merchant.service.pdnd.token.TokenProviderVisura;
-import it.gov.pagopa.merchant.utils.DataEncryptionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -25,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
 import static it.gov.pagopa.merchant.utils.DataEncryptionUtils.decrypt;
 import static it.gov.pagopa.merchant.utils.DataEncryptionUtils.encrypt;
 
@@ -86,7 +86,7 @@ public class PdndCacheableService {
 
     private void saveVisuraToStorage(String decDocument, String fiscalCode, String encFiscalCode) {
         try (InputStream is = new ByteArrayInputStream(decDocument.getBytes(StandardCharsets.UTF_8))) {
-            azureBlobClient.upload(is, "visura_" + fiscalCode + "_" + LocalDateTime.now() + ".xml", "application/xml");
+            azureBlobClient.upload(is, "visura_" + fiscalCode + "_" + LocalDateTime.now(ZONEID) + ".xml", "application/xml");
         } catch (IOException e) {
             log.error("[PDND] Unable to save visura to storage for taxCode [{}]", encFiscalCode, e);
         }

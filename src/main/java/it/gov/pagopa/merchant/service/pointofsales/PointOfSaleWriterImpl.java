@@ -31,6 +31,7 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -53,10 +54,11 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
   private static final String ERROR_MERCHANT_NOT_ONBOARDED = "Merchant with id %s not onboarded on initiative %s";
   private static final String ERROR_INITIATIVE_ENDED = "Initiative %s ended";
+  private static final Clock CLOCK = Clock.system(ZONEID);
 
   @Override
   public void savePointOfSales(String merchantId, String initiativeId, List<PointOfSaleDTO> dtos) {
-    validateMerchantInitiative(merchantId, initiativeId, LocalDate.now());
+    validateMerchantInitiative(merchantId, initiativeId, LocalDate.now(ZONEID));
 
     List<PointOfSale> entities = dtos.stream()
             .map(dto -> mapper.dtoToEntity(dto, merchantId))
@@ -119,13 +121,10 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
       PointOfSaleDTO dto = dtos.get(i);
       int index = i;
 
-      boolean emailExists = pointOfSaleRepository
-              .findByContactEmail(dto.getContactEmail())
-              .map(e -> {
-                errors.add(emailError(index, dto.getContactEmail()));
-                return true;
-              })
-              .orElse(false);
+      boolean emailExists = pointOfSaleRepository.findByContactEmail(dto.getContactEmail()).isPresent();
+      if (emailExists) {
+        errors.add(emailError(index, dto.getContactEmail()));
+      }
 
       if (emailExists) {
         continue;
@@ -255,7 +254,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
           String merchantId,
           String initiativeId) {
 
-    Instant now = Instant.now();
+    Instant now = Instant.now(CLOCK);
 
     return PointOfSalesInitiative.builder()
             .pointOfSaleId(posId)
@@ -273,7 +272,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
           String merchantId,
           String initiativeId,
           List<String> pointOfSaleIds) {
-    validateMerchantInitiative(merchantId, initiativeId, LocalDate.now());
+    validateMerchantInitiative(merchantId, initiativeId, LocalDate.now(ZONEID));
 
     List<AssociatedPointOfSaleDTO> associated = new ArrayList<>();
     List<NotAssociatedPointOfSaleDTO> notAssociated = new ArrayList<>();
@@ -314,12 +313,13 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
                       merchantId
               );
 
-      if (isAlreadyAssociated(existingAssociationOpt)) {
+      PointOfSalesInitiative existingAssociation = existingAssociationOpt.orElse(null);
+      if (isAlreadyAssociated(existingAssociation)) {
         notAssociated.add(buildAlreadyAssociatedOnboardingEntry(pos));
         return;
       }
 
-      upsertAssociation(existingAssociationOpt, posId, merchantId, initiativeId);
+      upsertAssociation(existingAssociation, posId, merchantId, initiativeId);
       associated.add(buildAssociatedOnboardingEntry(pos));
     } catch (Exception _) {
       notAssociated.add(buildGenericErrorOnboardingEntry(posId));
@@ -383,22 +383,21 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .build();
   }
 
-  private boolean isAlreadyAssociated(Optional<PointOfSalesInitiative> existingAssociationOpt) {
-    return existingAssociationOpt.isPresent() && Boolean.TRUE.equals(existingAssociationOpt.get().getEnabled());
+  private boolean isAlreadyAssociated(PointOfSalesInitiative existingAssociation) {
+    return existingAssociation != null && Boolean.TRUE.equals(existingAssociation.getEnabled());
   }
 
   private void upsertAssociation(
-          Optional<PointOfSalesInitiative> existingAssociationOpt,
+          PointOfSalesInitiative existingAssociation,
           String posId,
           String merchantId,
           String initiativeId) {
 
-    if (existingAssociationOpt.isPresent()) {
-      PointOfSalesInitiative existing = existingAssociationOpt.get();
-      existing.setEnabled(true);
-      existing.setOnboardingDate(Instant.now());
-      existing.setUpdatedAt(Instant.now());
-      pointOfSalesInitiativeRepository.save(existing);
+    if (existingAssociation != null) {
+      existingAssociation.setEnabled(true);
+      existingAssociation.setOnboardingDate(Instant.now(CLOCK));
+      existingAssociation.setUpdatedAt(Instant.now(CLOCK));
+      pointOfSalesInitiativeRepository.save(existingAssociation);
       return;
     }
 
@@ -519,7 +518,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
   private void disableAssociation(PointOfSalesInitiative association) {
     association.setEnabled(false);
-    association.setUpdatedAt(Instant.now());
+    association.setUpdatedAt(Instant.now(CLOCK));
     pointOfSalesInitiativeRepository.save(association);
   }
 
