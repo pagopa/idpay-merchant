@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +57,7 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
                             .formatted(merchantId, initiativeId));
         }
 
-        LocalDateTime onboardingDate = LocalDateTime.now();
+        LocalDateTime onboardingDate = LocalDateTime.now(ZONEID);
 
         if (merchant.getInitiativeList() == null || merchant.getInitiativeList().isEmpty()) {
             merchant.setInitiativeList(new ArrayList<>());
@@ -82,7 +84,7 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
     }
 
     private boolean isAlreadyOnboarded(Merchant merchant, String initiativeId) {
-        return merchant.getInitiativeList().stream()
+        return Optional.ofNullable(merchant.getInitiativeList()).orElse(Collections.emptyList()).stream()
                 .anyMatch(i -> i.getInitiativeId().equals(initiativeId));
     }
 
@@ -93,7 +95,9 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
 
     private boolean isEligible(Merchant merchant, InitiativeDTO initiative) {
 
-        List<String> newAtecoCodes = pdndConnector.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes());
+        List<String> newAtecoCodes = Optional.ofNullable(
+                pdndConnector.retrieveAtecoCodes(merchant.getFiscalCode(), merchant.getAtecoCodes()))
+                .orElse(Collections.emptyList());
 
         Set<String> currentAteco = merchant.getAtecoCodes() == null
                 ? Collections.emptySet()
@@ -101,7 +105,7 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
 
         if (!new HashSet<>(newAtecoCodes).equals(currentAteco)) {
             merchant.setAtecoCodes(newAtecoCodes);
-            merchant.setUpdateDate(LocalDateTime.now());
+            merchant.setUpdateDate(LocalDateTime.now(ZONEID));
             merchantRepository.save(merchant);
         }
         Set<String> initiativeAtecoCodes = new HashSet<>(initiative.getAtecoCodes());
@@ -121,8 +125,8 @@ public class MerchantOnboardingServiceImpl implements MerchantOnboardingService 
                 .endDate(dto.getGeneral().getEndDate())
                 .status(dto.getStatus())
                 .merchantStatus("UPLOADED")
-                .creationDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
+                .creationDate(LocalDateTime.now(ZONEID))
+                .updateDate(LocalDateTime.now(ZONEID))
                 .enabled(true)
                 .build();
     }

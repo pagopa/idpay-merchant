@@ -6,6 +6,7 @@ import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.model.Merchant;
 import it.gov.pagopa.merchant.model.PointOfSale;
 import it.gov.pagopa.merchant.utils.Utilities;
+import java.util.Locale;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,6 +38,9 @@ public class PointOfSaleDTOMapper {
 
     public PointOfSaleDTO entityToDto(PointOfSale pointOfSale, Merchant merchant) {
         PointOfSaleDTO dto = entityToDto(pointOfSale);
+        if (dto == null) {
+            return null;
+        }
 
         if (merchant != null) {
             dto.setBusinessName(merchant.getBusinessName());
@@ -55,7 +59,7 @@ public class PointOfSaleDTOMapper {
                 .id(StringUtils.isEmpty(pointOfSaleDTO.getId()) ? null : pointOfSaleDTO.getId())
                 .type(pointOfSaleDTO.getType().name())
                 .franchiseName(Utilities.normalizeFranchiseName(pointOfSaleDTO.getFranchiseName()))
-                .contactEmail(pointOfSaleDTO.getContactEmail().toLowerCase())
+                .contactEmail(pointOfSaleDTO.getContactEmail() == null ? null : pointOfSaleDTO.getContactEmail().toLowerCase(Locale.ROOT))
                 .website(pointOfSaleDTO.getWebsite())
                 .contactName(pointOfSaleDTO.getContactName())
                 .contactSurname(pointOfSaleDTO.getContactSurname())
