@@ -145,6 +145,49 @@ class PointOfSaleRepositoryExtendedImplTest {
   }
 
   @Test
+  void getCriteria_withSpaceSeparatedStreetNumber_shouldMatchStreetNumberField() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Canosa 1", null);
+
+    String criteriaJson = criteria.getCriteriaObject().toJson();
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains(PointOfSale.Fields.streetNumber));
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("Via Canosa"));
+  }
+
+  @Test
+  void getCriteria_withCommaSeparatedStreetNumber_shouldMatchStreetNumberField() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Canosa, 1", null);
+
+    String criteriaJson = criteria.getCriteriaObject().toJson();
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains(PointOfSale.Fields.streetNumber));
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("Via Canosa"));
+  }
+
+  @Test
+  void getCriteria_withComplexStreetNumber_shouldMatchStreetNumberField() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Roma 12/A", null);
+
+    String criteriaJson = criteria.getCriteriaObject().toJson();
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains(PointOfSale.Fields.streetNumber));
+    org.junit.jupiter.api.Assertions.assertTrue(criteriaJson.contains("12/A"));
+  }
+
+  @Test
+  void getCriteria_withAddressWithoutStreetNumber_shouldNotMatchStreetNumberField() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Canosa", null);
+
+    String criteriaJson = criteria.getCriteriaObject().toJson();
+    org.junit.jupiter.api.Assertions.assertFalse(criteriaJson.contains(PointOfSale.Fields.streetNumber));
+  }
+
+  @Test
+  void getCriteria_withTrailingTokenWithoutDigit_shouldNotMatchStreetNumberField() {
+    Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID", null, null, "Via Roma SNC", null);
+
+    String criteriaJson = criteria.getCriteriaObject().toJson();
+    org.junit.jupiter.api.Assertions.assertFalse(criteriaJson.contains(PointOfSale.Fields.streetNumber));
+  }
+
+  @Test
   void getCriteria_withAddressNullAndContactNameNull() {
     Criteria criteria = repositoryExtended.getCriteria("MERCHANT-ID","TYPE","CITY",null,null);
     assertEquals(1, criteria.getCriteriaObject().size());

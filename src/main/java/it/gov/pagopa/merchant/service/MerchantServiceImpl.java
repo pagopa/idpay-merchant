@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.gov.pagopa.common.utils.CommonConstants.ZONEID;
 import static it.gov.pagopa.merchant.utils.Utilities.sanitizeString;
 
 @Slf4j
@@ -212,7 +213,7 @@ public class MerchantServiceImpl implements MerchantService {
 
     if (!retrievedAtecoCodes.equals(currentAtecoCodes)) {
       merchant.setAtecoCodes(newAtecoCodes);
-      merchant.setUpdateDate(LocalDateTime.now());
+      merchant.setUpdateDate(LocalDateTime.now(ZONEID));
       merchantRepository.save(merchant);
 
       log.info("[AVAILABLE_INITIATIVES] Updated ATECO codes for merchant [{}]",
@@ -257,7 +258,7 @@ public class MerchantServiceImpl implements MerchantService {
   public List<InitiativeDTO> getMerchantInitiativeList(String merchantId) {
     Optional<Merchant> merchant = merchantRepository.findById(merchantId);
 
-    return merchant.map(value -> value.getInitiativeList().stream()
+    return merchant.map(value -> Optional.ofNullable(value.getInitiativeList()).orElse(Collections.emptyList()).stream()
         .filter(i -> MerchantConstants.INITIATIVE_PUBLISHED.equals(i.getStatus()))
         .sorted(Comparator.comparing(Initiative::getInitiativeName))
         .map(initiative2InitiativeDTOMapper::apply).toList()).orElse(Collections.emptyList());
@@ -295,7 +296,7 @@ public class MerchantServiceImpl implements MerchantService {
     deleteKeycloakUsers(pointsOfSale);
     pointOfSaleRepository.deleteByMerchantId(merchantId);
     merchant.setEnabled(false);
-    merchant.setUpdateDate(LocalDateTime.now());
+    merchant.setUpdateDate(LocalDateTime.now(ZONEID));
     merchantRepository.save(merchant);
 
     log.info("[MERCHANT-WITHDRAWAL] Disabled merchant {} for initiative {} and removed points of sale", sanitizeString(merchantId), sanitizeString(initiativeId));
@@ -317,7 +318,7 @@ public class MerchantServiceImpl implements MerchantService {
       updateMerchant(existingMerchant, merchantCreateDTO);
 
       // Save updated entity
-      existingMerchant.setLastLogin(LocalDateTime.now());
+      existingMerchant.setLastLogin(LocalDateTime.now(ZONEID));
       merchantRepository.save(existingMerchant);
       log.info("[UPDATE_MERCHANT] Merchant with merchantId={} successfully updated", existingMerchant.getMerchantId());
       return existingMerchant.getMerchantId();
@@ -347,9 +348,10 @@ public class MerchantServiceImpl implements MerchantService {
   private List<MerchantRefundBatchDTO> getAllRewardBatchesForInitiative(String merchantId,
       String initiativeId) {
     int page = 0;
+    boolean hasNext = true;
     List<MerchantRefundBatchDTO> result = new ArrayList<>();
 
-    while (true) {
+    while (hasNext) {
       MerchantRewardBatchListDTO response = transactionConnector.getRewardBatches(
           merchantId,
           initiativeId,
@@ -357,28 +359,25 @@ public class MerchantServiceImpl implements MerchantService {
       );
 
       if (response == null || response.getContent() == null || response.getContent().isEmpty()) {
-        break;
-      }
-
-      response.getContent().forEach(batch -> result.add(MerchantRefundBatchDTO.builder()
-          .rewardBatchId(batch.getId())
-          .initiativeId(batch.getInitiativeId())
-          .month(batch.getMonth())
-          .status(batch.getStatus())
-          .approvedAmountCents(batch.getApprovedAmountCents())
-          .suspendedAmountCents(batch.getSuspendedAmountCents())
-          .initialAmountCents(batch.getInitialAmountCents())
-          .currentAmountCents(batch.getCurrentAmountCents())
-          .excludedAmountCents(batch.getExcludedAmountCents())
-          .numberOfTransactions(batch.getNumberOfTransactions())
-          .numberOfTransactionsSuspended(batch.getNumberOfTransactionsSuspended())
-          .numberOfTransactionsRejected(batch.getNumberOfTransactionsRejected())
-          .numberOfTransactionsElaborated(batch.getNumberOfTransactionsElaborated())
-          .build()));
-
-      page++;
-      if (page >= response.getTotalPages()) {
-        break;
+        hasNext = false;
+      } else {
+        response.getContent().forEach(batch -> result.add(MerchantRefundBatchDTO.builder()
+            .rewardBatchId(batch.getId())
+            .initiativeId(batch.getInitiativeId())
+            .month(batch.getMonth())
+            .status(batch.getStatus())
+            .approvedAmountCents(batch.getApprovedAmountCents())
+            .suspendedAmountCents(batch.getSuspendedAmountCents())
+            .initialAmountCents(batch.getInitialAmountCents())
+            .currentAmountCents(batch.getCurrentAmountCents())
+            .excludedAmountCents(batch.getExcludedAmountCents())
+            .numberOfTransactions(batch.getNumberOfTransactions())
+            .numberOfTransactionsSuspended(batch.getNumberOfTransactionsSuspended())
+            .numberOfTransactionsRejected(batch.getNumberOfTransactionsRejected())
+            .numberOfTransactionsElaborated(batch.getNumberOfTransactionsElaborated())
+            .build()));
+        page++;
+        hasNext = page < response.getTotalPages();
       }
     }
 
@@ -390,18 +389,16 @@ public class MerchantServiceImpl implements MerchantService {
 
     for (PointOfSale pos : pointsOfSale) {
       String email = pos.getContactEmail();
-      if (email == null || email.isEmpty()) {
-        continue;
-      }
-
-      List<UserRepresentation> users = usersResource.searchByEmail(email, true);
-      for (UserRepresentation user : users) {
-        try {
-          usersResource.get(user.getId()).logout();
-          usersResource.get(user.getId()).remove();
-          log.info("[KEYCLOAK] Deleted user for email {}", email);
-        } catch (Exception ex) {
-          log.error("[KEYCLOAK] Failed to delete user for email {}: {}", email, ex.getMessage(), ex);
+      if (email != null && !email.isEmpty()) {
+        List<UserRepresentation> users = usersResource.searchByEmail(email, true);
+        for (UserRepresentation user : users) {
+          try {
+            usersResource.get(user.getId()).logout();
+            usersResource.get(user.getId()).remove();
+            log.info("[KEYCLOAK] Deleted user for email {}", email);
+          } catch (Exception ex) {
+            log.error("[KEYCLOAK] Failed to delete user for email {}: {}", email, ex.getMessage(), ex);
+          }
         }
       }
     }
@@ -432,7 +429,7 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     if (updated) {
-      existingMerchant.setUpdateDate(LocalDateTime.now());
+      existingMerchant.setUpdateDate(LocalDateTime.now(ZONEID));
     }
   }
 
@@ -443,9 +440,9 @@ public class MerchantServiceImpl implements MerchantService {
     Merchant merchant = merchantCreateDTOMapper.dtoToEntity(merchantCreateDTO, merchantId);
     merchant.setInitiativeList(initiatives);
     merchant.setEnabled(true);
-    merchant.setLastLogin(LocalDateTime.now());
-    merchant.setUpdateDate(LocalDateTime.now());
-    merchant.setCreatedAt(LocalDateTime.now());
+    merchant.setLastLogin(LocalDateTime.now(ZONEID));
+    merchant.setUpdateDate(LocalDateTime.now(ZONEID));
+    merchant.setCreatedAt(LocalDateTime.now(ZONEID));
     merchantRepository.save(merchant);
     return merchantId;
   }
