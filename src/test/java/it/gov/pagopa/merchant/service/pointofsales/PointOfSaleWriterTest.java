@@ -10,8 +10,11 @@ import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingExclusionRejectionReason;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleUpdateDTO;
 import it.gov.pagopa.merchant.exception.custom.InitiativeNotValidException;
 import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleDuplicateException;
+import it.gov.pagopa.merchant.exception.custom.PointOfSaleNotFoundException;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
@@ -24,6 +27,7 @@ import it.gov.pagopa.merchant.service.KeycloakService;
 import it.gov.pagopa.merchant.service.MerchantService;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleDTOFaker;
 import it.gov.pagopa.merchant.test.fakers.PointOfSaleFaker;
+import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +63,8 @@ class PointOfSaleWriterTest {
     @Mock
     TransactionConnector transactionConnector;
     @Mock
+    PointOfSaleValidator pointOfSaleValidator;
+    @Mock
     PaymentConnector paymentConnector;
 
     PointOfSaleWriterImpl service;
@@ -75,6 +81,7 @@ class PointOfSaleWriterTest {
                 mapper,
                 initiativeRepository,
                 transactionConnector,
+                pointOfSaleValidator,
                 paymentConnector
         );
     }
@@ -372,6 +379,184 @@ class PointOfSaleWriterTest {
                 () -> service.savePointOfSales(M, I, list));
 
         verify(repository).deleteById("P1");
+    }
+
+    @Test
+    void updatePointOfSale_physical_shouldValidateNormalizeSaveAndReturnDto() {
+        String pointOfSaleId = "P1";
+        PointOfSale existing = PointOfSale.builder()
+                .id(pointOfSaleId)
+                .merchantId(M)
+                .type(PointOfSaleTypeEnum.PHYSICAL.name())
+                .franchiseName("SHOP")
+                .build();
+        PointOfSaleUpdateDTO request = physicalUpdateRequest();
+        PointOfSaleDTO mapped = mappedUpdatedDto(
+                PointOfSaleTypeEnum.PHYSICAL,
+                "https://shop.example.com",
+                "https://maps.example.com/shop");
+
+        when(repository.findByIdAndMerchantId(pointOfSaleId, M))
+                .thenReturn(Optional.of(existing));
+        when(mapper.entityToDto(existing)).thenReturn(mapped);
+        when(repository.findDuplicateExcludingId(existing, pointOfSaleId))
+                .thenReturn(Optional.empty());
+        when(repository.save(existing)).thenReturn(existing);
+
+        PointOfSaleDTO result = service.updatePointOfSale(M, pointOfSaleId, request);
+
+        assertSame(mapped, result);
+        assertEquals(request.getRegion(), existing.getRegion());
+        assertEquals(request.getProvince(), existing.getProvince());
+        assertEquals(request.getCity(), existing.getCity());
+        assertEquals(request.getZipCode(), existing.getZipCode());
+        assertEquals(request.getAddress(), existing.getAddress());
+        assertEquals(request.getStreetNumber(), existing.getStreetNumber());
+        assertEquals(request.getChannelEmail(), existing.getChannelEmail());
+        assertEquals(request.getChannelPhone(), existing.getChannelPhone());
+        assertEquals(mapped.getWebsite(), existing.getWebsite());
+        assertEquals(mapped.getChannelGeolink(), existing.getChannelGeolink());
+        verify(pointOfSaleValidator).validateViolationsPointOfSales(List.of(mapped));
+        verify(repository).findDuplicateExcludingId(existing, pointOfSaleId);
+        verify(repository).save(existing);
+        verify(mapper, times(2)).entityToDto(existing);
+    }
+
+    @Test
+    void updatePointOfSale_online_shouldNotChangePhysicalFields() {
+        String pointOfSaleId = "P1";
+        PointOfSale existing = PointOfSale.builder()
+                .id(pointOfSaleId)
+                .merchantId(M)
+                .type(PointOfSaleTypeEnum.ONLINE.name())
+                .franchiseName("SHOP")
+                .region("OLD_REGION")
+                .address("OLD_ADDRESS")
+                .build();
+        PointOfSaleUpdateDTO request = physicalUpdateRequest();
+        PointOfSaleDTO mapped = mappedUpdatedDto(
+                PointOfSaleTypeEnum.ONLINE,
+                "https://shop.example.com",
+                "https://maps.example.com/shop");
+
+        when(repository.findByIdAndMerchantId(pointOfSaleId, M))
+                .thenReturn(Optional.of(existing));
+        when(mapper.entityToDto(existing)).thenReturn(mapped);
+        when(repository.findDuplicateExcludingId(existing, pointOfSaleId))
+                .thenReturn(Optional.empty());
+        when(repository.save(existing)).thenReturn(existing);
+
+        PointOfSaleDTO result = service.updatePointOfSale(M, pointOfSaleId, request);
+
+        assertSame(mapped, result);
+        assertEquals("OLD_REGION", existing.getRegion());
+        assertEquals("OLD_ADDRESS", existing.getAddress());
+        assertEquals(request.getChannelEmail(), existing.getChannelEmail());
+        assertEquals(request.getChannelPhone(), existing.getChannelPhone());
+        verify(repository).save(existing);
+    }
+
+    @Test
+    void updatePointOfSale_shouldThrowWhenPointOfSaleDoesNotExist() {
+        when(repository.findByIdAndMerchantId("MISSING", M)).thenReturn(Optional.empty());
+
+        PointOfSaleNotFoundException exception = assertThrows(
+                PointOfSaleNotFoundException.class,
+                () -> service.updatePointOfSale(M, "MISSING", physicalUpdateRequest()));
+
+        assertEquals("Point of sale with id MISSING not found.", exception.getMessage());
+        verify(repository, never()).save(any());
+        verifyNoInteractions(mapper, pointOfSaleValidator);
+    }
+
+    @Test
+    void updatePointOfSale_shouldThrowWhenAnotherPointOfSaleIsDuplicate() {
+        String pointOfSaleId = "P1";
+        PointOfSale existing = PointOfSale.builder()
+                .id(pointOfSaleId)
+                .merchantId(M)
+                .type(PointOfSaleTypeEnum.PHYSICAL.name())
+                .franchiseName("SHOP")
+                .build();
+        PointOfSaleDTO mapped = mappedUpdatedDto(
+                PointOfSaleTypeEnum.PHYSICAL,
+                "https://shop.example.com",
+                "https://maps.example.com/shop");
+
+        when(repository.findByIdAndMerchantId(pointOfSaleId, M))
+                .thenReturn(Optional.of(existing));
+        when(mapper.entityToDto(existing)).thenReturn(mapped);
+        when(repository.findDuplicateExcludingId(existing, pointOfSaleId))
+                .thenReturn(Optional.of(PointOfSale.builder().id("P2").build()));
+
+        assertThrows(PointOfSaleDuplicateException.class,
+                () -> service.updatePointOfSale(M, pointOfSaleId, physicalUpdateRequest()));
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void updatePointOfSale_shouldTranslateDuplicateKeyException() {
+        String pointOfSaleId = "P1";
+        PointOfSale existing = PointOfSale.builder()
+                .id(pointOfSaleId)
+                .merchantId(M)
+                .type(PointOfSaleTypeEnum.PHYSICAL.name())
+                .franchiseName("SHOP")
+                .build();
+        PointOfSaleDTO mapped = mappedUpdatedDto(
+                PointOfSaleTypeEnum.PHYSICAL,
+                "https://shop.example.com",
+                "https://maps.example.com/shop");
+
+        when(repository.findByIdAndMerchantId(pointOfSaleId, M))
+                .thenReturn(Optional.of(existing));
+        when(mapper.entityToDto(existing)).thenReturn(mapped);
+        when(repository.findDuplicateExcludingId(existing, pointOfSaleId))
+                .thenReturn(Optional.empty());
+        when(repository.save(existing)).thenThrow(new DuplicateKeyException("duplicate"));
+
+        assertThrows(PointOfSaleDuplicateException.class,
+                () -> service.updatePointOfSale(M, pointOfSaleId, physicalUpdateRequest()));
+    }
+
+    private PointOfSaleUpdateDTO physicalUpdateRequest() {
+        return PointOfSaleUpdateDTO.builder()
+                .region("Lombardia")
+                .province("MI")
+                .city("Milano")
+                .zipCode("20121")
+                .address("Via Roma")
+                .streetNumber("10")
+                .website("  HTTPS://SHOP.EXAMPLE.COM  ")
+                .channelEmail("store@example.com")
+                .channelPhone("+39021234567")
+                .channelGeolink("  HTTPS://MAPS.EXAMPLE.COM/SHOP  ")
+                .build();
+    }
+
+    private PointOfSaleDTO mappedUpdatedDto(
+            PointOfSaleTypeEnum type,
+            String website,
+            String channelGeolink) {
+        return PointOfSaleDTO.builder()
+                .id("P1")
+                .type(type)
+                .franchiseName("SHOP")
+                .contactEmail("owner@example.com")
+                .contactName("Mario")
+                .contactSurname("Rossi")
+                .region("Lombardia")
+                .province("MI")
+                .city("Milano")
+                .zipCode("20121")
+                .address("Via Roma")
+                .streetNumber("10")
+                .website(website)
+                .channelEmail("store@example.com")
+                .channelPhone("+39021234567")
+                .channelGeolink(channelGeolink)
+                .build();
     }
 
     private Merchant buildMerchant(boolean validInitiative, boolean expired) {
