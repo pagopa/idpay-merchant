@@ -458,11 +458,12 @@ class PointOfSaleWriterTest {
 
     @Test
     void updatePointOfSale_shouldThrowWhenPointOfSaleDoesNotExist() {
+        PointOfSaleUpdateDTO request = physicalUpdateRequest();
         when(repository.findByIdAndMerchantId("MISSING", M)).thenReturn(Optional.empty());
 
         PointOfSaleNotFoundException exception = assertThrows(
                 PointOfSaleNotFoundException.class,
-                () -> service.updatePointOfSale(M, "MISSING", physicalUpdateRequest()));
+                () -> service.updatePointOfSale(M, "MISSING", request));
 
         assertEquals("Point of sale with id MISSING not found.", exception.getMessage());
         verify(repository, never()).save(any());
@@ -482,6 +483,7 @@ class PointOfSaleWriterTest {
                 PointOfSaleTypeEnum.PHYSICAL,
                 "https://shop.example.com",
                 "https://maps.example.com/shop");
+        PointOfSaleUpdateDTO request = physicalUpdateRequest();
 
         when(repository.findByIdAndMerchantId(pointOfSaleId, M))
                 .thenReturn(Optional.of(existing));
@@ -490,7 +492,7 @@ class PointOfSaleWriterTest {
                 .thenReturn(Optional.of(PointOfSale.builder().id("P2").build()));
 
         assertThrows(PointOfSaleDuplicateException.class,
-                () -> service.updatePointOfSale(M, pointOfSaleId, physicalUpdateRequest()));
+                () -> service.updatePointOfSale(M, pointOfSaleId, request));
 
         verify(repository, never()).save(any());
     }
@@ -508,6 +510,7 @@ class PointOfSaleWriterTest {
                 PointOfSaleTypeEnum.PHYSICAL,
                 "https://shop.example.com",
                 "https://maps.example.com/shop");
+        PointOfSaleUpdateDTO request = physicalUpdateRequest();
 
         when(repository.findByIdAndMerchantId(pointOfSaleId, M))
                 .thenReturn(Optional.of(existing));
@@ -517,7 +520,7 @@ class PointOfSaleWriterTest {
         when(repository.save(existing)).thenThrow(new DuplicateKeyException("duplicate"));
 
         assertThrows(PointOfSaleDuplicateException.class,
-                () -> service.updatePointOfSale(M, pointOfSaleId, physicalUpdateRequest()));
+                () -> service.updatePointOfSale(M, pointOfSaleId, request));
     }
 
     private PointOfSaleUpdateDTO physicalUpdateRequest() {

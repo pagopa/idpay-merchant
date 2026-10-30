@@ -452,7 +452,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
 
         try {
             savedPointOfSale = pointOfSaleRepository.save(existingPointOfSale);
-        } catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException _) {
             throw new PointOfSaleDuplicateException(
                     PointOfSaleConstants.MSG_ALREADY_REGISTERED
             );
