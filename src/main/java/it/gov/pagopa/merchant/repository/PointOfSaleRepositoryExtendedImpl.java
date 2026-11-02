@@ -161,7 +161,18 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
 
     @Override
     public Optional<PointOfSale> findDuplicate(PointOfSale pointOfSale) {
+        return findDuplicate(pointOfSale, null);
+    }
 
+    @Override
+    public Optional<PointOfSale> findDuplicateExcludingId(PointOfSale pointOfSale, String excludedPointOfSaleId) {
+        return findDuplicate(pointOfSale, excludedPointOfSaleId);
+    }
+
+    private Optional<PointOfSale> findDuplicate(
+            PointOfSale pointOfSale,
+            String excludedPointOfSaleId
+    ) {
         Criteria criteria = Criteria.where(PointOfSale.Fields.franchiseName).is(pointOfSale.getFranchiseName())
                 .and(PointOfSale.Fields.type).is(pointOfSale.getType());
 
@@ -171,6 +182,9 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
             criteria.and(PointOfSale.Fields.address).is(pointOfSale.getAddress())
                     .and(PointOfSale.Fields.streetNumber).is(pointOfSale.getStreetNumber())
                     .and(PointOfSale.Fields.city).is(pointOfSale.getCity());
+        }
+        if (StringUtils.isNotBlank(excludedPointOfSaleId)) {
+            criteria.and("_id").ne(excludedPointOfSaleId);
         }
 
         return Optional.ofNullable(

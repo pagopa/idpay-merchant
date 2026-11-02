@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.service.pointofsales;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleExclusionResultDTO;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleOnboardingResultDTO;
+import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleUpdateDTO;
 
 import java.util.List;
 
@@ -19,5 +20,11 @@ public interface PointOfSaleWriter {
             String merchantId,
             String initiativeId,
             List<String> pointOfSaleIds);
+
+    PointOfSaleDTO updatePointOfSale(
+            String merchantId,
+            String pointOfSaleId,
+            PointOfSaleUpdateDTO pointOfSaleUpdateDTO
+    );
 
 }
