@@ -262,4 +262,24 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
     return ResponseEntity.ok(result);
   }
 
+    @Override
+    public ResponseEntity<PointOfSaleDTO> updatePointOfSale(String merchantId, String pointOfSaleId, String tokenMerchantId, PointOfSaleUpdateDTO pointOfSaleUpdateDTO) {
+        String sanitizedMerchantId =  sanitizeString(merchantId);
+        String sanitizedPointOfSaleId = sanitizeString(pointOfSaleId);
+
+        validateMerchantAccess(tokenMerchantId, sanitizedMerchantId);
+
+        log.info(
+                "[POINT-OF-SALE][UPDATE] Updating pointOfSaleId= {} for merchantId= {}",
+                sanitizedPointOfSaleId, sanitizedMerchantId
+        );
+
+        PointOfSaleDTO updatedPointOfSale = pointOfSaleWriter.updatePointOfSale(
+                sanitizedMerchantId,
+                sanitizedPointOfSaleId,
+                pointOfSaleUpdateDTO
+        );
+        return ResponseEntity.ok(updatedPointOfSale);
+    }
+
 }

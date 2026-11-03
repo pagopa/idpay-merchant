@@ -343,6 +343,31 @@ class PointOfSaleRepositoryExtendedImplTest {
     assertEquals("PHYSICAL", q.get(PointOfSale.Fields.type));
   }
 
+  @Test
+  void findDuplicateExcludingId_shouldExcludeCurrentPointOfSale() {
+    PointOfSale pos = PointOfSale.builder()
+            .id("CURRENT-POS")
+            .merchantId("MERCHANT-ID")
+            .franchiseName("FRANCHISE-NAME")
+            .type("PHYSICAL")
+            .address("Via Roma")
+            .streetNumber("1")
+            .city("Milan")
+            .build();
+
+    when(mongoTemplate.findOne(any(Query.class), eq(PointOfSale.class)))
+            .thenReturn(null);
+
+    Optional<PointOfSale> result = repositoryExtended.findDuplicateExcludingId(
+            pos, "CURRENT-POS");
+
+    assertThat(result).isEmpty();
+    Query query = captureQuery().getValue();
+    Document idCriteria = query.getQueryObject().get("_id", Document.class);
+    assertNotNull(idCriteria);
+    assertEquals("CURRENT-POS", idCriteria.get("$ne"));
+  }
+
   private ArgumentCaptor<Query> captureQuery() {
     ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
     verify(mongoTemplate).findOne(captor.capture(), eq(PointOfSale.class));
