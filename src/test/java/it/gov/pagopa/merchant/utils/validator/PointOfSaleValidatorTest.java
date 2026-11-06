@@ -1,5 +1,6 @@
 package it.gov.pagopa.merchant.utils.validator;
 
+import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
@@ -11,6 +12,8 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +113,96 @@ class PointOfSaleValidatorTest {
         assertNull(pointOfSaleOnline.getChannelGeolink());
     }
 
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "https://www.example",
+            "https://www.example/",
+            "https://www.example/path",
+            "https://WWW.example",
+            "https://Www.Example/path",
+            "  https://www.example  ",
+            "https://www.it"
+    })
+    void validateViolationsPointOfSales_websiteWwwWithoutTopLevelDomain_ko(String website) {
+        PointOfSaleDTO pointOfSale = buildValidOnlinePointOfSale();
+        pointOfSale.setWebsite(website);
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSale);
+
+        PosValidationException exception = assertThrows(PosValidationException.class,
+                () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+
+        assertSingleInvalidUrlError(exception, "website");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "https://www.example.it",
+            "https://www.example.it/negozio",
+            "https://www.example-shop.com",
+            "https://WWW.EXAMPLE.IT/path",
+            "https://www.shop.example.co.uk/home",
+            "https://wwwexample.com",
+            "https://www2.example.it",
+            "https://example.it",
+            "https://shop.example.it/www.example"
+    })
+    void validateViolationsPointOfSales_websiteValid_ok(String website) {
+        PointOfSaleDTO pointOfSale = buildValidOnlinePointOfSale();
+        pointOfSale.setWebsite(website);
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSale);
+
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "https://www.example",
+            "https://WWW.example/location"
+    })
+    void validateViolationsPointOfSales_channelGeolinkWwwWithoutTopLevelDomain_ko(String channelGeolink) {
+        PointOfSaleDTO pointOfSale = buildValidOnlinePointOfSale();
+        pointOfSale.setChannelGeolink(channelGeolink);
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSale);
+
+        PosValidationException exception = assertThrows(PosValidationException.class,
+                () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+
+        assertSingleInvalidUrlError(exception, "channelGeolink");
+    }
+
+    @Test
+    void validateViolationsPointOfSales_channelGeolinkWithWwwAndTopLevelDomain_ok() {
+        PointOfSaleDTO pointOfSale = buildValidOnlinePointOfSale();
+        pointOfSale.setChannelGeolink("https://www.google.com/maps/place/Roma");
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSale);
+
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
+
+    private static PointOfSaleDTO buildValidOnlinePointOfSale() {
+        PointOfSaleDTO pointOfSale = PointOfSaleDTOFaker.mockInstance();
+        pointOfSale.setType(PointOfSaleTypeEnum.ONLINE);
+        pointOfSale.setContactEmail("email@email.it");
+        pointOfSale.setChannelEmail("channel@email.it");
+        pointOfSale.setWebsite("https://www.example.it");
+        pointOfSale.setChannelGeolink("https://maps.google.com/location");
+        return pointOfSale;
+    }
+
+    private static void assertSingleInvalidUrlError(PosValidationException exception, String expectedField) {
+        List<ValidationErrorDetail> errors = exception.getErrors();
+        assertEquals(1, errors.size(), () -> "Unexpected validation errors: " + errors);
+        ValidationErrorDetail error = errors.getFirst();
+        assertEquals(expectedField, error.getField());
+        assertEquals(PointOfSaleConstants.CODE_INVALID_URL, error.getCode());
+        assertEquals(PointOfSaleConstants.MSG_INVALID_WEBSITE, error.getMessage());
+        assertEquals(0, error.getIndex());
+    }
 
     @Test
     void validateViolationsPointOfSales_validationFailForPointOfSales(){
