@@ -59,6 +59,7 @@ public class PointOfSaleControllerImpl implements PointOfSaleController {
   public ResponseEntity<Void> savePointOfSales(String merchantId, String initiativeId, String tokenMerchantId, List<PointOfSaleDTO> pointOfSales) {
 
     pointOfSaleValidator.validatePointOfSales(pointOfSales);
+    pointOfSaleValidator.discardPhysicalOnlyChannelsForOnline(pointOfSales);
     pointOfSaleValidator.validateViolationsPointOfSales(pointOfSales);
 
     String sanitizedMerchantId = sanitizeString(merchantId);
