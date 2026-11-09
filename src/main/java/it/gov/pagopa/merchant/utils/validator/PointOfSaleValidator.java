@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.utils.validator;
 import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.utils.Utilities;
@@ -54,6 +55,20 @@ public class PointOfSaleValidator {
         }
         log.debug("[POS-VALIDATION] Received {} PointOfSale entries to validate", pointOfSaleDTOS.size());
 
+    }
+
+    /**
+     * Creation flow only: channel fields are physical-only and are not persisted for ONLINE
+     * points of sale (see PointOfSaleDTOMapper#dtoToEntity), so stale values must not block creation.
+     */
+    public void discardPhysicalOnlyChannelsForOnline(List<PointOfSaleDTO> pointOfSaleDTOS) {
+        pointOfSaleDTOS.stream()
+                .filter(dto -> dto.getType() == PointOfSaleTypeEnum.ONLINE)
+                .forEach(dto -> {
+                    dto.setChannelEmail(null);
+                    dto.setChannelPhone(null);
+                    dto.setChannelGeolink(null);
+                });
     }
 
     public void validateViolationsPointOfSales(List<PointOfSaleDTO> pointOfSaleDTOS) {
