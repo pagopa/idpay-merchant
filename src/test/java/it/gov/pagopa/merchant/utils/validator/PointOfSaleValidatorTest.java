@@ -113,6 +113,61 @@ class PointOfSaleValidatorTest {
         assertNull(pointOfSaleOnline.getChannelGeolink());
     }
 
+    @Test
+    void discardPhysicalOnlyChannelsForOnline_onlineWithStaleChannels_thenValidationOk() {
+        PointOfSaleDTO pointOfSaleOnline = PointOfSaleDTOFaker.mockInstance();
+        pointOfSaleOnline.setType(PointOfSaleTypeEnum.ONLINE);
+        pointOfSaleOnline.setContactEmail("email@email.it");
+        pointOfSaleOnline.setWebsite("https://www.google.it");
+        pointOfSaleOnline.setChannelGeolink("https://a");
+        pointOfSaleOnline.setChannelEmail("not-an-email");
+        pointOfSaleOnline.setChannelPhone("abc");
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSaleOnline);
+
+        pointOfSaleValidator.discardPhysicalOnlyChannelsForOnline(pointOfSaleDTOS);
+
+        assertNull(pointOfSaleOnline.getChannelGeolink());
+        assertNull(pointOfSaleOnline.getChannelEmail());
+        assertNull(pointOfSaleOnline.getChannelPhone());
+        assertEquals("https://www.google.it", pointOfSaleOnline.getWebsite());
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
+
+    @Test
+    void discardPhysicalOnlyChannelsForOnline_physical_keepsChannelsAndValidationStillFails() {
+        PointOfSaleDTO pointOfSalePhysical = PointOfSaleDTOFaker.mockInstance();
+        pointOfSalePhysical.setType(PointOfSaleTypeEnum.PHYSICAL);
+        pointOfSalePhysical.setContactEmail("email@email.it");
+        pointOfSalePhysical.setWebsite("https://www.example.it");
+        pointOfSalePhysical.setChannelEmail("channel@email.it");
+        pointOfSalePhysical.setChannelPhone("3333333333");
+        pointOfSalePhysical.setChannelGeolink("https://a");
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSalePhysical);
+
+        pointOfSaleValidator.discardPhysicalOnlyChannelsForOnline(pointOfSaleDTOS);
+
+        assertEquals("https://a", pointOfSalePhysical.getChannelGeolink());
+        assertEquals("channel@email.it", pointOfSalePhysical.getChannelEmail());
+        assertEquals("3333333333", pointOfSalePhysical.getChannelPhone());
+
+        PosValidationException exception = assertThrows(PosValidationException.class,
+                () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+        assertSingleInvalidUrlError(exception, "channelGeolink");
+    }
+
+    @Test
+    void validateViolationsPointOfSales_onlineWithInvalidChannelGeolink_stillValidated() {
+        PointOfSaleDTO pointOfSaleOnline = buildValidOnlinePointOfSale();
+        pointOfSaleOnline.setChannelGeolink("https://a");
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSaleOnline);
+
+        PosValidationException exception = assertThrows(PosValidationException.class,
+                () -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+        assertSingleInvalidUrlError(exception, "channelGeolink");
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {

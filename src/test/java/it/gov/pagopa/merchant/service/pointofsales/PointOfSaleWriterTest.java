@@ -454,6 +454,9 @@ class PointOfSaleWriterTest {
         assertEquals(request.getChannelEmail(), existing.getChannelEmail());
         assertEquals(request.getChannelPhone(), existing.getChannelPhone());
         verify(repository).save(existing);
+        // Update flow must keep validating channels for ONLINE POS (no creation-only cleanup).
+        verify(pointOfSaleValidator).validateViolationsPointOfSales(List.of(mapped));
+        verify(pointOfSaleValidator, never()).discardPhysicalOnlyChannelsForOnline(anyList());
     }
 
     @Test

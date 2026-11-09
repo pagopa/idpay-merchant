@@ -119,6 +119,23 @@ class PointOfSaleControllerImplTest {
   }
 
   @Test
+  void savePointOfSales_discardsPhysicalOnlyChannelsBeforeValidation() throws Exception {
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.post(BASE_URL + "/" + MERCHANT_ID + "/initiatives/" +  INITIATIVE_ID + "/point-of-sales")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(List.of(pointOfSaleDTO))))
+        .andExpect(status().isNoContent());
+
+    org.mockito.InOrder inOrder = org.mockito.Mockito.inOrder(validator, pointOfSaleWriterMock);
+    inOrder.verify(validator).validatePointOfSales(anyList());
+    inOrder.verify(validator).discardPhysicalOnlyChannelsForOnline(anyList());
+    inOrder.verify(validator).validateViolationsPointOfSales(anyList());
+    inOrder.verify(pointOfSaleWriterMock).savePointOfSales(anyString(), anyString(), anyList());
+  }
+
+  @Test
   void getPointOfSalesListOK() throws Exception {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     PageRequest pageRequest = PageRequest.of(0, 10);
