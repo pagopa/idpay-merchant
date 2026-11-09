@@ -456,8 +456,7 @@ class PointOfSaleWriterTest {
         verify(repository).save(existing);
         // Update flow must keep validating channels for ONLINE POS (no creation-only cleanup).
         verify(pointOfSaleValidator).validateViolationsPointOfSales(List.of(mapped));
-        verify(pointOfSaleValidator, org.mockito.Mockito.never())
-                .discardPhysicalOnlyChannelsForOnline(org.mockito.ArgumentMatchers.anyList());
+        verify(pointOfSaleValidator, never()).discardPhysicalOnlyChannelsForOnline(anyList());
     }
 
     @Test
