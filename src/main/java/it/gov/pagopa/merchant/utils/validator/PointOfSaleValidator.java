@@ -3,6 +3,7 @@ package it.gov.pagopa.merchant.utils.validator;
 import it.gov.pagopa.common.web.dto.ValidationErrorDetail;
 import it.gov.pagopa.common.web.exception.ClientExceptionWithBody;
 import it.gov.pagopa.merchant.constants.PointOfSaleConstants;
+import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.pointofsales.PointOfSaleDTO;
 import it.gov.pagopa.merchant.exception.custom.PosValidationException;
 import it.gov.pagopa.merchant.utils.Utilities;
@@ -26,7 +27,8 @@ public class PointOfSaleValidator {
     private final Validator validator;
 
     private static final String REGEX_PHONE = "^\\+?\\d{7,15}$";
-    private static final String REGEX_LINK = "^https:\\/\\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}(?:\\/[^\\s]*)?$";
+    // Keep aligned with idpay-portal-merchants-frontend (config.json, regex.url).
+    private static final String REGEX_LINK = "^https:\\/\\/(?![wW]{3}\\.[a-zA-Z0-9-]+(?:\\/|$))(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}(?:\\/[^\\s]*)?$";
     private static final String REGEX_EMAIL = "^(?=.{1,255}$)[A-Za-z0-9]([A-Za-z0-9+_-]*(\\.[A-Za-z0-9+_-]+)*)?@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$";
 
     private final int posDefaultMaxSizeRequest;
@@ -53,6 +55,20 @@ public class PointOfSaleValidator {
         }
         log.debug("[POS-VALIDATION] Received {} PointOfSale entries to validate", pointOfSaleDTOS.size());
 
+    }
+
+    /**
+     * Creation flow only: channel fields are physical-only and are not persisted for ONLINE
+     * points of sale (see PointOfSaleDTOMapper#dtoToEntity), so stale values must not block creation.
+     */
+    public void discardPhysicalOnlyChannelsForOnline(List<PointOfSaleDTO> pointOfSaleDTOS) {
+        pointOfSaleDTOS.stream()
+                .filter(dto -> dto.getType() == PointOfSaleTypeEnum.ONLINE)
+                .forEach(dto -> {
+                    dto.setChannelEmail(null);
+                    dto.setChannelPhone(null);
+                    dto.setChannelGeolink(null);
+                });
     }
 
     public void validateViolationsPointOfSales(List<PointOfSaleDTO> pointOfSaleDTOS) {

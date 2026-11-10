@@ -284,4 +284,13 @@ public interface PointOfSaleController {
             @RequestBody List<String> pointOfSaleIds
     );
 
+    @PutMapping("/{merchantId}/point-of-sales/{pointOfSaleId}")
+    ResponseEntity<PointOfSaleDTO> updatePointOfSale(
+            @PathVariable("merchantId") String merchantId,
+            @PathVariable("pointOfSaleId") String pointOfSaleId,
+            @RequestHeader(name = "x-merchant-id", required = false)
+            String tokenMerchantId,
+            @Valid @RequestBody PointOfSaleUpdateDTO pointOfSaleUpdateDTO
+    );
+
 }
