@@ -21,7 +21,9 @@ import java.util.regex.Pattern;
 public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryExtended {
 
     // info is stored apart from address; a trailing token with a digit is treated as streetNumber
-    private static final Pattern STREET_NUMBER_PATTERN = Pattern.compile(".*\\d.*");
+    private static final Pattern STREET_NUMBER_PATTERN = Pattern.compile("\\d");
+    //max 18 digits so the value always fits a long
+    private static final Pattern NUMERIC_STREET_NUMBER_PATTERN = Pattern.compile("\\d{1,18}");
 
     private final MongoTemplate mongoTemplate;
 
@@ -141,7 +143,7 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         }
 
         String streetNumberPart = tokens[tokens.length - 1];
-        if (!STREET_NUMBER_PATTERN.matcher(streetNumberPart).matches()) {
+        if (!STREET_NUMBER_PATTERN.matcher(streetNumberPart).find()) {
             return null;
         }
 
@@ -151,12 +153,24 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
         }
 
         Pattern streetPattern = Pattern.compile(Pattern.quote(streetPart), Pattern.CASE_INSENSITIVE);
-        Pattern streetNumberPattern = Pattern.compile(Pattern.quote(streetNumberPart), Pattern.CASE_INSENSITIVE);
 
         return new Criteria().andOperator(
                 Criteria.where(PointOfSale.Fields.address).regex(streetPattern),
-                Criteria.where(PointOfSale.Fields.streetNumber).regex(streetNumberPattern)
+                buildStreetNumberCriteria(streetNumberPart)
         );
+    }
+
+    private Criteria buildStreetNumberCriteria(String streetNumberPart){
+        Pattern streetNumberPattern = Pattern.compile(Pattern.quote(streetNumberPart), Pattern.CASE_INSENSITIVE);
+        Criteria textMatch = Criteria.where(PointOfSale.Fields.streetNumber).regex(streetNumberPattern);
+
+        if (!NUMERIC_STREET_NUMBER_PATTERN.matcher(streetNumberPart).matches()) {
+            return textMatch;
+        }
+
+        // some documents store streetNumber as a BSON number, which $regex never matches
+        Criteria numericMatch = Criteria.where(PointOfSale.Fields.streetNumber).is(Long.valueOf(streetNumberPart));
+        return new Criteria().orOperator(textMatch, numericMatch);
     }
 
     @Override
