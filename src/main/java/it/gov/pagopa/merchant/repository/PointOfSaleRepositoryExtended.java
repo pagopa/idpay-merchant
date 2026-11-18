@@ -14,4 +14,5 @@ public interface PointOfSaleRepositoryExtended {
     Criteria getCriteriaExcludingPointOfSaleIds(String merchantId, List<String> pointOfSaleIds, String type, String city, String address, String contactName);
     long getCount(Criteria criteria);
     Optional<PointOfSale> findDuplicate(PointOfSale pointOfSale);
+    Optional<PointOfSale> findDuplicateExcludingId(PointOfSale pointOfSale, String excludedPointOfSaleId);
 }

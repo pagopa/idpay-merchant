@@ -119,6 +119,23 @@ class PointOfSaleControllerImplTest {
   }
 
   @Test
+  void savePointOfSales_discardsPhysicalOnlyChannelsBeforeValidation() throws Exception {
+    PointOfSaleDTO pointOfSaleDTO = PointOfSaleDTOFaker.mockInstance();
+
+    mockMvc.perform(
+            MockMvcRequestBuilders.post(BASE_URL + "/" + MERCHANT_ID + "/initiatives/" +  INITIATIVE_ID + "/point-of-sales")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(List.of(pointOfSaleDTO))))
+        .andExpect(status().isNoContent());
+
+    org.mockito.InOrder inOrder = org.mockito.Mockito.inOrder(validator, pointOfSaleWriterMock);
+    inOrder.verify(validator).validatePointOfSales(anyList());
+    inOrder.verify(validator).discardPhysicalOnlyChannelsForOnline(anyList());
+    inOrder.verify(validator).validateViolationsPointOfSales(anyList());
+    inOrder.verify(pointOfSaleWriterMock).savePointOfSales(anyString(), anyString(), anyList());
+  }
+
+  @Test
   void getPointOfSalesListOK() throws Exception {
     PointOfSale pointOfSale = PointOfSaleFaker.mockInstance();
     PageRequest pageRequest = PageRequest.of(0, 10);
@@ -701,6 +718,84 @@ class PointOfSaleControllerImplTest {
             .andExpect(status().isForbidden());
 
     verify(pointOfSaleWriterMock, never()).excludePointsOfSales(any(), any(), any());
+  }
+
+  @Test
+  void updatePointOfSale_shouldReturnUpdatedPointOfSale() throws Exception {
+    String pointOfSaleId = "POS_ID";
+    PointOfSaleUpdateDTO request = PointOfSaleUpdateDTO.builder()
+            .region("Lombardia")
+            .province("MI")
+            .city("Milano")
+            .zipCode("20121")
+            .address("Via Roma")
+            .streetNumber("10")
+            .website("https://shop.example.com")
+            .channelEmail("store@example.com")
+            .channelPhone("+39021234567")
+            .channelGeolink("https://maps.example.com/shop")
+            .build();
+    PointOfSaleDTO response = PointOfSaleDTO.builder()
+            .id(pointOfSaleId)
+            .address("Via Roma")
+            .website("https://shop.example.com")
+            .build();
+
+    when(pointOfSaleWriterMock.updatePointOfSale(
+            eq(MERCHANT_ID),
+            eq(pointOfSaleId),
+            any(PointOfSaleUpdateDTO.class)))
+            .thenReturn(response);
+
+    mockMvc.perform(MockMvcRequestBuilders.put(
+                    BASE_URL + "/{merchantId}/point-of-sales/{pointOfSaleId}",
+                    MERCHANT_ID,
+                    pointOfSaleId)
+            .header("x-merchant-id", MERCHANT_ID)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(pointOfSaleId))
+            .andExpect(jsonPath("$.address").value("Via Roma"))
+            .andExpect(jsonPath("$.website").value("https://shop.example.com"));
+
+    ArgumentCaptor<PointOfSaleUpdateDTO> requestCaptor =
+            ArgumentCaptor.forClass(PointOfSaleUpdateDTO.class);
+    verify(pointOfSaleWriterMock).updatePointOfSale(
+            eq(MERCHANT_ID),
+            eq(pointOfSaleId),
+            requestCaptor.capture());
+    assertEquals(request.getAddress(), requestCaptor.getValue().getAddress());
+    assertEquals(request.getChannelPhone(), requestCaptor.getValue().getChannelPhone());
+  }
+
+  @Test
+  void updatePointOfSale_withDifferentMerchantHeader_shouldReturnForbidden() throws Exception {
+    PointOfSaleUpdateDTO request = PointOfSaleUpdateDTO.builder()
+            .region("Lombardia")
+            .province("MI")
+            .city("Milano")
+            .zipCode("20121")
+            .address("Via Roma")
+            .streetNumber("10")
+            .build();
+
+    mockMvc.perform(MockMvcRequestBuilders.put(
+                    BASE_URL + "/{merchantId}/point-of-sales/{pointOfSaleId}",
+                    MERCHANT_ID,
+                    "POS_ID")
+            .header("x-merchant-id", "OTHER_MERCHANT")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isForbidden())
+            .andExpect(result -> Assertions.assertInstanceOf(
+                    MerchantNotAllowedException.class,
+                    result.getResolvedException()));
+
+    verify(pointOfSaleWriterMock, never())
+            .updatePointOfSale(anyString(), anyString(), any(PointOfSaleUpdateDTO.class));
   }
 }
 

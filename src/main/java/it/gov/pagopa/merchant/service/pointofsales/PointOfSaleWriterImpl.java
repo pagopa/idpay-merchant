@@ -10,9 +10,7 @@ import it.gov.pagopa.merchant.dto.enums.PointOfSaleTypeEnum;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingExclusionRejectionReason;
 import it.gov.pagopa.merchant.dto.enums.PosOnbordingRejectionReason;
 import it.gov.pagopa.merchant.dto.pointofsales.*;
-import it.gov.pagopa.merchant.exception.custom.InitiativeNotValidException;
-import it.gov.pagopa.merchant.exception.custom.MerchantNotAllowedException;
-import it.gov.pagopa.merchant.exception.custom.PosValidationException;
+import it.gov.pagopa.merchant.exception.custom.*;
 import it.gov.pagopa.merchant.mapper.PointOfSaleDTOMapper;
 import it.gov.pagopa.merchant.model.Initiative;
 import it.gov.pagopa.merchant.model.Merchant;
@@ -22,6 +20,7 @@ import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.KeycloakService;
 import it.gov.pagopa.merchant.service.MerchantService;
+import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -50,6 +49,7 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
   private final PointOfSaleDTOMapper mapper;
   private final PointOfSalesInitiativeRepository pointOfSalesInitiativeRepository;
   private final TransactionConnector transactionConnector;
+  private final PointOfSaleValidator pointOfSaleValidator;
   private final PaymentConnector paymentConnector;
 
   private static final String ERROR_MERCHANT_NOT_ONBOARDED = "Merchant with id %s not onboarded on initiative %s";
@@ -424,7 +424,58 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
             .build();
   }
 
-  private void validateMerchantInitiative(String merchantId, String initiativeId, LocalDate currentDate) {
+    @Override
+    public PointOfSaleDTO updatePointOfSale(String merchantId, String pointOfSaleId, PointOfSaleUpdateDTO pointOfSaleUpdateDTO) {
+      PointOfSale existingPointOfSale = pointOfSaleRepository
+              .findByIdAndMerchantId(pointOfSaleId, merchantId)
+              .orElseThrow(() -> new PointOfSaleNotFoundException(
+                      String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
+              ));
+      applyUpdate(existingPointOfSale, pointOfSaleUpdateDTO);
+
+      PointOfSaleDTO updatedPointOfSaleDTO =
+              mapper.entityToDto(existingPointOfSale);
+      pointOfSaleValidator.validateViolationsPointOfSales(
+              List.of(updatedPointOfSaleDTO)
+      );
+        existingPointOfSale.setWebsite(updatedPointOfSaleDTO.getWebsite());
+        existingPointOfSale.setChannelGeolink(updatedPointOfSaleDTO.getChannelGeolink());
+
+        pointOfSaleRepository.findDuplicateExcludingId(existingPointOfSale, pointOfSaleId)
+                .ifPresent(duplicate -> {
+                    throw new PointOfSaleDuplicateException(
+                            PointOfSaleConstants.MSG_ALREADY_REGISTERED
+                    );
+                });
+
+        PointOfSale savedPointOfSale;
+
+        try {
+            savedPointOfSale = pointOfSaleRepository.save(existingPointOfSale);
+        } catch (DuplicateKeyException _) {
+            throw new PointOfSaleDuplicateException(
+                    PointOfSaleConstants.MSG_ALREADY_REGISTERED
+            );
+        }
+        return mapper.entityToDto(savedPointOfSale);
+    }
+
+    private void applyUpdate(PointOfSale existingPointOfSale, PointOfSaleUpdateDTO updateDTO) {
+      existingPointOfSale.setWebsite(updateDTO.getWebsite());
+      existingPointOfSale.setChannelEmail(updateDTO.getChannelEmail());
+      existingPointOfSale.setChannelPhone(updateDTO.getChannelPhone());
+      existingPointOfSale.setChannelGeolink(updateDTO.getChannelGeolink());
+      if (PointOfSaleTypeEnum.PHYSICAL.name().equals(existingPointOfSale.getType())) {
+          existingPointOfSale.setRegion(updateDTO.getRegion());
+          existingPointOfSale.setProvince(updateDTO.getProvince());
+          existingPointOfSale.setCity(updateDTO.getCity());
+          existingPointOfSale.setAddress(updateDTO.getAddress());
+          existingPointOfSale.setStreetNumber(updateDTO.getStreetNumber());
+          existingPointOfSale.setZipCode(updateDTO.getZipCode());
+      }
+    }
+
+    private void validateMerchantInitiative(String merchantId, String initiativeId, LocalDate currentDate) {
     Merchant merchant = merchantService.getMerchantByMerchantId(merchantId);
 
     Initiative initiative = merchant.getInitiativeList().stream()
