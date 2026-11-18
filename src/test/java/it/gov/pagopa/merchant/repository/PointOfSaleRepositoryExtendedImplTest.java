@@ -26,6 +26,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -253,7 +254,19 @@ class PointOfSaleRepositoryExtendedImplTest {
     Query query = captureQuery().getValue();
     Document q = query.getQueryObject();
 
-    assertEquals("https://example.com", q.get(PointOfSale.Fields.website));
+    assertEquals("ONLINE", q.get(PointOfSale.Fields.type));
+    assertFalse(q.containsKey(PointOfSale.Fields.merchantId));
+    assertFalse(q.containsKey(PointOfSale.Fields.franchiseName));
+
+    Pattern websitePattern = assertInstanceOf(
+            Pattern.class,
+            q.get(PointOfSale.Fields.website)
+    );
+    assertTrue(websitePattern.matcher("https://example.com").find());
+    assertTrue(websitePattern.matcher("http://www.EXAMPLE.com:8080/path?q=1#section").find());
+    assertTrue(websitePattern.matcher("https://example.com.").find());
+    assertFalse(websitePattern.matcher("https://shop.example.com").find());
+    assertFalse(websitePattern.matcher("https://example.com.evil.it").find());
     assertFalse(q.containsKey(PointOfSale.Fields.address));
   }
 
