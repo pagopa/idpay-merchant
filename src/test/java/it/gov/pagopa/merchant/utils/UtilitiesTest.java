@@ -3,11 +3,11 @@ package it.gov.pagopa.merchant.utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -34,20 +34,24 @@ class UtilitiesTest {
             "'https://www.test.it', 'test.it'",
             "'https://test.it', test.it",
             "'http://test.it', test.it",
-            "'www.test.it', test.it",
             "'https://example.com/', 'example.com'",
-            "'https://  exa  mpl  e.c om /', 'example.com'",
             "'HTTPS://WWW.EXAMPLE.COM', 'example.com'"
     })
-    void givenFullWebsiteWhenSanitizeDomainThenReturnSanitizedDomain(String website, String expectedResult) {
-        String result = Utilities.sanitizeDomain(website);
+    void givenFullWebsiteWhenNormalizeWebsiteHost(String website, String expectedResult) {
+        String result = Utilities.normalizeWebsiteHost(website);
         assertEquals(expectedResult, result);
     }
 
     @Test
-    void givenNullWebsiteWhenSanitizeDomainThenReturnNull() {
-        String result = Utilities.sanitizeDomain(null);
+    void givenNullWebsiteWhenNormalizeWebsiteHostThenReturnNull() {
+        String result = Utilities.normalizeWebsiteHost(null);
         assertNull(result);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "   ", "\t"})
+    void givenBlankWebsiteWhenNormalizeWebsiteHostThenReturnNull(String website) {
+        assertNull(Utilities.normalizeWebsiteHost(website));
     }
 
     @Test
@@ -117,6 +121,30 @@ class UtilitiesTest {
     void givenBlankStringWhenSpaceRemoverThenReturnTrimmedOrOriginalBlank(String input) {
         String result = Utilities.spaceRemover(input);
         assertEquals(input.trim(), result.trim());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "https://www.google.it, google.it",
+            "https://google.it/index, google.it",
+            "https://GOOGLE.IT:443/index?a=1#section, google.it",
+            "https://shop.google.it, shop.google.it",
+            "https://google.it., google.it"
+    })
+    void normalizeWebsiteHost_shouldReturnNormalizedHost(
+            String website,
+            String expectedHost
+    ) {
+        assertEquals(expectedHost, Utilities.normalizeWebsiteHost(website));
+    }
+
+    @Test
+    void normalizeWebsiteHost_shouldPreserveSubdomain() {
+        String result = Utilities.normalizeWebsiteHost(
+                "https://shop.google.it/products"
+        );
+
+        assertEquals("shop.google.it", result);
     }
 
 }

@@ -20,6 +20,7 @@ import it.gov.pagopa.merchant.repository.PointOfSaleRepository;
 import it.gov.pagopa.merchant.repository.PointOfSalesInitiativeRepository;
 import it.gov.pagopa.merchant.service.KeycloakService;
 import it.gov.pagopa.merchant.service.MerchantService;
+import it.gov.pagopa.merchant.utils.Utilities;
 import it.gov.pagopa.merchant.utils.validator.PointOfSaleValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -159,14 +160,22 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
                                          PointOfSale existing,
                                          boolean sameInitiative) {
 
+    if (dto.getType() == PointOfSaleTypeEnum.ONLINE) {
+      return ValidationErrorDetail.builder()
+              .index(index)
+              .field("website")
+              .value(dto.getWebsite())
+              .code(PointOfSaleConstants.CODE_ONLINE_POS_ALREADY_REGISTERED)
+              .message("URL already registered")
+              .build();
+    }
+
     if (sameInitiative) {
       return ValidationErrorDetail.builder()
               .index(index)
-              .field(dto.getType() == PointOfSaleTypeEnum.ONLINE ? "website" : "address")
-              .value(dto.getType() == PointOfSaleTypeEnum.ONLINE ? dto.getWebsite() : dto.getAddress())
-              .code(dto.getType() == PointOfSaleTypeEnum.ONLINE
-                      ? PointOfSaleConstants.CODE_ONLINE_POS_ALREADY_REGISTERED
-                      : PointOfSaleConstants.CODE_PHYSICAL_POS_ALREADY_REGISTERED)
+              .field("address")
+              .value(dto.getAddress())
+              .code(PointOfSaleConstants.CODE_PHYSICAL_POS_ALREADY_REGISTERED)
               .message("POS already registered on this initiative")
               .build();
     }
@@ -431,6 +440,11 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
               .orElseThrow(() -> new PointOfSaleNotFoundException(
                       String.format(PointOfSaleConstants.MSG_NOT_FOUND, pointOfSaleId)
               ));
+      boolean isOnline = PointOfSaleTypeEnum.ONLINE.name().equals(existingPointOfSale.getType());
+      String originalWebsiteHost = isOnline
+              ? Utilities.normalizeWebsiteHost(existingPointOfSale.getWebsite())
+              : null;
+
       applyUpdate(existingPointOfSale, pointOfSaleUpdateDTO);
 
       PointOfSaleDTO updatedPointOfSaleDTO =
@@ -441,12 +455,20 @@ public class PointOfSaleWriterImpl implements PointOfSaleWriter {
         existingPointOfSale.setWebsite(updatedPointOfSaleDTO.getWebsite());
         existingPointOfSale.setChannelGeolink(updatedPointOfSaleDTO.getChannelGeolink());
 
-        pointOfSaleRepository.findDuplicateExcludingId(existingPointOfSale, pointOfSaleId)
-                .ifPresent(duplicate -> {
-                    throw new PointOfSaleDuplicateException(
-                            PointOfSaleConstants.MSG_ALREADY_REGISTERED
-                    );
-                });
+        String updatedWebsiteHost = isOnline
+                ? Utilities.normalizeWebsiteHost(existingPointOfSale.getWebsite())
+                : null;
+        boolean duplicateCheckRequired = !isOnline
+                || !Objects.equals(originalWebsiteHost, updatedWebsiteHost);
+
+        if (duplicateCheckRequired) {
+            pointOfSaleRepository.findDuplicateExcludingId(existingPointOfSale, pointOfSaleId)
+                    .ifPresent(duplicate -> {
+                        throw new PointOfSaleDuplicateException(
+                                PointOfSaleConstants.MSG_ALREADY_REGISTERED
+                        );
+                    });
+        }
 
         PointOfSale savedPointOfSale;
 
