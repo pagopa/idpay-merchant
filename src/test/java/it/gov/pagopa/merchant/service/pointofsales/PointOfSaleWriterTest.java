@@ -237,9 +237,10 @@ class PointOfSaleWriterTest {
                         entity.getId(), I, M))
                 .thenReturn(Optional.empty());
 
+        List<PointOfSaleDTO> pointOfSales = List.of(dto);
         PosValidationException exception = assertThrows(
                 PosValidationException.class,
-                () -> service.savePointOfSales(M, I, List.of(dto))
+                () -> service.savePointOfSales(M, I, pointOfSales)
         );
 
         assertTrue(exception.getErrors().stream().anyMatch(error ->

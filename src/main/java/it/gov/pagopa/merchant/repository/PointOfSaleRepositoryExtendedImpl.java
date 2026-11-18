@@ -174,7 +174,7 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
             PointOfSale pointOfSale,
             String excludedPointOfSaleId
     ) {
-        Criteria criteria = new Criteria();
+        Criteria criteria;
 
         if ("PHYSICAL".equals(pointOfSale.getType())) {
             criteria = Criteria.where(PointOfSale.Fields.franchiseName).is(pointOfSale.getFranchiseName())
