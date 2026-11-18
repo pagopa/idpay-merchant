@@ -193,6 +193,8 @@ class PointOfSaleValidatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
+            "http://www.example.it",
+            "http://example.it/negozio",
             "https://www.example.it",
             "https://www.example.it/negozio",
             "https://www.example-shop.com",
@@ -233,6 +235,16 @@ class PointOfSaleValidatorTest {
     void validateViolationsPointOfSales_channelGeolinkWithWwwAndTopLevelDomain_ok() {
         PointOfSaleDTO pointOfSale = buildValidOnlinePointOfSale();
         pointOfSale.setChannelGeolink("https://www.google.com/maps/place/Roma");
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSale);
+
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
+
+    @Test
+    void validateViolationsPointOfSales_httpChannelGeolink_ok() {
+        PointOfSaleDTO pointOfSale = buildValidOnlinePointOfSale();
+        pointOfSale.setChannelGeolink("http://www.google.com/maps/place/Roma");
 
         List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSale);
 

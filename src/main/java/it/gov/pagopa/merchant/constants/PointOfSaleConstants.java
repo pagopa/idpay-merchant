@@ -40,7 +40,7 @@ public final class PointOfSaleConstants {
 
     // ===WEBSITE===
     public static final String CODE_INVALID_WEBSITE = CODE_INVALID_URL;
-    public static final String MSG_INVALID_WEBSITE = "Website must be a valid HTTPS URL.";
+    public static final String MSG_INVALID_WEBSITE = "Website must be a valid HTTP or HTTPS URL.";
 
     // ===MOBILE===
     public static final String CODE_INVALID_MOBILE = CODE_INVALID_FORMAT;
