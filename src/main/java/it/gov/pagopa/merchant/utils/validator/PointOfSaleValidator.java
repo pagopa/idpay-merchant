@@ -166,11 +166,10 @@ public class PointOfSaleValidator {
 
     private void checkDuplicateOnline(PointOfSaleDTO pos, int index,  Set<String> seen,  List<ValidationErrorDetail> errors) {
                 String key = pos.getType()
-                + "|" + Utilities.sanitizeDomain(pos.getWebsite())
-                + "|" + Utilities.normalizeFranchiseName(pos.getFranchiseName());
+                + "|" + Utilities.normalizeWebsiteHost(pos.getWebsite());
 
         if (!seen.add(key)) {
-            errors.add(buildError(index, "type|website|franchiseName", key,
+            errors.add(buildError(index, "website", pos.getWebsite(),
                     PointOfSaleConstants.CODE_ALREADY_REGISTERED,
                     "Duplicate online point of sale in request"));
         }

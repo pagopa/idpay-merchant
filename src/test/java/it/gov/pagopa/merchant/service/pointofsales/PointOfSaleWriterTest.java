@@ -221,6 +221,36 @@ class PointOfSaleWriterTest {
     }
 
     @Test
+    void shouldFail_whenOnlinePosAlreadyRegisteredWithoutExposingExistingId() {
+        PointOfSaleDTO dto = dto();
+        dto.setType(PointOfSaleTypeEnum.ONLINE);
+        dto.setWebsite("https://www.example.it/path");
+        PointOfSale entity = entity("SECRET-POS-ID");
+
+        when(merchantService.getMerchantByMerchantId(M))
+                .thenReturn(buildMerchant(true, false));
+        when(mapper.dtoToEntity(dto, M)).thenReturn(entity);
+        when(repository.findByContactEmail(any())).thenReturn(Optional.empty());
+        when(repository.findDuplicate(entity)).thenReturn(Optional.of(entity));
+        when(initiativeRepository
+                .findByPointOfSaleIdAndInitiativeIdAndMerchantIdAndEnabledTrue(
+                        entity.getId(), I, M))
+                .thenReturn(Optional.empty());
+
+        PosValidationException exception = assertThrows(
+                PosValidationException.class,
+                () -> service.savePointOfSales(M, I, List.of(dto))
+        );
+
+        assertTrue(exception.getErrors().stream().anyMatch(error ->
+                PointOfSaleConstants.CODE_ONLINE_POS_ALREADY_REGISTERED.equals(error.getCode())
+                        && "website".equals(error.getField())
+                        && dto.getWebsite().equals(error.getValue())));
+        assertTrue(exception.getErrors().stream()
+                .noneMatch(error -> "SECRET-POS-ID".equals(error.getValue())));
+    }
+
+    @Test
     void shouldReturnMultipleErrors () {
         PointOfSaleDTO dto1 = dto();
         PointOfSaleDTO dto2 = dto();
@@ -457,6 +487,61 @@ class PointOfSaleWriterTest {
         // Update flow must keep validating channels for ONLINE POS (no creation-only cleanup).
         verify(pointOfSaleValidator).validateViolationsPointOfSales(List.of(mapped));
         verify(pointOfSaleValidator, never()).discardPhysicalOnlyChannelsForOnline(anyList());
+    }
+
+    @Test
+    void updatePointOfSale_onlineWithSameHost_shouldSkipDuplicateCheck() {
+        String pointOfSaleId = "P1";
+        PointOfSale existing = PointOfSale.builder()
+                .id(pointOfSaleId)
+                .merchantId(M)
+                .type(PointOfSaleTypeEnum.ONLINE.name())
+                .website("https://www.shop.example.com/old-path")
+                .build();
+        PointOfSaleUpdateDTO request = physicalUpdateRequest();
+        PointOfSaleDTO mapped = mappedUpdatedDto(
+                PointOfSaleTypeEnum.ONLINE,
+                "https://shop.example.com/new-path?q=1",
+                "https://maps.example.com/shop");
+
+        when(repository.findByIdAndMerchantId(pointOfSaleId, M))
+                .thenReturn(Optional.of(existing));
+        when(mapper.entityToDto(existing)).thenReturn(mapped);
+        when(repository.save(existing)).thenReturn(existing);
+
+        PointOfSaleDTO result = service.updatePointOfSale(M, pointOfSaleId, request);
+
+        assertSame(mapped, result);
+        verify(repository, never()).findDuplicateExcludingId(any(), anyString());
+        verify(repository).save(existing);
+    }
+
+    @Test
+    void updatePointOfSale_onlineWithDifferentHost_shouldRejectDuplicate() {
+        String pointOfSaleId = "P1";
+        PointOfSale existing = PointOfSale.builder()
+                .id(pointOfSaleId)
+                .merchantId(M)
+                .type(PointOfSaleTypeEnum.ONLINE.name())
+                .website("https://old.example.com")
+                .build();
+        PointOfSaleUpdateDTO request = physicalUpdateRequest();
+        PointOfSaleDTO mapped = mappedUpdatedDto(
+                PointOfSaleTypeEnum.ONLINE,
+                "https://new.example.com/path",
+                "https://maps.example.com/shop");
+
+        when(repository.findByIdAndMerchantId(pointOfSaleId, M))
+                .thenReturn(Optional.of(existing));
+        when(mapper.entityToDto(existing)).thenReturn(mapped);
+        when(repository.findDuplicateExcludingId(existing, pointOfSaleId))
+                .thenReturn(Optional.of(PointOfSale.builder().id("P2").build()));
+
+        assertThrows(PointOfSaleDuplicateException.class,
+                () -> service.updatePointOfSale(M, pointOfSaleId, request));
+
+        verify(repository).findDuplicateExcludingId(existing, pointOfSaleId);
+        verify(repository, never()).save(any());
     }
 
     @Test

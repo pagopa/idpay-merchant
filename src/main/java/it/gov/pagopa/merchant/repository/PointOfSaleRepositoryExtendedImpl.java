@@ -1,6 +1,7 @@
 package it.gov.pagopa.merchant.repository;
 
 import it.gov.pagopa.merchant.model.PointOfSale;
+import it.gov.pagopa.merchant.utils.Utilities;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.data.domain.Pageable;
@@ -173,16 +174,27 @@ public class PointOfSaleRepositoryExtendedImpl implements PointOfSaleRepositoryE
             PointOfSale pointOfSale,
             String excludedPointOfSaleId
     ) {
-        Criteria criteria = Criteria.where(PointOfSale.Fields.franchiseName).is(pointOfSale.getFranchiseName())
-                .and(PointOfSale.Fields.type).is(pointOfSale.getType());
+        Criteria criteria = new Criteria();
 
-        if ("ONLINE".equals(pointOfSale.getType())) {
-            criteria.and(PointOfSale.Fields.website).is(pointOfSale.getWebsite());
-        } else {
-            criteria.and(PointOfSale.Fields.address).is(pointOfSale.getAddress())
+        if ("PHYSICAL".equals(pointOfSale.getType())) {
+            criteria = Criteria.where(PointOfSale.Fields.franchiseName).is(pointOfSale.getFranchiseName())
+                    .and(PointOfSale.Fields.type).is(pointOfSale.getType())
+                    .and(PointOfSale.Fields.address).is(pointOfSale.getAddress())
                     .and(PointOfSale.Fields.streetNumber).is(pointOfSale.getStreetNumber())
                     .and(PointOfSale.Fields.city).is(pointOfSale.getCity());
+        } else {
+            String normalizedHost = Utilities.normalizeWebsiteHost(pointOfSale.getWebsite());
+            Pattern websitePattern = Pattern.compile(
+                    "^https?://(?:www\\.)?"
+                            + Pattern.quote(normalizedHost)
+                            + "\\.?(?=[:/?#]|$)",
+                    Pattern.CASE_INSENSITIVE
+            );
+
+            criteria = Criteria.where(PointOfSale.Fields.type).is("ONLINE")
+                    .and(PointOfSale.Fields.website).regex(websitePattern);
         }
+
         if (StringUtils.isNotBlank(excludedPointOfSaleId)) {
             criteria.and("_id").ne(excludedPointOfSaleId);
         }
