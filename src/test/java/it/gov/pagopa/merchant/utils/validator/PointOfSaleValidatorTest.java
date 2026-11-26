@@ -193,6 +193,8 @@ class PointOfSaleValidatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
+            "http://www.example.it",
+            "http://example.it/negozio",
             "https://www.example.it",
             "https://www.example.it/negozio",
             "https://www.example-shop.com",
@@ -233,6 +235,16 @@ class PointOfSaleValidatorTest {
     void validateViolationsPointOfSales_channelGeolinkWithWwwAndTopLevelDomain_ok() {
         PointOfSaleDTO pointOfSale = buildValidOnlinePointOfSale();
         pointOfSale.setChannelGeolink("https://www.google.com/maps/place/Roma");
+
+        List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSale);
+
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(pointOfSaleDTOS));
+    }
+
+    @Test
+    void validateViolationsPointOfSales_httpChannelGeolink_ok() {
+        PointOfSaleDTO pointOfSale = buildValidOnlinePointOfSale();
+        pointOfSale.setChannelGeolink("http://www.google.com/maps/place/Roma");
 
         List<PointOfSaleDTO> pointOfSaleDTOS = List.of(pointOfSale);
 
@@ -304,7 +316,51 @@ class PointOfSaleValidatorTest {
 
         List<PointOfSaleDTO> list = new ArrayList<>(List.of(pos1, pos2));
 
-        assertDoesNotThrow(() -> pointOfSaleValidator.validatePointOfSales(list));
+        PosValidationException exception = assertThrows(PosValidationException.class,
+                () -> pointOfSaleValidator.validateViolationsPointOfSales(list));
+
+        assertEquals("Validation failed for one or more point of sales", exception.getMessage());
+    }
+
+    @Test
+    void validateDuplicates_onlinePOSSameHostDifferentPath_throwsPosValidationException() {
+        PointOfSaleDTO pos1 = PointOfSaleDTOFaker.mockInstance();
+        pos1.setType(PointOfSaleTypeEnum.ONLINE);
+        pos1.setContactEmail("unique1@email.it");
+        pos1.setFranchiseName("FranchiseA");
+        pos1.setWebsite("https://www.google.it");
+
+        PointOfSaleDTO pos2 = PointOfSaleDTOFaker.mockInstance();
+        pos2.setType(PointOfSaleTypeEnum.ONLINE);
+        pos2.setContactEmail("unique2@email.it");
+        pos2.setFranchiseName("FranchiseB");
+        pos2.setWebsite("https://google.it/index?q=test");
+
+        List<PointOfSaleDTO> list = new ArrayList<>(List.of(pos1, pos2));
+        pointOfSaleValidator.discardPhysicalOnlyChannelsForOnline(list);
+
+        PosValidationException exception = assertThrows(PosValidationException.class,
+                () -> pointOfSaleValidator.validateViolationsPointOfSales(list));
+
+        assertEquals("Validation failed for one or more point of sales", exception.getMessage());
+    }
+
+    @Test
+    void validateDuplicates_onlinePOSDifferentSubdomains_ok() {
+        PointOfSaleDTO pos1 = PointOfSaleDTOFaker.mockInstance();
+        pos1.setType(PointOfSaleTypeEnum.ONLINE);
+        pos1.setContactEmail("unique1@email.it");
+        pos1.setWebsite("https://shop1.example.it");
+
+        PointOfSaleDTO pos2 = PointOfSaleDTOFaker.mockInstance();
+        pos2.setType(PointOfSaleTypeEnum.ONLINE);
+        pos2.setContactEmail("unique2@email.it");
+        pos2.setWebsite("https://shop2.example.it");
+
+        List<PointOfSaleDTO> list = new ArrayList<>(List.of(pos1, pos2));
+        pointOfSaleValidator.discardPhysicalOnlyChannelsForOnline(list);
+
+        assertDoesNotThrow(() -> pointOfSaleValidator.validateViolationsPointOfSales(list));
     }
 
     @Test
@@ -415,6 +471,7 @@ class PointOfSaleValidatorTest {
         PointOfSaleDTO pos1 = PointOfSaleDTOFaker.mockInstance();
         pos1.setType(PointOfSaleTypeEnum.ONLINE);
         pos1.setContactEmail("unique1@email.it");
+        pos1.setWebsite("https://example.it");
 
         PointOfSaleDTO pos2 = PointOfSaleDTOFaker.mockInstance();
         pos2.setType(PointOfSaleTypeEnum.ONLINE);
@@ -423,6 +480,7 @@ class PointOfSaleValidatorTest {
         pos2.setFranchiseName(pos1.getFranchiseName());
 
         List<PointOfSaleDTO> list = new ArrayList<>(List.of(pos1, pos2));
+        pointOfSaleValidator.discardPhysicalOnlyChannelsForOnline(list);
 
         PosValidationException exception = assertThrows(PosValidationException.class,
                 () -> pointOfSaleValidator.validateViolationsPointOfSales(list));
@@ -431,11 +489,12 @@ class PointOfSaleValidatorTest {
     }
 
     @Test
-    void validateDuplicates_onlinePOSSameWebsiteDifferentFranchise_ok() {
+    void validateDuplicates_onlinePOSSameWebsiteDifferentFranchise_throwsPosValidationException() {
         PointOfSaleDTO pos1 = PointOfSaleDTOFaker.mockInstance();
         pos1.setType(PointOfSaleTypeEnum.ONLINE);
         pos1.setContactEmail("unique1@email.it");
         pos1.setFranchiseName("FranchiseA");
+        pos1.setWebsite("https://example.it");
 
         PointOfSaleDTO pos2 = PointOfSaleDTOFaker.mockInstance();
         pos2.setType(PointOfSaleTypeEnum.ONLINE);
@@ -444,8 +503,10 @@ class PointOfSaleValidatorTest {
         pos2.setFranchiseName("FranchiseB");
 
         List<PointOfSaleDTO> list = new ArrayList<>(List.of(pos1, pos2));
+        pointOfSaleValidator.discardPhysicalOnlyChannelsForOnline(list);
 
-        assertDoesNotThrow(() -> pointOfSaleValidator.validatePointOfSales(list));
+        assertThrows(PosValidationException.class,
+                () -> pointOfSaleValidator.validateViolationsPointOfSales(list));
     }
 
     @Test
@@ -453,6 +514,7 @@ class PointOfSaleValidatorTest {
         PointOfSaleDTO pos1 = PointOfSaleDTOFaker.mockInstance();
         pos1.setType(PointOfSaleTypeEnum.ONLINE);
         pos1.setContactEmail("dup@email.it");
+        pos1.setWebsite("https://example.it");
 
         PointOfSaleDTO pos2 = PointOfSaleDTOFaker.mockInstance();
         pos2.setType(PointOfSaleTypeEnum.ONLINE);
@@ -461,6 +523,7 @@ class PointOfSaleValidatorTest {
         pos2.setFranchiseName(pos1.getFranchiseName());
 
         List<PointOfSaleDTO> list = new ArrayList<>(List.of(pos1, pos2));
+        pointOfSaleValidator.discardPhysicalOnlyChannelsForOnline(list);
 
         PosValidationException exception = assertThrows(PosValidationException.class,
                 () -> pointOfSaleValidator.validateViolationsPointOfSales(list));

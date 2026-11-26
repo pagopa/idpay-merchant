@@ -6,6 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.net.IDN;
+import java.net.URI;
+
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
@@ -37,13 +41,32 @@ public final class Utilities {
         return str.replaceAll("[\\r\\n]", "").replaceAll("[^\\w\\s-]", "");
     }
 
-    public static String sanitizeDomain(String url){
-        return StringUtils.isNotBlank(url) ? StringUtils.deleteWhitespace(url)
-                .toLowerCase()
-                .replace("https://", "")
-                .replace("http://", "")
-                .replace("www.", "")
-                .split("/")[0] : null;
+    public static String normalizeWebsiteHost(String url){
+        if (StringUtils.isBlank(url)) {
+            return null;
+        }
+        try {
+            URI uri = new URI(url.trim());
+            String host = uri.getHost();
+
+            if (host == null) {
+                throw new IllegalArgumentException("Website URL does not contain a valid host");
+            }
+
+            host = IDN.toASCII(host).toLowerCase(Locale.ROOT);
+
+            if (host.endsWith(".")) {
+                host = host.substring(0, host.length() - 1);
+            }
+
+            if (host.startsWith("www.")) {
+                host = host.substring(4);
+            }
+            return host;
+        } catch (URISyntaxException exception) {
+            throw new IllegalArgumentException("Website URL does not contain a valid host", exception);
+        }
+
     }
 
     public static String normalizeFranchiseName(String franchiseName) {
